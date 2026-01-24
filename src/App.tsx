@@ -2,24 +2,100 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AppProvider, useApp } from "@/context/AppContext";
+import { SplashScreen } from "@/pages/SplashScreen";
+import { OnboardingScreen } from "@/pages/OnboardingScreen";
+import { DashboardScreen } from "@/pages/DashboardScreen";
+import { AgoraScreen } from "@/pages/AgoraScreen";
+import { SwarmsScreen } from "@/pages/SwarmsScreen";
+import { ToolsScreen } from "@/pages/ToolsScreen";
+import { ProfileScreen } from "@/pages/ProfileScreen";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function AppRoutes() {
+  const { isOnboarded, user } = useApp();
+
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={
+          isOnboarded && user ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <SplashScreen />
+          )
+        }
+      />
+      <Route path="/onboarding" element={<OnboardingScreen />} />
+      <Route
+        path="/dashboard"
+        element={
+          isOnboarded && user ? (
+            <DashboardScreen />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/agora"
+        element={
+          isOnboarded && user ? (
+            <AgoraScreen />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/swarms"
+        element={
+          isOnboarded && user ? (
+            <SwarmsScreen />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/tools"
+        element={
+          isOnboarded && user ? (
+            <ToolsScreen />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          isOnboarded && user ? (
+            <ProfileScreen />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AppProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AppProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
