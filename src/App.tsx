@@ -7,6 +7,7 @@ import { AppProvider, useApp } from "@/context/AppContext";
 import { SplashScreen } from "@/pages/SplashScreen";
 import { OnboardingScreen } from "@/pages/OnboardingScreen";
 import { LoginScreen } from "@/pages/LoginScreen";
+import { SignupScreen } from "@/pages/SignupScreen";
 import { DashboardScreen } from "@/pages/DashboardScreen";
 import { AgoraScreen } from "@/pages/AgoraScreen";
 import { SwarmsScreen } from "@/pages/SwarmsScreen";
@@ -33,6 +34,7 @@ function AppRoutes() {
       />
       <Route path="/onboarding" element={<OnboardingScreen />} />
       <Route path="/login" element={<LoginScreen />} />
+      <Route path="/signup" element={<SignupScreen />} />
       <Route
         path="/dashboard"
         element={

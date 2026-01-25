@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { mockSwarms } from '@/data/mockData';
 import { Swarm } from '@/types/ecoswarm';
+import { CreateSwarmModal } from '@/components/swarms/CreateSwarmModal';
 import {
   Users,
   Target,
@@ -27,6 +28,7 @@ export function SwarmsScreen() {
   const [swarms, setSwarms] = useState<Swarm[]>(mockSwarms);
   const [selectedSwarm, setSelectedSwarm] = useState<Swarm | null>(null);
   const [voteValue, setVoteValue] = useState(1);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleJoinSwarm = (swarmId: string) => {
     setSwarms(
@@ -47,6 +49,31 @@ export function SwarmsScreen() {
     setVoteValue(1);
   };
 
+  const handleSwarmCreated = (swarmData: {
+    name: string;
+    description: string;
+    goal: string;
+    category: string;
+    targetSignatures: number;
+  }) => {
+    const newSwarm: Swarm = {
+      id: Date.now().toString(),
+      name: swarmData.name,
+      description: swarmData.description,
+      goal: swarmData.goal,
+      category: swarmData.category,
+      targetSignatures: swarmData.targetSignatures,
+      currentSignatures: 1,
+      participants: 1,
+      createdAt: new Date(),
+      isJoined: true,
+    };
+
+    setSwarms([newSwarm, ...swarms]);
+    addPoints(50);
+    showNotification('Swarm created! 🐝', 50);
+  };
+
   const getProgressPercentage = (current: number, target: number) => {
     return Math.min((current / target) * 100, 100);
   };
@@ -60,7 +87,10 @@ export function SwarmsScreen() {
             <h1 className="text-xl font-bold text-foreground">Swarms Hub</h1>
             <p className="text-xs text-muted-foreground">Join campaigns that matter</p>
           </div>
-          <button className="eco-button-primary py-2 px-4 text-sm flex items-center gap-1">
+          <button 
+            onClick={() => setShowCreateModal(true)}
+            className="eco-button-primary py-2 px-4 text-sm flex items-center gap-1"
+          >
             <Plus className="w-4 h-4" />
             Create
           </button>
@@ -250,6 +280,13 @@ export function SwarmsScreen() {
           </div>
         </div>
       )}
+
+      {/* Create Swarm Modal */}
+      <CreateSwarmModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSwarmCreated={handleSwarmCreated}
+      />
     </AppLayout>
   );
 }

@@ -3,23 +3,22 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { mockPosts } from '@/data/mockData';
 import { Post } from '@/types/ecoswarm';
+import { CreatePostModal } from '@/components/posts/CreatePostModal';
 import {
   Heart,
   MessageCircle,
   Share2,
   Plus,
-  X,
   Hash,
   Image as ImageIcon,
   Video,
-  Send,
+  FileText,
 } from 'lucide-react';
 
 export function AgoraScreen() {
   const { user, addPoints, showNotification } = useApp();
   const [posts, setPosts] = useState<Post[]>(mockPosts);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newPostContent, setNewPostContent] = useState('');
 
   const handleLike = (postId: string) => {
     setPosts(
@@ -35,14 +34,16 @@ export function AgoraScreen() {
     );
   };
 
-  const handleCreatePost = () => {
-    if (!newPostContent.trim() || !user) return;
+  const handlePostCreated = (postData: { content: string; mediaUrl?: string; mediaType?: 'image' | 'video' | 'file' }) => {
+    if (!user) return;
 
     const newPost: Post = {
       id: Date.now().toString(),
       userId: user.id,
       userName: user.name,
-      content: newPostContent,
+      content: postData.content,
+      mediaUrl: postData.mediaUrl,
+      mediaType: postData.mediaType === 'file' ? undefined : postData.mediaType,
       likes: 0,
       comments: 0,
       shares: 0,
@@ -52,8 +53,6 @@ export function AgoraScreen() {
     };
 
     setPosts([newPost, ...posts]);
-    setNewPostContent('');
-    setShowCreateModal(false);
     addPoints(20);
     showNotification('Story shared! 📢', 20);
   };
@@ -101,8 +100,24 @@ export function AgoraScreen() {
             {/* Post Content */}
             <p className="text-foreground mb-3 leading-relaxed">{post.content}</p>
 
-            {/* Media Placeholder */}
-            {post.mediaType && (
+            {/* Media Display */}
+            {post.mediaUrl ? (
+              <div className="mb-3">
+                {post.mediaType === 'video' ? (
+                  <video
+                    src={post.mediaUrl}
+                    controls
+                    className="w-full max-h-80 rounded-xl object-cover"
+                  />
+                ) : post.mediaType === 'image' ? (
+                  <img
+                    src={post.mediaUrl}
+                    alt="Post media"
+                    className="w-full max-h-80 rounded-xl object-cover"
+                  />
+                ) : null}
+              </div>
+            ) : post.mediaType && (
               <div className="aspect-video bg-muted rounded-xl mb-3 flex items-center justify-center">
                 {post.mediaType === 'video' ? (
                   <Video className="w-12 h-12 text-muted-foreground" />
@@ -169,74 +184,12 @@ export function AgoraScreen() {
       </button>
 
       {/* Create Post Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-end">
-          <div className="bg-card w-full rounded-t-3xl p-6 animate-slide-up max-h-[80vh] overflow-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-foreground">Share Your Story</h2>
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="p-2 rounded-full bg-muted text-muted-foreground"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="flex items-start gap-3 mb-4">
-              <div className="eco-avatar flex-shrink-0">
-                {user?.name.charAt(0)}
-              </div>
-              <textarea
-                value={newPostContent}
-                onChange={(e) => setNewPostContent(e.target.value)}
-                placeholder="What environmental issue are you facing? Share your story..."
-                className="flex-1 bg-transparent border-none outline-none resize-none text-foreground placeholder:text-muted-foreground min-h-[120px]"
-                autoFocus
-              />
-            </div>
-
-            {/* Suggested Tags */}
-            <div className="mb-4">
-              <p className="text-xs text-muted-foreground mb-2">Suggested tags:</p>
-              <div className="flex flex-wrap gap-2">
-                {['#NairobiPollution', '#ClimateJustice', '#KenyaClimate', '#GenZActivism'].map(
-                  (tag) => (
-                    <button
-                      key={tag}
-                      onClick={() => setNewPostContent((prev) => `${prev} ${tag}`)}
-                      className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-sm hover:bg-primary hover:text-white transition-all"
-                    >
-                      {tag}
-                    </button>
-                  )
-                )}
-              </div>
-            </div>
-
-            {/* Media Buttons */}
-            <div className="flex items-center gap-3 mb-6">
-              <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted text-muted-foreground">
-                <ImageIcon className="w-5 h-5" />
-                Photo
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted text-muted-foreground">
-                <Video className="w-5 h-5" />
-                Video
-              </button>
-            </div>
-
-            {/* Post Button */}
-            <button
-              onClick={handleCreatePost}
-              disabled={!newPostContent.trim()}
-              className="w-full eco-button-primary py-4 text-lg flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              <Send className="w-5 h-5" />
-              Post Story (+20 pts)
-            </button>
-          </div>
-        </div>
-      )}
+      <CreatePostModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        userName={user?.name || 'User'}
+        onPostCreated={handlePostCreated}
+      />
     </AppLayout>
   );
 }
