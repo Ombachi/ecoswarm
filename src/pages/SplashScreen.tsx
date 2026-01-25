@@ -12,7 +12,7 @@ export function SplashScreen() {
   }, []);
 
   const handleGetStarted = () => {
-    navigate('/onboarding');
+    navigate('/signup');
   };
 
   return (
@@ -43,7 +43,7 @@ export function SplashScreen() {
             EcoSwarm
           </h1>
           <p className="text-lg text-white/80 mb-8">
-            The Digital Agora for Gen Z Activists
+            The Digital Agora for Gen Z
           </p>
         </div>
 
