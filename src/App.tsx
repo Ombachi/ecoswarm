@@ -13,6 +13,9 @@ import { AgoraScreen } from "@/pages/AgoraScreen";
 import { SwarmsScreen } from "@/pages/SwarmsScreen";
 import { ToolsScreen } from "@/pages/ToolsScreen";
 import { ProfileScreen } from "@/pages/ProfileScreen";
+import { AboutScreen } from "@/pages/AboutScreen";
+import { SettingsScreen } from "@/pages/SettingsScreen";
+import { LeaderboardScreen } from "@/pages/LeaderboardScreen";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +38,7 @@ function AppRoutes() {
       <Route path="/onboarding" element={<OnboardingScreen />} />
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/signup" element={<SignupScreen />} />
+      <Route path="/about" element={<AboutScreen />} />
       <Route
         path="/dashboard"
         element={
@@ -80,6 +84,26 @@ function AppRoutes() {
         element={
           isOnboarded && user ? (
             <ProfileScreen />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          isOnboarded && user ? (
+            <SettingsScreen />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/leaderboard"
+        element={
+          isOnboarded && user ? (
+            <LeaderboardScreen />
           ) : (
             <Navigate to="/" replace />
           )

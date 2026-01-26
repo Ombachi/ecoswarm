@@ -4,6 +4,8 @@ import { useApp } from '@/context/AppContext';
 import { mockPosts } from '@/data/mockData';
 import { Post } from '@/types/ecoswarm';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
+import { CommentsSection } from '@/components/posts/CommentsSection';
+import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import {
   Heart,
   MessageCircle,
@@ -12,13 +14,16 @@ import {
   Hash,
   Image as ImageIcon,
   Video,
-  FileText,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 export function AgoraScreen() {
   const { user, addPoints, showNotification } = useApp();
   const [posts, setPosts] = useState<Post[]>(mockPosts);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [expandedComments, setExpandedComments] = useState<string | null>(null);
+  const [expandedShare, setExpandedShare] = useState<string | null>(null);
 
   const handleLike = (postId: string) => {
     setPosts(
@@ -57,8 +62,20 @@ export function AgoraScreen() {
     showNotification('Story shared! 📢', 20);
   };
 
-  const handleShare = () => {
-    showNotification('Shared to X! 🐦');
+  const toggleComments = (postId: string) => {
+    setExpandedComments(expandedComments === postId ? null : postId);
+    setExpandedShare(null);
+  };
+
+  const toggleShare = (postId: string) => {
+    setExpandedShare(expandedShare === postId ? null : postId);
+    setExpandedComments(null);
+  };
+
+  const handleCommentCountChange = (postId: string, count: number) => {
+    setPosts(posts.map(post => 
+      post.id === postId ? { ...post, comments: count } : post
+    ));
   };
 
   return (
@@ -156,21 +173,52 @@ export function AgoraScreen() {
                 <span>{post.likes}</span>
               </button>
 
-              <button className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <button 
+                onClick={() => toggleComments(post.id)}
+                className={`flex items-center gap-1.5 text-sm ${
+                  expandedComments === post.id ? 'text-primary' : 'text-muted-foreground'
+                }`}
+              >
                 <MessageCircle className="w-5 h-5" />
                 <span>{post.comments}</span>
+                {expandedComments === post.id ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
               </button>
 
               <button
-                onClick={handleShare}
-                className="flex items-center gap-1.5 text-sm text-muted-foreground"
+                onClick={() => toggleShare(post.id)}
+                className={`flex items-center gap-1.5 text-sm ${
+                  expandedShare === post.id ? 'text-primary' : 'text-muted-foreground'
+                }`}
               >
                 <Share2 className="w-5 h-5" />
                 <span>{post.shares}</span>
               </button>
-
-              <button className="eco-badge text-xs">🐦 Share to X</button>
             </div>
+
+            {/* Expanded Comments */}
+            {expandedComments === post.id && (
+              <CommentsSection 
+                postId={post.id}
+                onCommentCountChange={(count) => handleCommentCountChange(post.id, count)}
+              />
+            )}
+
+            {/* Expanded Share */}
+            {expandedShare === post.id && (
+              <div className="mt-4 border-t border-border pt-4">
+                <p className="text-sm font-semibold text-foreground mb-3">Share this post</p>
+                <SocialShareButtons 
+                  url={`${window.location.origin}/post/${post.id}`}
+                  title={`Check out this post on EcoSwarm!`}
+                  text={post.content.substring(0, 100)}
+                  compact
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>

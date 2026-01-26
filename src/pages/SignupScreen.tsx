@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Leaf, ChevronLeft, ChevronRight, User, MapPin, Heart, Phone } from 'lucide-react';
+import { Leaf, ChevronLeft, ChevronRight, User, MapPin, Heart, Phone, Mail, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
 const counties = [
   'Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Kiambu', 'Machakos',
@@ -11,18 +12,23 @@ const counties = [
 ];
 
 const concerns = [
-  { id: 'pollution', label: 'Air Pollution', emoji: '💨' },
-  { id: 'drought', label: 'Drought & Water', emoji: '🌵' },
-  { id: 'deforestation', label: 'Deforestation', emoji: '🌳' },
-  { id: 'waste', label: 'Plastic Waste', emoji: '♻️' },
-  { id: 'wildlife', label: 'Wildlife', emoji: '🦁' },
-  { id: 'energy', label: 'Clean Energy', emoji: '⚡' },
+  { id: 'climate', label: 'Climate Action', emoji: '🌡️' },
+  { id: 'mental-health', label: 'Mental Health', emoji: '🧠' },
+  { id: 'education', label: 'Education Access', emoji: '📚' },
+  { id: 'unemployment', label: 'Youth Unemployment', emoji: '💼' },
+  { id: 'housing', label: 'Affordable Housing', emoji: '🏠' },
+  { id: 'healthcare', label: 'Healthcare Access', emoji: '🏥' },
+  { id: 'gender', label: 'Gender Equality', emoji: '⚖️' },
+  { id: 'corruption', label: 'Anti-Corruption', emoji: '🔍' },
+  { id: 'environment', label: 'Environmental Protection', emoji: '🌳' },
+  { id: 'digital', label: 'Digital Rights', emoji: '📱' },
 ];
 
 export function SignupScreen() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   // Form state
   const [email, setEmail] = useState('');
@@ -34,6 +40,8 @@ export function SignupScreen() {
   const [county, setCounty] = useState('Nairobi');
   const [phone, setPhone] = useState('');
   const [topConcern, setTopConcern] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [userId, setUserId] = useState<string | null>(null);
 
   const canProceed = () => {
     switch (step) {
@@ -85,6 +93,8 @@ export function SignupScreen() {
       }
 
       if (data.user) {
+        setUserId(data.user.id);
+        
         // Create profile
         const { error: profileError } = await supabase.from('profiles').insert({
           user_id: data.user.id,
@@ -105,7 +115,7 @@ export function SignupScreen() {
         }
 
         toast.success('Welcome to EcoSwarm! 🌍');
-        navigate('/onboarding');
+        navigate('/dashboard');
       }
     } catch (err) {
       toast.error('Something went wrong. Please try again.');
@@ -120,13 +130,13 @@ export function SignupScreen() {
         return (
           <div className="animate-slide-up">
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
-              <Leaf className="w-10 h-10 text-white" />
+              <Mail className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-foreground mb-2 text-center">
               Create Your Account
             </h2>
             <p className="text-muted-foreground mb-6 text-center">
-              Join the movement for a greener Kenya
+              Join the movement for change in Kenya
             </p>
             <div className="space-y-4">
               <input
@@ -220,7 +230,7 @@ export function SignupScreen() {
               Where Are You Based?
             </h2>
             <p className="text-muted-foreground mb-6 text-center">
-              We'll show you local environmental issues
+              We'll connect you with local communities
             </p>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -262,12 +272,12 @@ export function SignupScreen() {
               <Heart className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-foreground mb-2 text-center">
-              What Matters Most?
+              What Issue Matters Most?
             </h2>
             <p className="text-muted-foreground mb-6 text-center">
-              We'll personalize your feed and recommendations
+              We'll personalize your feed based on your passion
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 max-h-[45vh] overflow-y-auto pb-4">
               {concerns.map((concern) => (
                 <button
                   key={concern.id}
