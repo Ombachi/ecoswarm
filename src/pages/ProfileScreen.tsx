@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { ProgressRing } from '@/components/common/ProgressRing';
+import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { allBadges } from '@/data/mockData';
 import {
   Settings,
@@ -16,6 +18,7 @@ import {
 } from 'lucide-react';
 
 export function ProfileScreen() {
+  const navigate = useNavigate();
   const { user, isSwahili } = useApp();
 
   if (!user) return null;
@@ -67,7 +70,10 @@ export function ProfileScreen() {
             <h1 className="text-xl font-bold text-white">
               {isSwahili ? 'Athari Yangu' : 'My Impact'}
             </h1>
-            <button className="p-2 rounded-full bg-white/20 text-white">
+            <button 
+              onClick={() => navigate('/settings')}
+              className="p-2 rounded-full bg-white/20 text-white"
+            >
               <Settings className="w-5 h-5" />
             </button>
           </div>
@@ -100,7 +106,7 @@ export function ProfileScreen() {
               </div>
             </ProgressRing>
             <div className="flex-1">
-              <p className="font-semibold text-foreground mb-1">Silver Activist</p>
+              <p className="font-semibold text-foreground mb-1">Silver Changemaker</p>
               <p className="text-sm text-muted-foreground mb-2">
                 750 more points to Gold
               </p>
@@ -191,13 +197,25 @@ export function ProfileScreen() {
         </div>
 
         {/* Share Profile */}
-        <button className="w-full eco-button-secondary py-4 flex items-center justify-center gap-2">
-          <Share2 className="w-5 h-5" />
-          {isSwahili ? 'Shiriki Athari Yangu' : 'Share My Impact'}
-        </button>
+        <div>
+          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Share2 className="w-5 h-5 text-secondary" />
+            {isSwahili ? 'Shiriki Athari Yangu' : 'Share My Impact'}
+          </h3>
+          <div className="eco-card p-4">
+            <SocialShareButtons 
+              url={`${window.location.origin}/profile/${user.id}`}
+              title={`Check out my impact on EcoSwarm!`}
+              text={`I've earned ${user.ecoPoints} EcoPoints and joined ${user.stats.swarmsJoined} swarms on EcoSwarm!`}
+            />
+          </div>
+        </div>
 
-        {/* Leaderboard Teaser */}
-        <div className="eco-card p-4 flex items-center justify-between">
+        {/* Leaderboard Link */}
+        <button
+          onClick={() => navigate('/leaderboard')}
+          className="w-full eco-card p-4 flex items-center justify-between hover:shadow-md transition-all"
+        >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full eco-gradient-bg flex items-center justify-center">
               🏆
@@ -207,12 +225,12 @@ export function ProfileScreen() {
                 {isSwahili ? 'Ubao wa Viongozi' : 'Leaderboard'}
               </p>
               <p className="text-xs text-muted-foreground">
-                You're #127 in Kenya
+                See how you rank among changemakers
               </p>
             </div>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </div>
+        </button>
       </div>
     </AppLayout>
   );

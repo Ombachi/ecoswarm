@@ -1,14 +1,42 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Leaf, Wind, Droplets, Sun } from 'lucide-react';
-import { airQualityData } from '@/data/mockData';
+import { Leaf, Wind, Droplets, Sun, Heart, Users, MessageCircle } from 'lucide-react';
+
+const upliftingStatements = [
+  "Together, we're changing the world 🌍",
+  "Your voice matters. Make it count today! ✨",
+  "Small actions, big impact. Let's go! 💪",
+  "Be the change you want to see 🌱",
+  "One swarm at a time, we rise 🐝",
+  "The future is in your hands 🙌",
+  "Every action counts. Start now! 🚀",
+  "Unite. Amplify. Transform. 🔥",
+  "Your generation, your revolution 💫",
+  "Dream big, act bigger 🌟",
+];
 
 export function SplashScreen() {
   const navigate = useNavigate();
   const [showContent, setShowContent] = useState(false);
+  const [currentDate, setCurrentDate] = useState('');
+  const [upliftingMessage, setUpliftingMessage] = useState('');
 
   useEffect(() => {
     setTimeout(() => setShowContent(true), 500);
+    
+    // Set current date
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    };
+    setCurrentDate(now.toLocaleDateString('en-KE', options));
+    
+    // Random uplifting message
+    const randomIndex = Math.floor(Math.random() * upliftingStatements.length);
+    setUpliftingMessage(upliftingStatements[randomIndex]);
   }, []);
 
   const handleGetStarted = () => {
@@ -26,6 +54,9 @@ export function SplashScreen() {
         <Wind className="absolute top-40 right-8 w-6 h-6 text-white/20 animate-float stagger-2" />
         <Droplets className="absolute bottom-40 left-16 w-7 h-7 text-white/20 animate-float stagger-3" />
         <Sun className="absolute top-60 left-1/2 w-10 h-10 text-white/20 animate-float stagger-4" />
+        <Heart className="absolute bottom-60 right-12 w-6 h-6 text-white/20 animate-float stagger-1" />
+        <Users className="absolute top-32 right-20 w-7 h-7 text-white/20 animate-float stagger-3" />
+        <MessageCircle className="absolute bottom-32 left-8 w-6 h-6 text-white/20 animate-float stagger-2" />
       </div>
 
       <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-6 text-center text-white">
@@ -47,23 +78,22 @@ export function SplashScreen() {
           </p>
         </div>
 
-        {/* AR-style stats overlay */}
+        {/* Date and Uplifting Message */}
         <div
           className={`transition-all duration-700 delay-300 ${
             showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
         >
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-8 border border-white/20">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-yellow-400/20 flex items-center justify-center">
-                <Wind className="w-5 h-5 text-yellow-300" />
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-eco-gold/20 flex items-center justify-center">
+                <Sun className="w-5 h-5 text-yellow-300" />
               </div>
-              <div className="text-left">
-                <p className="text-xs text-white/60">📍 {airQualityData.location}</p>
-                <p className="font-semibold">
-                  Air Quality: <span className="text-yellow-300">{airQualityData.status}</span>
+              <div className="text-center">
+                <p className="text-xs text-white/60">📅 {currentDate}</p>
+                <p className="font-semibold text-lg mt-1">
+                  {upliftingMessage}
                 </p>
-                <p className="text-xs text-white/60">AQI: {airQualityData.aqi} • PM2.5: {airQualityData.pm25}µg/m³</p>
               </div>
             </div>
           </div>

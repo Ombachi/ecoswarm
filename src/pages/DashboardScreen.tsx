@@ -4,6 +4,7 @@ import { useApp } from '@/context/AppContext';
 import { ProgressRing } from '@/components/common/ProgressRing';
 import { EcoPointsBadge } from '@/components/common/EcoPointsBadge';
 import { SwahiliToggle } from '@/components/common/SwahiliToggle';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 import {
   MessageSquare,
   Users,
@@ -13,12 +14,19 @@ import {
   TreePine,
   Moon,
   Sun,
+  Target,
+  Eye,
+  Sparkles,
+  Info,
+  Download,
+  CheckCircle,
 } from 'lucide-react';
 import { mockChallenges } from '@/data/mockData';
 
 export function DashboardScreen() {
   const navigate = useNavigate();
   const { user, isDarkMode, toggleDarkMode, isSwahili } = useApp();
+  const { isInstallable, isInstalled, promptInstall } = usePWAInstall();
 
   if (!user) return null;
 
@@ -97,10 +105,55 @@ export function DashboardScreen() {
                   style={{ width: '65%' }}
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">750 more to Gold Activist</p>
+              <p className="text-xs text-muted-foreground mt-1">750 more to Gold Changemaker</p>
             </div>
           </div>
         </div>
+
+        {/* Mission & Vision Cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="eco-card p-4 flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-2">
+              <Target className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="font-semibold text-foreground text-sm mb-1">
+              {isSwahili ? 'Dhamira' : 'Mission'}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Empower Gen Z to drive social change across Kenya
+            </p>
+          </div>
+          <div className="eco-card p-4 flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-eco-gold to-eco-orange flex items-center justify-center mb-2">
+              <Eye className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="font-semibold text-foreground text-sm mb-1">
+              {isSwahili ? 'Maono' : 'Vision'}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              A Kenya where every young voice sparks action
+            </p>
+          </div>
+        </div>
+
+        {/* About Link */}
+        <button
+          onClick={() => navigate('/about')}
+          className="w-full eco-card p-4 flex items-center gap-4 hover:shadow-md transition-all"
+        >
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-eco-blue flex items-center justify-center">
+            <Info className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="font-semibold text-foreground text-sm">
+              {isSwahili ? 'Kuhusu EcoSwarm' : 'About EcoSwarm'}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Learn why we built this platform
+            </p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+        </button>
 
         {/* Daily Challenge */}
         {dailyChallenge && (
@@ -141,6 +194,37 @@ export function DashboardScreen() {
           </div>
         </div>
 
+        {/* What You Can Do */}
+        <div>
+          <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-eco-gold" />
+            {isSwahili ? 'Unaweza Kufanya Nini' : 'What You Can Do'}
+          </h2>
+          <div className="eco-card p-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-lg">📢</div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-foreground">Share Your Story</p>
+                <p className="text-xs text-muted-foreground">Post in Agora Square</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-lg">🐝</div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-foreground">Join a Swarm</p>
+                <p className="text-xs text-muted-foreground">Unite for collective action</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-eco-gold/10 flex items-center justify-center text-lg">✉️</div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-foreground">Write to Leaders</p>
+                <p className="text-xs text-muted-foreground">Use EcoLetter Forge</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Impact Summary */}
         <div className="eco-card p-4">
           <div className="flex items-center justify-between mb-4">
@@ -178,15 +262,30 @@ export function DashboardScreen() {
         <div className="eco-card p-4 bg-gradient-to-r from-eco-green-light to-eco-blue-light border-none">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full eco-gradient-bg flex items-center justify-center flex-shrink-0">
-              <span className="text-lg">📲</span>
+              {isInstalled ? (
+                <CheckCircle className="w-5 h-5 text-white" />
+              ) : (
+                <Download className="w-5 h-5 text-white" />
+              )}
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-foreground text-sm">Install EcoSwarm</p>
-              <p className="text-xs text-muted-foreground">Works offline! Add to home screen</p>
+              <p className="font-semibold text-foreground text-sm">
+                {isInstalled ? 'EcoSwarm Installed!' : 'Install EcoSwarm'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {isInstalled 
+                  ? 'Thanks for installing! Enjoy the app.' 
+                  : 'Works offline! Earn 50 EcoPoints 🎁'}
+              </p>
             </div>
-            <button className="eco-button-primary py-2 px-4 text-sm">
-              Install
-            </button>
+            {!isInstalled && (
+              <button 
+                onClick={promptInstall}
+                className="eco-button-primary py-2 px-4 text-sm"
+              >
+                Install
+              </button>
+            )}
           </div>
         </div>
       </div>
