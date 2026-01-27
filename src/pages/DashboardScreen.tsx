@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
@@ -5,6 +6,7 @@ import { ProgressRing } from '@/components/common/ProgressRing';
 import { EcoPointsBadge } from '@/components/common/EcoPointsBadge';
 import { SwahiliToggle } from '@/components/common/SwahiliToggle';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { Confetti } from '@/components/common/Confetti';
 import {
   MessageSquare,
   Users,
@@ -20,17 +22,51 @@ import {
   Info,
   Download,
   CheckCircle,
+  Trophy,
 } from 'lucide-react';
 import { mockChallenges } from '@/data/mockData';
+import { toast } from 'sonner';
 
 export function DashboardScreen() {
   const navigate = useNavigate();
-  const { user, isDarkMode, toggleDarkMode, isSwahili } = useApp();
+  const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, updateStats } = useApp();
   const { isInstallable, isInstalled, promptInstall } = usePWAInstall();
+  
+  const [challenges, setChallenges] = useState(mockChallenges);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   if (!user) return null;
 
-  const dailyChallenge = mockChallenges.find((c) => c.type === 'daily' && !c.completed);
+  const dailyChallenge = challenges.find((c) => c.type === 'daily' && !c.completed);
+
+  const handleCompleteChallenge = (challengeId: string) => {
+    const challenge = challenges.find(c => c.id === challengeId);
+    if (!challenge || challenge.completed) return;
+
+    // Complete the challenge
+    setChallenges(challenges.map(c => 
+      c.id === challengeId ? { ...c, completed: true } : c
+    ));
+
+    // Award points
+    addPoints(challenge.points);
+    showNotification(`Challenge completed! 🎉`, challenge.points);
+    
+    // Show confetti
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 3000);
+
+    toast.success(`You earned ${challenge.points} EcoPoints!`);
+
+    // Navigate based on challenge type
+    if (challenge.title === 'Share Your Story') {
+      navigate('/agora');
+    } else if (challenge.title === 'Join a Swarm') {
+      navigate('/swarms');
+    } else if (challenge.title === 'Send an EcoLetter') {
+      navigate('/tools');
+    }
+  };
 
   const quickActions = [
     {
@@ -55,6 +91,8 @@ export function DashboardScreen() {
 
   return (
     <AppLayout>
+      {showConfetti && <Confetti />}
+      
       <div className="px-4 pt-4 pb-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -83,7 +121,7 @@ export function DashboardScreen() {
             <div className="w-full h-full eco-gradient-bg rounded-full blur-2xl" />
           </div>
           <div className="flex items-center gap-6">
-            <ProgressRing progress={65} size={100}>
+            <ProgressRing progress={Math.min((user.ecoPoints / 2000) * 100, 100)} size={100}>
               <div className="text-center">
                 <p className="text-2xl font-bold eco-gradient-text">{user.ecoPoints}</p>
                 <p className="text-[10px] text-muted-foreground">EcoPoints</p>
@@ -102,10 +140,10 @@ export function DashboardScreen() {
               <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div
                   className="h-full eco-gradient-bg rounded-full transition-all"
-                  style={{ width: '65%' }}
+                  style={{ width: `${Math.min((user.ecoPoints / 2000) * 100, 100)}%` }}
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">750 more to Gold Changemaker</p>
+              <p className="text-xs text-muted-foreground mt-1">{Math.max(2000 - user.ecoPoints, 0)} more to Gold Changemaker</p>
             </div>
           </div>
         </div>
@@ -155,10 +193,10 @@ export function DashboardScreen() {
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </button>
 
-        {/* Daily Challenge */}
+        {/* Daily Challenge - Interactive */}
         {dailyChallenge && (
           <div className="eco-card p-4 border-l-4 border-l-eco-gold">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-3">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">
                   {isSwahili ? 'Changamoto ya Leo' : 'Daily Challenge'}
@@ -168,8 +206,60 @@ export function DashboardScreen() {
               </div>
               <EcoPointsBadge points={dailyChallenge.points} size="sm" />
             </div>
+            <button
+              onClick={() => handleCompleteChallenge(dailyChallenge.id)}
+              className="w-full eco-button-primary py-3 flex items-center justify-center gap-2"
+            >
+              <Trophy className="w-5 h-5" />
+              {isSwahili ? 'Anza Changamoto' : 'Start Challenge'}
+            </button>
           </div>
         )}
+
+        {/* All Challenges */}
+        <div>
+          <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-eco-gold" />
+            {isSwahili ? 'Changamoto Zote' : 'All Challenges'}
+          </h2>
+          <div className="space-y-3">
+            {challenges.map((challenge) => (
+              <div
+                key={challenge.id}
+                className={`eco-card p-4 flex items-center gap-4 ${
+                  challenge.completed ? 'opacity-60' : ''
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  challenge.completed ? 'eco-gradient-bg' : 'bg-muted'
+                }`}>
+                  {challenge.completed ? (
+                    <CheckCircle className="w-5 h-5 text-white" />
+                  ) : (
+                    <Trophy className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-foreground">{challenge.title}</h4>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                      challenge.type === 'daily' ? 'bg-eco-gold/20 text-eco-gold' :
+                      challenge.type === 'weekly' ? 'bg-primary/20 text-primary' :
+                      'bg-secondary/20 text-secondary'
+                    }`}>
+                      {challenge.type}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{challenge.description}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-primary">+{challenge.points}</p>
+                  <p className="text-[10px] text-muted-foreground">pts</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Quick Actions */}
         <div>

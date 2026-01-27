@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { mockPosts } from '@/data/mockData';
@@ -16,14 +16,41 @@ import {
   Video,
   ChevronDown,
   ChevronUp,
+  RefreshCw,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function AgoraScreen() {
-  const { user, addPoints, showNotification } = useApp();
-  const [posts, setPosts] = useState<Post[]>(mockPosts);
+  const { user, addPoints, showNotification, updateStats } = useApp();
+  const [posts, setPosts] = useState<Post[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [expandedComments, setExpandedComments] = useState<string | null>(null);
   const [expandedShare, setExpandedShare] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Load posts on mount, including any saved posts from localStorage
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
+  const loadPosts = () => {
+    // Get saved user posts from localStorage
+    const savedPosts = localStorage.getItem('ecoswarm_posts');
+    const userPosts: Post[] = savedPosts ? JSON.parse(savedPosts) : [];
+    
+    // Combine with mock posts, user posts first
+    const allPosts = [...userPosts, ...mockPosts];
+    setPosts(allPosts);
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    loadPosts();
+    setTimeout(() => {
+      setIsRefreshing(false);
+      toast.success('Feed refreshed!');
+    }, 500);
+  };
 
   const handleLike = (postId: string) => {
     setPosts(
@@ -43,7 +70,7 @@ export function AgoraScreen() {
     if (!user) return;
 
     const newPost: Post = {
-      id: Date.now().toString(),
+      id: `user_${Date.now()}`,
       userId: user.id,
       userName: user.name,
       content: postData.content,
@@ -52,14 +79,31 @@ export function AgoraScreen() {
       likes: 0,
       comments: 0,
       shares: 0,
-      tags: [],
+      tags: extractHashtags(postData.content),
       createdAt: new Date(),
       isLiked: false,
     };
 
-    setPosts([newPost, ...posts]);
+    // Add to state
+    const updatedPosts = [newPost, ...posts];
+    setPosts(updatedPosts);
+
+    // Save user posts to localStorage
+    const savedPosts = localStorage.getItem('ecoswarm_posts');
+    const userPosts: Post[] = savedPosts ? JSON.parse(savedPosts) : [];
+    userPosts.unshift(newPost);
+    localStorage.setItem('ecoswarm_posts', JSON.stringify(userPosts));
+
+    // Award points and update stats
     addPoints(20);
+    updateStats({ postsCreated: user.stats.postsCreated + 1 });
     showNotification('Story shared! 📢', 20);
+  };
+
+  const extractHashtags = (text: string): string[] => {
+    const regex = /#(\w+)/g;
+    const matches = text.match(regex);
+    return matches ? matches.map(tag => tag.slice(1)) : [];
   };
 
   const toggleComments = (postId: string) => {
@@ -85,6 +129,13 @@ export function AgoraScreen() {
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-foreground">Agora Square</h1>
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-all"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </button>
             <span className="eco-badge">🔥 Trending</span>
           </div>
         </div>
@@ -92,135 +143,143 @@ export function AgoraScreen() {
 
       {/* Feed */}
       <div className="divide-y divide-border">
-        {posts.map((post, index) => (
-          <div
-            key={post.id}
-            className="p-4 animate-slide-up"
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            {/* Post Header */}
-            <div className="flex items-start gap-3 mb-3">
-              <div className="eco-avatar flex-shrink-0">
-                {post.userName.charAt(0)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground">{post.userName}</p>
-                <p className="text-xs text-muted-foreground">
-                  {new Date(post.createdAt).toLocaleDateString('en-KE', {
-                    day: 'numeric',
-                    month: 'short',
-                  })}
-                </p>
-              </div>
-            </div>
-
-            {/* Post Content */}
-            <p className="text-foreground mb-3 leading-relaxed">{post.content}</p>
-
-            {/* Media Display */}
-            {post.mediaUrl ? (
-              <div className="mb-3">
-                {post.mediaType === 'video' ? (
-                  <video
-                    src={post.mediaUrl}
-                    controls
-                    className="w-full max-h-80 rounded-xl object-cover"
-                  />
-                ) : post.mediaType === 'image' ? (
-                  <img
-                    src={post.mediaUrl}
-                    alt="Post media"
-                    className="w-full max-h-80 rounded-xl object-cover"
-                  />
-                ) : null}
-              </div>
-            ) : post.mediaType && (
-              <div className="aspect-video bg-muted rounded-xl mb-3 flex items-center justify-center">
-                {post.mediaType === 'video' ? (
-                  <Video className="w-12 h-12 text-muted-foreground" />
-                ) : (
-                  <ImageIcon className="w-12 h-12 text-muted-foreground" />
-                )}
-              </div>
-            )}
-
-            {/* Tags */}
-            {post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-primary text-sm font-medium flex items-center gap-0.5"
-                  >
-                    <Hash className="w-3 h-3" />
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex items-center justify-between pt-2">
-              <button
-                onClick={() => handleLike(post.id)}
-                className={`flex items-center gap-1.5 text-sm transition-all ${
-                  post.isLiked ? 'text-red-500' : 'text-muted-foreground'
-                }`}
-              >
-                <Heart
-                  className={`w-5 h-5 ${post.isLiked ? 'fill-current' : ''}`}
-                />
-                <span>{post.likes}</span>
-              </button>
-
-              <button 
-                onClick={() => toggleComments(post.id)}
-                className={`flex items-center gap-1.5 text-sm ${
-                  expandedComments === post.id ? 'text-primary' : 'text-muted-foreground'
-                }`}
-              >
-                <MessageCircle className="w-5 h-5" />
-                <span>{post.comments}</span>
-                {expandedComments === post.id ? (
-                  <ChevronUp className="w-4 h-4" />
-                ) : (
-                  <ChevronDown className="w-4 h-4" />
-                )}
-              </button>
-
-              <button
-                onClick={() => toggleShare(post.id)}
-                className={`flex items-center gap-1.5 text-sm ${
-                  expandedShare === post.id ? 'text-primary' : 'text-muted-foreground'
-                }`}
-              >
-                <Share2 className="w-5 h-5" />
-                <span>{post.shares}</span>
-              </button>
-            </div>
-
-            {/* Expanded Comments */}
-            {expandedComments === post.id && (
-              <CommentsSection 
-                postId={post.id}
-                onCommentCountChange={(count) => handleCommentCountChange(post.id, count)}
-              />
-            )}
-
-            {/* Expanded Share */}
-            {expandedShare === post.id && (
-              <div className="mt-4 border-t border-border pt-4">
-                <p className="text-sm font-semibold text-foreground mb-3">Share this post</p>
-                <SocialShareButtons 
-                  url={`${window.location.origin}/post/${post.id}`}
-                  title={`Check out this post on EcoSwarm!`}
-                  text={post.content.substring(0, 100)}
-                  compact
-                />
-              </div>
-            )}
+        {posts.length === 0 ? (
+          <div className="p-8 text-center">
+            <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">No posts yet</p>
+            <p className="text-sm text-muted-foreground">Be the first to share your story!</p>
           </div>
-        ))}
+        ) : (
+          posts.map((post, index) => (
+            <div
+              key={post.id}
+              className="p-4 animate-slide-up"
+              style={{ animationDelay: `${Math.min(index, 5) * 0.1}s` }}
+            >
+              {/* Post Header */}
+              <div className="flex items-start gap-3 mb-3">
+                <div className="eco-avatar flex-shrink-0">
+                  {post.userName.charAt(0)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-foreground">{post.userName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(post.createdAt).toLocaleDateString('en-KE', {
+                      day: 'numeric',
+                      month: 'short',
+                    })}
+                  </p>
+                </div>
+              </div>
+
+              {/* Post Content */}
+              <p className="text-foreground mb-3 leading-relaxed">{post.content}</p>
+
+              {/* Media Display */}
+              {post.mediaUrl ? (
+                <div className="mb-3">
+                  {post.mediaType === 'video' ? (
+                    <video
+                      src={post.mediaUrl}
+                      controls
+                      className="w-full max-h-80 rounded-xl object-cover"
+                    />
+                  ) : post.mediaType === 'image' ? (
+                    <img
+                      src={post.mediaUrl}
+                      alt="Post media"
+                      className="w-full max-h-80 rounded-xl object-cover"
+                    />
+                  ) : null}
+                </div>
+              ) : post.mediaType && (
+                <div className="aspect-video bg-muted rounded-xl mb-3 flex items-center justify-center">
+                  {post.mediaType === 'video' ? (
+                    <Video className="w-12 h-12 text-muted-foreground" />
+                  ) : (
+                    <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                  )}
+                </div>
+              )}
+
+              {/* Tags */}
+              {post.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-primary text-sm font-medium flex items-center gap-0.5"
+                    >
+                      <Hash className="w-3 h-3" />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex items-center justify-between pt-2">
+                <button
+                  onClick={() => handleLike(post.id)}
+                  className={`flex items-center gap-1.5 text-sm transition-all ${
+                    post.isLiked ? 'text-red-500' : 'text-muted-foreground'
+                  }`}
+                >
+                  <Heart
+                    className={`w-5 h-5 ${post.isLiked ? 'fill-current' : ''}`}
+                  />
+                  <span>{post.likes}</span>
+                </button>
+
+                <button 
+                  onClick={() => toggleComments(post.id)}
+                  className={`flex items-center gap-1.5 text-sm ${
+                    expandedComments === post.id ? 'text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  <span>{post.comments}</span>
+                  {expandedComments === post.id ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </button>
+
+                <button
+                  onClick={() => toggleShare(post.id)}
+                  className={`flex items-center gap-1.5 text-sm ${
+                    expandedShare === post.id ? 'text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                  <Share2 className="w-5 h-5" />
+                  <span>{post.shares}</span>
+                </button>
+              </div>
+
+              {/* Expanded Comments */}
+              {expandedComments === post.id && (
+                <CommentsSection 
+                  postId={post.id}
+                  onCommentCountChange={(count) => handleCommentCountChange(post.id, count)}
+                />
+              )}
+
+              {/* Expanded Share */}
+              {expandedShare === post.id && (
+                <div className="mt-4 border-t border-border pt-4">
+                  <p className="text-sm font-semibold text-foreground mb-3">Share this post</p>
+                  <SocialShareButtons 
+                    url={`${window.location.origin}/post/${post.id}`}
+                    title={`Check out this post on EcoSwarm!`}
+                    text={post.content.substring(0, 100)}
+                    compact
+                  />
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
 
       {/* Floating Create Button */}

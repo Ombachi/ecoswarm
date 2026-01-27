@@ -24,7 +24,7 @@ const categoryIcons: Record<string, any> = {
 };
 
 export function SwarmsScreen() {
-  const { addPoints, showNotification } = useApp();
+  const { user, addPoints, showNotification, updateStats } = useApp();
   const [swarms, setSwarms] = useState<Swarm[]>(mockSwarms);
   const [selectedSwarm, setSelectedSwarm] = useState<Swarm | null>(null);
   const [voteValue, setVoteValue] = useState(1);
@@ -44,6 +44,9 @@ export function SwarmsScreen() {
       )
     );
     addPoints(30);
+    if (user) {
+      updateStats({ swarmsJoined: user.stats.swarmsJoined + 1 });
+    }
     showNotification('Joined swarm! 🐝', 30);
     setSelectedSwarm(null);
     setVoteValue(1);

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { mockLetterTemplates, mockRecipients, mockLearningModules } from '@/data/mockData';
@@ -15,7 +16,8 @@ import {
 } from 'lucide-react';
 
 export function ToolsScreen() {
-  const { user, addPoints, showNotification } = useApp();
+  const navigate = useNavigate();
+  const { user, addPoints, showNotification, updateStats } = useApp();
   const [activeTab, setActiveTab] = useState<'letter' | 'learn'>('letter');
   const [letterStep, setLetterStep] = useState(0);
   const [selectedTemplate, setSelectedTemplate] = useState('');
@@ -29,6 +31,12 @@ export function ToolsScreen() {
     setShowConfetti(true);
     setShowSuccess(true);
     addPoints(50);
+    
+    // Update letters sent stat
+    if (user) {
+      updateStats({ lettersSent: user.stats.lettersSent + 1 });
+    }
+    
     showNotification('EcoLetter sent! 📨', 50);
     
     setTimeout(() => {
@@ -55,6 +63,10 @@ export function ToolsScreen() {
       .replace('[PERSONAL_STORY]', personalStory || 'I have personally witnessed...')
       .replace('[YOUR_NAME]', user.name)
       .replace('[YOUR_LOCATION]', user.location);
+  };
+
+  const handleModuleClick = (moduleId: string) => {
+    navigate(`/module/${moduleId}`);
   };
 
   return (
@@ -321,9 +333,10 @@ export function ToolsScreen() {
 
           <div className="grid gap-4">
             {mockLearningModules.map((module, index) => (
-              <div
+              <button
                 key={module.id}
-                className="eco-card p-4 animate-slide-up"
+                onClick={() => handleModuleClick(module.id)}
+                className="eco-card p-4 animate-slide-up text-left"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="flex items-start gap-3">
@@ -339,7 +352,7 @@ export function ToolsScreen() {
                     ) : module.progress && module.progress > 0 ? (
                       <Play className="w-6 h-6 text-primary" />
                     ) : (
-                      <Lock className="w-6 h-6 text-muted-foreground" />
+                      <Play className="w-6 h-6 text-muted-foreground" />
                     )}
                   </div>
                   <div className="flex-1">
@@ -375,7 +388,7 @@ export function ToolsScreen() {
                   </div>
                   <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>

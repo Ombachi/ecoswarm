@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useApp } from '@/context/AppContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { 
@@ -9,29 +8,33 @@ import {
   Bell, 
   Moon, 
   Globe, 
-  Lock, 
   LogOut,
   ChevronRight,
   Info,
   Shield,
   Heart,
   MessageCircle,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 
 export function SettingsScreen() {
   const navigate = useNavigate();
-  const { user, isDarkMode, toggleDarkMode, isSwahili, toggleLanguage } = useApp();
+  const { user, isDarkMode, toggleDarkMode, isSwahili, toggleLanguage, logout } = useApp();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     try {
-      await supabase.auth.signOut();
+      await logout();
       toast.success('Logged out successfully');
       navigate('/');
     } catch (error) {
       toast.error('Failed to log out');
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -43,14 +46,7 @@ export function SettingsScreen() {
           icon: User,
           label: 'Edit Profile',
           description: 'Update your name, photo, and bio',
-          action: () => navigate('/profile'),
-          type: 'link' as const,
-        },
-        {
-          icon: Lock,
-          label: 'Change Password',
-          description: 'Update your account password',
-          action: () => toast.info('Coming soon!'),
+          action: () => navigate('/edit-profile'),
           type: 'link' as const,
         },
       ],
@@ -187,13 +183,18 @@ export function SettingsScreen() {
         {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="w-full eco-card p-4 flex items-center gap-4 text-destructive hover:bg-destructive/10 transition-colors"
+          disabled={isLoggingOut}
+          className="w-full eco-card p-4 flex items-center gap-4 text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
         >
           <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
-            <LogOut className="w-5 h-5 text-destructive" />
+            {isLoggingOut ? (
+              <Loader2 className="w-5 h-5 text-destructive animate-spin" />
+            ) : (
+              <LogOut className="w-5 h-5 text-destructive" />
+            )}
           </div>
           <div className="flex-1 text-left">
-            <p className="font-medium">Log Out</p>
+            <p className="font-medium">{isLoggingOut ? 'Logging out...' : 'Log Out'}</p>
             <p className="text-xs text-muted-foreground">Sign out of your account</p>
           </div>
         </button>

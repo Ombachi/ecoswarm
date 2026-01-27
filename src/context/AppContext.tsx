@@ -15,6 +15,9 @@ interface AppContextType {
   showNotification: (message: string, points?: number) => void;
   notification: { message: string; points?: number } | null;
   isLoading: boolean;
+  updateStats: (stats: Partial<User['stats']>) => void;
+  refreshUser: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -27,46 +30,68 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [notification, setNotification] = useState<{ message: string; points?: number } | null>(null);
 
+  const fetchUserProfile = async (userId: string) => {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return null;
+    }
+
+    if (profile) {
+      const appUser: User = {
+        id: profile.user_id,
+        name: profile.name,
+        location: profile.location || profile.county || 'Kenya',
+        ecoPoints: profile.eco_points || 0,
+        streak: profile.streak || 0,
+        topConcern: profile.top_concern || 'Climate Action',
+        badges: [],
+        stats: {
+          treesPlanted: profile.trees_planted || 0,
+          lettersSent: profile.letters_sent || 0,
+          swarmsJoined: profile.swarms_joined || 0,
+          co2Saved: profile.co2_saved || 0,
+          postsCreated: profile.posts_created || 0,
+        },
+      };
+      return appUser;
+    }
+    return null;
+  };
+
+  const refreshUser = async () => {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (authUser) {
+      const appUser = await fetchUserProfile(authUser.id);
+      if (appUser) {
+        setUser(appUser);
+        setIsOnboarded(true);
+      }
+    }
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setIsOnboarded(false);
+  };
+
   // Listen to auth state changes and fetch user profile
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.id);
       
       if (session?.user) {
-        // Fetch user profile from database
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', session.user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error fetching profile:', error);
-          setUser(null);
-          setIsOnboarded(false);
-        } else if (profile) {
-          // Convert profile to User type
-          const appUser: User = {
-            id: profile.user_id,
-            name: profile.name,
-            location: profile.location || profile.county || 'Kenya',
-            ecoPoints: profile.eco_points || 0,
-            streak: profile.streak || 0,
-            topConcern: profile.top_concern || 'Climate Action',
-            badges: [],
-            stats: {
-              treesPlanted: profile.trees_planted || 0,
-              lettersSent: profile.letters_sent || 0,
-              swarmsJoined: profile.swarms_joined || 0,
-              co2Saved: profile.co2_saved || 0,
-              postsCreated: profile.posts_created || 0,
-            },
-          };
+        const appUser = await fetchUserProfile(session.user.id);
+        if (appUser) {
           setUser(appUser);
           setIsOnboarded(true);
         } else {
-          // User exists in auth but no profile yet
           setUser(null);
           setIsOnboarded(false);
         }
@@ -77,12 +102,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     });
 
-    // THEN check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         setIsLoading(false);
       }
-      // The onAuthStateChange will handle setting user if there's a session
     });
 
     return () => {
@@ -103,7 +126,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIsSwahili(!isSwahili);
   };
 
-  const addPoints = (points: number) => {
+  const addPoints = async (points: number) => {
     if (user) {
       const newPoints = user.ecoPoints + points;
       setUser({
@@ -112,13 +135,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
       
       // Update points in database
-      supabase
+      const { error } = await supabase
         .from('profiles')
         .update({ eco_points: newPoints })
-        .eq('user_id', user.id)
-        .then(({ error }) => {
-          if (error) console.error('Error updating points:', error);
-        });
+        .eq('user_id', user.id);
+        
+      if (error) console.error('Error updating points:', error);
+    }
+  };
+
+  const updateStats = async (stats: Partial<User['stats']>) => {
+    if (user) {
+      const newStats = { ...user.stats, ...stats };
+      setUser({
+        ...user,
+        stats: newStats,
+      });
+
+      // Update stats in database
+      const updateData: Record<string, number> = {};
+      if (stats.lettersSent !== undefined) updateData.letters_sent = newStats.lettersSent;
+      if (stats.swarmsJoined !== undefined) updateData.swarms_joined = newStats.swarmsJoined;
+      if (stats.postsCreated !== undefined) updateData.posts_created = newStats.postsCreated;
+      if (stats.treesPlanted !== undefined) updateData.trees_planted = newStats.treesPlanted;
+      if (stats.co2Saved !== undefined) updateData.co2_saved = newStats.co2Saved;
+
+      if (Object.keys(updateData).length > 0) {
+        const { error } = await supabase
+          .from('profiles')
+          .update(updateData)
+          .eq('user_id', user.id);
+          
+        if (error) console.error('Error updating stats:', error);
+      }
     }
   };
 
@@ -142,6 +191,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         showNotification,
         notification,
         isLoading,
+        updateStats,
+        refreshUser,
+        logout,
       }}
     >
       {children}
