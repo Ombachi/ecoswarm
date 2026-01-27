@@ -16,6 +16,8 @@ import { ProfileScreen } from "@/pages/ProfileScreen";
 import { AboutScreen } from "@/pages/AboutScreen";
 import { SettingsScreen } from "@/pages/SettingsScreen";
 import { LeaderboardScreen } from "@/pages/LeaderboardScreen";
+import { EditProfileScreen } from "@/pages/EditProfileScreen";
+import { ModuleScreen } from "@/pages/ModuleScreen";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -35,7 +37,6 @@ function LoadingScreen() {
 function AppRoutes() {
   const { isOnboarded, user, isLoading } = useApp();
 
-  // Show loading screen while checking auth state
   if (isLoading) {
     return <LoadingScreen />;
   }
@@ -44,94 +45,20 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          isAuthenticated ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <SplashScreen />
-          )
-        }
-      />
+      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SplashScreen />} />
       <Route path="/onboarding" element={<OnboardingScreen />} />
-      <Route path="/login" element={
-        isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen />
-      } />
-      <Route path="/signup" element={
-        isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupScreen />
-      } />
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen />} />
+      <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupScreen />} />
       <Route path="/about" element={<AboutScreen />} />
-      <Route
-        path="/dashboard"
-        element={
-          isAuthenticated ? (
-            <DashboardScreen />
-          ) : (
-            <Navigate to="/" replace />
-          )
-        }
-      />
-      <Route
-        path="/agora"
-        element={
-          isAuthenticated ? (
-            <AgoraScreen />
-          ) : (
-            <Navigate to="/" replace />
-          )
-        }
-      />
-      <Route
-        path="/swarms"
-        element={
-          isAuthenticated ? (
-            <SwarmsScreen />
-          ) : (
-            <Navigate to="/" replace />
-          )
-        }
-      />
-      <Route
-        path="/tools"
-        element={
-          isAuthenticated ? (
-            <ToolsScreen />
-          ) : (
-            <Navigate to="/" replace />
-          )
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          isAuthenticated ? (
-            <ProfileScreen />
-          ) : (
-            <Navigate to="/" replace />
-          )
-        }
-      />
-      <Route
-        path="/settings"
-        element={
-          isAuthenticated ? (
-            <SettingsScreen />
-          ) : (
-            <Navigate to="/" replace />
-          )
-        }
-      />
-      <Route
-        path="/leaderboard"
-        element={
-          isAuthenticated ? (
-            <LeaderboardScreen />
-          ) : (
-            <Navigate to="/" replace />
-          )
-        }
-      />
+      <Route path="/dashboard" element={isAuthenticated ? <DashboardScreen /> : <Navigate to="/" replace />} />
+      <Route path="/agora" element={isAuthenticated ? <AgoraScreen /> : <Navigate to="/" replace />} />
+      <Route path="/swarms" element={isAuthenticated ? <SwarmsScreen /> : <Navigate to="/" replace />} />
+      <Route path="/tools" element={isAuthenticated ? <ToolsScreen /> : <Navigate to="/" replace />} />
+      <Route path="/profile" element={isAuthenticated ? <ProfileScreen /> : <Navigate to="/" replace />} />
+      <Route path="/settings" element={isAuthenticated ? <SettingsScreen /> : <Navigate to="/" replace />} />
+      <Route path="/leaderboard" element={isAuthenticated ? <LeaderboardScreen /> : <Navigate to="/" replace />} />
+      <Route path="/edit-profile" element={isAuthenticated ? <EditProfileScreen /> : <Navigate to="/" replace />} />
+      <Route path="/module/:moduleId" element={isAuthenticated ? <ModuleScreen /> : <Navigate to="/" replace />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
