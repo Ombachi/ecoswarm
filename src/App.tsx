@@ -17,18 +17,37 @@ import { AboutScreen } from "@/pages/AboutScreen";
 import { SettingsScreen } from "@/pages/SettingsScreen";
 import { LeaderboardScreen } from "@/pages/LeaderboardScreen";
 import NotFound from "./pages/NotFound";
+import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
 
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center">
+        <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
 function AppRoutes() {
-  const { isOnboarded, user } = useApp();
+  const { isOnboarded, user, isLoading } = useApp();
+
+  // Show loading screen while checking auth state
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  const isAuthenticated = isOnboarded && user;
 
   return (
     <Routes>
       <Route
         path="/"
         element={
-          isOnboarded && user ? (
+          isAuthenticated ? (
             <Navigate to="/dashboard" replace />
           ) : (
             <SplashScreen />
@@ -36,13 +55,17 @@ function AppRoutes() {
         }
       />
       <Route path="/onboarding" element={<OnboardingScreen />} />
-      <Route path="/login" element={<LoginScreen />} />
-      <Route path="/signup" element={<SignupScreen />} />
+      <Route path="/login" element={
+        isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen />
+      } />
+      <Route path="/signup" element={
+        isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupScreen />
+      } />
       <Route path="/about" element={<AboutScreen />} />
       <Route
         path="/dashboard"
         element={
-          isOnboarded && user ? (
+          isAuthenticated ? (
             <DashboardScreen />
           ) : (
             <Navigate to="/" replace />
@@ -52,7 +75,7 @@ function AppRoutes() {
       <Route
         path="/agora"
         element={
-          isOnboarded && user ? (
+          isAuthenticated ? (
             <AgoraScreen />
           ) : (
             <Navigate to="/" replace />
@@ -62,7 +85,7 @@ function AppRoutes() {
       <Route
         path="/swarms"
         element={
-          isOnboarded && user ? (
+          isAuthenticated ? (
             <SwarmsScreen />
           ) : (
             <Navigate to="/" replace />
@@ -72,7 +95,7 @@ function AppRoutes() {
       <Route
         path="/tools"
         element={
-          isOnboarded && user ? (
+          isAuthenticated ? (
             <ToolsScreen />
           ) : (
             <Navigate to="/" replace />
@@ -82,7 +105,7 @@ function AppRoutes() {
       <Route
         path="/profile"
         element={
-          isOnboarded && user ? (
+          isAuthenticated ? (
             <ProfileScreen />
           ) : (
             <Navigate to="/" replace />
@@ -92,7 +115,7 @@ function AppRoutes() {
       <Route
         path="/settings"
         element={
-          isOnboarded && user ? (
+          isAuthenticated ? (
             <SettingsScreen />
           ) : (
             <Navigate to="/" replace />
@@ -102,7 +125,7 @@ function AppRoutes() {
       <Route
         path="/leaderboard"
         element={
-          isOnboarded && user ? (
+          isAuthenticated ? (
             <LeaderboardScreen />
           ) : (
             <Navigate to="/" replace />
