@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types/ecoswarm';
 import { supabase } from '@/integrations/supabase/client';
+import type { PostgrestSingleResponse } from '@supabase/supabase-js';
+import type { Database } from '@/integrations/supabase/types';
 
 interface AppContextType {
   user: User | null;
@@ -30,38 +32,66 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [notification, setNotification] = useState<{ message: string; points?: number } | null>(null);
 
-  const fetchUserProfile = async (userId: string) => {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
+  const withTimeout = async <T,>(
+    promise: PromiseLike<T>,
+    ms: number,
+    label: string
+  ): Promise<T> => {
+    let timeoutId: number | undefined;
+    const timeout = new Promise<T>((_, reject) => {
+      timeoutId = window.setTimeout(() => reject(new Error(`${label}_timeout`)), ms);
+    });
+    try {
+      return await Promise.race([Promise.resolve(promise), timeout]);
+    } finally {
+      if (timeoutId) window.clearTimeout(timeoutId);
+    }
+  };
 
-    if (error) {
-      console.error('Error fetching profile:', error);
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      type ProfileRow = Database['public']['Tables']['profiles']['Row'];
+      const res = await withTimeout<PostgrestSingleResponse<ProfileRow | null>>(
+        (supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle() as unknown) as PromiseLike<PostgrestSingleResponse<ProfileRow | null>>,
+        8000,
+        'fetch_profile'
+      );
+
+      const { data: profile, error } = res;
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+
+      if (profile) {
+        const appUser: User = {
+          id: profile.user_id,
+          name: profile.name,
+          location: profile.location || profile.county || 'Kenya',
+          ecoPoints: profile.eco_points || 0,
+          streak: profile.streak || 0,
+          topConcern: profile.top_concern || 'Climate Action',
+          badges: [],
+          stats: {
+            treesPlanted: profile.trees_planted || 0,
+            lettersSent: profile.letters_sent || 0,
+            swarmsJoined: profile.swarms_joined || 0,
+            co2Saved: profile.co2_saved || 0,
+            postsCreated: profile.posts_created || 0,
+          },
+        };
+        return appUser;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching profile (unexpected):', error);
       return null;
     }
-
-    if (profile) {
-      const appUser: User = {
-        id: profile.user_id,
-        name: profile.name,
-        location: profile.location || profile.county || 'Kenya',
-        ecoPoints: profile.eco_points || 0,
-        streak: profile.streak || 0,
-        topConcern: profile.top_concern || 'Climate Action',
-        badges: [],
-        stats: {
-          treesPlanted: profile.trees_planted || 0,
-          lettersSent: profile.letters_sent || 0,
-          swarmsJoined: profile.swarms_joined || 0,
-          co2Saved: profile.co2_saved || 0,
-          postsCreated: profile.posts_created || 0,
-        },
-      };
-      return appUser;
-    }
-    return null;
   };
 
   const refreshUser = async () => {
@@ -87,7 +117,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session } } = await withTimeout(
+          supabase.auth.getSession(),
+          8000,
+          'get_session'
+        );
         
         if (!isMounted) return;
 
@@ -110,6 +144,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
+        if (isMounted) {
+          // Never let the whole app stay blocked on a loading screen.
+          setUser(null);
+          setIsOnboarded(false);
+        }
       } finally {
         if (isMounted) {
           setIsLoading(false);
