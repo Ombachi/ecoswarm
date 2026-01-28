@@ -17,13 +17,11 @@ const upliftingStatements = [
 
 export function SplashScreen() {
   const navigate = useNavigate();
-  const [showContent, setShowContent] = useState(false);
+  const [showContent, setShowContent] = useState(true); // Start with true to show immediately
   const [currentDate, setCurrentDate] = useState('');
   const [upliftingMessage, setUpliftingMessage] = useState('');
 
   useEffect(() => {
-    setTimeout(() => setShowContent(true), 500);
-    
     // Set current date
     const now = new Date();
     const options: Intl.DateTimeFormatOptions = { 

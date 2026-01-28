@@ -83,32 +83,68 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Listen to auth state changes and fetch user profile
   useEffect(() => {
+    let isMounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!isMounted) return;
+
+        if (session?.user) {
+          const appUser = await fetchUserProfile(session.user.id);
+          if (isMounted) {
+            if (appUser) {
+              setUser(appUser);
+              setIsOnboarded(true);
+            } else {
+              setUser(null);
+              setIsOnboarded(false);
+            }
+          }
+        } else {
+          if (isMounted) {
+            setUser(null);
+            setIsOnboarded(false);
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.id);
       
+      if (!isMounted) return;
+
       if (session?.user) {
         const appUser = await fetchUserProfile(session.user.id);
-        if (appUser) {
-          setUser(appUser);
-          setIsOnboarded(true);
-        } else {
+        if (isMounted) {
+          if (appUser) {
+            setUser(appUser);
+            setIsOnboarded(true);
+          } else {
+            setUser(null);
+            setIsOnboarded(false);
+          }
+        }
+      } else {
+        if (isMounted) {
           setUser(null);
           setIsOnboarded(false);
         }
-      } else {
-        setUser(null);
-        setIsOnboarded(false);
-      }
-      setIsLoading(false);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        setIsLoading(false);
       }
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, []);
