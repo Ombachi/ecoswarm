@@ -3,6 +3,7 @@ export interface User {
   name: string;
   location: string;
   avatar?: string;
+  bio?: string;
   ecoPoints: number;
   topConcern: string;
   streak: number;
@@ -24,6 +25,7 @@ export interface UserStats {
   swarmsJoined: number;
   postsCreated: number;
   treesPlanted: number;
+  coursesCompleted: number;
 }
 
 export interface Post {

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
-import { mockPosts } from '@/data/mockData';
 import { Post } from '@/types/ecoswarm';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
 import { CommentsSection } from '@/components/posts/CommentsSection';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Heart,
   MessageCircle,
@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ChevronUp,
   RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -27,83 +28,125 @@ export function AgoraScreen() {
   const [expandedComments, setExpandedComments] = useState<string | null>(null);
   const [expandedShare, setExpandedShare] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load posts on mount, including any saved posts from localStorage
   useEffect(() => {
     loadPosts();
   }, []);
 
-  const loadPosts = () => {
-    // Get saved user posts from localStorage
-    const savedPosts = localStorage.getItem('ecoswarm_posts');
-    const userPosts: Post[] = savedPosts ? JSON.parse(savedPosts) : [];
-    
-    // Combine with mock posts, user posts first
-    const allPosts = [...userPosts, ...mockPosts];
-    setPosts(allPosts);
+  const loadPosts = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const mappedPosts: Post[] = (data || []).map((p) => ({
+        id: p.id,
+        userId: p.user_id,
+        userName: p.user_name,
+        content: p.content,
+        mediaUrl: p.media_url || undefined,
+        mediaType: p.media_type as 'image' | 'video' | undefined,
+        likes: p.likes || 0,
+        comments: p.comments || 0,
+        shares: p.shares || 0,
+        tags: p.tags || [],
+        createdAt: new Date(p.created_at),
+        isLiked: false,
+      }));
+
+      setPosts(mappedPosts);
+    } catch (error) {
+      console.error('Error loading posts:', error);
+      toast.error('Failed to load posts');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setIsRefreshing(true);
-    loadPosts();
-    setTimeout(() => {
-      setIsRefreshing(false);
-      toast.success('Feed refreshed!');
-    }, 500);
+    await loadPosts();
+    setIsRefreshing(false);
+    toast.success('Feed refreshed!');
   };
 
-  const handleLike = (postId: string) => {
+  const handleLike = async (postId: string) => {
+    const post = posts.find((p) => p.id === postId);
+    if (!post) return;
+
+    const newLikeCount = post.isLiked ? post.likes - 1 : post.likes + 1;
+
     setPosts(
-      posts.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              isLiked: !post.isLiked,
-              likes: post.isLiked ? post.likes - 1 : post.likes + 1,
-            }
-          : post
+      posts.map((p) =>
+        p.id === postId
+          ? { ...p, isLiked: !p.isLiked, likes: newLikeCount }
+          : p
       )
     );
+
+    await supabase
+      .from('posts')
+      .update({ likes: newLikeCount })
+      .eq('id', postId);
   };
 
-  const handlePostCreated = (postData: { content: string; mediaUrl?: string; mediaType?: 'image' | 'video' | 'file' }) => {
+  const handlePostCreated = async (postData: {
+    content: string;
+    mediaUrl?: string;
+    mediaType?: 'image' | 'video' | 'file';
+  }) => {
     if (!user) return;
 
-    const newPost: Post = {
-      id: `user_${Date.now()}`,
-      userId: user.id,
-      userName: user.name,
-      content: postData.content,
-      mediaUrl: postData.mediaUrl,
-      mediaType: postData.mediaType === 'file' ? undefined : postData.mediaType,
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      tags: extractHashtags(postData.content),
-      createdAt: new Date(),
-      isLiked: false,
-    };
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .insert({
+          user_id: user.id,
+          user_name: user.name,
+          content: postData.content,
+          media_url: postData.mediaUrl || null,
+          media_type: postData.mediaType === 'file' ? null : postData.mediaType || null,
+          tags: extractHashtags(postData.content),
+        })
+        .select()
+        .single();
 
-    // Add to state
-    const updatedPosts = [newPost, ...posts];
-    setPosts(updatedPosts);
+      if (error) throw error;
 
-    // Save user posts to localStorage
-    const savedPosts = localStorage.getItem('ecoswarm_posts');
-    const userPosts: Post[] = savedPosts ? JSON.parse(savedPosts) : [];
-    userPosts.unshift(newPost);
-    localStorage.setItem('ecoswarm_posts', JSON.stringify(userPosts));
+      const newPost: Post = {
+        id: data.id,
+        userId: data.user_id,
+        userName: data.user_name,
+        content: data.content,
+        mediaUrl: data.media_url || undefined,
+        mediaType: data.media_type as 'image' | 'video' | undefined,
+        likes: 0,
+        comments: 0,
+        shares: 0,
+        tags: data.tags || [],
+        createdAt: new Date(data.created_at),
+        isLiked: false,
+      };
 
-    // Award points and update stats
-    addPoints(20);
-    updateStats({ postsCreated: user.stats.postsCreated + 1 });
-    showNotification('Story shared! 📢', 20);
+      setPosts([newPost, ...posts]);
+      addPoints(20);
+      updateStats({ postsCreated: user.stats.postsCreated + 1 });
+      showNotification('Story shared! 📢', 20);
+    } catch (error) {
+      console.error('Error creating post:', error);
+      toast.error('Failed to create post');
+    }
   };
 
   const extractHashtags = (text: string): string[] => {
     const regex = /#(\w+)/g;
     const matches = text.match(regex);
-    return matches ? matches.map(tag => tag.slice(1)) : [];
+    return matches ? matches.map((tag) => tag.slice(1)) : [];
   };
 
   const toggleComments = (postId: string) => {
@@ -117,9 +160,13 @@ export function AgoraScreen() {
   };
 
   const handleCommentCountChange = (postId: string, count: number) => {
-    setPosts(posts.map(post => 
-      post.id === postId ? { ...post, comments: count } : post
-    ));
+    setPosts(
+      posts.map((post) =>
+        post.id === postId ? { ...post, comments: count } : post
+      )
+    );
+
+    supabase.from('posts').update({ comments: count }).eq('id', postId);
   };
 
   return (
@@ -134,7 +181,9 @@ export function AgoraScreen() {
               disabled={isRefreshing}
               className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-all"
             >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
+              />
             </button>
             <span className="eco-badge">🔥 Trending</span>
           </div>
@@ -143,11 +192,17 @@ export function AgoraScreen() {
 
       {/* Feed */}
       <div className="divide-y divide-border">
-        {posts.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : posts.length === 0 ? (
           <div className="p-8 text-center">
             <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">No posts yet</p>
-            <p className="text-sm text-muted-foreground">Be the first to share your story!</p>
+            <p className="text-sm text-muted-foreground">
+              Be the first to share your story!
+            </p>
           </div>
         ) : (
           posts.map((post, index) => (
@@ -231,10 +286,12 @@ export function AgoraScreen() {
                   <span>{post.likes}</span>
                 </button>
 
-                <button 
+                <button
                   onClick={() => toggleComments(post.id)}
                   className={`flex items-center gap-1.5 text-sm ${
-                    expandedComments === post.id ? 'text-primary' : 'text-muted-foreground'
+                    expandedComments === post.id
+                      ? 'text-primary'
+                      : 'text-muted-foreground'
                   }`}
                 >
                   <MessageCircle className="w-5 h-5" />
@@ -249,7 +306,9 @@ export function AgoraScreen() {
                 <button
                   onClick={() => toggleShare(post.id)}
                   className={`flex items-center gap-1.5 text-sm ${
-                    expandedShare === post.id ? 'text-primary' : 'text-muted-foreground'
+                    expandedShare === post.id
+                      ? 'text-primary'
+                      : 'text-muted-foreground'
                   }`}
                 >
                   <Share2 className="w-5 h-5" />
@@ -259,17 +318,21 @@ export function AgoraScreen() {
 
               {/* Expanded Comments */}
               {expandedComments === post.id && (
-                <CommentsSection 
+                <CommentsSection
                   postId={post.id}
-                  onCommentCountChange={(count) => handleCommentCountChange(post.id, count)}
+                  onCommentCountChange={(count) =>
+                    handleCommentCountChange(post.id, count)
+                  }
                 />
               )}
 
               {/* Expanded Share */}
               {expandedShare === post.id && (
                 <div className="mt-4 border-t border-border pt-4">
-                  <p className="text-sm font-semibold text-foreground mb-3">Share this post</p>
-                  <SocialShareButtons 
+                  <p className="text-sm font-semibold text-foreground mb-3">
+                    Share this post
+                  </p>
+                  <SocialShareButtons
                     url={`${window.location.origin}/post/${post.id}`}
                     title={`Check out this post on EcoSwarm!`}
                     text={post.content.substring(0, 100)}

@@ -1,47 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useApp } from '@/context/AppContext';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ChevronLeft, Save, Loader2 } from 'lucide-react';
+import { ChevronLeft, Save, Loader2, Camera } from 'lucide-react';
 import { toast } from 'sonner';
-
-const counties = [
-  'Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Kiambu', 'Machakos',
-  'Kajiado', 'Uasin Gishu', 'Nyeri', 'Meru', 'Kilifi', 'Kakamega', 'Bungoma',
-  'Kisii', 'Nyamira', 'Trans Nzoia', 'Nandi', 'Kericho', 'Bomet'
-];
-
-const concerns = [
-  'Climate Action', 'Mental Health', 'Education Access', 'Youth Unemployment',
-  'Affordable Housing', 'Healthcare Access', 'Gender Equality', 'Anti-Corruption',
-  'Environmental Protection', 'Digital Rights'
-];
 
 export function EditProfileScreen() {
   const navigate = useNavigate();
-  const { user, setUser } = useApp();
+  const { user, setUser, refreshUser } = useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [sex, setSex] = useState('');
-  const [county, setCounty] = useState('');
-  const [phone, setPhone] = useState('');
-  const [topConcern, setTopConcern] = useState('');
+  const [bio, setBio] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
 
   useEffect(() => {
     if (user) {
       setName(user.name || '');
-      setTopConcern(user.topConcern || '');
+      setBio(user.bio || '');
+      setAvatarUrl(user.avatar || '');
     }
     fetchProfile();
   }, [user]);
 
   const fetchProfile = async () => {
     if (!user) return;
-    
+
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -54,16 +42,52 @@ export function EditProfileScreen() {
 
       if (data) {
         setName(data.name || '');
-        setAge(data.age?.toString() || '');
-        setSex(data.sex || '');
-        setCounty(data.county || data.location || '');
-        setPhone(data.phone || '');
-        setTopConcern(data.top_concern || '');
+        setBio((data as unknown as { bio?: string }).bio || '');
+        setAvatarUrl((data as unknown as { avatar_url?: string }).avatar_url || '');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image must be less than 2MB');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      setAvatarUrl(publicUrl);
+      toast.success('Photo uploaded!');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast.error('Failed to upload photo');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -80,23 +104,18 @@ export function EditProfileScreen() {
         .from('profiles')
         .update({
           name: name.trim(),
-          age: age ? parseInt(age) : null,
-          sex: sex || null,
-          county: county || null,
-          location: county || null,
-          phone: phone || null,
-          top_concern: topConcern || null,
+          bio: bio.trim() || null,
+          avatar_url: avatarUrl || null,
         })
         .eq('user_id', user.id);
 
       if (error) throw error;
 
-      // Update local user state
       setUser({
         ...user,
         name: name.trim(),
-        location: county || user.location,
-        topConcern: topConcern || user.topConcern,
+        bio: bio.trim() || undefined,
+        avatar: avatarUrl || undefined,
       });
 
       toast.success('Profile updated successfully!');
@@ -150,10 +169,39 @@ export function EditProfileScreen() {
 
       <div className="px-4 py-6 space-y-6">
         {/* Avatar */}
-        <div className="flex justify-center">
-          <div className="w-24 h-24 rounded-2xl eco-gradient-bg flex items-center justify-center text-4xl font-bold text-white">
-            {name.charAt(0) || 'U'}
+        <div className="flex flex-col items-center">
+          <div className="relative">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="Profile"
+                className="w-24 h-24 rounded-2xl object-cover"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-2xl eco-gradient-bg flex items-center justify-center text-4xl font-bold text-white">
+                {name.charAt(0) || 'U'}
+              </div>
+            )}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg"
+            >
+              {isUploading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+            />
           </div>
+          <p className="text-sm text-muted-foreground mt-2">Tap to change photo</p>
         </div>
 
         {/* Form */}
@@ -171,82 +219,20 @@ export function EditProfileScreen() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Age
-              </label>
-              <input
-                type="number"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                className="eco-input"
-                placeholder="Your age"
-                min="13"
-                max="100"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Sex
-              </label>
-              <select
-                value={sex}
-                onChange={(e) => setSex(e.target.value)}
-                className="eco-input"
-              >
-                <option value="">Select</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              County
+              Bio
             </label>
-            <select
-              value={county}
-              onChange={(e) => setCounty(e.target.value)}
-              className="eco-input"
-            >
-              <option value="">Select county</option>
-              {counties.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Phone Number
-            </label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="eco-input"
-              placeholder="0712 345 678"
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              className="eco-input min-h-[100px] resize-none"
+              placeholder="Tell us about yourself..."
+              maxLength={300}
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Top Concern
-            </label>
-            <select
-              value={topConcern}
-              onChange={(e) => setTopConcern(e.target.value)}
-              className="eco-input"
-            >
-              <option value="">Select your top concern</option>
-              {concerns.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            <p className="text-xs text-muted-foreground mt-1 text-right">
+              {bio.length}/300
+            </p>
           </div>
         </div>
       </div>

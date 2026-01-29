@@ -41,11 +41,80 @@ export type Database = {
         }
         Relationships: []
       }
+      course_completions: {
+        Row: {
+          completed_at: string | null
+          id: string
+          module_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          module_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          module_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      posts: {
+        Row: {
+          comments: number | null
+          content: string
+          created_at: string | null
+          id: string
+          is_liked: boolean | null
+          likes: number | null
+          media_type: string | null
+          media_url: string | null
+          shares: number | null
+          tags: string[] | null
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          comments?: number | null
+          content: string
+          created_at?: string | null
+          id?: string
+          is_liked?: boolean | null
+          likes?: number | null
+          media_type?: string | null
+          media_url?: string | null
+          shares?: number | null
+          tags?: string[] | null
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          comments?: number | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_liked?: boolean | null
+          likes?: number | null
+          media_type?: string | null
+          media_url?: string | null
+          shares?: number | null
+          tags?: string[] | null
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null
+          avatar_url: string | null
+          bio: string | null
           co2_saved: number | null
           county: string | null
+          courses_completed: number | null
           created_at: string
           eco_points: number | null
           email: string
@@ -65,8 +134,11 @@ export type Database = {
         }
         Insert: {
           age?: number | null
+          avatar_url?: string | null
+          bio?: string | null
           co2_saved?: number | null
           county?: string | null
+          courses_completed?: number | null
           created_at?: string
           eco_points?: number | null
           email: string
@@ -86,8 +158,11 @@ export type Database = {
         }
         Update: {
           age?: number | null
+          avatar_url?: string | null
+          bio?: string | null
           co2_saved?: number | null
           county?: string | null
+          courses_completed?: number | null
           created_at?: string
           eco_points?: number | null
           email?: string
@@ -103,6 +178,27 @@ export type Database = {
           top_concern?: string | null
           trees_planted?: number | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string | null
+          id?: string
           user_id?: string
         }
         Relationships: []
