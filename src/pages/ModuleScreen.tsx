@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { mockLearningModules } from '@/data/mockData';
 import { Confetti } from '@/components/common/Confetti';
+import { supabase } from '@/integrations/supabase/client';
 import {
   ChevronLeft,
   Play,
@@ -191,8 +192,8 @@ const moduleContent: Record<string, {
 export function ModuleScreen() {
   const { moduleId } = useParams<{ moduleId: string }>();
   const navigate = useNavigate();
-  const { addPoints, showNotification } = useApp();
-  
+  const { user, addPoints, showNotification, completeCourse, earnBadge } = useApp();
+
   const [currentSection, setCurrentSection] = useState(0);
   const [showQuiz, setShowQuiz] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -200,9 +201,25 @@ export function ModuleScreen() {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [alreadyCompleted, setAlreadyCompleted] = useState(false);
 
-  const module = mockLearningModules.find(m => m.id === moduleId);
+  const module = mockLearningModules.find((m) => m.id === moduleId);
   const content = moduleId ? moduleContent[moduleId] : null;
+
+  useEffect(() => {
+    checkIfCompleted();
+  }, [moduleId, user]);
+
+  const checkIfCompleted = async () => {
+    if (!user || !moduleId) return;
+    const { data } = await supabase
+      .from('course_completions')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('module_id', moduleId)
+      .maybeSingle();
+    setAlreadyCompleted(!!data);
+  };
 
   if (!module || !content) {
     return (
@@ -235,7 +252,7 @@ export function ModuleScreen() {
     setSelectedAnswer(index);
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     if (selectedAnswer === content.questions[currentQuestion].correct) {
       setScore(score + 1);
     }
@@ -245,15 +262,22 @@ export function ModuleScreen() {
       setSelectedAnswer(null);
     } else {
       // Quiz completed
-      const finalScore = selectedAnswer === content.questions[currentQuestion].correct 
-        ? score + 1 
+      const finalScore = selectedAnswer === content.questions[currentQuestion].correct
+        ? score + 1
         : score;
-      
+
       setQuizCompleted(true);
-      
-      if (finalScore >= content.questions.length * 0.7) {
+
+      if (finalScore >= content.questions.length * 0.7 && !alreadyCompleted) {
         setShowConfetti(true);
         addPoints(module.points);
+        await completeCourse(moduleId!);
+
+        // Check if earned the Educator badge (all modules complete)
+        if (user && user.stats.coursesCompleted + 1 >= mockLearningModules.length) {
+          await earnBadge('8');
+        }
+
         showNotification(`Module completed! 🎓`, module.points);
         toast.success(`You earned ${module.points} EcoPoints!`);
         setTimeout(() => setShowConfetti(false), 3000);

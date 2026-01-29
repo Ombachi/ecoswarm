@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { mockLetterTemplates, mockRecipients, mockLearningModules } from '@/data/mockData';
 import { Confetti } from '@/components/common/Confetti';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Mail,
   GraduationCap,
@@ -17,7 +18,7 @@ import {
 
 export function ToolsScreen() {
   const navigate = useNavigate();
-  const { user, addPoints, showNotification, updateStats } = useApp();
+  const { user, addPoints, showNotification, updateStats, earnBadge } = useApp();
   const [activeTab, setActiveTab] = useState<'letter' | 'learn'>('letter');
   const [letterStep, setLetterStep] = useState(0);
   const [selectedTemplate, setSelectedTemplate] = useState('');
@@ -26,19 +27,44 @@ export function ToolsScreen() {
   const [showPreview, setShowPreview] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [completedModules, setCompletedModules] = useState<string[]>([]);
 
-  const handleSubmitLetter = () => {
+  useEffect(() => {
+    if (user) {
+      loadCompletions();
+    }
+  }, [user]);
+
+  const loadCompletions = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('course_completions')
+      .select('module_id')
+      .eq('user_id', user.id);
+    setCompletedModules(data?.map((c) => c.module_id) || []);
+  };
+
+  const handleSubmitLetter = async () => {
     setShowConfetti(true);
     setShowSuccess(true);
     addPoints(50);
-    
+
     // Update letters sent stat
     if (user) {
       updateStats({ lettersSent: user.stats.lettersSent + 1 });
+
+      // Award Voice Heard badge on first letter
+      if (user.stats.lettersSent === 0) {
+        await earnBadge('2');
+      }
+      // Award Policy Maker badge on 10th letter
+      if (user.stats.lettersSent + 1 >= 10) {
+        await earnBadge('7');
+      }
     }
-    
+
     showNotification('EcoLetter sent! 📨', 50);
-    
+
     setTimeout(() => {
       setShowConfetti(false);
     }, 3000);
@@ -332,7 +358,9 @@ export function ToolsScreen() {
           </p>
 
           <div className="grid gap-4">
-            {mockLearningModules.map((module, index) => (
+            {mockLearningModules.map((module, index) => {
+              const isCompleted = completedModules.includes(module.id);
+              return (
               <button
                 key={module.id}
                 onClick={() => handleModuleClick(module.id)}
@@ -342,12 +370,12 @@ export function ToolsScreen() {
                 <div className="flex items-start gap-3">
                   <div
                     className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      module.completed
+                      isCompleted
                         ? 'eco-gradient-bg'
                         : 'bg-muted'
                     }`}
                   >
-                    {module.completed ? (
+                    {isCompleted ? (
                       <Check className="w-6 h-6 text-white" />
                     ) : module.progress && module.progress > 0 ? (
                       <Play className="w-6 h-6 text-primary" />
@@ -371,8 +399,7 @@ export function ToolsScreen() {
                         +{module.points} pts
                       </span>
                     </div>
-
-                    {module.progress !== undefined && module.progress > 0 && !module.completed && (
+                    {module.progress !== undefined && module.progress > 0 && !isCompleted && (
                       <div className="mt-3">
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                           <div
@@ -389,7 +416,8 @@ export function ToolsScreen() {
                   <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                 </div>
               </button>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

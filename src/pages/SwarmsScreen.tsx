@@ -24,13 +24,13 @@ const categoryIcons: Record<string, any> = {
 };
 
 export function SwarmsScreen() {
-  const { user, addPoints, showNotification, updateStats } = useApp();
+  const { user, addPoints, showNotification, updateStats, earnBadge } = useApp();
   const [swarms, setSwarms] = useState<Swarm[]>(mockSwarms);
   const [selectedSwarm, setSelectedSwarm] = useState<Swarm | null>(null);
   const [voteValue, setVoteValue] = useState(1);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const handleJoinSwarm = (swarmId: string) => {
+  const handleJoinSwarm = async (swarmId: string) => {
     setSwarms(
       swarms.map((swarm) =>
         swarm.id === swarmId
@@ -45,7 +45,13 @@ export function SwarmsScreen() {
     );
     addPoints(30);
     if (user) {
-      updateStats({ swarmsJoined: user.stats.swarmsJoined + 1 });
+      const newCount = user.stats.swarmsJoined + 1;
+      updateStats({ swarmsJoined: newCount });
+
+      // Award Swarm Leader badge on 5th swarm
+      if (newCount >= 5) {
+        await earnBadge('3');
+      }
     }
     showNotification('Joined swarm! 🐝', 30);
     setSelectedSwarm(null);

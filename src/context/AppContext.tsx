@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '@/types/ecoswarm';
+import { User, Badge } from '@/types/ecoswarm';
 import { supabase } from '@/integrations/supabase/client';
 import type { PostgrestSingleResponse } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
+import { allBadges } from '@/data/mockData';
 
 interface AppContextType {
   user: User | null;
@@ -20,6 +21,8 @@ interface AppContextType {
   updateStats: (stats: Partial<User['stats']>) => void;
   refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
+  earnBadge: (badgeId: string) => Promise<void>;
+  completeCourse: (moduleId: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -48,6 +51,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const fetchUserBadges = async (userId: string): Promise<Badge[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_badges')
+        .select('badge_id, earned_at')
+        .eq('user_id', userId);
+
+      if (error || !data) return [];
+
+      return data
+        .map((ub) => {
+          const badge = allBadges.find((b) => b.id === ub.badge_id);
+          if (badge) {
+            return { ...badge, earnedAt: new Date(ub.earned_at) };
+          }
+          return null;
+        })
+        .filter(Boolean) as Badge[];
+    } catch {
+      return [];
+    }
+  };
+
   const fetchUserProfile = async (userId: string) => {
     try {
       type ProfileRow = Database['public']['Tables']['profiles']['Row'];
@@ -69,20 +95,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       if (profile) {
+        const badges = await fetchUserBadges(userId);
         const appUser: User = {
           id: profile.user_id,
           name: profile.name,
           location: profile.location || profile.county || 'Kenya',
+          avatar: (profile as unknown as { avatar_url?: string }).avatar_url || undefined,
+          bio: (profile as unknown as { bio?: string }).bio || undefined,
           ecoPoints: profile.eco_points || 0,
           streak: profile.streak || 0,
           topConcern: profile.top_concern || 'Climate Action',
-          badges: [],
+          badges,
           stats: {
             treesPlanted: profile.trees_planted || 0,
             lettersSent: profile.letters_sent || 0,
             swarmsJoined: profile.swarms_joined || 0,
             co2Saved: profile.co2_saved || 0,
             postsCreated: profile.posts_created || 0,
+            coursesCompleted: (profile as unknown as { courses_completed?: number }).courses_completed || 0,
           },
         };
         return appUser;
@@ -122,7 +152,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           8000,
           'get_session'
         );
-        
+
         if (!isMounted) return;
 
         if (session?.user) {
@@ -145,7 +175,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error('Error initializing auth:', error);
         if (isMounted) {
-          // Never let the whole app stay blocked on a loading screen.
           setUser(null);
           setIsOnboarded(false);
         }
@@ -160,7 +189,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.id);
-      
+
       if (!isMounted) return;
 
       if (session?.user) {
@@ -208,13 +237,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...user,
         ecoPoints: newPoints,
       });
-      
-      // Update points in database
+
       const { error } = await supabase
         .from('profiles')
         .update({ eco_points: newPoints })
         .eq('user_id', user.id);
-        
+
       if (error) console.error('Error updating points:', error);
     }
   };
@@ -227,23 +255,64 @@ export function AppProvider({ children }: { children: ReactNode }) {
         stats: newStats,
       });
 
-      // Update stats in database
       const updateData: Record<string, number> = {};
       if (stats.lettersSent !== undefined) updateData.letters_sent = newStats.lettersSent;
       if (stats.swarmsJoined !== undefined) updateData.swarms_joined = newStats.swarmsJoined;
       if (stats.postsCreated !== undefined) updateData.posts_created = newStats.postsCreated;
       if (stats.treesPlanted !== undefined) updateData.trees_planted = newStats.treesPlanted;
       if (stats.co2Saved !== undefined) updateData.co2_saved = newStats.co2Saved;
+      if (stats.coursesCompleted !== undefined) updateData.courses_completed = newStats.coursesCompleted;
 
       if (Object.keys(updateData).length > 0) {
         const { error } = await supabase
           .from('profiles')
           .update(updateData)
           .eq('user_id', user.id);
-          
+
         if (error) console.error('Error updating stats:', error);
       }
     }
+  };
+
+  const earnBadge = async (badgeId: string) => {
+    if (!user) return;
+    const alreadyHas = user.badges.some((b) => b.id === badgeId);
+    if (alreadyHas) return;
+
+    const badge = allBadges.find((b) => b.id === badgeId);
+    if (!badge) return;
+
+    const { error } = await supabase.from('user_badges').insert({
+      user_id: user.id,
+      badge_id: badgeId,
+    });
+
+    if (error) {
+      console.error('Error earning badge:', error);
+      return;
+    }
+
+    setUser({
+      ...user,
+      badges: [...user.badges, { ...badge, earnedAt: new Date() }],
+    });
+  };
+
+  const completeCourse = async (moduleId: string) => {
+    if (!user) return;
+
+    const { error } = await supabase.from('course_completions').insert({
+      user_id: user.id,
+      module_id: moduleId,
+    });
+
+    if (error && !error.message.includes('duplicate')) {
+      console.error('Error completing course:', error);
+      return;
+    }
+
+    const newCount = user.stats.coursesCompleted + 1;
+    await updateStats({ coursesCompleted: newCount });
   };
 
   const showNotification = (message: string, points?: number) => {
@@ -269,6 +338,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         updateStats,
         refreshUser,
         logout,
+        earnBadge,
+        completeCourse,
       }}
     >
       {children}

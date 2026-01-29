@@ -20,6 +20,7 @@ export const mockUser: User = {
     swarmsJoined: 5,
     postsCreated: 12,
     treesPlanted: 50,
+    coursesCompleted: 1,
   },
 };
 

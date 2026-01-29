@@ -7,14 +7,14 @@ import { allBadges } from '@/data/mockData';
 import {
   Settings,
   ChevronRight,
-  Leaf,
   Mail,
   Users,
   MessageSquare,
-  TreePine,
   Trophy,
   Share2,
   Sparkles,
+  BookOpen,
+  Edit,
 } from 'lucide-react';
 
 export function ProfileScreen() {
@@ -24,12 +24,6 @@ export function ProfileScreen() {
   if (!user) return null;
 
   const statItems = [
-    {
-      icon: Leaf,
-      value: `${user.stats.co2Saved}kg`,
-      label: isSwahili ? 'CO2 Iliyookolewa' : 'CO2 Saved',
-      color: 'text-primary',
-    },
     {
       icon: Mail,
       value: user.stats.lettersSent,
@@ -49,9 +43,9 @@ export function ProfileScreen() {
       color: 'text-eco-orange',
     },
     {
-      icon: TreePine,
-      value: user.stats.treesPlanted,
-      label: isSwahili ? 'Miti Iliyopandwa' : 'Trees Planted',
+      icon: BookOpen,
+      value: user.stats.coursesCompleted,
+      label: isSwahili ? 'Kozi Zilizokamilika' : 'Courses Completed',
       color: 'text-primary',
     },
   ];
@@ -70,7 +64,7 @@ export function ProfileScreen() {
             <h1 className="text-xl font-bold text-white">
               {isSwahili ? 'Athari Yangu' : 'My Impact'}
             </h1>
-            <button 
+            <button
               onClick={() => navigate('/settings')}
               className="p-2 rounded-full bg-white/20 text-white"
             >
@@ -79,18 +73,35 @@ export function ProfileScreen() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-4xl font-bold text-white">
-              {user.name.charAt(0)}
-            </div>
+            {user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-20 h-20 rounded-2xl object-cover"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-4xl font-bold text-white">
+                {user.name.charAt(0)}
+              </div>
+            )}
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-white">{user.name}</h2>
               <p className="text-white/80">📍 {user.location}</p>
+              {user.bio && (
+                <p className="text-white/70 text-sm mt-1 line-clamp-1">{user.bio}</p>
+              )}
               <div className="flex items-center gap-2 mt-1">
                 <span className="px-2 py-0.5 rounded-full bg-white/20 text-white text-xs">
                   🔥 {user.streak} Day Streak
                 </span>
               </div>
             </div>
+            <button
+              onClick={() => navigate('/edit-profile')}
+              className="p-2 rounded-full bg-white/20 text-white"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
@@ -137,7 +148,9 @@ export function ProfileScreen() {
               >
                 <stat.icon className={`w-6 h-6 ${stat.color}`} />
                 <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-[10px] text-muted-foreground text-center">{stat.label}</p>
+                <p className="text-[10px] text-muted-foreground text-center">
+                  {stat.label}
+                </p>
               </div>
             ))}
           </div>
@@ -175,27 +188,6 @@ export function ProfileScreen() {
           </div>
         </div>
 
-        {/* Monumental Milestones */}
-        <div>
-          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-            🏛️ {isSwahili ? 'Mafanikio Makubwa' : 'Monumental Milestones'}
-          </h3>
-          <div className="eco-card p-4 bg-gradient-to-br from-eco-green-light to-eco-blue-light border-none">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-xl eco-gradient-bg flex items-center justify-center animate-pulse-glow">
-                <TreePine className="w-8 h-8 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-foreground">Virtual Forest</p>
-                <p className="text-sm text-muted-foreground">
-                  You've contributed to 50 trees planted!
-                </p>
-                <p className="text-xs text-primary mt-1">🌳 View your AR forest →</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Share Profile */}
         <div>
           <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -203,7 +195,7 @@ export function ProfileScreen() {
             {isSwahili ? 'Shiriki Athari Yangu' : 'Share My Impact'}
           </h3>
           <div className="eco-card p-4">
-            <SocialShareButtons 
+            <SocialShareButtons
               url={`${window.location.origin}/profile/${user.id}`}
               title={`Check out my impact on EcoSwarm!`}
               text={`I've earned ${user.ecoPoints} EcoPoints and joined ${user.stats.swarmsJoined} swarms on EcoSwarm!`}
