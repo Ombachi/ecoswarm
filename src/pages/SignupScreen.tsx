@@ -106,6 +106,8 @@ export function SignupScreen() {
           phone,
           location: county,
           top_concern: topConcern,
+          streak: 1,
+          last_active_at: new Date().toISOString(),
         });
 
         if (profileError) {
@@ -114,7 +116,13 @@ export function SignupScreen() {
           return;
         }
 
-        toast.success('Welcome to EcoSwarm! 🌍');
+        // Award First Steps badge
+        await supabase.from('user_badges').insert({
+          user_id: data.user.id,
+          badge_id: '1', // First Steps badge
+        });
+
+        toast.success('Welcome to EcoSwarm! 🌍 You earned the First Steps badge!');
         navigate('/dashboard');
       }
     } catch (err) {

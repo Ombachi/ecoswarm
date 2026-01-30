@@ -38,7 +38,7 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
 
     setIsSubmitting(true);
     try {
-      onSwarmCreated({
+      await onSwarmCreated({
         name: name.trim(),
         description: description.trim(),
         goal: goal.trim(),
@@ -64,8 +64,8 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end">
-      <div className="bg-card w-full rounded-t-3xl max-h-[90vh] overflow-auto animate-slide-up">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:justify-center">
+      <div className="bg-card w-full sm:max-w-lg sm:rounded-2xl rounded-t-3xl max-h-[90vh] overflow-auto animate-slide-up">
         {/* Header */}
         <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-foreground">Create a Swarm</h2>
@@ -155,23 +155,25 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
             </p>
           </div>
 
-          {/* Submit Button */}
-          <button
-            onClick={handleSubmit}
-            disabled={!canSubmit || isSubmitting}
-            className="w-full eco-button-primary py-4 text-lg flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              <>
-                🐝 Launch Swarm (+50 pts)
-              </>
-            )}
-          </button>
+          {/* Submit Button - Added padding at bottom to prevent overlap */}
+          <div className="pb-6">
+            <button
+              onClick={handleSubmit}
+              disabled={!canSubmit || isSubmitting}
+              className="w-full eco-button-primary py-4 text-lg flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  🐝 Launch Swarm (+50 pts)
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

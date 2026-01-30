@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
@@ -7,66 +7,185 @@ import { EcoPointsBadge } from '@/components/common/EcoPointsBadge';
 import { SwahiliToggle } from '@/components/common/SwahiliToggle';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { Confetti } from '@/components/common/Confetti';
+import { supabase } from '@/integrations/supabase/client';
 import {
   MessageSquare,
   Users,
   Mail,
   ChevronRight,
   Flame,
-  TreePine,
   Moon,
   Sun,
   Target,
   Eye,
-  Sparkles,
   Info,
   Download,
   CheckCircle,
   Trophy,
 } from 'lucide-react';
-import { mockChallenges } from '@/data/mockData';
 import { toast } from 'sonner';
+
+interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  points: number;
+  type: string;
+  action_type: string | null;
+  completed?: boolean;
+}
 
 export function DashboardScreen() {
   const navigate = useNavigate();
-  const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, updateStats } = useApp();
+  const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, refreshUser } = useApp();
   const { isInstallable, isInstalled, promptInstall } = usePWAInstall();
   
-  const [challenges, setChallenges] = useState(mockChallenges);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isLoadingChallenges, setIsLoadingChallenges] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      loadChallenges();
+      updateStreak();
+    }
+  }, [user]);
+
+  const loadChallenges = async () => {
+    if (!user) return;
+    
+    try {
+      // Fetch active challenges
+      const { data: challengesData, error: challengesError } = await supabase
+        .from('challenges')
+        .select('*')
+        .eq('is_active', true);
+
+      if (challengesError) throw challengesError;
+
+      // Fetch user's completed challenges
+      const { data: completedData } = await supabase
+        .from('user_challenges')
+        .select('challenge_id')
+        .eq('user_id', user.id);
+
+      const completedIds = completedData?.map(c => c.challenge_id) || [];
+
+      // Mark completed challenges
+      const challengesWithStatus = (challengesData || []).map(c => ({
+        ...c,
+        completed: completedIds.includes(c.id),
+      }));
+
+      setChallenges(challengesWithStatus);
+    } catch (error) {
+      console.error('Error loading challenges:', error);
+    } finally {
+      setIsLoadingChallenges(false);
+    }
+  };
+
+  const updateStreak = async () => {
+    if (!user) return;
+
+    try {
+      // Check and update streak based on last activity
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('last_active_at, streak')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profile?.last_active_at) {
+        const lastActive = new Date(profile.last_active_at);
+        const now = new Date();
+        const daysDiff = Math.floor((now.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (daysDiff === 1) {
+          // Increment streak for consecutive day
+          await supabase
+            .from('profiles')
+            .update({ streak: (profile.streak || 0) + 1, last_active_at: now.toISOString() })
+            .eq('user_id', user.id);
+          await refreshUser();
+        } else if (daysDiff > 1) {
+          // Reset streak
+          await supabase
+            .from('profiles')
+            .update({ streak: 1, last_active_at: now.toISOString() })
+            .eq('user_id', user.id);
+          await refreshUser();
+        } else if (daysDiff === 0) {
+          // Same day, just update last_active_at
+          await supabase
+            .from('profiles')
+            .update({ last_active_at: now.toISOString() })
+            .eq('user_id', user.id);
+        }
+      } else {
+        // First time, set streak to 1
+        await supabase
+          .from('profiles')
+          .update({ streak: 1, last_active_at: new Date().toISOString() })
+          .eq('user_id', user.id);
+        await refreshUser();
+      }
+    } catch (error) {
+      console.error('Error updating streak:', error);
+    }
+  };
+
+  const handleCompleteChallenge = async (challengeId: string) => {
+    if (!user) return;
+    
+    const challenge = challenges.find(c => c.id === challengeId);
+    if (!challenge || challenge.completed) return;
+
+    try {
+      // Insert completion record
+      const { error } = await supabase
+        .from('user_challenges')
+        .insert({
+          user_id: user.id,
+          challenge_id: challengeId,
+        });
+
+      if (error && !error.message.includes('duplicate')) throw error;
+
+      // Update local state
+      setChallenges(challenges.map(c => 
+        c.id === challengeId ? { ...c, completed: true } : c
+      ));
+
+      // Award points
+      addPoints(challenge.points);
+      showNotification(`Challenge completed! 🎉`, challenge.points);
+      
+      // Show confetti
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+
+      toast.success(`You earned ${challenge.points} EcoPoints!`);
+
+      // Navigate based on challenge type
+      if (challenge.action_type === 'post') {
+        navigate('/agora');
+      } else if (challenge.action_type === 'swarm') {
+        navigate('/swarms');
+      } else if (challenge.action_type === 'letter') {
+        navigate('/tools');
+      } else if (challenge.action_type === 'module') {
+        navigate('/tools');
+      }
+    } catch (error) {
+      console.error('Error completing challenge:', error);
+      toast.error('Failed to complete challenge');
+    }
+  };
 
   if (!user) return null;
 
   const dailyChallenge = challenges.find((c) => c.type === 'daily' && !c.completed);
-
-  const handleCompleteChallenge = (challengeId: string) => {
-    const challenge = challenges.find(c => c.id === challengeId);
-    if (!challenge || challenge.completed) return;
-
-    // Complete the challenge
-    setChallenges(challenges.map(c => 
-      c.id === challengeId ? { ...c, completed: true } : c
-    ));
-
-    // Award points
-    addPoints(challenge.points);
-    showNotification(`Challenge completed! 🎉`, challenge.points);
-    
-    // Show confetti
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 3000);
-
-    toast.success(`You earned ${challenge.points} EcoPoints!`);
-
-    // Navigate based on challenge type
-    if (challenge.title === 'Share Your Story') {
-      navigate('/agora');
-    } else if (challenge.title === 'Join a Swarm') {
-      navigate('/swarms');
-    } else if (challenge.title === 'Send an EcoLetter') {
-      navigate('/tools');
-    }
-  };
 
   const quickActions = [
     {
@@ -148,50 +267,28 @@ export function DashboardScreen() {
           </div>
         </div>
 
-        {/* Mission & Vision Cards */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="eco-card p-4 flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-2">
-              <Target className="w-6 h-6 text-white" />
-            </div>
-            <h3 className="font-semibold text-foreground text-sm mb-1">
-              {isSwahili ? 'Dhamira' : 'Mission'}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Empower Gen Z to drive social change across Kenya
-            </p>
-          </div>
-          <div className="eco-card p-4 flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-eco-gold to-eco-orange flex items-center justify-center mb-2">
-              <Eye className="w-6 h-6 text-white" />
-            </div>
-            <h3 className="font-semibold text-foreground text-sm mb-1">
-              {isSwahili ? 'Maono' : 'Vision'}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              A Kenya where every young voice sparks action
-            </p>
+        {/* Quick Actions */}
+        <div>
+          <h2 className="font-semibold text-foreground mb-3">
+            {isSwahili ? 'Hatua za Haraka' : 'Quick Actions'}
+          </h2>
+          <div className="grid grid-cols-3 gap-3">
+            {quickActions.map((action) => (
+              <button
+                key={action.path}
+                onClick={() => navigate(action.path)}
+                className="eco-card p-4 flex flex-col items-center gap-2 hover:shadow-lg transition-all"
+              >
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}>
+                  <action.icon className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xs font-medium text-foreground text-center">
+                  {action.label}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
-
-        {/* About Link */}
-        <button
-          onClick={() => navigate('/about')}
-          className="w-full eco-card p-4 flex items-center gap-4 hover:shadow-md transition-all"
-        >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-eco-blue flex items-center justify-center">
-            <Info className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="font-semibold text-foreground text-sm">
-              {isSwahili ? 'Kuhusu EcoSwarm' : 'About EcoSwarm'}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Learn why we built this platform
-            </p>
-          </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </button>
 
         {/* Daily Challenge - Interactive */}
         {dailyChallenge && (
@@ -261,60 +358,6 @@ export function DashboardScreen() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div>
-          <h2 className="font-semibold text-foreground mb-3">
-            {isSwahili ? 'Hatua za Haraka' : 'Quick Actions'}
-          </h2>
-          <div className="grid grid-cols-3 gap-3">
-            {quickActions.map((action) => (
-              <button
-                key={action.path}
-                onClick={() => navigate(action.path)}
-                className="eco-card p-4 flex flex-col items-center gap-2 hover:shadow-lg transition-all"
-              >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}>
-                  <action.icon className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xs font-medium text-foreground text-center">
-                  {action.label}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* What You Can Do */}
-        <div>
-          <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-eco-gold" />
-            {isSwahili ? 'Unaweza Kufanya Nini' : 'What You Can Do'}
-          </h2>
-          <div className="eco-card p-4 space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-lg">📢</div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">Share Your Story</p>
-                <p className="text-xs text-muted-foreground">Post in Agora Square</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-lg">🐝</div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">Join a Swarm</p>
-                <p className="text-xs text-muted-foreground">Unite for collective action</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-eco-gold/10 flex items-center justify-center text-lg">✉️</div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">Write to Leaders</p>
-                <p className="text-xs text-muted-foreground">Use EcoLetter Forge</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Impact Summary */}
         <div className="eco-card p-4">
           <div className="flex items-center justify-between mb-4">
@@ -329,12 +372,7 @@ export function DashboardScreen() {
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="eco-stat-card">
-              <TreePine className="w-6 h-6 text-primary" />
-              <p className="text-xl font-bold text-foreground">{user.stats.treesPlanted}</p>
-              <p className="text-[10px] text-muted-foreground">Trees Planted</p>
-            </div>
+          <div className="grid grid-cols-2 gap-3">
             <div className="eco-stat-card">
               <Mail className="w-6 h-6 text-secondary" />
               <p className="text-xl font-bold text-foreground">{user.stats.lettersSent}</p>
@@ -347,6 +385,51 @@ export function DashboardScreen() {
             </div>
           </div>
         </div>
+
+        {/* Mission & Vision Cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="eco-card p-4 flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-2">
+              <Target className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="font-semibold text-foreground text-sm mb-1">
+              {isSwahili ? 'Dhamira' : 'Mission'}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Empower Gen Z to drive social change across Kenya
+            </p>
+          </div>
+          <div className="eco-card p-4 flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-eco-gold to-eco-orange flex items-center justify-center mb-2">
+              <Eye className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="font-semibold text-foreground text-sm mb-1">
+              {isSwahili ? 'Maono' : 'Vision'}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              A Kenya where every young voice sparks action
+            </p>
+          </div>
+        </div>
+
+        {/* About Link */}
+        <button
+          onClick={() => navigate('/about')}
+          className="w-full eco-card p-4 flex items-center gap-4 hover:shadow-md transition-all"
+        >
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-eco-blue flex items-center justify-center">
+            <Info className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="font-semibold text-foreground text-sm">
+              {isSwahili ? 'Kuhusu EcoSwarm' : 'About EcoSwarm'}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Learn why we built this platform
+            </p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+        </button>
 
         {/* PWA Install Banner */}
         <div className="eco-card p-4 bg-gradient-to-r from-eco-green-light to-eco-blue-light border-none">
@@ -377,6 +460,11 @@ export function DashboardScreen() {
               </button>
             )}
           </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center text-xs text-muted-foreground pt-4">
+          <p>© 2026 EcoSwarm. All rights reserved.</p>
         </div>
       </div>
     </AppLayout>
