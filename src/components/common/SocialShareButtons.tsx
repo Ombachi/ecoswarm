@@ -1,4 +1,4 @@
-import { Share2, MessageCircle } from 'lucide-react';
+import { Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SocialShareButtonsProps {
@@ -23,26 +23,30 @@ export function SocialShareButtons({
     {
       name: 'WhatsApp',
       icon: '💬',
-      url: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
-      color: 'bg-green-500 hover:bg-green-600',
+      // WhatsApp API - works on mobile and desktop
+      url: `https://api.whatsapp.com/send?text=${encodedText}%20${encodedUrl}`,
+      color: 'bg-[hsl(142,70%,45%)] hover:bg-[hsl(142,70%,40%)]',
     },
     {
       name: 'X',
       icon: '🐦',
+      // Twitter/X Intent API
       url: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
-      color: 'bg-black hover:bg-gray-800',
+      color: 'bg-foreground hover:bg-foreground/80',
     },
     {
       name: 'Facebook',
       icon: '👤',
+      // Facebook Sharer API
       url: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`,
-      color: 'bg-blue-600 hover:bg-blue-700',
+      color: 'bg-[hsl(221,44%,41%)] hover:bg-[hsl(221,44%,35%)]',
     },
     {
       name: 'Instagram',
       icon: '📷',
-      url: null, // Instagram doesn't support direct URL sharing
-      color: 'bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:opacity-90',
+      // Instagram doesn't support direct URL sharing - copy to clipboard
+      url: null,
+      color: 'bg-gradient-to-r from-[hsl(280,80%,50%)] via-[hsl(340,80%,55%)] to-[hsl(25,95%,55%)] hover:opacity-90',
       action: () => {
         navigator.clipboard.writeText(`${text} ${url}`);
         toast.success('Copied to clipboard! Paste in Instagram');
@@ -51,14 +55,16 @@ export function SocialShareButtons({
     {
       name: 'LinkedIn',
       icon: '💼',
+      // LinkedIn Share API
       url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-      color: 'bg-blue-700 hover:bg-blue-800',
+      color: 'bg-[hsl(210,70%,35%)] hover:bg-[hsl(210,70%,30%)]',
     },
     {
       name: 'Telegram',
       icon: '✈️',
+      // Telegram Share API
       url: `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`,
-      color: 'bg-sky-500 hover:bg-sky-600',
+      color: 'bg-[hsl(200,80%,50%)] hover:bg-[hsl(200,80%,45%)]',
     },
   ];
 

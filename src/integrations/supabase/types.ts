@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      challenges: {
+        Row: {
+          action_type: string | null
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          points: number
+          title: string
+          type: string
+        }
+        Insert: {
+          action_type?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          is_active?: boolean
+          points?: number
+          title: string
+          type?: string
+        }
+        Update: {
+          action_type?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          points?: number
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
@@ -148,6 +181,7 @@ export type Database = {
           eco_points: number | null
           email: string
           id: string
+          last_active_at: string | null
           letters_sent: number | null
           location: string | null
           name: string
@@ -172,6 +206,7 @@ export type Database = {
           eco_points?: number | null
           email: string
           id?: string
+          last_active_at?: string | null
           letters_sent?: number | null
           location?: string | null
           name: string
@@ -196,6 +231,7 @@ export type Database = {
           eco_points?: number | null
           email?: string
           id?: string
+          last_active_at?: string | null
           letters_sent?: number | null
           location?: string | null
           name?: string
@@ -208,6 +244,83 @@ export type Database = {
           trees_planted?: number | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      swarm_memberships: {
+        Row: {
+          id: string
+          joined_at: string
+          swarm_id: string
+          user_id: string
+          votes: number
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          swarm_id: string
+          user_id: string
+          votes?: number
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          swarm_id?: string
+          user_id?: string
+          votes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swarm_memberships_swarm_id_fkey"
+            columns: ["swarm_id"]
+            isOneToOne: false
+            referencedRelation: "swarms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      swarms: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          current_signatures: number
+          description: string
+          goal: string
+          id: string
+          image_url: string | null
+          name: string
+          participants: number
+          target_signatures: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by: string
+          current_signatures?: number
+          description: string
+          goal: string
+          id?: string
+          image_url?: string | null
+          name: string
+          participants?: number
+          target_signatures?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          current_signatures?: number
+          description?: string
+          goal?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          participants?: number
+          target_signatures?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -231,6 +344,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_challenges: {
+        Row: {
+          challenge_id: string
+          completed_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenges_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
