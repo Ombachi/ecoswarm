@@ -32,7 +32,7 @@ export function AgoraScreen() {
 
   useEffect(() => {
     loadPosts();
-  }, []);
+  }, [user]);
 
   const loadPosts = async () => {
     setIsLoading(true);
@@ -43,6 +43,16 @@ export function AgoraScreen() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+
+      // Get user's likes for these posts using secure function
+      const postIds = (data || []).map(p => p.id);
+      let userLikedPostIds: string[] = [];
+      
+      if (user && postIds.length > 0) {
+        const { data: likedPosts } = await supabase
+          .rpc('get_user_likes', { p_post_ids: postIds });
+        userLikedPostIds = (likedPosts || []) as string[];
+      }
 
       const mappedPosts: Post[] = (data || []).map((p) => ({
         id: p.id,
@@ -56,12 +66,12 @@ export function AgoraScreen() {
         shares: p.shares || 0,
         tags: p.tags || [],
         createdAt: new Date(p.created_at),
-        isLiked: false,
+        isLiked: userLikedPostIds.includes(p.id),
       }));
 
       setPosts(mappedPosts);
     } catch (error) {
-      console.error('Error loading posts:', error);
+      console.error('Error loading posts:', error instanceof Error ? error.message : 'An error occurred');
       toast.error('Failed to load posts');
     } finally {
       setIsLoading(false);
@@ -77,22 +87,47 @@ export function AgoraScreen() {
 
   const handleLike = async (postId: string) => {
     const post = posts.find((p) => p.id === postId);
-    if (!post) return;
+    if (!post || !user) return;
 
-    const newLikeCount = post.isLiked ? post.likes - 1 : post.likes + 1;
+    // Optimistically update UI
+    const expectedLiked = !post.isLiked;
+    const expectedCount = expectedLiked ? post.likes + 1 : post.likes - 1;
 
     setPosts(
       posts.map((p) =>
         p.id === postId
-          ? { ...p, isLiked: !p.isLiked, likes: newLikeCount }
+          ? { ...p, isLiked: expectedLiked, likes: expectedCount }
           : p
       )
     );
 
-    await supabase
-      .from('posts')
-      .update({ likes: newLikeCount })
-      .eq('id', postId);
+    // Use secure database function to toggle like
+    const { data, error } = await supabase.rpc('toggle_post_like', { p_post_id: postId });
+    
+    if (error) {
+      // Revert optimistic update on error
+      setPosts(
+        posts.map((p) =>
+          p.id === postId
+            ? { ...p, isLiked: post.isLiked, likes: post.likes }
+            : p
+        )
+      );
+      console.error('Error toggling like:', error instanceof Error ? error.message : 'An error occurred');
+      return;
+    }
+
+    // Update with actual values from server
+    if (data) {
+      const result = data as { likes: number; isLiked: boolean };
+      setPosts(
+        posts.map((p) =>
+          p.id === postId
+            ? { ...p, isLiked: result.isLiked, likes: result.likes }
+            : p
+        )
+      );
+    }
   };
 
   const handlePostCreated = async (postData: {

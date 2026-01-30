@@ -35,30 +35,37 @@ export function LeaderboardScreen() {
 
   const fetchLeaderboard = async () => {
     try {
+      // Use the secure leaderboard view instead of querying profiles directly
+      // This view only exposes non-sensitive fields: id, user_id, name, eco_points, location, streak, rank
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id, user_id, name, eco_points, location, streak')
-        .order('eco_points', { ascending: false })
+        .from('leaderboard')
+        .select('id, user_id, name, eco_points, location, streak, rank')
+        .order('rank', { ascending: true })
         .limit(100);
 
       if (error) throw error;
 
-      const rankedData = (data || []).map((entry, index) => ({
-        ...entry,
-        rank: index + 1,
+      const rankedData = (data || []).map((entry) => ({
+        id: entry.id || '',
+        user_id: entry.user_id || '',
+        name: entry.name || 'Anonymous',
+        eco_points: entry.eco_points,
+        location: entry.location,
+        streak: entry.streak,
+        rank: entry.rank || 0,
       }));
 
       setLeaderboard(rankedData);
 
       // Find current user's rank
       if (user) {
-        const currentUserEntry = rankedData.find(entry => entry.name === user.name);
+        const currentUserEntry = rankedData.find(entry => entry.user_id === user.id);
         if (currentUserEntry) {
           setUserRank(currentUserEntry.rank);
         }
       }
     } catch (error) {
-      console.error('Error fetching leaderboard:', error);
+      console.error('Error fetching leaderboard:', error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setIsLoading(false);
     }
