@@ -312,8 +312,8 @@ export function SwarmsScreen() {
 
       {/* Swarm Detail Modal */}
       {selectedSwarm && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-end">
-          <div className="bg-card w-full rounded-t-3xl max-h-[90vh] overflow-auto animate-slide-up">
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end pb-20">
+          <div className="bg-card w-full rounded-t-3xl max-h-[80vh] overflow-auto animate-slide-up">
             {/* Header */}
             <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-foreground">{selectedSwarm.name}</h2>

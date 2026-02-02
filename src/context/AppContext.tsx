@@ -313,7 +313,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const newCount = user.stats.coursesCompleted + 1;
     await updateStats({ coursesCompleted: newCount });
+
+    // Award Educator badge when all modules completed (12 modules)
+    if (newCount >= 12) {
+      await earnBadge('7'); // Educator badge
+    }
   };
+
+  // Check and award Streak Master badge
+  const checkStreakBadge = async () => {
+    if (user && user.streak >= 7) {
+      await earnBadge('4'); // Streak Master badge
+    }
+  };
+
+  // Run streak badge check when user changes
+  useEffect(() => {
+    if (user) {
+      checkStreakBadge();
+    }
+  }, [user?.streak]);
 
   const showNotification = (message: string, points?: number) => {
     setNotification({ message, points });
