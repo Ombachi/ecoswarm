@@ -29,6 +29,9 @@ export function LeaderboardScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [userRank, setUserRank] = useState<number | null>(null);
 
+  const hasPodium = leaderboard.length >= 3;
+  const listEntries = hasPodium ? leaderboard.slice(3) : leaderboard;
+
   useEffect(() => {
     fetchLeaderboard();
   }, []);
@@ -207,7 +210,7 @@ export function LeaderboardScreen() {
             )}
 
             {/* Rest of Leaderboard */}
-            {leaderboard.slice(3).map((entry, index) => (
+            {listEntries.map((entry, index) => (
               <div
                 key={entry.id}
                 className={`eco-card p-4 flex items-center gap-4 animate-slide-up ${getRankBg(entry.rank)}`}
