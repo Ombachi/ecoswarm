@@ -46,7 +46,6 @@ export function ToolsScreen() {
 
   const handleSubmitLetter = async () => {
     setShowConfetti(true);
-    setShowSuccess(true);
     addPoints(50);
 
     // Update letters sent stat
@@ -67,7 +66,10 @@ export function ToolsScreen() {
 
     setTimeout(() => {
       setShowConfetti(false);
-    }, 3000);
+      setShowPreview(false);
+      resetLetter();
+      // Stay on the Tools page after sending
+    }, 2000);
   };
 
   const resetLetter = () => {
@@ -321,8 +323,8 @@ export function ToolsScreen() {
 
       {/* Letter Preview Modal */}
       {showPreview && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-end">
-          <div className="bg-card w-full rounded-t-3xl max-h-[90vh] overflow-auto animate-slide-up">
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end pb-20">
+          <div className="bg-card w-full rounded-t-3xl max-h-[80vh] overflow-auto animate-slide-up">
             <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-foreground">Letter Preview</h2>
               <button

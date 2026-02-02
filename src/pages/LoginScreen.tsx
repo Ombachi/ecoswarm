@@ -1,16 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Leaf, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useApp } from '@/context/AppContext';
 
 export function LoginScreen() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { earnBadge, user } = useApp();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Award First Steps badge after login
+  useEffect(() => {
+    const awardFirstStepsBadge = async () => {
+      if (user) {
+        await earnBadge('1'); // First Steps badge
+      }
+    };
+    awardFirstStepsBadge();
+  }, [user, earnBadge]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

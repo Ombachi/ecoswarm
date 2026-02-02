@@ -216,7 +216,7 @@ export function AboutScreen() {
             Made with 💚 for Kenya's Gen Z
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            © 2024 EcoSwarm. All rights reserved.
+            © 2026 EcoSwarm. All rights reserved.
           </p>
         </div>
       </div>

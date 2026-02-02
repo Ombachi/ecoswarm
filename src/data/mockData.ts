@@ -12,14 +12,13 @@ export const mockUser: User = {
     { id: '2', name: 'Voice Heard', icon: '📢', description: 'Sent first letter' },
     { id: '3', name: 'Swarm Leader', icon: '🐝', description: 'Joined 5 swarms' },
     { id: '4', name: 'Streak Master', icon: '🔥', description: '7 day streak' },
-    { id: '5', name: 'Tree Planter', icon: '🌳', description: 'Contributed to 50 trees' },
   ],
   stats: {
     co2Saved: 520,
     lettersSent: 3,
     swarmsJoined: 5,
     postsCreated: 12,
-    treesPlanted: 50,
+    treesPlanted: 0,
     coursesCompleted: 1,
   },
 };
@@ -197,6 +196,118 @@ Best regards,
 [YOUR_NAME]
 [YOUR_LOCATION]`,
   },
+  {
+    id: '4',
+    title: 'Protect Mau Forest',
+    category: 'Conservation',
+    content: `Dear [Recipient],
+
+I am writing to express grave concern about the ongoing destruction of the Mau Forest Complex, East Africa's largest indigenous montane forest.
+
+The Mau is a critical water tower that feeds major rivers including the Mara, which sustains the Maasai Mara ecosystem and Lake Victoria.
+
+[PERSONAL_STORY]
+
+I urge you to:
+1. Halt all illegal encroachment and logging
+2. Accelerate the resettlement and rehabilitation program
+3. Prosecute those responsible for forest destruction
+4. Increase funding for forest rangers and surveillance
+
+The Mau Forest is irreplaceable. We cannot allow its destruction.
+
+Sincerely,
+[YOUR_NAME]
+[YOUR_LOCATION]`,
+  },
+  {
+    id: '5',
+    title: 'Stop Illegal Wildlife Trade',
+    category: 'Wildlife',
+    content: `Dear [Recipient],
+
+Kenya's wildlife heritage is under threat from poaching and illegal wildlife trade. Our elephants, rhinos, and other iconic species face extinction if we do not act now.
+
+[PERSONAL_STORY]
+
+I call on you to:
+1. Strengthen penalties for wildlife crimes
+2. Increase funding for Kenya Wildlife Service
+3. Enhance community-based conservation programs
+4. Improve international cooperation on wildlife trafficking
+
+Our wildlife is not for sale. Protect Kenya's natural heritage.
+
+Respectfully,
+[YOUR_NAME]
+[YOUR_LOCATION]`,
+  },
+  {
+    id: '6',
+    title: 'Ban Single-Use Plastics',
+    category: 'Waste',
+    content: `Dear [Recipient],
+
+Despite Kenya's 2017 plastic bag ban, single-use plastics continue to pollute our environment. Our rivers, oceans, and lands are choking with plastic waste.
+
+[PERSONAL_STORY]
+
+I request immediate action to:
+1. Extend the ban to all single-use plastics
+2. Promote biodegradable alternatives
+3. Invest in plastic recycling infrastructure
+4. Educate communities on waste management
+
+A plastic-free Kenya is possible. Lead the way.
+
+Best regards,
+[YOUR_NAME]
+[YOUR_LOCATION]`,
+  },
+  {
+    id: '7',
+    title: 'Climate-Smart Agriculture',
+    category: 'Agriculture',
+    content: `Dear [Recipient],
+
+Climate change is devastating Kenya's agricultural sector. Farmers like my family are experiencing unpredictable rains, prolonged droughts, and crop failures.
+
+[PERSONAL_STORY]
+
+I urge you to:
+1. Expand irrigation infrastructure
+2. Provide farmers with drought-resistant seeds
+3. Establish climate information systems for farmers
+4. Create insurance schemes for crop losses
+
+Our food security depends on adapting to climate change now.
+
+Sincerely,
+[YOUR_NAME]
+[YOUR_LOCATION]`,
+  },
+  {
+    id: '8',
+    title: 'Clean Water Access',
+    category: 'Water',
+    content: `Dear [Recipient],
+
+Access to clean water remains a challenge for millions of Kenyans. Water scarcity affects health, education, and economic opportunities.
+
+[PERSONAL_STORY]
+
+I call on you to:
+1. Invest in water infrastructure in underserved areas
+2. Protect our water catchment areas
+3. Implement water recycling programs
+4. Address water pollution from industries
+
+Clean water is a fundamental right. Ensure all Kenyans have access.
+
+Respectfully,
+[YOUR_NAME]
+[YOUR_LOCATION]`,
+  },
 ];
 
 export const mockRecipients: Recipient[] = [
@@ -204,17 +315,17 @@ export const mockRecipients: Recipient[] = [
     id: '1',
     name: 'Hon. Aden Duale',
     title: 'Cabinet Secretary',
-    organization: 'Ministry of Environment, Kenya',
+    organization: 'Ministry of Environment, Climate Change and Forestry',
   },
   {
     id: '2',
     name: 'Johnson Sakaja',
     title: 'Governor',
-    organization: 'Nairobi County',
+    organization: 'Nairobi County Government',
   },
   {
     id: '3',
-    name: 'Patricia Espinosa',
+    name: 'Dr. Simon Stiell',
     title: 'Executive Secretary',
     organization: 'UNFCCC',
   },
@@ -223,6 +334,42 @@ export const mockRecipients: Recipient[] = [
     name: 'Your Local MP',
     title: 'Member of Parliament',
     organization: 'National Assembly',
+  },
+  {
+    id: '5',
+    name: 'Kenya Wildlife Service',
+    title: 'Director General',
+    organization: 'Kenya Wildlife Service (KWS)',
+  },
+  {
+    id: '6',
+    name: 'NEMA Director General',
+    title: 'Director General',
+    organization: 'National Environment Management Authority',
+  },
+  {
+    id: '7',
+    name: 'Water Resources Authority',
+    title: 'Director General',
+    organization: 'Water Resources Authority (WRA)',
+  },
+  {
+    id: '8',
+    name: 'Kenya Forest Service',
+    title: 'Chief Conservator of Forests',
+    organization: 'Kenya Forest Service (KFS)',
+  },
+  {
+    id: '9',
+    name: 'County Environment Committee',
+    title: 'Chairperson',
+    organization: 'County Government Environment Committee',
+  },
+  {
+    id: '10',
+    name: 'UNEP Executive Director',
+    title: 'Executive Director',
+    organization: 'UN Environment Programme (Nairobi HQ)',
   },
 ];
 
@@ -277,6 +424,76 @@ export const mockLearningModules: LearningModule[] = [
     completed: false,
     progress: 0,
   },
+  {
+    id: '6',
+    title: 'Climate Science Basics',
+    description: 'Understand the science behind climate change, from greenhouse gases to tipping points.',
+    duration: '30 min',
+    points: 50,
+    category: 'Knowledge',
+    completed: false,
+    progress: 0,
+  },
+  {
+    id: '7',
+    title: 'Public Speaking for Activists',
+    description: 'Develop confidence and skills to speak at rallies, town halls, and media interviews.',
+    duration: '25 min',
+    points: 45,
+    category: 'Skills',
+    completed: false,
+    progress: 0,
+  },
+  {
+    id: '8',
+    title: 'Writing Effective Petitions',
+    description: 'Craft compelling petitions that gather signatures and drive action.',
+    duration: '20 min',
+    points: 40,
+    category: 'Skills',
+    completed: false,
+    progress: 0,
+  },
+  {
+    id: '9',
+    title: 'Understanding Carbon Footprints',
+    description: 'Learn to calculate and reduce your personal and community carbon footprint.',
+    duration: '18 min',
+    points: 35,
+    category: 'Knowledge',
+    completed: false,
+    progress: 0,
+  },
+  {
+    id: '10',
+    title: 'Youth Leadership in Climate Action',
+    description: 'Case studies of successful youth climate movements around the world.',
+    duration: '28 min',
+    points: 50,
+    category: 'Leadership',
+    completed: false,
+    progress: 0,
+  },
+  {
+    id: '11',
+    title: 'Sustainable Living Practices',
+    description: 'Practical tips for reducing waste, conserving water, and living sustainably.',
+    duration: '22 min',
+    points: 40,
+    category: 'Lifestyle',
+    completed: false,
+    progress: 0,
+  },
+  {
+    id: '12',
+    title: 'Engaging with Local Government',
+    description: 'How to participate in county government processes and influence local policy.',
+    duration: '25 min',
+    points: 45,
+    category: 'Governance',
+    completed: false,
+    progress: 0,
+  },
 ];
 
 export const mockChallenges: Challenge[] = [
@@ -319,8 +536,8 @@ export const allBadges: Badge[] = [
   { id: '2', name: 'Voice Heard', icon: '📢', description: 'Sent first letter' },
   { id: '3', name: 'Swarm Leader', icon: '🐝', description: 'Joined 5 swarms' },
   { id: '4', name: 'Streak Master', icon: '🔥', description: '7 day streak' },
-  { id: '5', name: 'Tree Planter', icon: '🌳', description: 'Contributed to 50 trees' },
-  { id: '6', name: 'Influencer', icon: '⭐', description: '100 likes on a post' },
-  { id: '7', name: 'Policy Maker', icon: '📜', description: 'Sent 10 letters' },
-  { id: '8', name: 'Educator', icon: '🎓', description: 'Completed all modules' },
+  { id: '5', name: 'Influencer', icon: '⭐', description: '100 likes on a post' },
+  { id: '6', name: 'Policy Maker', icon: '📜', description: 'Sent 10 letters' },
+  { id: '7', name: 'Educator', icon: '🎓', description: 'Completed all modules' },
+  { id: '8', name: 'Community Builder', icon: '🤝', description: 'Created a swarm' },
 ];
