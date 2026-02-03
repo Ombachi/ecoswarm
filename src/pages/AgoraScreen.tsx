@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { Post } from '@/types/ecoswarm';
@@ -18,10 +19,14 @@ import {
   ChevronUp,
   RefreshCw,
   Loader2,
+  X,
+  ChevronLeft,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function AgoraScreen() {
+  const navigate = useNavigate();
+  const { tag } = useParams<{ tag?: string }>();
   const { user, addPoints, showNotification, updateStats } = useApp();
   const [posts, setPosts] = useState<Post[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -29,18 +34,30 @@ export function AgoraScreen() {
   const [expandedShare, setExpandedShare] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [filterTag, setFilterTag] = useState<string | null>(tag || null);
+
+  useEffect(() => {
+    setFilterTag(tag || null);
+  }, [tag]);
 
   useEffect(() => {
     loadPosts();
-  }, [user]);
+  }, [user, filterTag]);
 
   const loadPosts = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('posts')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // Filter by tag if one is selected
+      if (filterTag) {
+        query = query.contains('tags', [filterTag]);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -76,6 +93,22 @@ export function AgoraScreen() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleTagClick = (clickedTag: string) => {
+    if (filterTag === clickedTag) {
+      // Clear filter
+      setFilterTag(null);
+      navigate('/agora');
+    } else {
+      setFilterTag(clickedTag);
+      navigate(`/agora/tag/${clickedTag}`);
+    }
+  };
+
+  const clearTagFilter = () => {
+    setFilterTag(null);
+    navigate('/agora');
   };
 
   const handleRefresh = async () => {
@@ -209,7 +242,17 @@ export function AgoraScreen() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-foreground">Agora Square</h1>
+          <div className="flex items-center gap-3">
+            {filterTag && (
+              <button
+                onClick={() => navigate('/agora')}
+                className="p-2 rounded-full bg-muted text-muted-foreground"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+            <h1 className="text-xl font-bold text-foreground">Agora Square</h1>
+          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handleRefresh}
@@ -220,9 +263,23 @@ export function AgoraScreen() {
                 className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
               />
             </button>
-            <span className="eco-badge">🔥 Trending</span>
+            {!filterTag && <span className="eco-badge">🔥 Trending</span>}
           </div>
         </div>
+        
+        {/* Active Tag Filter */}
+        {filterTag && (
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Showing posts with:</span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+              <Hash className="w-3.5 h-3.5" />
+              {filterTag}
+              <button onClick={clearTagFilter} className="ml-1 hover:bg-primary-foreground/20 rounded-full p-0.5">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Feed */}
@@ -234,10 +291,17 @@ export function AgoraScreen() {
         ) : posts.length === 0 ? (
           <div className="p-8 text-center">
             <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No posts yet</p>
-            <p className="text-sm text-muted-foreground">
-              Be the first to share your story!
+            <p className="text-muted-foreground">
+              {filterTag ? `No posts with #${filterTag}` : 'No posts yet'}
             </p>
+            <p className="text-sm text-muted-foreground">
+              {filterTag ? 'Try a different hashtag or create a post!' : 'Be the first to share your story!'}
+            </p>
+            {filterTag && (
+              <button onClick={clearTagFilter} className="eco-button-primary mt-4 py-2 px-4">
+                View All Posts
+              </button>
+            )}
           </div>
         ) : (
           posts.map((post, index) => (
@@ -292,17 +356,22 @@ export function AgoraScreen() {
                 </div>
               )}
 
-              {/* Tags */}
+              {/* Tags - Clickable */}
               {post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {post.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-primary text-sm font-medium flex items-center gap-0.5"
+                  {post.tags.map((postTag) => (
+                    <button
+                      key={postTag}
+                      onClick={() => handleTagClick(postTag)}
+                      className={`text-sm font-medium flex items-center gap-0.5 px-2 py-1 rounded-full transition-all ${
+                        filterTag === postTag
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-primary hover:bg-primary/10'
+                      }`}
                     >
                       <Hash className="w-3 h-3" />
-                      {tag}
-                    </span>
+                      {postTag}
+                    </button>
                   ))}
                 </div>
               )}

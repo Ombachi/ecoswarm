@@ -187,6 +187,237 @@ const moduleContent: Record<string, {
       },
     ],
   },
+  '6': {
+    sections: [
+      {
+        title: 'Understanding Carbon Footprint',
+        content: 'Your carbon footprint is the total greenhouse gas emissions caused by your activities:\n\n• **Transportation**: Cars, buses, flights\n• **Food**: Meat production, food miles\n• **Energy**: Electricity, cooking fuel\n• **Consumption**: Clothes, electronics, packaging\n\nThe average Kenyan emits about 0.3 tonnes CO2/year, while the global average is 4.7 tonnes.',
+      },
+      {
+        title: 'Calculating Your Footprint',
+        content: 'Key factors to consider:\n\n1. **Daily commute**: Mode of transport and distance\n2. **Diet choices**: Meat frequency, local vs. imported food\n3. **Home energy**: Electricity usage, cooking fuel\n4. **Waste**: Recycling habits, single-use plastics\n\nUse online calculators like the WWF Footprint Calculator!',
+      },
+      {
+        title: 'Reducing Your Impact',
+        content: 'Practical steps for Kenya:\n\n• Walk, cycle, or use public transport\n• Eat more local, plant-based foods\n• Use energy-efficient appliances\n• Reduce, reuse, recycle\n• Plant trees and support reforestation\n• Choose products with minimal packaging',
+      },
+    ],
+    questions: [
+      {
+        question: 'What is the average carbon footprint of a Kenyan?',
+        options: ['0.3 tonnes/year', '4.7 tonnes/year', '10 tonnes/year', '1 tonne/year'],
+        correct: 0,
+      },
+      {
+        question: 'Which activity typically has the highest carbon footprint?',
+        options: ['Walking', 'Air travel', 'Cycling', 'Public transport'],
+        correct: 1,
+      },
+      {
+        question: 'How can you reduce food-related emissions?',
+        options: ['Eat more imported food', 'Eat more local, plant-based foods', 'Increase meat consumption', 'Use more packaging'],
+        correct: 1,
+      },
+    ],
+  },
+  '7': {
+    sections: [
+      {
+        title: 'Sustainable Business Models',
+        content: 'Green entrepreneurship creates value while protecting the environment:\n\n• **Circular economy**: Design out waste\n• **Social enterprise**: Profit with purpose\n• **B Corps**: Certified sustainable businesses\n• **Impact investing**: Financial returns + social good',
+      },
+      {
+        title: 'Green Business Ideas for Kenya',
+        content: 'Opportunities in Kenya\'s green economy:\n\n• Solar installation and maintenance\n• Organic farming and urban agriculture\n• Recycling and upcycling businesses\n• Eco-tourism and conservation\n• Clean cookstoves and energy solutions\n• Water purification services\n• Sustainable fashion and crafts',
+      },
+      {
+        title: 'Starting Your Green Business',
+        content: 'Steps to launch:\n\n1. **Identify a problem**: What environmental issue can you solve?\n2. **Validate your idea**: Talk to potential customers\n3. **Build a prototype**: Start small and test\n4. **Find funding**: Grants, investors, competitions\n5. **Measure impact**: Track environmental and social metrics\n\nPrograms like Kenya Climate Ventures support green startups!',
+      },
+    ],
+    questions: [
+      {
+        question: 'What is a circular economy?',
+        options: ['Economy based on circles', 'Design out waste and keep materials in use', 'Buying in bulk', 'Trading locally'],
+        correct: 1,
+      },
+      {
+        question: 'Which is a green business opportunity in Kenya?',
+        options: ['Fossil fuel extraction', 'Solar installation', 'Deforestation', 'Plastic production'],
+        correct: 1,
+      },
+      {
+        question: 'What should you do first when starting a green business?',
+        options: ['Find investors', 'Identify a problem to solve', 'Build a factory', 'Hire many employees'],
+        correct: 1,
+      },
+    ],
+  },
+  '8': {
+    sections: [
+      {
+        title: 'Climate Change Impacts in Kenya',
+        content: 'Kenya is highly vulnerable to climate change:\n\n• **Droughts**: Increasing in frequency and severity\n• **Floods**: Flash floods in urban areas\n• **Temperature rise**: Heat stress on crops and people\n• **Sea level rise**: Threatening coastal communities\n• **Water scarcity**: Affecting agriculture and livelihoods',
+      },
+      {
+        title: 'Climate Adaptation Strategies',
+        content: 'How communities are adapting:\n\n• **Drought-resistant crops**: Sorghum, millet, cassava\n• **Water harvesting**: Rain tanks, dams, conservation\n• **Early warning systems**: Meteorological data sharing\n• **Climate-smart agriculture**: Agroforestry, mulching\n• **Mangrove restoration**: Coastal protection',
+      },
+      {
+        title: 'Building Community Resilience',
+        content: 'Actions for resilient communities:\n\n1. Diversify livelihoods beyond climate-sensitive activities\n2. Strengthen social networks and mutual support\n3. Invest in education and skills training\n4. Protect and restore natural ecosystems\n5. Advocate for climate finance and support\n\nYouth can lead community adaptation efforts!',
+      },
+    ],
+    questions: [
+      {
+        question: 'Which is a climate adaptation strategy?',
+        options: ['Burning more fossil fuels', 'Using drought-resistant crops', 'Cutting down forests', 'Increasing water waste'],
+        correct: 1,
+      },
+      {
+        question: 'What is climate-smart agriculture?',
+        options: ['Using more chemicals', 'Practices that increase productivity while adapting to climate change', 'Monoculture farming', 'Burning crop residues'],
+        correct: 1,
+      },
+      {
+        question: 'How can youth help build community resilience?',
+        options: ['Ignore climate issues', 'Lead adaptation efforts', 'Wait for government action', 'Move to other countries'],
+        correct: 1,
+      },
+    ],
+  },
+  '9': {
+    sections: [
+      {
+        title: 'Youth in Climate Negotiations',
+        content: 'Young people have a powerful voice in global climate action:\n\n• **UNFCCC COPs**: Annual climate summits where youth participate\n• **Youth constituencies**: Official youth representation (YOUNGO)\n• **Greta Thunberg effect**: Youth activism on global stage\n• **Fridays for Future**: Global student movement',
+      },
+      {
+        title: 'How to Participate',
+        content: 'Ways to engage in global climate action:\n\n• Join Kenyan youth climate networks\n• Attend virtual COP events and side events\n• Submit statements to UN processes\n• Partner with international youth organizations\n• Share local stories on global platforms\n• Connect with the African Youth Climate Assembly',
+      },
+      {
+        title: 'Making Your Voice Heard',
+        content: 'Tips for effective global engagement:\n\n1. **Know the process**: Understand how decisions are made\n2. **Build networks**: Connect with youth from other countries\n3. **Tell local stories**: Ground global issues in local reality\n4. **Use media strategically**: Amplify your message\n5. **Follow up**: Advocacy doesn\'t end at the conference',
+      },
+    ],
+    questions: [
+      {
+        question: 'What is YOUNGO?',
+        options: ['A youth NGO in Kenya', 'Official youth constituency at UNFCCC', 'A social media platform', 'A government agency'],
+        correct: 1,
+      },
+      {
+        question: 'What is Fridays for Future?',
+        options: ['A music festival', 'Global student climate strike movement', 'A TV show', 'A government program'],
+        correct: 1,
+      },
+      {
+        question: 'How can Kenyan youth participate in global climate action?',
+        options: ['Only by traveling abroad', 'Through virtual events and local networks', 'Only adults can participate', 'By ignoring international processes'],
+        correct: 1,
+      },
+    ],
+  },
+  '10': {
+    sections: [
+      {
+        title: 'The Water Crisis',
+        content: 'Water is essential for life, but it\'s increasingly scarce:\n\n• **60%** of Kenyans lack access to clean water\n• **Climate change** is making droughts worse\n• **Population growth** increases demand\n• **Pollution** contaminates available sources\n• **Inequality**: Rural and informal settlements most affected',
+      },
+      {
+        title: 'Water Conservation Techniques',
+        content: 'Practical water-saving methods:\n\n• **Rainwater harvesting**: Tanks, dams, ponds\n• **Drip irrigation**: Efficient agricultural water use\n• **Greywater recycling**: Reuse household water\n• **Fix leaks**: Prevent water waste\n• **Water-efficient appliances**: Low-flow taps and toilets',
+      },
+      {
+        title: 'Advocating for Water Rights',
+        content: 'Water is a human right (Article 43 of Kenya Constitution):\n\n1. Monitor water quality in your community\n2. Report pollution to NEMA and Water Resources Authority\n3. Advocate for equitable water access\n4. Support community water projects\n5. Join water conservation campaigns\n\nOrganizations like the Kenya Water Institute support water advocacy!',
+      },
+    ],
+    questions: [
+      {
+        question: 'What percentage of Kenyans lack access to clean water?',
+        options: ['10%', '30%', '60%', '90%'],
+        correct: 2,
+      },
+      {
+        question: 'What is drip irrigation?',
+        options: ['Flooding fields with water', 'Efficient method delivering water directly to plant roots', 'Spraying water in the air', 'Using rainwater only'],
+        correct: 1,
+      },
+      {
+        question: 'Which article of Kenya\'s Constitution guarantees water rights?',
+        options: ['Article 10', 'Article 27', 'Article 43', 'Article 70'],
+        correct: 2,
+      },
+    ],
+  },
+  '11': {
+    sections: [
+      {
+        title: 'Kenya\'s Waste Problem',
+        content: 'Kenya generates over 22,000 tonnes of waste daily:\n\n• **Only 10%** is recycled\n• **Plastic**: 2 million tonnes annually\n• **E-waste**: Fastest growing waste stream\n• **Open dumping**: Common in most areas\n• **Ocean pollution**: Plastics reaching the sea',
+      },
+      {
+        title: 'The 5 Rs of Waste Management',
+        content: 'A hierarchy for reducing waste:\n\n1. **Refuse**: Say no to unnecessary items\n2. **Reduce**: Use less, buy less\n3. **Reuse**: Find new uses for items\n4. **Repurpose**: Transform waste into new products\n5. **Recycle**: Process materials into new products\n\nThe goal is to send ZERO waste to landfills!',
+      },
+      {
+        title: 'Starting Community Clean-Ups',
+        content: 'Organizing effective clean-up events:\n\n1. **Partner**: Connect with local leaders and organizations\n2. **Plan**: Choose location, date, and supplies needed\n3. **Promote**: Use social media and word of mouth\n4. **Execute**: Provide gloves, bags, and refreshments\n5. **Document**: Take photos and share impact\n6. **Follow up**: Advocate for better waste management',
+      },
+    ],
+    questions: [
+      {
+        question: 'How much waste does Kenya generate daily?',
+        options: ['1,000 tonnes', '22,000 tonnes', '100,000 tonnes', '500 tonnes'],
+        correct: 1,
+      },
+      {
+        question: 'What is the first R in waste management?',
+        options: ['Recycle', 'Reduce', 'Refuse', 'Reuse'],
+        correct: 2,
+      },
+      {
+        question: 'What percentage of Kenya\'s waste is recycled?',
+        options: ['10%', '50%', '75%', '90%'],
+        correct: 0,
+      },
+    ],
+  },
+  '12': {
+    sections: [
+      {
+        title: 'Renewable Energy in Kenya',
+        content: 'Kenya is a leader in renewable energy:\n\n• **90%+** of electricity from renewables\n• **Geothermal**: Olkaria is Africa\'s largest\n• **Wind**: Lake Turkana Wind Power (310 MW)\n• **Solar**: Growing rapidly for homes and businesses\n• **Hydro**: Traditional source facing climate risks',
+      },
+      {
+        title: 'Clean Energy Solutions',
+        content: 'Accessible clean energy options:\n\n• **Solar home systems**: Pay-as-you-go models (M-KOPA, D.light)\n• **Improved cookstoves**: Reduce wood use and indoor pollution\n• **Biogas**: Convert waste to cooking fuel\n• **Solar water heaters**: Free hot water from the sun\n• **Mini-grids**: Community solar solutions',
+      },
+      {
+        title: 'Advocating for Energy Access',
+        content: 'Energy access is key to development:\n\n1. **46%** of Kenyans still lack electricity\n2. **3 million** households use kerosene\n3. Advocate for clean energy subsidies\n4. Support community energy projects\n5. Promote energy efficiency\n\nClean energy = health + education + economic opportunity!',
+      },
+    ],
+    questions: [
+      {
+        question: 'What percentage of Kenya\'s electricity comes from renewables?',
+        options: ['50%', '70%', '90%+', '30%'],
+        correct: 2,
+      },
+      {
+        question: 'Which is Africa\'s largest geothermal power plant?',
+        options: ['Lake Turkana', 'Olkaria', 'Seven Forks', 'Sondu Miriu'],
+        correct: 1,
+      },
+      {
+        question: 'What percentage of Kenyans lack electricity access?',
+        options: ['10%', '25%', '46%', '70%'],
+        correct: 2,
+      },
+    ],
+  },
 };
 
 export function ModuleScreen() {

@@ -99,24 +99,31 @@ export function DashboardScreen() {
       if (profile?.last_active_at) {
         const lastActive = new Date(profile.last_active_at);
         const now = new Date();
-        const daysDiff = Math.floor((now.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24));
+        
+        // Reset times to midnight for accurate day comparison
+        const lastActiveDay = new Date(lastActive.getFullYear(), lastActive.getMonth(), lastActive.getDate());
+        const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        const daysDiff = Math.floor((todayDay.getTime() - lastActiveDay.getTime()) / (1000 * 60 * 60 * 24));
 
         if (daysDiff === 1) {
           // Increment streak for consecutive day
+          const newStreak = (profile.streak || 0) + 1;
           await supabase
             .from('profiles')
-            .update({ streak: (profile.streak || 0) + 1, last_active_at: now.toISOString() })
+            .update({ streak: newStreak, last_active_at: now.toISOString() })
             .eq('user_id', user.id);
           await refreshUser();
+          toast.success(`🔥 ${newStreak} day streak! Keep it up!`);
         } else if (daysDiff > 1) {
-          // Reset streak
+          // Reset streak if more than 1 day gap
           await supabase
             .from('profiles')
             .update({ streak: 1, last_active_at: now.toISOString() })
             .eq('user_id', user.id);
           await refreshUser();
         } else if (daysDiff === 0) {
-          // Same day, just update last_active_at
+          // Same day, just update last_active_at if not already updated today
           await supabase
             .from('profiles')
             .update({ last_active_at: now.toISOString() })
