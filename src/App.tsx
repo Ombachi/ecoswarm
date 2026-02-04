@@ -8,6 +8,8 @@ import { SplashScreen } from "@/pages/SplashScreen";
 import { OnboardingScreen } from "@/pages/OnboardingScreen";
 import { LoginScreen } from "@/pages/LoginScreen";
 import { SignupScreen } from "@/pages/SignupScreen";
+import { ForgotPasswordScreen } from "@/pages/ForgotPasswordScreen";
+import { ResetPasswordScreen } from "@/pages/ResetPasswordScreen";
 import { DashboardScreen } from "@/pages/DashboardScreen";
 import { AgoraScreen } from "@/pages/AgoraScreen";
 import { SwarmsScreen } from "@/pages/SwarmsScreen";
@@ -21,6 +23,7 @@ import { ModuleScreen } from "@/pages/ModuleScreen";
 import { PrivacyPolicyScreen } from "@/pages/PrivacyPolicyScreen";
 import { FeedbackScreen } from "@/pages/FeedbackScreen";
 import { RateAppScreen } from "@/pages/RateAppScreen";
+import { TermsOfServiceScreen } from "@/pages/TermsOfServiceScreen";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -52,7 +55,10 @@ function AppRoutes() {
       <Route path="/onboarding" element={<OnboardingScreen />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen />} />
       <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupScreen />} />
+      <Route path="/forgot-password" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <ForgotPasswordScreen />} />
+      <Route path="/reset-password" element={<ResetPasswordScreen />} />
       <Route path="/about" element={<AboutScreen />} />
+      <Route path="/terms-of-service" element={<TermsOfServiceScreen />} />
       <Route path="/dashboard" element={isAuthenticated ? <DashboardScreen /> : <Navigate to="/" replace />} />
       <Route path="/agora" element={isAuthenticated ? <AgoraScreen /> : <Navigate to="/" replace />} />
       <Route path="/agora/tag/:tag" element={isAuthenticated ? <AgoraScreen /> : <Navigate to="/" replace />} />
