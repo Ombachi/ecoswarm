@@ -122,7 +122,13 @@ export function SplashScreen() {
       {/* Bottom text */}
       <div className="relative z-10 text-center pb-8 px-6">
         <p className="text-white/50 text-xs">
-          By continuing, you agree to our Terms of Service
+          By continuing, you agree to our{' '}
+          <button 
+            onClick={() => navigate('/terms-of-service')}
+            className="underline hover:text-white/70"
+          >
+            Terms of Service
+          </button>
         </p>
       </div>
     </div>
