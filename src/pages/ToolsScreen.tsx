@@ -45,11 +45,36 @@ export function ToolsScreen() {
   };
 
   const handleSubmitLetter = async () => {
-    setShowConfetti(true);
-    addPoints(50);
+    const template = mockLetterTemplates.find((t) => t.id === selectedTemplate);
+    const recipient = mockRecipients.find((r) => r.id === selectedRecipient);
+    
+    if (!template || !recipient || !user) return;
 
-    // Update letters sent stat
-    if (user) {
+    try {
+      // Send the letter via edge function
+      const response = await supabase.functions.invoke('send-ecoletter', {
+        body: {
+          recipientEmail: recipient.email,
+          recipientName: recipient.name,
+          recipientTitle: recipient.title,
+          recipientOrganization: recipient.organization,
+          senderName: user.name,
+          senderLocation: user.location,
+          letterContent: getPreviewLetter(),
+          templateTitle: template.title,
+        },
+      });
+
+      if (response.error) {
+        console.error('Error sending letter:', response.error);
+        showNotification('Failed to send letter. Please try again.', 0);
+        return;
+      }
+
+      setShowConfetti(true);
+      addPoints(50);
+
+      // Update letters sent stat
       updateStats({ lettersSent: user.stats.lettersSent + 1 });
 
       // Award Voice Heard badge on first letter
@@ -60,16 +85,18 @@ export function ToolsScreen() {
       if (user.stats.lettersSent + 1 >= 10) {
         await earnBadge('7');
       }
+
+      showNotification('EcoLetter sent! 📨', 50);
+
+      setTimeout(() => {
+        setShowConfetti(false);
+        setShowPreview(false);
+        resetLetter();
+      }, 2000);
+    } catch (error) {
+      console.error('Error sending letter:', error);
+      showNotification('Failed to send letter. Please try again.', 0);
     }
-
-    showNotification('EcoLetter sent! 📨', 50);
-
-    setTimeout(() => {
-      setShowConfetti(false);
-      setShowPreview(false);
-      resetLetter();
-      // Stay on the Tools page after sending
-    }, 2000);
   };
 
   const resetLetter = () => {
