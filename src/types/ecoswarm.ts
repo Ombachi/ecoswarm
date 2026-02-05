@@ -70,6 +70,7 @@ export interface Recipient {
   name: string;
   title: string;
   organization: string;
+  email: string;
 }
 
 export interface LearningModule {
