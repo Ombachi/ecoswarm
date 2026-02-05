@@ -24,6 +24,7 @@ import { PrivacyPolicyScreen } from "@/pages/PrivacyPolicyScreen";
 import { FeedbackScreen } from "@/pages/FeedbackScreen";
 import { RateAppScreen } from "@/pages/RateAppScreen";
 import { TermsOfServiceScreen } from "@/pages/TermsOfServiceScreen";
+import { OfflinePage } from "@/pages/OfflinePage";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -59,6 +60,7 @@ function AppRoutes() {
       <Route path="/reset-password" element={<ResetPasswordScreen />} />
       <Route path="/about" element={<AboutScreen />} />
       <Route path="/terms-of-service" element={<TermsOfServiceScreen />} />
+      <Route path="/offline" element={<OfflinePage />} />
       <Route path="/dashboard" element={isAuthenticated ? <DashboardScreen /> : <Navigate to="/" replace />} />
       <Route path="/agora" element={isAuthenticated ? <AgoraScreen /> : <Navigate to="/" replace />} />
       <Route path="/agora/tag/:tag" element={isAuthenticated ? <AgoraScreen /> : <Navigate to="/" replace />} />
