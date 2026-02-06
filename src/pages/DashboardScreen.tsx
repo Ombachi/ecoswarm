@@ -22,6 +22,7 @@ import {
   Download,
   CheckCircle,
   Trophy,
+  LogOut,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
