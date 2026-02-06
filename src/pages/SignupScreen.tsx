@@ -13,15 +13,15 @@ const counties = [
 
 const concerns = [
   { id: 'climate', label: 'Climate Action', emoji: '🌡️' },
+  { id: 'environmental', label: 'Environmental Challenges', emoji: '🌍' },
+  { id: 'ecosystem', label: 'Ecosystem Challenges', emoji: '🦋' },
+  { id: 'global-commons', label: 'Global Commons', emoji: '🌐' },
   { id: 'mental-health', label: 'Mental Health', emoji: '🧠' },
   { id: 'education', label: 'Education Access', emoji: '📚' },
   { id: 'unemployment', label: 'Youth Unemployment', emoji: '💼' },
-  { id: 'housing', label: 'Affordable Housing', emoji: '🏠' },
   { id: 'healthcare', label: 'Healthcare Access', emoji: '🏥' },
   { id: 'gender', label: 'Gender Equality', emoji: '⚖️' },
-  { id: 'corruption', label: 'Anti-Corruption', emoji: '🔍' },
   { id: 'environment', label: 'Environmental Protection', emoji: '🌳' },
-  { id: 'digital', label: 'Digital Rights', emoji: '📱' },
 ];
 
 export function SignupScreen() {

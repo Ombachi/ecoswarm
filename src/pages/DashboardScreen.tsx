@@ -285,7 +285,7 @@ export function DashboardScreen() {
           <h2 className="font-semibold text-foreground mb-3">
             {isSwahili ? 'Hatua za Haraka' : 'Quick Actions'}
           </h2>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-4 gap-3">
             {quickActions.map((action) => (
               <button
                 key={action.path}

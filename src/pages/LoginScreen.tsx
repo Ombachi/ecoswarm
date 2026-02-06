@@ -224,7 +224,7 @@ export function LoginScreen() {
         {/* Sign up link */}
         <p className="text-center mt-6 text-muted-foreground">
           Don't have an account?{' '}
-          <Link to="/onboarding" className="text-primary font-semibold hover:text-primary/80 transition-colors">
+          <Link to="/signup" className="text-primary font-semibold hover:text-primary/80 transition-colors">
             Sign up
           </Link>
         </p>
