@@ -197,8 +197,8 @@ export function ProfileScreen() {
           <div className="eco-card p-4">
             <SocialShareButtons
               url={`${window.location.origin}/profile/${user.id}`}
-              title={`Check out my impact on EcoSwarm!`}
-              text={`I've earned ${user.ecoPoints} EcoPoints and joined ${user.stats.swarmsJoined} swarms on EcoSwarm!`}
+              title={`🌍 I'm making waves on EcoSwarm!`}
+              text={`🏆 ${user.ecoPoints} EcoPoints earned | 🐝 ${user.stats.swarmsJoined} Swarms joined | 🔥 ${user.streak}-day streak!\n\nJoin Africa's Gen Z changemakers movement! Create your impact profile now 👇`}
             />
           </div>
         </div>

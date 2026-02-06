@@ -22,6 +22,7 @@ import {
   Download,
   CheckCircle,
   Trophy,
+  LogOut,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -37,7 +38,7 @@ interface Challenge {
 
 export function DashboardScreen() {
   const navigate = useNavigate();
-  const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, refreshUser } = useApp();
+  const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, refreshUser, logout } = useApp();
   const { isInstallable, isInstalled, promptInstall } = usePWAInstall();
   
   const [challenges, setChallenges] = useState<Challenge[]>([]);
@@ -243,6 +244,13 @@ export function DashboardScreen() {
               className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-all"
             >
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={logout}
+              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all"
+              title={isSwahili ? 'Ondoka' : 'Log Out'}
+            >
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>
