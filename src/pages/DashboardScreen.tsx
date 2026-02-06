@@ -38,7 +38,7 @@ interface Challenge {
 
 export function DashboardScreen() {
   const navigate = useNavigate();
-  const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, refreshUser } = useApp();
+  const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, refreshUser, logout } = useApp();
   const { isInstallable, isInstalled, promptInstall } = usePWAInstall();
   
   const [challenges, setChallenges] = useState<Challenge[]>([]);
