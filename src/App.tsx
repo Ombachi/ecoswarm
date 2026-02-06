@@ -25,6 +25,7 @@ import { FeedbackScreen } from "@/pages/FeedbackScreen";
 import { RateAppScreen } from "@/pages/RateAppScreen";
 import { TermsOfServiceScreen } from "@/pages/TermsOfServiceScreen";
 import { OfflinePage } from "@/pages/OfflinePage";
+import { PublicImpactScreen } from "@/pages/PublicImpactScreen";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
