@@ -79,11 +79,20 @@ export function SignupScreen() {
 
     setIsLoading(true);
     try {
+      // First, sign up with Supabase to create the auth user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: `${window.location.origin}/login`,
+          data: {
+            name,
+            age: parseInt(age),
+            sex,
+            county,
+            phone,
+            top_concern: topConcern,
+          },
         },
       });
 
@@ -93,9 +102,7 @@ export function SignupScreen() {
       }
 
       if (data.user) {
-        setUserId(data.user.id);
-        
-        // Create profile
+        // Create profile immediately (user exists but email not verified yet)
         const { error: profileError } = await supabase.from('profiles').insert({
           user_id: data.user.id,
           email,
@@ -112,8 +119,7 @@ export function SignupScreen() {
 
         if (profileError) {
           console.error('Profile creation error:', profileError);
-          toast.error('Account created but profile setup failed. Please try again.');
-          return;
+          // Profile might already exist, that's okay
         }
 
         // Award First Steps badge
@@ -122,8 +128,17 @@ export function SignupScreen() {
           badge_id: '1', // First Steps badge
         });
 
-        toast.success('Welcome to EcoSwarm! 🌍 You earned the First Steps badge!');
-        navigate('/dashboard');
+        // Check if email confirmation is required
+        if (data.user.identities && data.user.identities.length === 0) {
+          // User already exists
+          toast.error('An account with this email already exists. Please sign in.');
+          navigate('/login');
+          return;
+        }
+
+        // Show verification message - don't navigate to dashboard
+        toast.success('Please check your email to verify your account! 📧');
+        navigate('/login');
       }
     } catch (err) {
       toast.error('Something went wrong. Please try again.');
