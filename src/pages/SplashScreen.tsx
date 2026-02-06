@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Leaf, Wind, Droplets, Sun, Heart, Users, MessageCircle } from 'lucide-react';
+import { Leaf, Wind, Droplets, Sun, Heart, Users, MessageCircle, LogOut } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useApp } from '@/context/AppContext';
 
 const upliftingStatements = [
   "Together, we're changing the world 🌍",
@@ -17,6 +19,7 @@ const upliftingStatements = [
 
 export function SplashScreen() {
   const navigate = useNavigate();
+  const { logout, user } = useApp();
   const [showContent, setShowContent] = useState(true); // Start with true to show immediately
   const [currentDate, setCurrentDate] = useState('');
   const [upliftingMessage, setUpliftingMessage] = useState('');
@@ -39,6 +42,11 @@ export function SplashScreen() {
 
   const handleGetStarted = () => {
     navigate('/signup');
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
   };
 
   return (
@@ -107,7 +115,7 @@ export function SplashScreen() {
             onClick={handleGetStarted}
             className="w-full py-4 px-6 bg-card text-primary font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
           >
-            🌍 Get Started
+            🌍 Join the Movement
           </button>
 
           <button 
@@ -116,6 +124,16 @@ export function SplashScreen() {
           >
             Already have an account? Sign In
           </button>
+
+          {user && (
+            <button 
+              onClick={handleLogout}
+              className="w-full mt-3 py-3 px-6 bg-destructive/20 backdrop-blur text-destructive font-semibold rounded-2xl border border-destructive/30 flex items-center justify-center gap-2 hover:bg-destructive/30 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+              Log Out
+            </button>
+          )}
         </div>
       </div>
 
