@@ -213,6 +213,12 @@ export function DashboardScreen() {
       color: 'from-eco-gold to-eco-orange',
       path: '/tools',
     },
+    {
+      icon: Target,
+      label: isSwahili ? 'Capacity Hub' : 'Capacity Hub',
+      color: 'from-eco-blue to-primary',
+      path: '/tools',
+    },
   ];
 
   return (
