@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Leaf, Wind, Droplets, Sun, Heart, Users, MessageCircle } from 'lucide-react';
+import { Leaf, Wind, Droplets, Sun, Heart, Users, MessageCircle, LogOut } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useApp } from '@/context/AppContext';
 
 const upliftingStatements = [
   "Together, we're changing the world 🌍",
@@ -17,6 +19,7 @@ const upliftingStatements = [
 
 export function SplashScreen() {
   const navigate = useNavigate();
+  const { logout, user } = useApp();
   const [showContent, setShowContent] = useState(true); // Start with true to show immediately
   const [currentDate, setCurrentDate] = useState('');
   const [upliftingMessage, setUpliftingMessage] = useState('');
