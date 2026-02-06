@@ -62,6 +62,7 @@ function AppRoutes() {
       <Route path="/about" element={<AboutScreen />} />
       <Route path="/terms-of-service" element={<TermsOfServiceScreen />} />
       <Route path="/offline" element={<OfflinePage />} />
+      <Route path="/profile/:userId" element={<PublicImpactScreen />} />
       <Route path="/dashboard" element={isAuthenticated ? <DashboardScreen /> : <Navigate to="/" replace />} />
       <Route path="/agora" element={isAuthenticated ? <AgoraScreen /> : <Navigate to="/" replace />} />
       <Route path="/agora/tag/:tag" element={isAuthenticated ? <AgoraScreen /> : <Navigate to="/" replace />} />

@@ -124,27 +124,17 @@ export function SocialShareButtons({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
-        {shareLinks.map((link) => (
-          <button
-            key={link.name}
-            onClick={() => handleShare(link)}
-            className={`${link.color} text-white rounded-xl p-3 flex flex-col items-center gap-1 transition-all`}
-          >
-            <span className="text-xl">{link.icon}</span>
-            <span className="text-xs font-medium">{link.name}</span>
-          </button>
-        ))}
-      </div>
-      
-      <button
-        onClick={handleNativeShare}
-        className="w-full eco-button-secondary py-3 flex items-center justify-center gap-2"
-      >
-        <Share2 className="w-5 h-5" />
-        More Sharing Options
-      </button>
+    <div className="grid grid-cols-3 gap-3">
+      {shareLinks.slice(0, 3).map((link) => (
+        <button
+          key={link.name}
+          onClick={() => handleShare(link)}
+          className={`${link.color} text-white rounded-xl p-3 flex flex-col items-center gap-1 transition-all`}
+        >
+          <span className="text-xl">{link.icon}</span>
+          <span className="text-xs font-medium">{link.name}</span>
+        </button>
+      ))}
     </div>
   );
 }

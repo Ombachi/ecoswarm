@@ -245,6 +245,13 @@ export function DashboardScreen() {
             >
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
+            <button
+              onClick={logout}
+              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all"
+              title={isSwahili ? 'Ondoka' : 'Log Out'}
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
