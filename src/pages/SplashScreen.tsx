@@ -44,6 +44,11 @@ export function SplashScreen() {
     navigate('/signup');
   };
 
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Gradient background */}
