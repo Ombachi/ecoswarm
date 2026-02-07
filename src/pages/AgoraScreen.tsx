@@ -6,6 +6,7 @@ import { Post } from '@/types/ecoswarm';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
 import { CommentsSection } from '@/components/posts/CommentsSection';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
+import { MediaLightbox } from '@/components/common/MediaLightbox';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Heart,
@@ -35,6 +36,15 @@ export function AgoraScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [filterTag, setFilterTag] = useState<string | null>(tag || null);
+  const [lightboxMedia, setLightboxMedia] = useState<{ url: string; type: 'image' | 'video' } | null>(null);
+
+  const openLightbox = (url: string, type: 'image' | 'video') => {
+    setLightboxMedia({ url, type });
+  };
+
+  const closeLightbox = () => {
+    setLightboxMedia(null);
+  };
 
   useEffect(() => {
     setFilterTag(tag || null);
@@ -329,21 +339,42 @@ export function AgoraScreen() {
               {/* Post Content */}
               <p className="text-foreground mb-3 leading-relaxed">{post.content}</p>
 
-              {/* Media Display */}
+              {/* Media Display - Clickable for zoom */}
               {post.mediaUrl ? (
                 <div className="mb-3">
                   {post.mediaType === 'video' ? (
-                    <video
-                      src={post.mediaUrl}
-                      controls
-                      className="w-full max-h-80 rounded-xl object-cover"
-                    />
+                    <div 
+                      className="relative cursor-pointer group"
+                      onClick={() => openLightbox(post.mediaUrl!, 'video')}
+                    >
+                      <video
+                        src={post.mediaUrl}
+                        className="w-full max-h-80 rounded-xl object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                        <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5">
+                          <Video className="w-4 h-4" />
+                          Tap to view full screen
+                        </div>
+                      </div>
+                    </div>
                   ) : post.mediaType === 'image' ? (
-                    <img
-                      src={post.mediaUrl}
-                      alt="Post media"
-                      className="w-full max-h-80 rounded-xl object-cover"
-                    />
+                    <div 
+                      className="relative cursor-pointer group"
+                      onClick={() => openLightbox(post.mediaUrl!, 'image')}
+                    >
+                      <img
+                        src={post.mediaUrl}
+                        alt="Post media"
+                        className="w-full max-h-80 rounded-xl object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                        <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5">
+                          <ImageIcon className="w-4 h-4" />
+                          Tap to zoom
+                        </div>
+                      </div>
+                    </div>
                   ) : null}
                 </div>
               ) : post.mediaType && (
@@ -464,6 +495,16 @@ export function AgoraScreen() {
         userName={user?.name || 'User'}
         onPostCreated={handlePostCreated}
       />
+
+      {/* Media Lightbox */}
+      {lightboxMedia && (
+        <MediaLightbox
+          isOpen={!!lightboxMedia}
+          onClose={closeLightbox}
+          mediaUrl={lightboxMedia.url}
+          mediaType={lightboxMedia.type}
+        />
+      )}
     </AppLayout>
   );
 }
