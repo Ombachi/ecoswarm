@@ -193,12 +193,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!isMounted) return;
 
       if (session?.user) {
-        const appUser = await fetchUserProfile(session.user.id);
+        // Try to fetch profile with retry for newly signed up users
+        let appUser = await fetchUserProfile(session.user.id);
+        
+        // If profile not found, wait and retry (handles race condition during signup)
+        if (!appUser && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          console.log('Profile not found, retrying in 1 second...');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          appUser = await fetchUserProfile(session.user.id);
+        }
+
+        // If still no profile, try one more time after 2 seconds
+        if (!appUser) {
+          console.log('Profile still not found, final retry in 2 seconds...');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          appUser = await fetchUserProfile(session.user.id);
+        }
+        
         if (isMounted) {
           if (appUser) {
+            // Check if this is a first-time login (streak === 1 and no previous badge check)
+            const isFirstLogin = appUser.streak <= 1 && appUser.badges.length <= 1;
+            
             setUser(appUser);
             setIsOnboarded(true);
+            
+            // Show welcome message for first-time users with their EcoPoints
+            if (isFirstLogin && event === 'SIGNED_IN') {
+              setTimeout(() => {
+                setNotification({ 
+                  message: `Welcome to EcoSwarm, ${appUser.name}! 🌍`, 
+                  points: 10 
+                });
+                setTimeout(() => setNotification(null), 4000);
+              }, 500);
+            }
           } else {
+            console.log('No profile found for user, staying on current page');
             setUser(null);
             setIsOnboarded(false);
           }
