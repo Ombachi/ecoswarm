@@ -44,13 +44,20 @@ function LoadingScreen() {
 }
 
 function AppRoutes() {
-  const { isOnboarded, user, isLoading } = useApp();
+  const { isOnboarded, user, isLoading, authUserId } = useApp();
 
   if (isLoading) {
     return <LoadingScreen />;
   }
 
-  const isAuthenticated = isOnboarded && user;
+  const hasSession = Boolean(authUserId);
+  const isAuthenticated = hasSession;
+
+  const requireAuthed = (element: JSX.Element) => {
+    if (!isAuthenticated) return <Navigate to="/" replace />;
+    if (!user && !isOnboarded) return <LoadingScreen />;
+    return element;
+  };
 
   return (
     <Routes>
@@ -65,19 +72,20 @@ function AppRoutes() {
       <Route path="/offline" element={<OfflinePage />} />
       <Route path="/profile/:userId" element={<PublicImpactScreen />} />
       <Route path="/post/:postId" element={<PostViewScreen />} />
-      <Route path="/dashboard" element={isAuthenticated ? <DashboardScreen /> : <Navigate to="/" replace />} />
-      <Route path="/agora" element={isAuthenticated ? <AgoraScreen /> : <Navigate to="/" replace />} />
-      <Route path="/agora/tag/:tag" element={isAuthenticated ? <AgoraScreen /> : <Navigate to="/" replace />} />
-      <Route path="/swarms" element={isAuthenticated ? <SwarmsScreen /> : <Navigate to="/" replace />} />
-      <Route path="/tools" element={isAuthenticated ? <ToolsScreen /> : <Navigate to="/" replace />} />
-      <Route path="/profile" element={isAuthenticated ? <ProfileScreen /> : <Navigate to="/" replace />} />
-      <Route path="/settings" element={isAuthenticated ? <SettingsScreen /> : <Navigate to="/" replace />} />
-      <Route path="/privacy-policy" element={isAuthenticated ? <PrivacyPolicyScreen /> : <Navigate to="/" replace />} />
-      <Route path="/feedback" element={isAuthenticated ? <FeedbackScreen /> : <Navigate to="/" replace />} />
-      <Route path="/rate-app" element={isAuthenticated ? <RateAppScreen /> : <Navigate to="/" replace />} />
-      <Route path="/leaderboard" element={isAuthenticated ? <LeaderboardScreen /> : <Navigate to="/" replace />} />
-      <Route path="/edit-profile" element={isAuthenticated ? <EditProfileScreen /> : <Navigate to="/" replace />} />
-      <Route path="/module/:moduleId" element={isAuthenticated ? <ModuleScreen /> : <Navigate to="/" replace />} />
+
+      <Route path="/dashboard" element={requireAuthed(<DashboardScreen />)} />
+      <Route path="/agora" element={requireAuthed(<AgoraScreen />)} />
+      <Route path="/agora/tag/:tag" element={requireAuthed(<AgoraScreen />)} />
+      <Route path="/swarms" element={requireAuthed(<SwarmsScreen />)} />
+      <Route path="/tools" element={requireAuthed(<ToolsScreen />)} />
+      <Route path="/profile" element={requireAuthed(<ProfileScreen />)} />
+      <Route path="/settings" element={requireAuthed(<SettingsScreen />)} />
+      <Route path="/privacy-policy" element={requireAuthed(<PrivacyPolicyScreen />)} />
+      <Route path="/feedback" element={requireAuthed(<FeedbackScreen />)} />
+      <Route path="/rate-app" element={requireAuthed(<RateAppScreen />)} />
+      <Route path="/leaderboard" element={requireAuthed(<LeaderboardScreen />)} />
+      <Route path="/edit-profile" element={requireAuthed(<EditProfileScreen />)} />
+      <Route path="/module/:moduleId" element={requireAuthed(<ModuleScreen />)} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

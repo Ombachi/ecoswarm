@@ -8,6 +8,8 @@ import { allBadges } from '@/data/mockData';
 interface AppContextType {
   user: User | null;
   setUser: (user: User | null) => void;
+  /** auth session exists even if profile row is still being created */
+  authUserId: string | null;
   isOnboarded: boolean;
   setIsOnboarded: (value: boolean) => void;
   isDarkMode: boolean;
@@ -29,6 +31,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [isOnboarded, setIsOnboarded] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSwahili, setIsSwahili] = useState(false);
@@ -124,6 +127,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const ensureProfileExists = async (authUser: { id: string; email?: string | null }) => {
+    const existing = await fetchUserProfile(authUser.id);
+    if (existing) return existing;
+
+    // Create a minimal profile row so new users don't get stuck on splash.
+    const fallbackName = (authUser.email || 'EcoWarrior').split('@')[0] || 'EcoWarrior';
+
+    const { error: insertError } = await supabase.from('profiles').insert({
+      user_id: authUser.id,
+      email: authUser.email || '',
+      name: fallbackName,
+      location: 'Kenya',
+    });
+
+    if (insertError && !insertError.message.toLowerCase().includes('duplicate')) {
+      console.error('Error creating profile:', insertError);
+      return null;
+    }
+
+    // Re-fetch after insert
+    return await fetchUserProfile(authUser.id);
+  };
+
   const refreshUser = async () => {
     const { data: { user: authUser } } = await supabase.auth.getUser();
     if (authUser) {
@@ -155,13 +181,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         if (!isMounted) return;
 
+        setAuthUserId(session?.user?.id ?? null);
+
         if (session?.user) {
-          const appUser = await fetchUserProfile(session.user.id);
+          const appUser = await ensureProfileExists({ id: session.user.id, email: session.user.email });
           if (isMounted) {
             if (appUser) {
               setUser(appUser);
               setIsOnboarded(true);
             } else {
+              // Session exists, but profile couldn't be created/fetched yet.
               setUser(null);
               setIsOnboarded(false);
             }
@@ -175,6 +204,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error('Error initializing auth:', error);
         if (isMounted) {
+          setAuthUserId(null);
           setUser(null);
           setIsOnboarded(false);
         }
@@ -192,52 +222,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       if (!isMounted) return;
 
+      setAuthUserId(session?.user?.id ?? null);
+
       if (session?.user) {
-        // Increased retry mechanism for new user profile creation
-        let appUser = await fetchUserProfile(session.user.id);
-        
-        // If profile not found, wait and retry (handles race condition during signup)
+        // Always attempt to ensure profile exists for new users.
+        let appUser = await ensureProfileExists({ id: session.user.id, email: session.user.email });
+
+        // If still missing (RLS/network), retry a couple times.
         if (!appUser && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-          console.log('Profile not found, retrying in 1 second...');
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          appUser = await fetchUserProfile(session.user.id);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          appUser = await ensureProfileExists({ id: session.user.id, email: session.user.email });
         }
 
-        // Second retry after 2 seconds
         if (!appUser) {
-          console.log('Profile still not found, retrying in 2 seconds...');
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          appUser = await fetchUserProfile(session.user.id);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          appUser = await ensureProfileExists({ id: session.user.id, email: session.user.email });
         }
 
-        // Third retry after 3 seconds (for slower database triggers)
-        if (!appUser) {
-          console.log('Profile still not found, final retry in 3 seconds...');
-          await new Promise(resolve => setTimeout(resolve, 3000));
-          appUser = await fetchUserProfile(session.user.id);
-        }
-        
         if (isMounted) {
           if (appUser) {
-            // Check if this is a first-time login (streak === 1 and no previous badge check)
             const isFirstLogin = appUser.streak <= 1 && appUser.badges.length <= 1;
-            
+
             setUser(appUser);
             setIsOnboarded(true);
-            
-            // Show welcome message for first-time users with their EcoPoints
+
             if (isFirstLogin && event === 'SIGNED_IN') {
               setTimeout(() => {
-                setNotification({ 
-                  message: `Welcome to EcoSwarm, ${appUser.name}! 🌍`, 
-                  points: 10 
+                setNotification({
+                  message: `Welcome to EcoSwarm, ${appUser.name}! 🌍`,
+                  points: 10,
                 });
                 setTimeout(() => setNotification(null), 4000);
               }, 500);
             }
           } else {
-            console.log('No profile found for user after multiple retries');
-            // Still set as authenticated to prevent redirect loops - profile may be pending
+            console.log('Profile still missing; keeping session but not onboarding yet');
             setUser(null);
             setIsOnboarded(false);
           }
@@ -383,6 +402,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         setUser,
+        authUserId,
         isOnboarded,
         setIsOnboarded,
         isDarkMode,

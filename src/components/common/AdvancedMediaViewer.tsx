@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { X, ZoomIn, ZoomOut, RotateCcw, Play, Pause, Volume2, VolumeX, Maximize2 } from 'lucide-react';
+import { X, Play, Pause, Volume2, VolumeX, Maximize2 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
 interface AdvancedMediaViewerProps {
@@ -110,23 +110,11 @@ export function AdvancedMediaViewer({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const handleZoomIn = () => {
-    setScale((prev) => Math.min(prev + 0.5, 4));
-  };
-
-  const handleZoomOut = () => {
-    setScale((prev) => Math.max(prev - 0.5, 0.5));
-  };
-
-  const handleReset = () => {
-    setScale(1);
-  };
-
   const handleDoubleClick = () => {
     if (scale === 1) {
       setScale(2);
     } else {
-      handleReset();
+      setScale(1);
     }
   };
 
@@ -186,31 +174,10 @@ export function AdvancedMediaViewer({
             transition={{ duration: 0.2 }}
           >
             <button
-              onClick={(e) => { e.stopPropagation(); handleZoomOut(); }}
-              className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
-              aria-label="Zoom out"
-            >
-              <ZoomOut className="w-5 h-5" />
-            </button>
-            <span className="text-white text-sm bg-black/50 px-2 py-1 rounded">
-              {Math.round(scale * 100)}%
-            </span>
-            <button
-              onClick={(e) => { e.stopPropagation(); handleZoomIn(); }}
-              className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
-              aria-label="Zoom in"
-            >
-              <ZoomIn className="w-5 h-5" />
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); handleReset(); }}
-              className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
-              aria-label="Reset"
-            >
-              <RotateCcw className="w-5 h-5" />
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onClose(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
               className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
               aria-label="Close"
             >
