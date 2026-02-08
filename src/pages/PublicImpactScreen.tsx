@@ -56,7 +56,7 @@ export function PublicImpactScreen() {
           .single();
 
         if (profileError || !profileData) {
-          setError("Changemaker not found");
+          setError("EcoWarrior not found");
           setIsLoading(false);
           return;
         }
@@ -105,7 +105,7 @@ export function PublicImpactScreen() {
         </div>
         <h1 className="text-2xl font-bold text-foreground mb-2">{error || "Profile Not Found"}</h1>
         <p className="text-muted-foreground mb-8 max-w-md">
-          This changemaker profile doesn't exist, but you can still join the movement and make your own impact!
+          This EcoWarrior profile doesn't exist, but you can still join the movement and make your own impact!
         </p>
         <button onClick={handleJoinMovement} className="eco-button-primary py-4 px-8 text-lg flex items-center gap-2">
           Join the Movement
@@ -232,7 +232,7 @@ export function PublicImpactScreen() {
           </div>
           <h2 className="text-xl font-bold text-foreground mb-2">Ready to Make Your Impact?</h2>
           <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-            Join thousands of changemakers across Kenya. Create your profile, earn EcoPoints, and drive change!
+            Join thousands of EcoWarriors across Kenya. Create your profile, earn EcoPoints, and drive change!
           </p>
           <button
             onClick={handleJoinMovement}

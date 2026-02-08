@@ -17,7 +17,6 @@ import {
   Moon,
   Sun,
   Target,
-  Eye,
   Info,
   Download,
   CheckCircle,
@@ -190,24 +189,28 @@ export function DashboardScreen() {
 
   const quickActions = [
     {
+      id: 'agora',
       icon: MessageSquare,
       label: isSwahili ? "Agora Square" : "Agora Square",
       color: "from-primary to-secondary",
       path: "/agora",
     },
     {
+      id: 'swarms',
       icon: Users,
       label: isSwahili ? "Join Swarm" : "Join Swarm",
       color: "from-secondary to-eco-blue",
       path: "/swarms",
     },
     {
+      id: 'letter',
       icon: Mail,
       label: isSwahili ? "Send Letter" : "Send Letter",
       color: "from-eco-gold to-eco-orange",
       path: "/tools",
     },
     {
+      id: 'capacity',
       icon: Target,
       label: isSwahili ? "Capacity Hub" : "Capacity Hub",
       color: "from-eco-blue to-primary",
@@ -273,7 +276,7 @@ export function DashboardScreen() {
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {Math.max(2000 - user.ecoPoints, 0)} more to Gold Changemaker
+                {Math.max(2000 - user.ecoPoints, 0)} more to Gold EcoWarrior
               </p>
             </div>
           </div>
@@ -285,7 +288,7 @@ export function DashboardScreen() {
           <div className="grid grid-cols-4 gap-3">
             {quickActions.map((action) => (
               <button
-                key={action.path}
+                key={action.id}
                 onClick={() => navigate(action.path)}
                 className="eco-card p-4 flex flex-col items-center gap-2 hover:shadow-lg transition-all"
               >
@@ -401,18 +404,12 @@ export function DashboardScreen() {
         {/* Mission & Vision Cards */}
         <div className="grid grid-cols-2 gap-3">
           <div className="eco-card p-4 flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-2">
-              <Target className="w-6 h-6 text-white" />
-            </div>
             <h3 className="font-semibold text-foreground text-sm mb-1">{isSwahili ? "Dhamira" : "Mission"}</h3>
             <p className="text-xs text-muted-foreground">
-              To amplify voices,connect passions and transform digital engagement into real-world impact
+              To amplify voices, connect passions and transform digital engagement into real-world impact
             </p>
           </div>
           <div className="eco-card p-4 flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-eco-gold to-eco-orange flex items-center justify-center mb-2">
-              <Eye className="w-6 h-6 text-white" />
-            </div>
             <h3 className="font-semibold text-foreground text-sm mb-1">{isSwahili ? "Maono" : "Vision"}</h3>
             <p className="text-xs text-muted-foreground">A digital agora for collective impact</p>
           </div>

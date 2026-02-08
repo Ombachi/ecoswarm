@@ -124,7 +124,7 @@ export function LeaderboardScreen() {
               {isSwahili ? 'Ubao wa Viongozi' : 'Leaderboard'}
             </h1>
             <p className="text-white/80 text-sm">
-              {isSwahili ? 'Wanaharakati Bora Kenya' : 'Top Changemakers in Kenya'}
+              {isSwahili ? 'Wanaharakati Bora Kenya' : 'Top EcoWarriors in Kenya'}
             </p>
           </div>
         </div>
