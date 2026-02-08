@@ -21,7 +21,7 @@ export function AboutScreen() {
     {
       icon: Mail,
       title: "EcoLetter Forge",
-      description: "Generate powerful advocacy letters to decision-makers with AI assistance.",
+      description: "Generate powerful advocacy letters to decision-makers.",
       color: "from-eco-gold to-eco-orange",
     },
     {
@@ -58,7 +58,7 @@ export function AboutScreen() {
               <Leaf className="w-12 h-12 text-white" />
             </div>
             <h1 className="text-3xl font-black text-white mb-2">EcoSwarm</h1>
-            <p className="text-white/80">The Digital Agora for Gen Z</p>
+            <p className="text-white/80">Your Digital Agora </p>
           </div>
         </div>
       </div>
@@ -88,7 +88,7 @@ export function AboutScreen() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-foreground">Our Vision</h2>
-              <p className="text-sm text-muted-foreground">Where we're headed</p>
+              <p className="text-sm text-muted-foreground">Where we are headed</p>
             </div>
           </div>
           <p className="text-foreground leading-relaxed">A digital agora for collective impact</p>
@@ -102,28 +102,26 @@ export function AboutScreen() {
           </h2>
           <div className="eco-card p-5 bg-gradient-to-br from-eco-green-light to-eco-blue-light border-none">
             <p className="text-foreground leading-relaxed mb-4">
-              We built EcoSwarm because we believe that <strong>Gen Z has the power to reshape Kenya</strong> — but only
-              if they have the right tools.
+              We built EcoSwarm because we believe that <strong>you have the power to shape the planet</strong> with the
+              right tools.
             </p>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <Zap className="w-5 h-5 text-eco-gold flex-shrink-0 mt-0.5" />
                 <span className="text-foreground text-sm">
-                  <strong>Social media is loud, but action is quiet.</strong> We bridge that gap with gamification and
-                  real tools for advocacy.
+                  <strong>Social media is loud.</strong> Turn noise into real momentum.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <Globe className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                 <span className="text-foreground text-sm">
-                  <strong>Issues are interconnected.</strong> From climate to mental health, unemployment to corruption
-                  — your voice matters on all fronts.
+                  <strong>Issues are interconnected.</strong> Your voice matters on all fronts.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <Users className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <span className="text-foreground text-sm">
-                  <strong>Collective action beats individual effort.</strong> Swarms make movements unstoppable.
+                  <strong>Collective action beats individual effort.</strong> One spark alone flickers.
                 </span>
               </li>
             </ul>
@@ -178,7 +176,7 @@ export function AboutScreen() {
         {/* CTA */}
         <div className="eco-card p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20 text-center">
           <h3 className="text-xl font-bold text-foreground mb-2">Ready to Make an Impact?</h3>
-          <p className="text-muted-foreground mb-4">Join thousands of Gen Z changemakers across Kenya.</p>
+          <p className="text-muted-foreground mb-4">Join thousands of changemakers across Kenya.</p>
           <button onClick={() => navigate("/signup")} className="eco-button-primary w-full py-4">
             🌍 Join the Movement
           </button>
@@ -186,7 +184,7 @@ export function AboutScreen() {
 
         {/* Footer */}
         <div className="text-center pt-4">
-          <p className="text-xs text-muted-foreground">Made with 💚 for Kenya's Gen Z</p>
+          <p className="text-xs text-muted-foreground">Made with 💚 for You</p>
           <p className="text-xs text-muted-foreground mt-1">© 2026 EcoSwarm. All rights reserved.</p>
         </div>
       </div>
