@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Leaf, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Leaf, Mail, ArrowLeft, CheckCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function ForgotPasswordScreen() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const handleResetRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) {
       toast({
         title: "Email required",
@@ -59,42 +59,34 @@ export function ForgotPasswordScreen() {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden bg-background">
         <div className="absolute top-0 left-0 right-0 h-64 eco-gradient-bg opacity-95" />
-        
+
         <div className="relative z-10 pt-12 pb-8 text-center text-white">
           <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
             <CheckCircle className="w-9 h-9 text-white" />
           </div>
           <h1 className="text-3xl font-black tracking-tight">Check Your Email</h1>
-          <p className="text-white/80 mt-1">We've sent you a reset link</p>
+          <p className="text-white/80 mt-1">We have sent you a reset link</p>
         </div>
 
         <div className="relative z-10 flex-1 bg-background rounded-t-3xl -mt-4 px-6 pt-8 pb-6">
           <div className="text-center space-y-6">
             <div className="eco-card p-6">
               <Mail className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h2 className="text-lg font-semibold text-foreground mb-2">
-                Password Reset Email Sent
-              </h2>
+              <h2 className="text-lg font-semibold text-foreground mb-2">Password Reset Email Sent</h2>
               <p className="text-muted-foreground text-sm">
-                We've sent a password reset link to <strong>{email}</strong>. 
-                Please check your inbox and click the link to reset your password.
+                We have sent a password reset link to <strong>{email}</strong>. Please check your inbox and click the
+                link to reset your password.
               </p>
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Didn't receive the email? Check your spam folder or{' '}
-              <button 
-                onClick={() => setIsSuccess(false)}
-                className="text-primary font-medium"
-              >
+              Didn't receive the email? Check your spam folder or{" "}
+              <button onClick={() => setIsSuccess(false)} className="text-primary font-medium">
                 try again
               </button>
             </p>
 
-            <button
-              onClick={() => navigate('/login')}
-              className="w-full eco-button-secondary py-3"
-            >
+            <button onClick={() => navigate("/login")} className="w-full eco-button-secondary py-3">
               Back to Sign In
             </button>
           </div>
@@ -106,7 +98,7 @@ export function ForgotPasswordScreen() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-background">
       <div className="absolute top-0 left-0 right-0 h-64 eco-gradient-bg opacity-95" />
-      
+
       <div className="relative z-10 pt-12 pb-8 text-center text-white">
         <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
           <Leaf className="w-9 h-9 text-white" />
@@ -131,9 +123,7 @@ export function ForgotPasswordScreen() {
                 autoFocus
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              Enter the email address you used to create your account
-            </p>
+            <p className="text-xs text-muted-foreground">Enter the email address you used to create your account</p>
           </div>
 
           <button
@@ -144,12 +134,12 @@ export function ForgotPasswordScreen() {
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-              'Send Reset Link'
+              "Send Reset Link"
             )}
           </button>
         </form>
 
-        <Link 
+        <Link
           to="/login"
           className="flex items-center justify-center gap-2 mt-6 text-muted-foreground hover:text-foreground transition-colors"
         >
