@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Mail,
   Users,
@@ -12,7 +12,7 @@ import {
   Trophy,
   Flame,
   Loader2,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface PublicProfile {
   name: string;
@@ -40,7 +40,7 @@ export function PublicImpactScreen() {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!userId) {
-        setError('Invalid profile link');
+        setError("Invalid profile link");
         setIsLoading(false);
         return;
       }
@@ -48,13 +48,15 @@ export function PublicImpactScreen() {
       try {
         // Fetch public profile
         const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('name, location, county, bio, avatar_url, eco_points, streak, top_concern, letters_sent, swarms_joined, posts_created, courses_completed')
-          .eq('user_id', userId)
+          .from("profiles")
+          .select(
+            "name, location, county, bio, avatar_url, eco_points, streak, top_concern, letters_sent, swarms_joined, posts_created, courses_completed",
+          )
+          .eq("user_id", userId)
           .single();
 
         if (profileError || !profileData) {
-          setError('Changemaker not found');
+          setError("Changemaker not found");
           setIsLoading(false);
           return;
         }
@@ -62,25 +64,19 @@ export function PublicImpactScreen() {
         setProfile(profileData);
 
         // Fetch swarms user has joined
-        const { data: memberships } = await supabase
-          .from('swarm_memberships')
-          .select('swarm_id')
-          .eq('user_id', userId);
+        const { data: memberships } = await supabase.from("swarm_memberships").select("swarm_id").eq("user_id", userId);
 
         if (memberships && memberships.length > 0) {
-          const swarmIds = memberships.map(m => m.swarm_id);
-          const { data: swarmsData } = await supabase
-            .from('swarms')
-            .select('name, category')
-            .in('id', swarmIds);
-          
+          const swarmIds = memberships.map((m) => m.swarm_id);
+          const { data: swarmsData } = await supabase.from("swarms").select("name, category").in("id", swarmIds);
+
           if (swarmsData) {
             setSwarms(swarmsData);
           }
         }
       } catch (err) {
-        console.error('Error fetching profile:', err);
-        setError('Failed to load profile');
+        console.error("Error fetching profile:", err);
+        setError("Failed to load profile");
       } finally {
         setIsLoading(false);
       }
@@ -90,7 +86,7 @@ export function PublicImpactScreen() {
   }, [userId]);
 
   const handleJoinMovement = () => {
-    navigate('/signup');
+    navigate("/signup");
   };
 
   if (isLoading) {
@@ -107,16 +103,11 @@ export function PublicImpactScreen() {
         <div className="w-24 h-24 rounded-full eco-gradient-bg flex items-center justify-center mb-6">
           <Sparkles className="w-12 h-12 text-white" />
         </div>
-        <h1 className="text-2xl font-bold text-foreground mb-2">
-          {error || 'Profile Not Found'}
-        </h1>
+        <h1 className="text-2xl font-bold text-foreground mb-2">{error || "Profile Not Found"}</h1>
         <p className="text-muted-foreground mb-8 max-w-md">
           This changemaker profile doesn't exist, but you can still join the movement and make your own impact!
         </p>
-        <button
-          onClick={handleJoinMovement}
-          className="eco-button-primary py-4 px-8 text-lg flex items-center gap-2"
-        >
+        <button onClick={handleJoinMovement} className="eco-button-primary py-4 px-8 text-lg flex items-center gap-2">
           Join the Movement
           <ArrowRight className="w-5 h-5" />
         </button>
@@ -125,10 +116,10 @@ export function PublicImpactScreen() {
   }
 
   const statItems = [
-    { icon: Mail, value: profile.letters_sent || 0, label: 'Letters Sent', color: 'text-secondary' },
-    { icon: Users, value: profile.swarms_joined || 0, label: 'Swarms Joined', color: 'text-eco-gold' },
-    { icon: MessageSquare, value: profile.posts_created || 0, label: 'Stories Shared', color: 'text-eco-orange' },
-    { icon: BookOpen, value: profile.courses_completed || 0, label: 'Courses Done', color: 'text-primary' },
+    { icon: Mail, value: profile.letters_sent || 0, label: "Letters Sent", color: "text-secondary" },
+    { icon: Users, value: profile.swarms_joined || 0, label: "Swarms Joined", color: "text-eco-gold" },
+    { icon: MessageSquare, value: profile.posts_created || 0, label: "Stories Shared", color: "text-eco-orange" },
+    { icon: BookOpen, value: profile.courses_completed || 0, label: "Courses Done", color: "text-primary" },
   ];
 
   return (
@@ -155,7 +146,7 @@ export function PublicImpactScreen() {
           )}
 
           <h1 className="text-2xl font-bold text-white mb-1">{profile.name}</h1>
-          
+
           {(profile.location || profile.county) && (
             <p className="text-white/80 flex items-center justify-center gap-1 mb-2">
               <MapPin className="w-4 h-4" />
@@ -163,9 +154,7 @@ export function PublicImpactScreen() {
             </p>
           )}
 
-          {profile.bio && (
-            <p className="text-white/70 text-sm max-w-md mx-auto mb-4">{profile.bio}</p>
-          )}
+          {profile.bio && <p className="text-white/70 text-sm max-w-md mx-auto mb-4">{profile.bio}</p>}
 
           <div className="flex items-center justify-center gap-4 mt-4">
             <div className="bg-white/20 backdrop-blur rounded-full px-4 py-2 flex items-center gap-2">
@@ -188,7 +177,7 @@ export function PublicImpactScreen() {
             <h2 className="text-lg font-bold text-foreground">Impact Statistics</h2>
           </div>
           <p className="text-sm text-muted-foreground">
-            See the positive change {profile.name.split(' ')[0]} is making
+            See the positive change {profile.name.split(" ")[0]} is making
           </p>
         </div>
       </div>
@@ -241,11 +230,9 @@ export function PublicImpactScreen() {
           <div className="w-16 h-16 rounded-full eco-gradient-bg mx-auto flex items-center justify-center mb-4">
             <Sparkles className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-xl font-bold text-foreground mb-2">
-            Ready to Make Your Impact?
-          </h2>
+          <h2 className="text-xl font-bold text-foreground mb-2">Ready to Make Your Impact?</h2>
           <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-            Join thousands of Gen Z changemakers across Kenya. Create your profile, earn EcoPoints, and drive real social change!
+            Join thousands of changemakers across Kenya. Create your profile, earn EcoPoints, and drive real change!
           </p>
           <button
             onClick={handleJoinMovement}
@@ -254,15 +241,13 @@ export function PublicImpactScreen() {
             Join the Movement
             <ArrowRight className="w-5 h-5" />
           </button>
-          <p className="text-xs text-muted-foreground mt-4">
-            🌍 EcoSwarm - The digital agora for Africa's youth activists
-          </p>
+          <p className="text-xs text-muted-foreground mt-4">🌍 EcoSwarm - Your Digital Agora</p>
         </div>
       </div>
 
       {/* Footer */}
       <div className="text-center text-xs text-muted-foreground py-6 px-6">
-        <p>© 2026 EcoSwarm. Empowering Gen Z to drive social change.</p>
+        <p>© 2026 EcoSwarm.</p>
       </div>
     </div>
   );

@@ -1,25 +1,25 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useApp } from '@/context/AppContext';
-import { mockUser } from '@/data/mockData';
-import { ChevronRight, MapPin, Leaf, Sparkles } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useApp } from "@/context/AppContext";
+import { mockUser } from "@/data/mockData";
+import { ChevronRight, MapPin, Leaf, Sparkles } from "lucide-react";
 
 const concerns = [
-  { id: 'pollution', label: 'Air Pollution', emoji: '💨' },
-  { id: 'drought', label: 'Drought & Water', emoji: '🌵' },
-  { id: 'deforestation', label: 'Deforestation', emoji: '🌳' },
-  { id: 'waste', label: 'Plastic Waste', emoji: '♻️' },
-  { id: 'wildlife', label: 'Wildlife', emoji: '🦁' },
-  { id: 'energy', label: 'Clean Energy', emoji: '⚡' },
+  { id: "pollution", label: "Air Pollution", emoji: "💨" },
+  { id: "drought", label: "Drought & Water", emoji: "🌵" },
+  { id: "deforestation", label: "Deforestation", emoji: "🌳" },
+  { id: "waste", label: "Plastic Waste", emoji: "♻️" },
+  { id: "wildlife", label: "Wildlife", emoji: "🦁" },
+  { id: "energy", label: "Clean Energy", emoji: "⚡" },
 ];
 
 export function OnboardingScreen() {
   const navigate = useNavigate();
   const { setUser, setIsOnboarded, showNotification } = useApp();
   const [step, setStep] = useState(0);
-  const [name, setName] = useState('');
-  const [location, setLocation] = useState('Nairobi');
-  const [selectedConcern, setSelectedConcern] = useState('');
+  const [name, setName] = useState("");
+  const [location, setLocation] = useState("Nairobi");
+  const [selectedConcern, setSelectedConcern] = useState("");
 
   const handleNext = () => {
     if (step < 2) {
@@ -28,15 +28,15 @@ export function OnboardingScreen() {
       // Complete onboarding
       const user = {
         ...mockUser,
-        name: name || 'Activist',
+        name: name || "Activist",
         location,
         topConcern: selectedConcern,
         ecoPoints: 10,
       };
       setUser(user);
       setIsOnboarded(true);
-      showNotification('Welcome to EcoSwarm! 🌍', 10);
-      navigate('/dashboard');
+      showNotification("Welcome to EcoSwarm! 🌍", 10);
+      navigate("/dashboard");
     }
   };
 
@@ -48,12 +48,8 @@ export function OnboardingScreen() {
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
               <span className="text-4xl">👋</span>
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">
-              What should we call you?
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Your name will appear on your profile and posts
-            </p>
+            <h2 className="text-2xl font-bold text-foreground mb-2">What should we call you?</h2>
+            <p className="text-muted-foreground mb-6">Your name will appear on your profile and posts</p>
             <input
               type="text"
               value={name}
@@ -71,21 +67,17 @@ export function OnboardingScreen() {
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
               <MapPin className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">
-              Where are you based?
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              We'll show you local environmental issues and swarms
-            </p>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Where are you based?</h2>
+            <p className="text-muted-foreground mb-6">We will show you local environmental issues and swarms</p>
             <div className="space-y-3">
-              {['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret'].map((city) => (
+              {["Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret"].map((city) => (
                 <button
                   key={city}
                   onClick={() => setLocation(city)}
                   className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
                     location === city
-                      ? 'border-primary bg-eco-green-light'
-                      : 'border-border bg-card hover:border-primary/50'
+                      ? "border-primary bg-eco-green-light"
+                      : "border-border bg-card hover:border-primary/50"
                   }`}
                 >
                   <span className="font-medium">{city}</span>
@@ -106,12 +98,8 @@ export function OnboardingScreen() {
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
               <Leaf className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">
-              What matters most to you?
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              We'll personalize your feed and swarm recommendations
-            </p>
+            <h2 className="text-2xl font-bold text-foreground mb-2">What matters most to you?</h2>
+            <p className="text-muted-foreground mb-6">We will personalize your feed and swarm recommendations</p>
             <div className="grid grid-cols-2 gap-3">
               {concerns.map((concern) => (
                 <button
@@ -119,8 +107,8 @@ export function OnboardingScreen() {
                   onClick={() => setSelectedConcern(concern.label)}
                   className={`p-4 rounded-xl border-2 transition-all text-left ${
                     selectedConcern === concern.label
-                      ? 'border-primary bg-eco-green-light'
-                      : 'border-border bg-card hover:border-primary/50'
+                      ? "border-primary bg-eco-green-light"
+                      : "border-border bg-card hover:border-primary/50"
                   }`}
                 >
                   <span className="text-2xl mb-2 block">{concern.emoji}</span>
@@ -144,9 +132,7 @@ export function OnboardingScreen() {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className={`h-1.5 flex-1 rounded-full transition-all ${
-                i <= step ? 'eco-gradient-bg' : 'bg-muted'
-              }`}
+              className={`h-1.5 flex-1 rounded-full transition-all ${i <= step ? "eco-gradient-bg" : "bg-muted"}`}
             />
           ))}
         </div>
@@ -159,11 +145,7 @@ export function OnboardingScreen() {
       <div className="p-6">
         <button
           onClick={handleNext}
-          disabled={
-            (step === 0 && !name) ||
-            (step === 1 && !location) ||
-            (step === 2 && !selectedConcern)
-          }
+          disabled={(step === 0 && !name) || (step === 1 && !location) || (step === 2 && !selectedConcern)}
           className="w-full eco-button-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {step === 2 ? (

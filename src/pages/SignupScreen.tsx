@@ -1,27 +1,40 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Leaf, ChevronLeft, ChevronRight, User, MapPin, Heart, Phone, Mail, CheckCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Leaf, ChevronLeft, ChevronRight, User, MapPin, Heart, Phone, Mail, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const counties = [
-  'Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Kiambu', 'Machakos',
-  'Kajiado', 'Uasin Gishu', 'Nyeri', 'Meru', 'Kilifi', 'Kakamega', 'Bungoma',
-  'Kisii', 'Nyamira', 'Trans Nzoia', 'Nandi', 'Kericho', 'Bomet'
+  "Nairobi",
+  "Mombasa",
+  "Kisumu",
+  "Nakuru",
+  "Eldoret",
+  "Kiambu",
+  "Machakos",
+  "Kajiado",
+  "Uasin Gishu",
+  "Nyeri",
+  "Meru",
+  "Kilifi",
+  "Kakamega",
+  "Bungoma",
+  "Kisii",
+  "Nyamira",
+  "Trans Nzoia",
+  "Nandi",
+  "Kericho",
+  "Bomet",
 ];
 
 const concerns = [
-  { id: 'climate', label: 'Climate Action', emoji: '🌡️' },
-  { id: 'environmental', label: 'Environmental Challenges', emoji: '🌍' },
-  { id: 'ecosystem', label: 'Ecosystem Challenges', emoji: '🦋' },
-  { id: 'global-commons', label: 'Global Commons', emoji: '🌐' },
-  { id: 'mental-health', label: 'Mental Health', emoji: '🧠' },
-  { id: 'education', label: 'Education Access', emoji: '📚' },
-  { id: 'unemployment', label: 'Youth Unemployment', emoji: '💼' },
-  { id: 'healthcare', label: 'Healthcare Access', emoji: '🏥' },
-  { id: 'gender', label: 'Gender Equality', emoji: '⚖️' },
-  { id: 'environment', label: 'Environmental Protection', emoji: '🌳' },
+  { id: "climate", label: "Climate Action", emoji: "🌡️" },
+  { id: "environmental", label: "Environmental Challenges", emoji: "🌍" },
+  { id: "ecosystem", label: "Ecosystem Challenges", emoji: "🦋" },
+  { id: "global-commons", label: "Global Commons", emoji: "🌐" },
+  { id: "education", label: "Climate Education", emoji: "📚" },
+  { id: "environment", label: "Environmental Protection", emoji: "🌳" },
 ];
 
 export function SignupScreen() {
@@ -31,16 +44,16 @@ export function SignupScreen() {
   const [isVerifying, setIsVerifying] = useState(false);
 
   // Form state
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [sex, setSex] = useState('');
-  const [county, setCounty] = useState('Nairobi');
-  const [phone, setPhone] = useState('');
-  const [topConcern, setTopConcern] = useState('');
-  const [otpCode, setOtpCode] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");
+  const [age, setAge] = useState("");
+  const [sex, setSex] = useState("");
+  const [county, setCounty] = useState("Nairobi");
+  const [phone, setPhone] = useState("");
+  const [topConcern, setTopConcern] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
 
   const canProceed = () => {
@@ -70,7 +83,7 @@ export function SignupScreen() {
     if (step > 0) {
       setStep(step - 1);
     } else {
-      navigate('/');
+      navigate("/");
     }
   };
 
@@ -103,7 +116,7 @@ export function SignupScreen() {
 
       if (data.user) {
         // Create profile immediately (user exists but email not verified yet)
-        const { error: profileError } = await supabase.from('profiles').insert({
+        const { error: profileError } = await supabase.from("profiles").insert({
           user_id: data.user.id,
           email,
           name,
@@ -118,30 +131,30 @@ export function SignupScreen() {
         });
 
         if (profileError) {
-          console.error('Profile creation error:', profileError);
+          console.error("Profile creation error:", profileError);
           // Profile might already exist, that's okay
         }
 
         // Award First Steps badge
-        await supabase.from('user_badges').insert({
+        await supabase.from("user_badges").insert({
           user_id: data.user.id,
-          badge_id: '1', // First Steps badge
+          badge_id: "1", // First Steps badge
         });
 
         // Check if email confirmation is required
         if (data.user.identities && data.user.identities.length === 0) {
           // User already exists
-          toast.error('An account with this email already exists. Please sign in.');
-          navigate('/login');
+          toast.error("An account with this email already exists. Please sign in.");
+          navigate("/login");
           return;
         }
 
         // Show verification message - don't navigate to dashboard
-        toast.success('Please check your email to verify your account! 📧');
-        navigate('/login');
+        toast.success("Please check your email to verify your account! 📧");
+        navigate("/login");
       }
     } catch (err) {
-      toast.error('Something went wrong. Please try again.');
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -155,12 +168,8 @@ export function SignupScreen() {
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
               <Mail className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">
-              Create Your Account
-            </h2>
-            <p className="text-muted-foreground mb-6 text-center">
-              Join the movement for change in Kenya
-            </p>
+            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Create Your Account</h2>
+            <p className="text-muted-foreground mb-6 text-center">Join the movement for change</p>
             <div className="space-y-4">
               <input
                 type="email"
@@ -197,12 +206,8 @@ export function SignupScreen() {
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
               <User className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">
-              Tell Us About Yourself
-            </h2>
-            <p className="text-muted-foreground mb-6 text-center">
-              Help us personalize your experience
-            </p>
+            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Tell Us About Yourself</h2>
+            <p className="text-muted-foreground mb-6 text-center">Help us personalize your experience</p>
             <div className="space-y-4">
               <input
                 type="text"
@@ -224,14 +229,14 @@ export function SignupScreen() {
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Sex</p>
                 <div className="grid grid-cols-3 gap-3">
-                  {['Male', 'Female', 'Other'].map((option) => (
+                  {["Male", "Female", "Other"].map((option) => (
                     <button
                       key={option}
                       onClick={() => setSex(option)}
                       className={`p-3 rounded-xl border-2 transition-all ${
                         sex === option
-                          ? 'border-primary bg-eco-green-light'
-                          : 'border-border bg-card hover:border-primary/50'
+                          ? "border-primary bg-eco-green-light"
+                          : "border-border bg-card hover:border-primary/50"
                       }`}
                     >
                       <span className="font-medium text-sm">{option}</span>
@@ -249,22 +254,16 @@ export function SignupScreen() {
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
               <MapPin className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">
-              Where Are You Based?
-            </h2>
-            <p className="text-muted-foreground mb-6 text-center">
-              We'll connect you with local communities
-            </p>
+            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Where Are You Based?</h2>
+            <p className="text-muted-foreground mb-6 text-center">We'll connect you with local communities</p>
             <div className="space-y-4">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">County</p>
-                <select
-                  value={county}
-                  onChange={(e) => setCounty(e.target.value)}
-                  className="eco-input"
-                >
+                <select value={county} onChange={(e) => setCounty(e.target.value)} className="eco-input">
                   {counties.map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -294,12 +293,8 @@ export function SignupScreen() {
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
               <Heart className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">
-              What Issue Matters Most?
-            </h2>
-            <p className="text-muted-foreground mb-6 text-center">
-              We'll personalize your feed based on your passion
-            </p>
+            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">What Issue Matters Most?</h2>
+            <p className="text-muted-foreground mb-6 text-center">We'll personalize your feed based on your passion</p>
             <div className="grid grid-cols-2 gap-3 max-h-[45vh] overflow-y-auto pb-4">
               {concerns.map((concern) => (
                 <button
@@ -307,8 +302,8 @@ export function SignupScreen() {
                   onClick={() => setTopConcern(concern.label)}
                   className={`p-4 rounded-xl border-2 transition-all text-left ${
                     topConcern === concern.label
-                      ? 'border-primary bg-eco-green-light'
-                      : 'border-border bg-card hover:border-primary/50'
+                      ? "border-primary bg-eco-green-light"
+                      : "border-border bg-card hover:border-primary/50"
                   }`}
                 >
                   <span className="text-2xl mb-2 block">{concern.emoji}</span>
@@ -328,10 +323,7 @@ export function SignupScreen() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="p-4 flex items-center">
-        <button
-          onClick={handleBack}
-          className="p-2 rounded-full bg-muted text-muted-foreground"
-        >
+        <button onClick={handleBack} className="p-2 rounded-full bg-muted text-muted-foreground">
           <ChevronLeft className="w-5 h-5" />
         </button>
       </div>
@@ -342,9 +334,7 @@ export function SignupScreen() {
           {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
-              className={`h-1.5 flex-1 rounded-full transition-all ${
-                i <= step ? 'eco-gradient-bg' : 'bg-muted'
-              }`}
+              className={`h-1.5 flex-1 rounded-full transition-all ${i <= step ? "eco-gradient-bg" : "bg-muted"}`}
             />
           ))}
         </div>
@@ -361,11 +351,9 @@ export function SignupScreen() {
           className="w-full eco-button-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {isLoading ? (
-            'Creating account...'
+            "Creating account..."
           ) : step === 3 ? (
-            <>
-              🌍 Join EcoSwarm
-            </>
+            <>🌍 Join EcoSwarm</>
           ) : (
             <>
               Continue
@@ -375,11 +363,8 @@ export function SignupScreen() {
         </button>
 
         <p className="text-center text-muted-foreground text-sm mt-4">
-          Already have an account?{' '}
-          <button
-            onClick={() => navigate('/login')}
-            className="text-primary font-semibold"
-          >
+          Already have an account?{" "}
+          <button onClick={() => navigate("/login")} className="text-primary font-semibold">
             Sign In
           </button>
         </p>
