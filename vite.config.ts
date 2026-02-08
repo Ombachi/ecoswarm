@@ -20,9 +20,10 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       injectRegister: null, // Don't auto-inject blocking script
       manifest: {
-        name: "EcoSwarm - Kenya's Gen Z Climate Action Platform",
+        name: "EcoSwarm - Your Digital Agora",
         short_name: "EcoSwarm",
-        description: "Share stories, join swarms, send advocacy letters, and make your voice heard for Kenya's environment.",
+        description:
+          "Share stories, join swarms, send advocacy letters, and make your voice heard for Kenya's environment.",
         theme_color: "#228B22",
         background_color: "#0f1f0f",
         display: "standalone",
