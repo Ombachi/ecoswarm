@@ -83,7 +83,7 @@ export function RateAppScreen() {
           <h2 className="text-2xl font-bold text-foreground mb-4">Thank You! 💚</h2>
           
           <p className="text-muted-foreground mb-8">
-            Your feedback means the world to us and helps make EcoSwarm better for all young changemakers in Kenya!
+            Your feedback means the world to us and helps make EcoSwarm better for all young EcoWarriors in Kenya!
           </p>
 
           <div className="flex justify-center gap-1 mb-8">

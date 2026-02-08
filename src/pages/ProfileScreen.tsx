@@ -117,7 +117,7 @@ export function ProfileScreen() {
               </div>
             </ProgressRing>
             <div className="flex-1">
-              <p className="font-semibold text-foreground mb-1">Silver Changemaker</p>
+              <p className="font-semibold text-foreground mb-1">Silver EcoWarrior</p>
               <p className="text-sm text-muted-foreground mb-2">
                 750 more points to Gold
               </p>
@@ -198,7 +198,7 @@ export function ProfileScreen() {
             <SocialShareButtons
               url={`${window.location.origin}/profile/${user.id}`}
               title={`🌍 I'm making waves on EcoSwarm!`}
-              text={`🏆 ${user.ecoPoints} EcoPoints earned | 🐝 ${user.stats.swarmsJoined} Swarms joined | 🔥 ${user.streak}-day streak!\n\nJoin Africa's Gen Z changemakers movement! Create your impact profile now 👇`}
+              text={`🏆 ${user.ecoPoints} EcoPoints earned | 🐝 ${user.stats.swarmsJoined} Swarms joined | 🔥 ${user.streak}-day streak!\n\nJoin Africa's Gen Z EcoWarriors movement! Create your impact profile now 👇`}
             />
           </div>
         </div>
@@ -217,7 +217,7 @@ export function ProfileScreen() {
                 {isSwahili ? 'Ubao wa Viongozi' : 'Leaderboard'}
               </p>
               <p className="text-xs text-muted-foreground">
-                See how you rank among changemakers
+                See how you rank among EcoWarriors
               </p>
             </div>
           </div>

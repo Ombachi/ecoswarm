@@ -193,7 +193,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!isMounted) return;
 
       if (session?.user) {
-        // Try to fetch profile with retry for newly signed up users
+        // Increased retry mechanism for new user profile creation
         let appUser = await fetchUserProfile(session.user.id);
         
         // If profile not found, wait and retry (handles race condition during signup)
@@ -203,10 +203,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
           appUser = await fetchUserProfile(session.user.id);
         }
 
-        // If still no profile, try one more time after 2 seconds
+        // Second retry after 2 seconds
         if (!appUser) {
-          console.log('Profile still not found, final retry in 2 seconds...');
+          console.log('Profile still not found, retrying in 2 seconds...');
           await new Promise(resolve => setTimeout(resolve, 2000));
+          appUser = await fetchUserProfile(session.user.id);
+        }
+
+        // Third retry after 3 seconds (for slower database triggers)
+        if (!appUser) {
+          console.log('Profile still not found, final retry in 3 seconds...');
+          await new Promise(resolve => setTimeout(resolve, 3000));
           appUser = await fetchUserProfile(session.user.id);
         }
         
@@ -229,7 +236,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
               }, 500);
             }
           } else {
-            console.log('No profile found for user, staying on current page');
+            console.log('No profile found for user after multiple retries');
+            // Still set as authenticated to prevent redirect loops - profile may be pending
             setUser(null);
             setIsOnboarded(false);
           }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
@@ -6,7 +6,7 @@ import { Post } from '@/types/ecoswarm';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
 import { CommentsSection } from '@/components/posts/CommentsSection';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
-import { MediaLightbox } from '@/components/common/MediaLightbox';
+import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Heart,
@@ -36,10 +36,16 @@ export function AgoraScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [filterTag, setFilterTag] = useState<string | null>(tag || null);
-  const [lightboxMedia, setLightboxMedia] = useState<{ url: string; type: 'image' | 'video' } | null>(null);
+  const [lightboxMedia, setLightboxMedia] = useState<{ 
+    url: string; 
+    type: 'image' | 'video';
+    rect: DOMRect | null;
+  } | null>(null);
 
-  const openLightbox = (url: string, type: 'image' | 'video') => {
-    setLightboxMedia({ url, type });
+  const openLightbox = (url: string, type: 'image' | 'video', event: React.MouseEvent) => {
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    setLightboxMedia({ url, type, rect });
   };
 
   const closeLightbox = () => {
@@ -345,7 +351,7 @@ export function AgoraScreen() {
                   {post.mediaType === 'video' ? (
                     <div 
                       className="relative cursor-pointer group"
-                      onClick={() => openLightbox(post.mediaUrl!, 'video')}
+                      onClick={(e) => openLightbox(post.mediaUrl!, 'video', e)}
                     >
                       <video
                         src={post.mediaUrl}
@@ -361,7 +367,7 @@ export function AgoraScreen() {
                   ) : post.mediaType === 'image' ? (
                     <div 
                       className="relative cursor-pointer group"
-                      onClick={() => openLightbox(post.mediaUrl!, 'image')}
+                      onClick={(e) => openLightbox(post.mediaUrl!, 'image', e)}
                     >
                       <img
                         src={post.mediaUrl}
@@ -498,11 +504,12 @@ export function AgoraScreen() {
 
       {/* Media Lightbox */}
       {lightboxMedia && (
-        <MediaLightbox
+        <AdvancedMediaViewer
           isOpen={!!lightboxMedia}
           onClose={closeLightbox}
           mediaUrl={lightboxMedia.url}
           mediaType={lightboxMedia.type}
+          initialRect={lightboxMedia.rect}
         />
       )}
     </AppLayout>
