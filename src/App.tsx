@@ -55,7 +55,7 @@ function AppRoutes() {
 
   const requireAuthed = (element: JSX.Element) => {
     if (!isAuthenticated) return <Navigate to="/" replace />;
-    if (!user && !isOnboarded) return <LoadingScreen />;
+    // Profile loading is handled inside AppProvider; never block forever here.
     return element;
   };
 

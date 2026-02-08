@@ -77,6 +77,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const buildPlaceholderUser = (authUser: { id: string; email?: string | null }): User => {
+    const fallbackName = (authUser.email || 'EcoWarrior').split('@')[0] || 'EcoWarrior';
+    return {
+      id: authUser.id,
+      name: fallbackName,
+      location: 'Kenya',
+      avatar: undefined,
+      bio: undefined,
+      ecoPoints: 0,
+      streak: 0,
+      topConcern: 'Climate Action',
+      badges: [],
+      stats: {
+        treesPlanted: 0,
+        lettersSent: 0,
+        swarmsJoined: 0,
+        co2Saved: 0,
+        postsCreated: 0,
+        coursesCompleted: 0,
+      },
+    };
+  };
+
   const ensureFirstStepsBadgeExists = async (userId: string) => {
     // Make this idempotent at the DB layer so the badge can't be "missed"
     // due to UI timing/race conditions.
@@ -202,6 +225,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let isMounted = true;
 
+    const hydrateUserInBackground = async (authUser: { id: string; email?: string | null }, event?: string) => {
+      // Always ensure the UI has *something* to render to avoid infinite loading.
+      if (isMounted) {
+        setIsOnboarded(true);
+        setUser((prev) => (prev?.id === authUser.id ? prev : buildPlaceholderUser(authUser)));
+      }
+
+      // Then do the real profile fetch/create work without blocking rendering.
+      let appUser = await ensureProfileExists({ id: authUser.id, email: authUser.email });
+
+      // If still missing (network/RLS timing), retry a few times with backoff.
+      if (!appUser && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+        const delays = [800, 1500, 2500];
+        for (const delay of delays) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          appUser = await ensureProfileExists({ id: authUser.id, email: authUser.email });
+          if (appUser) break;
+        }
+      }
+
+      if (!appUser) {
+        console.warn('hydrateUserInBackground: profile still missing after retries; keeping placeholder user');
+        return;
+      }
+
+      // Ensure First Steps badge exists on first sign-in.
+      if (event === 'SIGNED_IN') {
+        await ensureFirstStepsBadgeExists(authUser.id);
+      }
+
+      const badges = await fetchUserBadges(authUser.id);
+      appUser = { ...appUser, badges };
+
+      if (isMounted) {
+        setUser(appUser);
+        setIsOnboarded(true);
+      }
+    };
+
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await withTimeout(
@@ -215,22 +277,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setAuthUserId(session?.user?.id ?? null);
 
         if (session?.user) {
-          const appUser = await ensureProfileExists({ id: session.user.id, email: session.user.email });
-          if (isMounted) {
-            if (appUser) {
-              setUser(appUser);
-              setIsOnboarded(true);
-            } else {
-              // Session exists, but profile couldn't be created/fetched yet.
-              setUser(null);
-              setIsOnboarded(false);
-            }
-          }
+          // Do not block initial render on profile fetch.
+          void hydrateUserInBackground({ id: session.user.id, email: session.user.email }, 'INITIAL_SESSION');
         } else {
-          if (isMounted) {
-            setUser(null);
-            setIsOnboarded(false);
-          }
+          setUser(null);
+          setIsOnboarded(false);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -256,54 +307,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setAuthUserId(session?.user?.id ?? null);
 
       if (session?.user) {
-        // Always attempt to ensure profile exists for new users.
-        let appUser = await ensureProfileExists({ id: session.user.id, email: session.user.email });
-
-        // If still missing (RLS/network), retry a couple times.
-        if (!appUser && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          appUser = await ensureProfileExists({ id: session.user.id, email: session.user.email });
-        }
-
-        if (!appUser) {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          appUser = await ensureProfileExists({ id: session.user.id, email: session.user.email });
-        }
-
-        if (isMounted) {
-          if (appUser) {
-            // Permanently ensure "First Steps" badge exists for new users on first login.
-            if (event === 'SIGNED_IN') {
-              await ensureFirstStepsBadgeExists(session.user.id);
-              const badges = await fetchUserBadges(session.user.id);
-              appUser = { ...appUser, badges };
-            }
-
-            const isFirstLogin = appUser.streak <= 1 && appUser.badges.length <= 1;
-
-            setUser(appUser);
-            setIsOnboarded(true);
-
-            if (isFirstLogin && event === 'SIGNED_IN') {
-              setTimeout(() => {
-                setNotification({
-                  message: `Welcome to EcoSwarm, ${appUser.name}! 🌍`,
-                  points: 10,
-                });
-                setTimeout(() => setNotification(null), 4000);
-              }, 500);
-            }
-          } else {
-            console.log('Profile still missing; keeping session but not onboarding yet');
-            setUser(null);
-            setIsOnboarded(false);
-          }
-        }
+        void hydrateUserInBackground({ id: session.user.id, email: session.user.email }, event);
       } else {
-        if (isMounted) {
-          setUser(null);
-          setIsOnboarded(false);
-        }
+        setUser(null);
+        setIsOnboarded(false);
       }
     });
 
