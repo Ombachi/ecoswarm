@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { useApp } from '@/context/AppContext';
-import { ProgressRing } from '@/components/common/ProgressRing';
-import { EcoPointsBadge } from '@/components/common/EcoPointsBadge';
-import { SwahiliToggle } from '@/components/common/SwahiliToggle';
-import { usePWAInstall } from '@/hooks/usePWAInstall';
-import { Confetti } from '@/components/common/Confetti';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { useApp } from "@/context/AppContext";
+import { ProgressRing } from "@/components/common/ProgressRing";
+import { EcoPointsBadge } from "@/components/common/EcoPointsBadge";
+import { SwahiliToggle } from "@/components/common/SwahiliToggle";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { Confetti } from "@/components/common/Confetti";
+import { supabase } from "@/integrations/supabase/client";
 import {
   MessageSquare,
   Users,
@@ -23,8 +23,8 @@ import {
   CheckCircle,
   Trophy,
   LogOut,
-} from 'lucide-react';
-import { toast } from 'sonner';
+} from "lucide-react";
+import { toast } from "sonner";
 
 interface Challenge {
   id: string;
@@ -40,7 +40,7 @@ export function DashboardScreen() {
   const navigate = useNavigate();
   const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, refreshUser, logout } = useApp();
   const { isInstallable, isInstalled, promptInstall } = usePWAInstall();
-  
+
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isLoadingChallenges, setIsLoadingChallenges] = useState(true);
@@ -54,33 +54,33 @@ export function DashboardScreen() {
 
   const loadChallenges = async () => {
     if (!user) return;
-    
+
     try {
       // Fetch active challenges
       const { data: challengesData, error: challengesError } = await supabase
-        .from('challenges')
-        .select('*')
-        .eq('is_active', true);
+        .from("challenges")
+        .select("*")
+        .eq("is_active", true);
 
       if (challengesError) throw challengesError;
 
       // Fetch user's completed challenges
       const { data: completedData } = await supabase
-        .from('user_challenges')
-        .select('challenge_id')
-        .eq('user_id', user.id);
+        .from("user_challenges")
+        .select("challenge_id")
+        .eq("user_id", user.id);
 
-      const completedIds = completedData?.map(c => c.challenge_id) || [];
+      const completedIds = completedData?.map((c) => c.challenge_id) || [];
 
       // Mark completed challenges
-      const challengesWithStatus = (challengesData || []).map(c => ({
+      const challengesWithStatus = (challengesData || []).map((c) => ({
         ...c,
         completed: completedIds.includes(c.id),
       }));
 
       setChallenges(challengesWithStatus);
     } catch (error) {
-      console.error('Error loading challenges:', error);
+      console.error("Error loading challenges:", error);
     } finally {
       setIsLoadingChallenges(false);
     }
@@ -92,83 +92,76 @@ export function DashboardScreen() {
     try {
       // Check and update streak based on last activity
       const { data: profile } = await supabase
-        .from('profiles')
-        .select('last_active_at, streak')
-        .eq('user_id', user.id)
+        .from("profiles")
+        .select("last_active_at, streak")
+        .eq("user_id", user.id)
         .single();
 
       if (profile?.last_active_at) {
         const lastActive = new Date(profile.last_active_at);
         const now = new Date();
-        
+
         // Reset times to midnight for accurate day comparison
         const lastActiveDay = new Date(lastActive.getFullYear(), lastActive.getMonth(), lastActive.getDate());
         const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        
+
         const daysDiff = Math.floor((todayDay.getTime() - lastActiveDay.getTime()) / (1000 * 60 * 60 * 24));
 
         if (daysDiff === 1) {
           // Increment streak for consecutive day
           const newStreak = (profile.streak || 0) + 1;
           await supabase
-            .from('profiles')
+            .from("profiles")
             .update({ streak: newStreak, last_active_at: now.toISOString() })
-            .eq('user_id', user.id);
+            .eq("user_id", user.id);
           await refreshUser();
           toast.success(`🔥 ${newStreak} day streak! Keep it up!`);
         } else if (daysDiff > 1) {
           // Reset streak if more than 1 day gap
           await supabase
-            .from('profiles')
+            .from("profiles")
             .update({ streak: 1, last_active_at: now.toISOString() })
-            .eq('user_id', user.id);
+            .eq("user_id", user.id);
           await refreshUser();
         } else if (daysDiff === 0) {
           // Same day, just update last_active_at if not already updated today
-          await supabase
-            .from('profiles')
-            .update({ last_active_at: now.toISOString() })
-            .eq('user_id', user.id);
+          await supabase.from("profiles").update({ last_active_at: now.toISOString() }).eq("user_id", user.id);
         }
       } else {
         // First time, set streak to 1
         await supabase
-          .from('profiles')
+          .from("profiles")
           .update({ streak: 1, last_active_at: new Date().toISOString() })
-          .eq('user_id', user.id);
+          .eq("user_id", user.id);
         await refreshUser();
       }
     } catch (error) {
-      console.error('Error updating streak:', error);
+      console.error("Error updating streak:", error);
     }
   };
 
   const handleCompleteChallenge = async (challengeId: string) => {
     if (!user) return;
-    
-    const challenge = challenges.find(c => c.id === challengeId);
+
+    const challenge = challenges.find((c) => c.id === challengeId);
     if (!challenge || challenge.completed) return;
 
     try {
       // Insert completion record
-      const { error } = await supabase
-        .from('user_challenges')
-        .insert({
-          user_id: user.id,
-          challenge_id: challengeId,
-        });
+      const { error } = await supabase.from("user_challenges").insert({
+        user_id: user.id,
+        challenge_id: challengeId,
+      });
 
-      if (error && !error.message.includes('duplicate')) throw error;
+      if (error && !error.message.includes("duplicate")) throw error;
 
       // Update local state
-      setChallenges(challenges.map(c => 
-        c.id === challengeId ? { ...c, completed: true } : c
-      ));
+      setChallenges(challenges.map((c) => (c.id === challengeId ? { ...c, completed: true } : c)));
 
       // Award points
       addPoints(challenge.points);
       showNotification(`Challenge completed! 🎉`, challenge.points);
-      
+
       // Show confetti
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
@@ -176,63 +169,61 @@ export function DashboardScreen() {
       toast.success(`You earned ${challenge.points} EcoPoints!`);
 
       // Navigate based on challenge type
-      if (challenge.action_type === 'post') {
-        navigate('/agora');
-      } else if (challenge.action_type === 'swarm') {
-        navigate('/swarms');
-      } else if (challenge.action_type === 'letter') {
-        navigate('/tools');
-      } else if (challenge.action_type === 'module') {
-        navigate('/tools');
+      if (challenge.action_type === "post") {
+        navigate("/agora");
+      } else if (challenge.action_type === "swarm") {
+        navigate("/swarms");
+      } else if (challenge.action_type === "letter") {
+        navigate("/tools");
+      } else if (challenge.action_type === "module") {
+        navigate("/tools");
       }
     } catch (error) {
-      console.error('Error completing challenge:', error);
-      toast.error('Failed to complete challenge');
+      console.error("Error completing challenge:", error);
+      toast.error("Failed to complete challenge");
     }
   };
 
   if (!user) return null;
 
-  const dailyChallenge = challenges.find((c) => c.type === 'daily' && !c.completed);
+  const dailyChallenge = challenges.find((c) => c.type === "daily" && !c.completed);
 
   const quickActions = [
     {
       icon: MessageSquare,
-      label: isSwahili ? 'Agora Square' : 'Agora Square',
-      color: 'from-primary to-secondary',
-      path: '/agora',
+      label: isSwahili ? "Agora Square" : "Agora Square",
+      color: "from-primary to-secondary",
+      path: "/agora",
     },
     {
       icon: Users,
-      label: isSwahili ? 'Join Swarm' : 'Join Swarm',
-      color: 'from-secondary to-eco-blue',
-      path: '/swarms',
+      label: isSwahili ? "Join Swarm" : "Join Swarm",
+      color: "from-secondary to-eco-blue",
+      path: "/swarms",
     },
     {
       icon: Mail,
-      label: isSwahili ? 'Send Letter' : 'Send Letter',
-      color: 'from-eco-gold to-eco-orange',
-      path: '/tools',
+      label: isSwahili ? "Send Letter" : "Send Letter",
+      color: "from-eco-gold to-eco-orange",
+      path: "/tools",
     },
     {
       icon: Target,
-      label: isSwahili ? 'Capacity Hub' : 'Capacity Hub',
-      color: 'from-eco-blue to-primary',
-      path: '/tools',
+      label: isSwahili ? "Capacity Hub" : "Capacity Hub",
+      color: "from-eco-blue to-primary",
+      path: "/tools",
     },
   ];
 
   return (
     <AppLayout>
       {showConfetti && <Confetti />}
-      
+
       <div className="px-4 pt-4 pb-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-muted-foreground text-sm">
-              {isSwahili ? 'Habari,' : 'Hello,'} 👋
-            </p>
+            <p className="text-muted-foreground text-sm">{isSwahili ? "Habari," : "Hello,"} 👋</p>
             <h1 className="text-2xl font-bold text-foreground">
               {user.name} <span className="text-muted-foreground font-normal">from {user.location}</span>
             </h1>
@@ -248,7 +239,7 @@ export function DashboardScreen() {
             <button
               onClick={logout}
               className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all"
-              title={isSwahili ? 'Ondoka' : 'Log Out'}
+              title={isSwahili ? "Ondoka" : "Log Out"}
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -273,9 +264,7 @@ export function DashboardScreen() {
                 <span className="font-bold text-foreground">{user.streak} Day Streak!</span>
               </div>
               <p className="text-sm text-muted-foreground mb-3">
-                {isSwahili
-                  ? 'Uko karibu kufikia kiwango kipya!'
-                  : "You're close to the next level!"}
+                {isSwahili ? "Uko karibu kufikia kiwango kipya!" : "You're close to the next level!"}
               </p>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div
@@ -283,16 +272,16 @@ export function DashboardScreen() {
                   style={{ width: `${Math.min((user.ecoPoints / 2000) * 100, 100)}%` }}
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{Math.max(2000 - user.ecoPoints, 0)} more to Gold Changemaker</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {Math.max(2000 - user.ecoPoints, 0)} more to Gold Changemaker
+              </p>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div>
-          <h2 className="font-semibold text-foreground mb-3">
-            {isSwahili ? 'Hatua za Haraka' : 'Quick Actions'}
-          </h2>
+          <h2 className="font-semibold text-foreground mb-3">{isSwahili ? "Hatua za Haraka" : "Quick Actions"}</h2>
           <div className="grid grid-cols-4 gap-3">
             {quickActions.map((action) => (
               <button
@@ -300,12 +289,12 @@ export function DashboardScreen() {
                 onClick={() => navigate(action.path)}
                 className="eco-card p-4 flex flex-col items-center gap-2 hover:shadow-lg transition-all"
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}>
+                <div
+                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}
+                >
                   <action.icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xs font-medium text-foreground text-center">
-                  {action.label}
-                </span>
+                <span className="text-xs font-medium text-foreground text-center">{action.label}</span>
               </button>
             ))}
           </div>
@@ -317,7 +306,7 @@ export function DashboardScreen() {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">
-                  {isSwahili ? 'Changamoto ya Leo' : 'Daily Challenge'}
+                  {isSwahili ? "Changamoto ya Leo" : "Daily Challenge"}
                 </p>
                 <h3 className="font-semibold text-foreground">{dailyChallenge.title}</h3>
                 <p className="text-sm text-muted-foreground">{dailyChallenge.description}</p>
@@ -329,7 +318,7 @@ export function DashboardScreen() {
               className="w-full eco-button-primary py-3 flex items-center justify-center gap-2"
             >
               <Trophy className="w-5 h-5" />
-              {isSwahili ? 'Anza Changamoto' : 'Start Challenge'}
+              {isSwahili ? "Anza Changamoto" : "Start Challenge"}
             </button>
           </div>
         )}
@@ -338,19 +327,19 @@ export function DashboardScreen() {
         <div>
           <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
             <Trophy className="w-5 h-5 text-eco-gold" />
-            {isSwahili ? 'Changamoto Zote' : 'All Challenges'}
+            {isSwahili ? "Changamoto Zote" : "All Challenges"}
           </h2>
           <div className="space-y-3">
             {challenges.map((challenge) => (
               <div
                 key={challenge.id}
-                className={`eco-card p-4 flex items-center gap-4 ${
-                  challenge.completed ? 'opacity-60' : ''
-                }`}
+                className={`eco-card p-4 flex items-center gap-4 ${challenge.completed ? "opacity-60" : ""}`}
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  challenge.completed ? 'eco-gradient-bg' : 'bg-muted'
-                }`}>
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    challenge.completed ? "eco-gradient-bg" : "bg-muted"
+                  }`}
+                >
                   {challenge.completed ? (
                     <CheckCircle className="w-5 h-5 text-white" />
                   ) : (
@@ -360,11 +349,15 @@ export function DashboardScreen() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h4 className="font-semibold text-foreground">{challenge.title}</h4>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                      challenge.type === 'daily' ? 'bg-eco-gold/20 text-eco-gold' :
-                      challenge.type === 'weekly' ? 'bg-primary/20 text-primary' :
-                      'bg-secondary/20 text-secondary'
-                    }`}>
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full ${
+                        challenge.type === "daily"
+                          ? "bg-eco-gold/20 text-eco-gold"
+                          : challenge.type === "weekly"
+                            ? "bg-primary/20 text-primary"
+                            : "bg-secondary/20 text-secondary"
+                      }`}
+                    >
                       {challenge.type}
                     </span>
                   </div>
@@ -382,14 +375,12 @@ export function DashboardScreen() {
         {/* Impact Summary */}
         <div className="eco-card p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-foreground">
-              {isSwahili ? 'Athari Yako' : 'Your Impact'}
-            </h2>
+            <h2 className="font-semibold text-foreground">{isSwahili ? "Athari Yako" : "Your Impact"}</h2>
             <button
-              onClick={() => navigate('/profile')}
+              onClick={() => navigate("/profile")}
               className="text-primary text-sm font-medium flex items-center gap-1"
             >
-              {isSwahili ? 'Ona zaidi' : 'See all'}
+              {isSwahili ? "Ona zaidi" : "See all"}
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -413,41 +404,31 @@ export function DashboardScreen() {
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-2">
               <Target className="w-6 h-6 text-white" />
             </div>
-            <h3 className="font-semibold text-foreground text-sm mb-1">
-              {isSwahili ? 'Dhamira' : 'Mission'}
-            </h3>
+            <h3 className="font-semibold text-foreground text-sm mb-1">{isSwahili ? "Dhamira" : "Mission"}</h3>
             <p className="text-xs text-muted-foreground">
-              Empower Gen Z to drive social change across Kenya
+              To amplify voices,connect passions and transform digital engagement into real-world impact
             </p>
           </div>
           <div className="eco-card p-4 flex flex-col items-center text-center">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-eco-gold to-eco-orange flex items-center justify-center mb-2">
               <Eye className="w-6 h-6 text-white" />
             </div>
-            <h3 className="font-semibold text-foreground text-sm mb-1">
-              {isSwahili ? 'Maono' : 'Vision'}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              A Kenya where every young voice sparks action
-            </p>
+            <h3 className="font-semibold text-foreground text-sm mb-1">{isSwahili ? "Maono" : "Vision"}</h3>
+            <p className="text-xs text-muted-foreground">A digital agora for collective impact</p>
           </div>
         </div>
 
         {/* About Link */}
         <button
-          onClick={() => navigate('/about')}
+          onClick={() => navigate("/about")}
           className="w-full eco-card p-4 flex items-center gap-4 hover:shadow-md transition-all"
         >
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-eco-blue flex items-center justify-center">
             <Info className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 text-left">
-            <p className="font-semibold text-foreground text-sm">
-              {isSwahili ? 'Kuhusu EcoSwarm' : 'About EcoSwarm'}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Learn why we built this platform
-            </p>
+            <p className="font-semibold text-foreground text-sm">{isSwahili ? "Kuhusu EcoSwarm" : "About EcoSwarm"}</p>
+            <p className="text-xs text-muted-foreground">Learn why we built this platform</p>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </button>
@@ -464,19 +445,14 @@ export function DashboardScreen() {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-foreground text-sm">
-                {isInstalled ? 'EcoSwarm Installed!' : 'Install EcoSwarm'}
+                {isInstalled ? "EcoSwarm Installed!" : "Install EcoSwarm"}
               </p>
               <p className="text-xs text-muted-foreground">
-                {isInstalled 
-                  ? 'Thanks for installing! Enjoy the app.' 
-                  : 'Works offline! Earn 50 EcoPoints 🎁'}
+                {isInstalled ? "Thanks for installing! Enjoy the app." : "Works offline! Earn 50 EcoPoints 🎁"}
               </p>
             </div>
             {!isInstalled && (
-              <button 
-                onClick={promptInstall}
-                className="eco-button-primary py-2 px-4 text-sm"
-              >
+              <button onClick={promptInstall} className="eco-button-primary py-2 px-4 text-sm">
                 Install
               </button>
             )}
