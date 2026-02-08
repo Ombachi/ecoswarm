@@ -1,34 +1,39 @@
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider, useApp } from "@/context/AppContext";
+import { Loader2 } from "lucide-react";
+
+// Critical path - loaded immediately
 import { SplashScreen } from "@/pages/SplashScreen";
-import { OnboardingScreen } from "@/pages/OnboardingScreen";
 import { LoginScreen } from "@/pages/LoginScreen";
 import { SignupScreen } from "@/pages/SignupScreen";
-import { ForgotPasswordScreen } from "@/pages/ForgotPasswordScreen";
-import { ResetPasswordScreen } from "@/pages/ResetPasswordScreen";
-import { DashboardScreen } from "@/pages/DashboardScreen";
-import { AgoraScreen } from "@/pages/AgoraScreen";
-import { SwarmsScreen } from "@/pages/SwarmsScreen";
-import { ToolsScreen } from "@/pages/ToolsScreen";
-import { ProfileScreen } from "@/pages/ProfileScreen";
-import { AboutScreen } from "@/pages/AboutScreen";
-import { SettingsScreen } from "@/pages/SettingsScreen";
-import { LeaderboardScreen } from "@/pages/LeaderboardScreen";
-import { EditProfileScreen } from "@/pages/EditProfileScreen";
-import { ModuleScreen } from "@/pages/ModuleScreen";
-import { PrivacyPolicyScreen } from "@/pages/PrivacyPolicyScreen";
-import { FeedbackScreen } from "@/pages/FeedbackScreen";
-import { RateAppScreen } from "@/pages/RateAppScreen";
-import { TermsOfServiceScreen } from "@/pages/TermsOfServiceScreen";
-import { OfflinePage } from "@/pages/OfflinePage";
-import { PublicImpactScreen } from "@/pages/PublicImpactScreen";
-import { PostViewScreen } from "@/pages/PostViewScreen";
-import NotFound from "./pages/NotFound";
-import { Loader2 } from "lucide-react";
+
+// Lazy loaded routes for code splitting
+const OnboardingScreen = lazy(() => import("@/pages/OnboardingScreen").then(m => ({ default: m.OnboardingScreen })));
+const ForgotPasswordScreen = lazy(() => import("@/pages/ForgotPasswordScreen").then(m => ({ default: m.ForgotPasswordScreen })));
+const ResetPasswordScreen = lazy(() => import("@/pages/ResetPasswordScreen").then(m => ({ default: m.ResetPasswordScreen })));
+const DashboardScreen = lazy(() => import("@/pages/DashboardScreen").then(m => ({ default: m.DashboardScreen })));
+const AgoraScreen = lazy(() => import("@/pages/AgoraScreen").then(m => ({ default: m.AgoraScreen })));
+const SwarmsScreen = lazy(() => import("@/pages/SwarmsScreen").then(m => ({ default: m.SwarmsScreen })));
+const ToolsScreen = lazy(() => import("@/pages/ToolsScreen").then(m => ({ default: m.ToolsScreen })));
+const ProfileScreen = lazy(() => import("@/pages/ProfileScreen").then(m => ({ default: m.ProfileScreen })));
+const AboutScreen = lazy(() => import("@/pages/AboutScreen").then(m => ({ default: m.AboutScreen })));
+const SettingsScreen = lazy(() => import("@/pages/SettingsScreen").then(m => ({ default: m.SettingsScreen })));
+const LeaderboardScreen = lazy(() => import("@/pages/LeaderboardScreen").then(m => ({ default: m.LeaderboardScreen })));
+const EditProfileScreen = lazy(() => import("@/pages/EditProfileScreen").then(m => ({ default: m.EditProfileScreen })));
+const ModuleScreen = lazy(() => import("@/pages/ModuleScreen").then(m => ({ default: m.ModuleScreen })));
+const PrivacyPolicyScreen = lazy(() => import("@/pages/PrivacyPolicyScreen").then(m => ({ default: m.PrivacyPolicyScreen })));
+const FeedbackScreen = lazy(() => import("@/pages/FeedbackScreen").then(m => ({ default: m.FeedbackScreen })));
+const RateAppScreen = lazy(() => import("@/pages/RateAppScreen").then(m => ({ default: m.RateAppScreen })));
+const TermsOfServiceScreen = lazy(() => import("@/pages/TermsOfServiceScreen").then(m => ({ default: m.TermsOfServiceScreen })));
+const OfflinePage = lazy(() => import("@/pages/OfflinePage").then(m => ({ default: m.OfflinePage })));
+const PublicImpactScreen = lazy(() => import("@/pages/PublicImpactScreen").then(m => ({ default: m.PublicImpactScreen })));
+const PostViewScreen = lazy(() => import("@/pages/PostViewScreen").then(m => ({ default: m.PostViewScreen })));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -60,34 +65,36 @@ function AppRoutes() {
   };
 
   return (
-    <Routes>
-      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SplashScreen />} />
-      <Route path="/onboarding" element={<OnboardingScreen />} />
-      <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen />} />
-      <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupScreen />} />
-      <Route path="/forgot-password" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <ForgotPasswordScreen />} />
-      <Route path="/reset-password" element={<ResetPasswordScreen />} />
-      <Route path="/about" element={<AboutScreen />} />
-      <Route path="/terms-of-service" element={<TermsOfServiceScreen />} />
-      <Route path="/offline" element={<OfflinePage />} />
-      <Route path="/profile/:userId" element={<PublicImpactScreen />} />
-      <Route path="/post/:postId" element={<PostViewScreen />} />
+    <Suspense fallback={<LoadingScreen />}>
+      <Routes>
+        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SplashScreen />} />
+        <Route path="/onboarding" element={<OnboardingScreen />} />
+        <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen />} />
+        <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupScreen />} />
+        <Route path="/forgot-password" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <ForgotPasswordScreen />} />
+        <Route path="/reset-password" element={<ResetPasswordScreen />} />
+        <Route path="/about" element={<AboutScreen />} />
+        <Route path="/terms-of-service" element={<TermsOfServiceScreen />} />
+        <Route path="/offline" element={<OfflinePage />} />
+        <Route path="/profile/:userId" element={<PublicImpactScreen />} />
+        <Route path="/post/:postId" element={<PostViewScreen />} />
 
-      <Route path="/dashboard" element={requireAuthed(<DashboardScreen />)} />
-      <Route path="/agora" element={requireAuthed(<AgoraScreen />)} />
-      <Route path="/agora/tag/:tag" element={requireAuthed(<AgoraScreen />)} />
-      <Route path="/swarms" element={requireAuthed(<SwarmsScreen />)} />
-      <Route path="/tools" element={requireAuthed(<ToolsScreen />)} />
-      <Route path="/profile" element={requireAuthed(<ProfileScreen />)} />
-      <Route path="/settings" element={requireAuthed(<SettingsScreen />)} />
-      <Route path="/privacy-policy" element={requireAuthed(<PrivacyPolicyScreen />)} />
-      <Route path="/feedback" element={requireAuthed(<FeedbackScreen />)} />
-      <Route path="/rate-app" element={requireAuthed(<RateAppScreen />)} />
-      <Route path="/leaderboard" element={requireAuthed(<LeaderboardScreen />)} />
-      <Route path="/edit-profile" element={requireAuthed(<EditProfileScreen />)} />
-      <Route path="/module/:moduleId" element={requireAuthed(<ModuleScreen />)} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="/dashboard" element={requireAuthed(<DashboardScreen />)} />
+        <Route path="/agora" element={requireAuthed(<AgoraScreen />)} />
+        <Route path="/agora/tag/:tag" element={requireAuthed(<AgoraScreen />)} />
+        <Route path="/swarms" element={requireAuthed(<SwarmsScreen />)} />
+        <Route path="/tools" element={requireAuthed(<ToolsScreen />)} />
+        <Route path="/profile" element={requireAuthed(<ProfileScreen />)} />
+        <Route path="/settings" element={requireAuthed(<SettingsScreen />)} />
+        <Route path="/privacy-policy" element={requireAuthed(<PrivacyPolicyScreen />)} />
+        <Route path="/feedback" element={requireAuthed(<FeedbackScreen />)} />
+        <Route path="/rate-app" element={requireAuthed(<RateAppScreen />)} />
+        <Route path="/leaderboard" element={requireAuthed(<LeaderboardScreen />)} />
+        <Route path="/edit-profile" element={requireAuthed(<EditProfileScreen />)} />
+        <Route path="/module/:moduleId" element={requireAuthed(<ModuleScreen />)} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 }
 
