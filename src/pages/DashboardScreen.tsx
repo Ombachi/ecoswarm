@@ -401,19 +401,6 @@ export function DashboardScreen() {
           </div>
         </div>
 
-        {/* Mission & Vision Cards */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="eco-card p-4 flex flex-col items-center text-center">
-            <h3 className="font-semibold text-foreground text-sm mb-1">{isSwahili ? "Dhamira" : "Mission"}</h3>
-            <p className="text-xs text-muted-foreground">
-              To amplify voices, connect passions and transform digital engagement into real-world impact
-            </p>
-          </div>
-          <div className="eco-card p-4 flex flex-col items-center text-center">
-            <h3 className="font-semibold text-foreground text-sm mb-1">{isSwahili ? "Maono" : "Vision"}</h3>
-            <p className="text-xs text-muted-foreground">A digital agora for collective impact</p>
-          </div>
-        </div>
 
         {/* About Link */}
         <button
