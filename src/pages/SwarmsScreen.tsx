@@ -1,21 +1,10 @@
-import { useState, useEffect } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { useApp } from '@/context/AppContext';
-import { supabase } from '@/integrations/supabase/client';
-import { CreateSwarmModal } from '@/components/swarms/CreateSwarmModal';
-import { toast } from 'sonner';
-import {
-  Users,
-  Target,
-  ChevronRight,
-  X,
-  Plus,
-  Droplets,
-  Wind,
-  TreePine,
-  Trash2,
-  Loader2,
-} from 'lucide-react';
+import { useState, useEffect } from "react";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { useApp } from "@/context/AppContext";
+import { supabase } from "@/integrations/supabase/client";
+import { CreateSwarmModal } from "@/components/swarms/CreateSwarmModal";
+import { toast } from "sonner";
+import { Users, Target, ChevronRight, X, Plus, Droplets, Wind, TreePine, Trash2, Loader2 } from "lucide-react";
 
 interface Swarm {
   id: string;
@@ -34,7 +23,7 @@ interface Swarm {
 
 const categoryIcons: Record<string, any> = {
   Water: Droplets,
-  'Air Quality': Wind,
+  "Air Quality": Wind,
   Reforestation: TreePine,
   Waste: Trash2,
 };
@@ -57,9 +46,9 @@ export function SwarmsScreen() {
     try {
       // Fetch all swarms
       const { data: swarmsData, error: swarmsError } = await supabase
-        .from('swarms')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("swarms")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (swarmsError) throw swarmsError;
 
@@ -67,24 +56,24 @@ export function SwarmsScreen() {
       let memberships: string[] = [];
       if (user) {
         const { data: membershipData } = await supabase
-          .from('swarm_memberships')
-          .select('swarm_id')
-          .eq('user_id', user.id);
-        
-        memberships = membershipData?.map(m => m.swarm_id) || [];
+          .from("swarm_memberships")
+          .select("swarm_id")
+          .eq("user_id", user.id);
+
+        memberships = membershipData?.map((m) => m.swarm_id) || [];
         setUserMemberships(memberships);
       }
 
       // Mark joined swarms
-      const swarmsWithJoinStatus = (swarmsData || []).map(swarm => ({
+      const swarmsWithJoinStatus = (swarmsData || []).map((swarm) => ({
         ...swarm,
         isJoined: memberships.includes(swarm.id),
       }));
 
       setSwarms(swarmsWithJoinStatus);
     } catch (error) {
-      console.error('Error loading swarms:', error);
-      toast.error('Failed to load swarms');
+      console.error("Error loading swarms:", error);
+      toast.error("Failed to load swarms");
     } finally {
       setIsLoading(false);
     }
@@ -92,7 +81,7 @@ export function SwarmsScreen() {
 
   const handleJoinSwarm = async (swarmId: string) => {
     if (!user) {
-      toast.error('Please log in to join a swarm');
+      toast.error("Please log in to join a swarm");
       return;
     }
 
@@ -100,26 +89,24 @@ export function SwarmsScreen() {
       const influence = voteValue * voteValue;
 
       // Insert membership
-      const { error: membershipError } = await supabase
-        .from('swarm_memberships')
-        .insert({
-          swarm_id: swarmId,
-          user_id: user.id,
-          votes: voteValue,
-        });
+      const { error: membershipError } = await supabase.from("swarm_memberships").insert({
+        swarm_id: swarmId,
+        user_id: user.id,
+        votes: voteValue,
+      });
 
       if (membershipError) throw membershipError;
 
       // Update swarm stats
-      const swarm = swarms.find(s => s.id === swarmId);
+      const swarm = swarms.find((s) => s.id === swarmId);
       if (swarm) {
         await supabase
-          .from('swarms')
+          .from("swarms")
           .update({
             participants: swarm.participants + 1,
             current_signatures: swarm.current_signatures + influence,
           })
-          .eq('id', swarmId);
+          .eq("id", swarmId);
       }
 
       // Update local state
@@ -132,8 +119,8 @@ export function SwarmsScreen() {
                 participants: s.participants + 1,
                 current_signatures: s.current_signatures + influence,
               }
-            : s
-        )
+            : s,
+        ),
       );
       setUserMemberships([...userMemberships, swarmId]);
 
@@ -143,15 +130,15 @@ export function SwarmsScreen() {
 
       // Award Swarm Leader badge on 5th swarm
       if (newCount >= 5) {
-        await earnBadge('3');
+        await earnBadge("3");
       }
 
-      showNotification('Joined swarm! 🐝', 30);
+      showNotification("Joined swarm! 🐝", 30);
       setSelectedSwarm(null);
       setVoteValue(1);
     } catch (error) {
-      console.error('Error joining swarm:', error);
-      toast.error('Failed to join swarm');
+      console.error("Error joining swarm:", error);
+      toast.error("Failed to join swarm");
     }
   };
 
@@ -163,13 +150,13 @@ export function SwarmsScreen() {
     targetSignatures: number;
   }) => {
     if (!user) {
-      toast.error('Please log in to create a swarm');
+      toast.error("Please log in to create a swarm");
       return;
     }
 
     try {
       const { data: newSwarm, error } = await supabase
-        .from('swarms')
+        .from("swarms")
         .insert({
           name: swarmData.name,
           description: swarmData.description,
@@ -186,7 +173,7 @@ export function SwarmsScreen() {
       if (error) throw error;
 
       // Auto-join the creator
-      await supabase.from('swarm_memberships').insert({
+      await supabase.from("swarm_memberships").insert({
         swarm_id: newSwarm.id,
         user_id: user.id,
         votes: 1,
@@ -194,12 +181,12 @@ export function SwarmsScreen() {
 
       setSwarms([{ ...newSwarm, isJoined: true }, ...swarms]);
       setUserMemberships([...userMemberships, newSwarm.id]);
-      
+
       addPoints(50);
-      showNotification('Swarm created! 🐝', 50);
+      showNotification("Swarm created! 🐝", 50);
     } catch (error) {
-      console.error('Error creating swarm:', error);
-      toast.error('Failed to create swarm');
+      console.error("Error creating swarm:", error);
+      toast.error("Failed to create swarm");
     }
   };
 
@@ -226,7 +213,7 @@ export function SwarmsScreen() {
             <h1 className="text-xl font-bold text-foreground">Swarms Hub</h1>
             <p className="text-xs text-muted-foreground">Join campaigns that matter</p>
           </div>
-          <button 
+          <button
             onClick={() => setShowCreateModal(true)}
             className="eco-button-primary py-2 px-4 text-sm flex items-center gap-1"
           >
@@ -246,10 +233,7 @@ export function SwarmsScreen() {
         ) : (
           swarms.map((swarm, index) => {
             const Icon = categoryIcons[swarm.category] || Users;
-            const progress = getProgressPercentage(
-              swarm.current_signatures,
-              swarm.target_signatures
-            );
+            const progress = getProgressPercentage(swarm.current_signatures, swarm.target_signatures);
 
             return (
               <button
@@ -264,16 +248,10 @@ export function SwarmsScreen() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-foreground truncate">
-                        {swarm.name}
-                      </h3>
-                      {swarm.isJoined && (
-                        <span className="eco-badge text-[10px]">Joined</span>
-                      )}
+                      <h3 className="font-semibold text-foreground truncate">{swarm.name}</h3>
+                      {swarm.isJoined && <span className="eco-badge text-[10px]">Joined</span>}
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                      {swarm.description}
-                    </p>
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{swarm.description}</p>
 
                     {/* Progress Bar */}
                     <div className="mb-2">
@@ -285,12 +263,10 @@ export function SwarmsScreen() {
                       </div>
                       <div className="flex items-center justify-between mt-1">
                         <span className="text-xs text-muted-foreground">
-                          {swarm.current_signatures.toLocaleString()} /{' '}
-                          {swarm.target_signatures.toLocaleString()} signatures
+                          {swarm.current_signatures.toLocaleString()} / {swarm.target_signatures.toLocaleString()}{" "}
+                          signatures
                         </span>
-                        <span className="text-xs font-semibold text-primary">
-                          {Math.round(progress)}%
-                        </span>
+                        <span className="text-xs font-semibold text-primary">{Math.round(progress)}%</span>
                       </div>
                     </div>
 
@@ -298,7 +274,7 @@ export function SwarmsScreen() {
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Users className="w-3 h-3" />
-                        {swarm.participants.toLocaleString()} Gen Z joined
+                        {swarm.participants.toLocaleString()} EcoWarriors joined
                       </div>
                     </div>
                   </div>
@@ -331,9 +307,7 @@ export function SwarmsScreen() {
             <div className="p-6 space-y-6">
               {/* Description */}
               <div>
-                <p className="text-muted-foreground leading-relaxed">
-                  {selectedSwarm.description}
-                </p>
+                <p className="text-muted-foreground leading-relaxed">{selectedSwarm.description}</p>
               </div>
 
               {/* Goal */}
@@ -361,7 +335,7 @@ export function SwarmsScreen() {
                     style={{
                       width: `${getProgressPercentage(
                         selectedSwarm.current_signatures,
-                        selectedSwarm.target_signatures
+                        selectedSwarm.target_signatures,
                       )}%`,
                     }}
                   />
@@ -374,9 +348,7 @@ export function SwarmsScreen() {
               {/* Quadratic Voting */}
               {!selectedSwarm.isJoined && (
                 <div className="eco-card p-4">
-                  <h3 className="font-semibold text-foreground mb-2">
-                    Quadratic Voting Power
-                  </h3>
+                  <h3 className="font-semibold text-foreground mb-2">Quadratic Voting Power</h3>
                   <p className="text-sm text-muted-foreground mb-4">
                     Choose how many votes to contribute. Your influence = votes²
                   </p>
@@ -398,9 +370,7 @@ export function SwarmsScreen() {
 
                   <div className="flex items-center justify-between p-3 bg-muted rounded-xl">
                     <span className="text-sm text-muted-foreground">Your influence:</span>
-                    <span className="text-lg font-bold eco-gradient-text">
-                      {voteValue * voteValue} signatures
-                    </span>
+                    <span className="text-lg font-bold eco-gradient-text">{voteValue * voteValue} signatures</span>
                   </div>
                 </div>
               )}
@@ -417,9 +387,7 @@ export function SwarmsScreen() {
               ) : (
                 <div className="eco-card p-4 bg-eco-green-light border-none text-center">
                   <p className="font-semibold text-primary">✓ You're part of this swarm!</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Check back for updates and actions
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">Check back for updates and actions</p>
                 </div>
               )}
             </div>
