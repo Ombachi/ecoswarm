@@ -1,18 +1,6 @@
-import { useNavigate } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { 
-  ChevronLeft, 
-  Leaf, 
-  Target, 
-  Eye, 
-  Sparkles, 
-  Users, 
-  MessageSquare, 
-  Mail,
-  Heart,
-  Globe,
-  Zap
-} from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { ChevronLeft, Leaf, Target, Eye, Sparkles, Users, MessageSquare, Mail, Heart, Globe, Zap } from "lucide-react";
 
 export function AboutScreen() {
   const navigate = useNavigate();
@@ -20,35 +8,35 @@ export function AboutScreen() {
   const features = [
     {
       icon: MessageSquare,
-      title: 'Agora Square',
-      description: 'Share your stories, ideas, and experiences with a community that cares.',
-      color: 'from-primary to-secondary',
+      title: "Agora Square",
+      description: "Share your stories, ideas, and experiences with a community that cares.",
+      color: "from-primary to-secondary",
     },
     {
       icon: Users,
-      title: 'Swarm Campaigns',
-      description: 'Unite with others on causes that matter. Collective action for real impact.',
-      color: 'from-secondary to-eco-blue',
+      title: "Swarm Campaigns",
+      description: "Unite with others on causes that matter. Collective action for real impact.",
+      color: "from-secondary to-eco-blue",
     },
     {
       icon: Mail,
-      title: 'EcoLetter Forge',
-      description: 'Generate powerful advocacy letters to decision-makers with AI assistance.',
-      color: 'from-eco-gold to-eco-orange',
+      title: "EcoLetter Forge",
+      description: "Generate powerful advocacy letters to decision-makers with AI assistance.",
+      color: "from-eco-gold to-eco-orange",
     },
     {
       icon: Sparkles,
-      title: 'Capacity Hub',
-      description: 'Learn, grow, and earn points while building your activism skills.',
-      color: 'from-eco-orange to-destructive',
+      title: "Capacity Hub",
+      description: "Learn, grow, and earn points while building your activism skills.",
+      color: "from-eco-orange to-destructive",
     },
   ];
 
   const values = [
-    { emoji: '🌍', title: 'Global Mindset', desc: 'Think globally, act locally' },
-    { emoji: '🤝', title: 'Collective Power', desc: 'Together we achieve more' },
-    { emoji: '📢', title: 'Amplified Voices', desc: 'Every voice deserves to be heard' },
-    { emoji: '🔥', title: 'Passionate Action', desc: 'Turn passion into real change' },
+    { emoji: "🌍", title: "Global Mindset", desc: "Think globally, act locally" },
+    { emoji: "🤝", title: "Collective Power", desc: "Together we achieve more" },
+    { emoji: "📢", title: "Amplified Voices", desc: "Every voice deserves to be heard" },
+    { emoji: "🔥", title: "Passionate Action", desc: "Turn passion into real change" },
   ];
 
   return (
@@ -61,10 +49,7 @@ export function AboutScreen() {
         </div>
 
         <div className="relative z-10">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-full bg-white/20 text-white mb-4"
-          >
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full bg-white/20 text-white mb-4">
             <ChevronLeft className="w-5 h-5" />
           </button>
 
@@ -91,9 +76,7 @@ export function AboutScreen() {
             </div>
           </div>
           <p className="text-foreground leading-relaxed">
-            To empower Kenya's Gen Z to become the most influential generation of changemakers 
-            by providing a platform that amplifies their voices, connects their passions, 
-            and transforms digital engagement into real-world impact.
+            To amplify voices,connect passions and transform digital engagement into real-world impact
           </p>
         </div>
 
@@ -108,12 +91,7 @@ export function AboutScreen() {
               <p className="text-sm text-muted-foreground">Where we're headed</p>
             </div>
           </div>
-          <p className="text-foreground leading-relaxed">
-            A Kenya where every young person has the tools, community, and confidence to 
-            advocate for change. Where social movements are born from swarms of passionate 
-            individuals united by purpose, and where the gap between caring and acting is bridged 
-            through technology.
-          </p>
+          <p className="text-foreground leading-relaxed">A digital agora for collective impact</p>
         </div>
 
         {/* Why EcoSwarm */}
@@ -124,29 +102,28 @@ export function AboutScreen() {
           </h2>
           <div className="eco-card p-5 bg-gradient-to-br from-eco-green-light to-eco-blue-light border-none">
             <p className="text-foreground leading-relaxed mb-4">
-              We built EcoSwarm because we believe that <strong>Gen Z has the power to reshape 
-              Kenya</strong> — but only if they have the right tools.
+              We built EcoSwarm because we believe that <strong>Gen Z has the power to reshape Kenya</strong> — but only
+              if they have the right tools.
             </p>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
                 <Zap className="w-5 h-5 text-eco-gold flex-shrink-0 mt-0.5" />
                 <span className="text-foreground text-sm">
-                  <strong>Social media is loud, but action is quiet.</strong> We bridge that gap with 
-                  gamification and real tools for advocacy.
+                  <strong>Social media is loud, but action is quiet.</strong> We bridge that gap with gamification and
+                  real tools for advocacy.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <Globe className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                 <span className="text-foreground text-sm">
-                  <strong>Issues are interconnected.</strong> From climate to mental health, 
-                  unemployment to corruption — your voice matters on all fronts.
+                  <strong>Issues are interconnected.</strong> From climate to mental health, unemployment to corruption
+                  — your voice matters on all fronts.
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <Users className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <span className="text-foreground text-sm">
-                  <strong>Collective action beats individual effort.</strong> Swarms make 
-                  movements unstoppable.
+                  <strong>Collective action beats individual effort.</strong> Swarms make movements unstoppable.
                 </span>
               </li>
             </ul>
@@ -184,7 +161,9 @@ export function AboutScreen() {
                 className="eco-card p-4 flex items-start gap-4 animate-slide-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center flex-shrink-0`}>
+                <div
+                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center flex-shrink-0`}
+                >
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -199,25 +178,16 @@ export function AboutScreen() {
         {/* CTA */}
         <div className="eco-card p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20 text-center">
           <h3 className="text-xl font-bold text-foreground mb-2">Ready to Make an Impact?</h3>
-          <p className="text-muted-foreground mb-4">
-            Join thousands of Gen Z changemakers across Kenya.
-          </p>
-          <button
-            onClick={() => navigate('/signup')}
-            className="eco-button-primary w-full py-4"
-          >
+          <p className="text-muted-foreground mb-4">Join thousands of Gen Z changemakers across Kenya.</p>
+          <button onClick={() => navigate("/signup")} className="eco-button-primary w-full py-4">
             🌍 Join the Movement
           </button>
         </div>
 
         {/* Footer */}
         <div className="text-center pt-4">
-          <p className="text-xs text-muted-foreground">
-            Made with 💚 for Kenya's Gen Z
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            © 2026 EcoSwarm. All rights reserved.
-          </p>
+          <p className="text-xs text-muted-foreground">Made with 💚 for Kenya's Gen Z</p>
+          <p className="text-xs text-muted-foreground mt-1">© 2026 EcoSwarm. All rights reserved.</p>
         </div>
       </div>
     </AppLayout>
