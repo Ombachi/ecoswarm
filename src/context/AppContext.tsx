@@ -77,6 +77,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const ensureFirstStepsBadgeExists = async (userId: string) => {
+    // Make this idempotent at the DB layer so the badge can't be "missed"
+    // due to UI timing/race conditions.
+    try {
+      const { data: existing, error: selectError } = await supabase
+        .from('user_badges')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('badge_id', '1')
+        .maybeSingle();
+
+      if (selectError) {
+        console.warn('ensureFirstStepsBadgeExists: select failed', selectError);
+        return;
+      }
+
+      if (existing) return;
+
+      const { error: insertError } = await supabase.from('user_badges').insert({
+        user_id: userId,
+        badge_id: '1',
+      });
+
+      if (insertError && !insertError.message.toLowerCase().includes('duplicate')) {
+        console.warn('ensureFirstStepsBadgeExists: insert failed', insertError);
+      }
+    } catch (e) {
+      console.warn('ensureFirstStepsBadgeExists: unexpected error', e);
+    }
+  };
+
   const fetchUserProfile = async (userId: string) => {
     try {
       type ProfileRow = Database['public']['Tables']['profiles']['Row'];
@@ -241,6 +272,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         if (isMounted) {
           if (appUser) {
+            // Permanently ensure "First Steps" badge exists for new users on first login.
+            if (event === 'SIGNED_IN') {
+              await ensureFirstStepsBadgeExists(session.user.id);
+              const badges = await fetchUserBadges(session.user.id);
+              appUser = { ...appUser, badges };
+            }
+
             const isFirstLogin = appUser.streak <= 1 && appUser.badges.length <= 1;
 
             setUser(appUser);
