@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "pwa-icon-192.png", "pwa-icon-512.png"],
+      injectRegister: null, // Don't auto-inject blocking script
       manifest: {
         name: "EcoSwarm - Kenya's Gen Z Climate Action Platform",
         short_name: "EcoSwarm",
