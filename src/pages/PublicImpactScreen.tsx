@@ -46,9 +46,9 @@ export function PublicImpactScreen() {
       }
 
       try {
-        // Fetch public profile
+        // Fetch from secure public_profiles view (excludes PII like email, phone, age, sex)
         const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
+          .from("public_profiles")
           .select(
             "name, location, county, bio, avatar_url, eco_points, streak, top_concern, letters_sent, swarms_joined, posts_created, courses_completed",
           )

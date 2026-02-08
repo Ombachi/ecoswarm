@@ -388,6 +388,54 @@ export type Database = {
         }
         Relationships: []
       }
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          county: string | null
+          courses_completed: number | null
+          eco_points: number | null
+          letters_sent: number | null
+          location: string | null
+          name: string | null
+          posts_created: number | null
+          streak: number | null
+          swarms_joined: number | null
+          top_concern: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          county?: string | null
+          courses_completed?: number | null
+          eco_points?: number | null
+          letters_sent?: number | null
+          location?: string | null
+          name?: string | null
+          posts_created?: number | null
+          streak?: number | null
+          swarms_joined?: number | null
+          top_concern?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          county?: string | null
+          courses_completed?: number | null
+          eco_points?: number | null
+          letters_sent?: number | null
+          location?: string | null
+          name?: string | null
+          posts_created?: number | null
+          streak?: number | null
+          swarms_joined?: number | null
+          top_concern?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_likes: { Args: { p_post_ids: string[] }; Returns: string[] }
