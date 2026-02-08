@@ -1,41 +1,40 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { useApp } from '@/context/AppContext';
-import { 
-  ChevronLeft, 
-  MessageCircle, 
-  Send, 
-  Loader2,
-  Bug,
-  Lightbulb,
-  ThumbsUp,
-  HelpCircle,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { z } from 'zod';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { useApp } from "@/context/AppContext";
+import { ChevronLeft, MessageCircle, Send, Loader2, Bug, Lightbulb, ThumbsUp, HelpCircle } from "lucide-react";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const feedbackSchema = z.object({
-  type: z.string().min(1, 'Please select a feedback type'),
-  subject: z.string().trim().min(3, 'Subject must be at least 3 characters').max(100, 'Subject must be less than 100 characters'),
-  message: z.string().trim().min(10, 'Message must be at least 10 characters').max(1000, 'Message must be less than 1000 characters'),
+  type: z.string().min(1, "Please select a feedback type"),
+  subject: z
+    .string()
+    .trim()
+    .min(3, "Subject must be at least 3 characters")
+    .max(100, "Subject must be less than 100 characters"),
+  message: z
+    .string()
+    .trim()
+    .min(10, "Message must be at least 10 characters")
+    .max(1000, "Message must be less than 1000 characters"),
 });
 
 export function FeedbackScreen() {
   const navigate = useNavigate();
   const { user } = useApp();
-  
-  const [type, setType] = useState('');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
+
+  const [type, setType] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const feedbackTypes = [
-    { id: 'bug', label: 'Bug Report', icon: Bug, color: 'text-destructive' },
-    { id: 'feature', label: 'Feature Request', icon: Lightbulb, color: 'text-eco-gold' },
-    { id: 'praise', label: 'Praise', icon: ThumbsUp, color: 'text-primary' },
-    { id: 'help', label: 'Help Needed', icon: HelpCircle, color: 'text-secondary' },
+    { id: "bug", label: "Bug Report", icon: Bug, color: "text-destructive" },
+    { id: "feature", label: "Feature Request", icon: Lightbulb, color: "text-eco-gold" },
+    { id: "praise", label: "Praise", icon: ThumbsUp, color: "text-primary" },
+    { id: "help", label: "Help Needed", icon: HelpCircle, color: "text-secondary" },
   ];
 
   const handleSubmit = async () => {
@@ -57,12 +56,12 @@ export function FeedbackScreen() {
 
     try {
       // Simulate sending feedback (in production, this would go to a database or email service)
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      toast.success('Thank you for your feedback! 💚');
+      toast.success("Thank you for your feedback! 💚");
       navigate(-1);
     } catch (error) {
-      toast.error('Failed to send feedback. Please try again.');
+      toast.error("Failed to send feedback. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -73,10 +72,7 @@ export function FeedbackScreen() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-full bg-muted text-muted-foreground"
-          >
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full bg-muted text-muted-foreground">
             <ChevronLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold text-foreground">Send Feedback</h1>
@@ -89,24 +85,20 @@ export function FeedbackScreen() {
           <div className="w-16 h-16 rounded-full eco-gradient-bg flex items-center justify-center mx-auto mb-4">
             <MessageCircle className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-xl font-bold text-foreground mb-2">We'd Love to Hear From You!</h2>
-          <p className="text-muted-foreground text-sm">
-            Your feedback helps us make EcoSwarm better for everyone.
-          </p>
+          <h2 className="text-xl font-bold text-foreground mb-2">We Would Love to Hear From You!</h2>
+          <p className="text-muted-foreground text-sm">Your feedback helps us make EcoSwarm better for everyone.</p>
         </div>
 
         {/* Feedback Type */}
         <div>
-          <label className="block text-sm font-semibold text-foreground mb-3">
-            What type of feedback?
-          </label>
+          <label className="block text-sm font-semibold text-foreground mb-3">What type of feedback?</label>
           <div className="grid grid-cols-2 gap-3">
             {feedbackTypes.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setType(item.id)}
                 className={`eco-card p-4 flex flex-col items-center gap-2 transition-all ${
-                  type === item.id ? 'ring-2 ring-primary bg-primary/5' : ''
+                  type === item.id ? "ring-2 ring-primary bg-primary/5" : ""
                 }`}
               >
                 <item.icon className={`w-6 h-6 ${item.color}`} />
@@ -119,9 +111,7 @@ export function FeedbackScreen() {
 
         {/* Subject */}
         <div>
-          <label className="block text-sm font-semibold text-foreground mb-2">
-            Subject
-          </label>
+          <label className="block text-sm font-semibold text-foreground mb-2">Subject</label>
           <input
             type="text"
             value={subject}
@@ -135,9 +125,7 @@ export function FeedbackScreen() {
 
         {/* Message */}
         <div>
-          <label className="block text-sm font-semibold text-foreground mb-2">
-            Your Message
-          </label>
+          <label className="block text-sm font-semibold text-foreground mb-2">Your Message</label>
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
