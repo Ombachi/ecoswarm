@@ -232,7 +232,7 @@ export function PublicImpactScreen() {
           </div>
           <h2 className="text-xl font-bold text-foreground mb-2">Ready to Make Your Impact?</h2>
           <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-            Join thousands of changemakers across Kenya. Create your profile, earn EcoPoints, and drive real change!
+            Join thousands of changemakers across Kenya. Create your profile, earn EcoPoints, and drive change!
           </p>
           <button
             onClick={handleJoinMovement}
