@@ -8,6 +8,7 @@ import { SwahiliToggle } from "@/components/common/SwahiliToggle";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { Confetti } from "@/components/common/Confetti";
 import { supabase } from "@/integrations/supabase/client";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import {
   MessageSquare,
   Users,
@@ -233,6 +234,7 @@ export function DashboardScreen() {
           </div>
           <div className="flex items-center gap-2">
             <SwahiliToggle />
+            <NotificationBell />
             <button
               onClick={toggleDarkMode}
               className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-all"

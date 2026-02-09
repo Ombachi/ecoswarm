@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Target, Users, Loader2 } from 'lucide-react';
+import { X, Target, Users, Loader2, Building2, Link, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 
 const categories = [
@@ -20,15 +20,21 @@ interface CreateSwarmModalProps {
     goal: string;
     category: string;
     targetSignatures: number;
+    orgName?: string;
+    socialLinks?: string;
+    phone?: string;
   }) => void;
 }
 
 export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwarmModalProps) {
+  const [orgName, setOrgName] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [goal, setGoal] = useState('');
   const [category, setCategory] = useState('');
   const [targetSignatures, setTargetSignatures] = useState('1000');
+  const [socialLinks, setSocialLinks] = useState('');
+  const [phone, setPhone] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const canSubmit = name.trim() && description.trim() && goal.trim() && category && parseInt(targetSignatures) > 0;
@@ -44,14 +50,20 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
         goal: goal.trim(),
         category,
         targetSignatures: parseInt(targetSignatures),
+        orgName: orgName.trim() || undefined,
+        socialLinks: socialLinks.trim() || undefined,
+        phone: phone.trim() || undefined,
       });
 
       // Reset form
+      setOrgName('');
       setName('');
       setDescription('');
       setGoal('');
       setCategory('');
       setTargetSignatures('1000');
+      setSocialLinks('');
+      setPhone('');
       onClose();
       toast.success('Swarm created! 🐝');
     } catch (err) {
@@ -67,7 +79,7 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:justify-center">
       <div className="bg-card w-full sm:max-w-lg sm:rounded-2xl rounded-t-3xl max-h-[90vh] overflow-auto animate-slide-up">
         {/* Header */}
-        <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between z-10">
           <h2 className="text-xl font-bold text-foreground">Create a Swarm</h2>
           <button
             onClick={onClose}
@@ -78,7 +90,22 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Name */}
+          {/* Org/Company Name */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-primary" />
+              Org/Company Name
+            </label>
+            <input
+              type="text"
+              value={orgName}
+              onChange={(e) => setOrgName(e.target.value)}
+              placeholder="e.g., Green Earth Foundation (optional)"
+              className="eco-input"
+            />
+          </div>
+
+          {/* Campaign Name */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Campaign Name</label>
             <input
@@ -155,7 +182,37 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
             </p>
           </div>
 
-          {/* Submit Button - Added padding at bottom to prevent overlap */}
+          {/* Social Links */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground flex items-center gap-2">
+              <Link className="w-4 h-4 text-primary" />
+              Social Links
+            </label>
+            <input
+              type="url"
+              value={socialLinks}
+              onChange={(e) => setSocialLinks(e.target.value)}
+              placeholder="e.g., https://twitter.com/yourorg (optional)"
+              className="eco-input"
+            />
+          </div>
+
+          {/* Phone Number */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground flex items-center gap-2">
+              <Phone className="w-4 h-4 text-primary" />
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="e.g., +254 700 000 000 (optional)"
+              className="eco-input"
+            />
+          </div>
+
+          {/* Submit Button */}
           <div className="pb-6">
             <button
               onClick={handleSubmit}

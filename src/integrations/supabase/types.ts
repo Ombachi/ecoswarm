@@ -95,6 +95,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          reference_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          reference_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          reference_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       post_likes: {
         Row: {
           created_at: string
@@ -290,7 +323,10 @@ export type Database = {
           id: string
           image_url: string | null
           name: string
+          org_name: string | null
           participants: number
+          phone: string | null
+          social_links: string | null
           target_signatures: number
           updated_at: string
         }
@@ -304,7 +340,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           name: string
+          org_name?: string | null
           participants?: number
+          phone?: string | null
+          social_links?: string | null
           target_signatures?: number
           updated_at?: string
         }
@@ -318,7 +357,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           name?: string
+          org_name?: string | null
           participants?: number
+          phone?: string | null
+          social_links?: string | null
           target_signatures?: number
           updated_at?: string
         }
