@@ -22,6 +22,7 @@ import {
   Loader2,
   X,
   ChevronLeft,
+  Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -401,10 +402,10 @@ export function AgoraScreen() {
                 </div>
               )}
 
-              {/* Tags - Clickable */}
+              {/* Tags - Clickable (hide internal swarm_* tags) */}
               {post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {post.tags.map((postTag) => (
+                  {post.tags.filter(t => !t.startsWith('swarm_')).map((postTag) => (
                     <button
                       key={postTag}
                       onClick={() => handleTagClick(postTag)}
@@ -419,6 +420,17 @@ export function AgoraScreen() {
                     </button>
                   ))}
                 </div>
+              )}
+
+              {/* Join the Swarm CTA for swarm posts */}
+              {post.tags.includes('JoinTheSwarm') && (
+                <button
+                  onClick={() => navigate('/swarms')}
+                  className="w-full mb-2 py-2.5 px-4 rounded-xl eco-gradient-bg text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                >
+                  <Users className="w-4 h-4" />
+                  Join the Swarm 🐝
+                </button>
               )}
 
               {/* Actions */}

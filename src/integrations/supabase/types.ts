@@ -481,6 +481,10 @@ export type Database = {
     }
     Functions: {
       get_user_likes: { Args: { p_post_ids: string[] }; Returns: string[] }
+      join_swarm: {
+        Args: { p_swarm_id: string; p_votes?: number }
+        Returns: Json
+      }
       toggle_post_like: { Args: { p_post_id: string }; Returns: Json }
     }
     Enums: {

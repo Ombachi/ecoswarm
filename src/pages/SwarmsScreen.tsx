@@ -86,38 +86,25 @@ export function SwarmsScreen() {
     }
 
     try {
-      const influence = voteValue * voteValue;
-
-      // Insert membership
-      const { error: membershipError } = await supabase.from("swarm_memberships").insert({
-        swarm_id: swarmId,
-        user_id: user.id,
-        votes: voteValue,
+      // Use secure RPC function to join swarm atomically
+      const { data, error } = await supabase.rpc('join_swarm', {
+        p_swarm_id: swarmId,
+        p_votes: voteValue,
       });
 
-      if (membershipError) throw membershipError;
+      if (error) throw error;
 
-      // Update swarm stats
-      const swarm = swarms.find((s) => s.id === swarmId);
-      if (swarm) {
-        await supabase
-          .from("swarms")
-          .update({
-            participants: swarm.participants + 1,
-            current_signatures: swarm.current_signatures + influence,
-          })
-          .eq("id", swarmId);
-      }
+      const result = data as { participants: number; current_signatures: number };
 
-      // Update local state
+      // Update local state with server values
       setSwarms(
         swarms.map((s) =>
           s.id === swarmId
             ? {
                 ...s,
                 isJoined: true,
-                participants: s.participants + 1,
-                current_signatures: s.current_signatures + influence,
+                participants: result.participants,
+                current_signatures: result.current_signatures,
               }
             : s,
         ),
@@ -188,12 +175,23 @@ export function SwarmsScreen() {
       setSwarms([{ ...newSwarm, isJoined: true }, ...swarms]);
       setUserMemberships([...userMemberships, newSwarm.id]);
 
-      // Auto-post to Agora Square
+      // Auto-post to Agora Square with all details
+      const postContent = [
+        `🐝 New Swarm Launched: Join "${swarmData.name}"!`,
+        swarmData.orgName ? `🏢 By: ${swarmData.orgName}` : '',
+        `\n${swarmData.description}`,
+        `\n🎯 Goal: ${swarmData.goal}`,
+        swarmData.socialLinks ? `🔗 ${swarmData.socialLinks}` : '',
+        swarmData.phone ? `📞 ${swarmData.phone}` : '',
+        `\nJoin the campaign and make your voice heard!`,
+        `#${swarmData.category.replace(/\s+/g, '')} #EcoSwarm #JoinTheSwarm`,
+      ].filter(Boolean).join('\n');
+
       await supabase.from("posts").insert({
         user_id: user.id,
         user_name: user.name,
-        content: `🐝 New Swarm Launched: Join "${swarmData.name}"!\n\n${swarmData.description}\n\n🎯 Goal: ${swarmData.goal}\n\nJoin the campaign and make your voice heard! #${swarmData.category.replace(/\s+/g, '')} #EcoSwarm #JoinTheSwarm`,
-        tags: [swarmData.category.replace(/\s+/g, ''), 'EcoSwarm', 'JoinTheSwarm'],
+        content: postContent,
+        tags: [swarmData.category.replace(/\s+/g, ''), 'EcoSwarm', 'JoinTheSwarm', `swarm_${newSwarm.id}`],
       });
 
       // Notify all users about the new swarm
@@ -288,6 +286,9 @@ export function SwarmsScreen() {
                       <h3 className="font-semibold text-foreground truncate">{swarm.name}</h3>
                       {swarm.isJoined && <span className="eco-badge text-[10px]">Joined</span>}
                     </div>
+                    {(swarm as any).org_name && (
+                      <p className="text-xs text-primary font-medium mb-1">🏢 {(swarm as any).org_name}</p>
+                    )}
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{swarm.description}</p>
 
                     {/* Progress Bar */}
