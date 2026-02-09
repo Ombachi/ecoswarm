@@ -18,7 +18,8 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      injectRegister: null, // Don't auto-inject blocking script
+      injectRegister: null,
+      includeAssets: ["favicon.ico", "pwa-icon-192.png", "pwa-icon-512.png", "og-image.png", "robots.txt"],
       manifest: {
         name: "EcoSwarm - Your Digital Agora",
         short_name: "EcoSwarm",
@@ -31,6 +32,9 @@ export default defineConfig(({ mode }) => ({
         scope: "/",
         start_url: "/",
         categories: ["social", "news", "lifestyle"],
+        lang: "en",
+        dir: "ltr",
+        prefer_related_applications: false,
         icons: [
           {
             src: "/pwa-icon-192.png",
@@ -47,6 +51,16 @@ export default defineConfig(({ mode }) => ({
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable",
+          },
+        ],
+        screenshots: [
+          {
+            src: "/og-image.png",
+            sizes: "1200x630",
+            type: "image/png",
+            // @ts-ignore
+            form_factor: "wide",
+            label: "EcoSwarm Home Screen",
           },
         ],
         shortcuts: [
@@ -71,11 +85,22 @@ export default defineConfig(({ mode }) => ({
             url: "/swarms",
             icons: [{ src: "/pwa-icon-192.png", sizes: "192x192" }],
           },
+          {
+            name: "Dashboard",
+            short_name: "Home",
+            description: "View your eco dashboard",
+            url: "/dashboard",
+            icons: [{ src: "/pwa-icon-192.png", sizes: "192x192" }],
+          },
         ],
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         navigateFallback: "/index.html",
+        navigateFallbackAllowlist: [/^(?!\/__).*/],
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
@@ -83,10 +108,13 @@ export default defineConfig(({ mode }) => ({
             options: {
               cacheName: "supabase-cache",
               expiration: {
-                maxEntries: 100,
+                maxEntries: 200,
                 maxAgeSeconds: 60 * 60 * 24,
               },
               networkTimeoutSeconds: 10,
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
             },
           },
           {
@@ -101,13 +129,38 @@ export default defineConfig(({ mode }) => ({
             },
           },
           {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts-webfonts",
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
             handler: "CacheFirst",
             options: {
               cacheName: "images-cache",
               expiration: {
-                maxEntries: 100,
+                maxEntries: 150,
                 maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+            },
+          },
+          {
+            urlPattern: /\.(?:js|css)$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "static-resources",
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 60 * 60 * 24 * 7,
               },
             },
           },
