@@ -179,12 +179,11 @@ export function SwarmsScreen() {
       const postContent = [
         `🐝 New Swarm Launched: Join "${swarmData.name}"!`,
         swarmData.orgName ? `🏢 By: ${swarmData.orgName}` : '',
-        `\n${swarmData.description}`,
-        `\n🎯 Goal: ${swarmData.goal}`,
         swarmData.socialLinks ? `🔗 ${swarmData.socialLinks}` : '',
         swarmData.phone ? `📞 ${swarmData.phone}` : '',
+        `\n${swarmData.description}`,
+        `\n🎯 Goal: ${swarmData.goal}`,
         `\nJoin the campaign and make your voice heard!`,
-        `#${swarmData.category.replace(/\s+/g, '')} #EcoSwarm #JoinTheSwarm`,
       ].filter(Boolean).join('\n');
 
       await supabase.from("posts").insert({

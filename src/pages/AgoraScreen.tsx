@@ -280,7 +280,7 @@ export function AgoraScreen() {
                 className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
               />
             </button>
-            {!filterTag && <span className="eco-badge">🔥 Trending</span>}
+            
           </div>
         </div>
         
@@ -351,8 +351,10 @@ export function AgoraScreen() {
                 </div>
               </div>
 
-              {/* Post Content */}
-              <p className="text-foreground mb-3 leading-relaxed">{post.content}</p>
+              {/* Post Content - strip inline hashtags */}
+              <p className="text-foreground mb-3 leading-relaxed">
+                {post.content.replace(/#\w+/g, '').trim()}
+              </p>
 
               {/* Media Display - Clickable for zoom */}
               {post.mediaUrl ? (
@@ -402,7 +404,7 @@ export function AgoraScreen() {
                 </div>
               )}
 
-              {/* Tags - Clickable (hide internal swarm_* tags) */}
+              {/* Tags - beneath post/image (hide internal swarm_* tags) */}
               {post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {post.tags.filter(t => !t.startsWith('swarm_')).map((postTag) => (
