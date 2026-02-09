@@ -328,11 +328,19 @@ export function AgoraScreen() {
             >
               {/* Post Header */}
               <div className="flex items-start gap-3 mb-3">
-                <div className="eco-avatar flex-shrink-0">
+                <button
+                  onClick={() => navigate(`/profile/${post.userId}`)}
+                  className="eco-avatar flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                >
                   {post.userName.charAt(0)}
-                </div>
+                </button>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground">{post.userName}</p>
+                  <button
+                    onClick={() => navigate(`/profile/${post.userId}`)}
+                    className="font-semibold text-foreground hover:text-primary transition-colors text-left"
+                  >
+                    {post.userName}
+                  </button>
                   <p className="text-xs text-muted-foreground">
                     {new Date(post.createdAt).toLocaleDateString('en-KE', {
                       day: 'numeric',

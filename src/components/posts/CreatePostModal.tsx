@@ -110,8 +110,8 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end">
-      <div className="bg-card w-full rounded-t-3xl p-6 animate-slide-up max-h-[85vh] overflow-auto">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-end pb-20">
+      <div className="bg-card w-full rounded-t-3xl p-6 animate-slide-up max-h-[80vh] overflow-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-foreground">Share Your Story</h2>
           <button

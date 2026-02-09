@@ -148,6 +148,9 @@ export function SwarmsScreen() {
     goal: string;
     category: string;
     targetSignatures: number;
+    orgName?: string;
+    socialLinks?: string;
+    phone?: string;
   }) => {
     if (!user) {
       toast.error("Please log in to create a swarm");
@@ -166,6 +169,9 @@ export function SwarmsScreen() {
           current_signatures: 1,
           participants: 1,
           created_by: user.id,
+          org_name: swarmData.orgName || null,
+          social_links: swarmData.socialLinks || null,
+          phone: swarmData.phone || null,
         })
         .select()
         .single();
@@ -182,8 +188,39 @@ export function SwarmsScreen() {
       setSwarms([{ ...newSwarm, isJoined: true }, ...swarms]);
       setUserMemberships([...userMemberships, newSwarm.id]);
 
+      // Auto-post to Agora Square
+      await supabase.from("posts").insert({
+        user_id: user.id,
+        user_name: user.name,
+        content: `🐝 New Swarm Launched: Join "${swarmData.name}"!\n\n${swarmData.description}\n\n🎯 Goal: ${swarmData.goal}\n\nJoin the campaign and make your voice heard! #${swarmData.category.replace(/\s+/g, '')} #EcoSwarm #JoinTheSwarm`,
+        tags: [swarmData.category.replace(/\s+/g, ''), 'EcoSwarm', 'JoinTheSwarm'],
+      });
+
+      // Notify all users about the new swarm
+      const { data: allProfiles } = await supabase
+        .from("public_profiles")
+        .select("user_id")
+        .neq("user_id", user.id);
+
+      if (allProfiles && allProfiles.length > 0) {
+        const notifications = allProfiles
+          .filter((p) => p.user_id)
+          .map((p) => ({
+            user_id: p.user_id!,
+            type: 'swarm',
+            title: '🐝 New Swarm Launched!',
+            message: `Join "${swarmData.name}" — ${swarmData.description.substring(0, 80)}...`,
+            reference_id: newSwarm.id,
+          }));
+
+        if (notifications.length > 0) {
+          await supabase.from("notifications").insert(notifications);
+        }
+      }
+
       addPoints(50);
-      showNotification("Swarm created! 🐝", 50);
+      updateStats({ postsCreated: user.stats.postsCreated + 1 });
+      showNotification("Swarm created & posted to Agora! 🐝", 50);
     } catch (error) {
       console.error("Error creating swarm:", error);
       toast.error("Failed to create swarm");
