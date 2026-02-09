@@ -4,7 +4,7 @@ import { useApp } from "@/context/AppContext";
 import { supabase } from "@/integrations/supabase/client";
 import { CreateSwarmModal } from "@/components/swarms/CreateSwarmModal";
 import { toast } from "sonner";
-import { Users, Target, ChevronRight, X, Plus, Droplets, Wind, TreePine, Trash2, Loader2 } from "lucide-react";
+import { Users, Target, ChevronRight, X, Plus, Droplets, Wind, TreePine, Trash2, Loader2, Phone, Link as LinkIcon, Building2 } from "lucide-react";
 
 interface Swarm {
   id: string;
@@ -286,7 +286,29 @@ export function SwarmsScreen() {
                       {swarm.isJoined && <span className="eco-badge text-[10px]">Joined</span>}
                     </div>
                     {(swarm as any).org_name && (
-                      <p className="text-xs text-primary font-medium mb-1">🏢 {(swarm as any).org_name}</p>
+                      <p className="text-xs text-primary font-medium mb-0.5">🏢 {(swarm as any).org_name}</p>
+                    )}
+                    {(swarm as any).social_links && (
+                      <a
+                        href={(swarm as any).social_links}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-xs text-blue-500 hover:underline flex items-center gap-1 mb-0.5"
+                      >
+                        <LinkIcon className="w-3 h-3" />
+                        {(swarm as any).social_links}
+                      </a>
+                    )}
+                    {(swarm as any).phone && (
+                      <a
+                        href={`tel:${(swarm as any).phone}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 mb-1"
+                      >
+                        <Phone className="w-3 h-3" />
+                        {(swarm as any).phone}
+                      </a>
                     )}
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{swarm.description}</p>
 
@@ -342,6 +364,38 @@ export function SwarmsScreen() {
             </div>
 
             <div className="p-6 space-y-6">
+              {/* Org & Contact Info */}
+              {((selectedSwarm as any).org_name || (selectedSwarm as any).social_links || (selectedSwarm as any).phone) && (
+                <div className="eco-card p-4 space-y-2">
+                  {(selectedSwarm as any).org_name && (
+                    <p className="font-semibold text-foreground flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-primary" />
+                      {(selectedSwarm as any).org_name}
+                    </p>
+                  )}
+                  {(selectedSwarm as any).social_links && (
+                    <a
+                      href={(selectedSwarm as any).social_links}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-500 hover:underline flex items-center gap-2"
+                    >
+                      <LinkIcon className="w-4 h-4" />
+                      {(selectedSwarm as any).social_links}
+                    </a>
+                  )}
+                  {(selectedSwarm as any).phone && (
+                    <a
+                      href={`tel:${(selectedSwarm as any).phone}`}
+                      className="text-sm text-muted-foreground hover:text-primary flex items-center gap-2"
+                    >
+                      <Phone className="w-4 h-4" />
+                      {(selectedSwarm as any).phone}
+                    </a>
+                  )}
+                </div>
+              )}
+
               {/* Description */}
               <div>
                 <p className="text-muted-foreground leading-relaxed">{selectedSwarm.description}</p>
