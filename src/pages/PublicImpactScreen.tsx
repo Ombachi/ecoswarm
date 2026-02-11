@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Mail,
-  Users,
+  ShoppingBag,
   MessageSquare,
   BookOpen,
   MapPin,
@@ -24,7 +24,6 @@ interface PublicProfile {
   streak: number;
   top_concern: string | null;
   letters_sent: number;
-  swarms_joined: number;
   posts_created: number;
   courses_completed: number;
 }
@@ -35,7 +34,7 @@ export function PublicImpactScreen() {
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [swarms, setSwarms] = useState<{ name: string; category: string }[]>([]);
+  const [products, setProducts] = useState<{ product_name: string; org_name: string; category: string }[]>([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -50,7 +49,7 @@ export function PublicImpactScreen() {
         const { data: profileData, error: profileError } = await supabase
           .from("public_profiles")
           .select(
-            "name, location, county, bio, avatar_url, eco_points, streak, top_concern, letters_sent, swarms_joined, posts_created, courses_completed",
+          "name, location, county, bio, avatar_url, eco_points, streak, top_concern, letters_sent, posts_created, courses_completed",
           )
           .eq("user_id", userId)
           .single();
@@ -63,16 +62,14 @@ export function PublicImpactScreen() {
 
         setProfile(profileData);
 
-        // Fetch swarms user has joined
-        const { data: memberships } = await supabase.from("swarm_memberships").select("swarm_id").eq("user_id", userId);
+        // Fetch products user has listed
+        const { data: productsData } = await supabase
+          .from("products")
+          .select("product_name, org_name, category")
+          .eq("user_id", userId);
 
-        if (memberships && memberships.length > 0) {
-          const swarmIds = memberships.map((m) => m.swarm_id);
-          const { data: swarmsData } = await supabase.from("swarms").select("name, category").in("id", swarmIds);
-
-          if (swarmsData) {
-            setSwarms(swarmsData);
-          }
+        if (productsData) {
+          setProducts(productsData);
         }
       } catch (err) {
         console.error("Error fetching profile:", err);
@@ -117,7 +114,7 @@ export function PublicImpactScreen() {
 
   const statItems = [
     { icon: Mail, value: profile.letters_sent || 0, label: "Letters Sent", color: "text-secondary" },
-    { icon: Users, value: profile.swarms_joined || 0, label: "Swarms Joined", color: "text-eco-gold" },
+    { icon: ShoppingBag, value: products.length, label: "Products Listed", color: "text-eco-gold" },
     { icon: MessageSquare, value: profile.posts_created || 0, label: "Stories Shared", color: "text-eco-orange" },
     { icon: BookOpen, value: profile.courses_completed || 0, label: "Courses Done", color: "text-primary" },
   ];
@@ -194,22 +191,22 @@ export function PublicImpactScreen() {
           ))}
         </div>
 
-        {/* Swarms Joined */}
-        {swarms.length > 0 && (
+        {/* Products Listed */}
+        {products.length > 0 && (
           <div>
             <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Users className="w-5 h-5 text-eco-gold" />
-              Active Swarms
+              <ShoppingBag className="w-5 h-5 text-eco-gold" />
+              EcoMarket Listings
             </h3>
             <div className="space-y-2">
-              {swarms.map((swarm, idx) => (
+              {products.map((product, idx) => (
                 <div key={idx} className="eco-card p-3 flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                    <Users className="w-5 h-5 text-white" />
+                    <ShoppingBag className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">{swarm.name}</p>
-                    <p className="text-xs text-muted-foreground">{swarm.category}</p>
+                    <p className="font-medium text-foreground">{product.product_name}</p>
+                    <p className="text-xs text-muted-foreground">{product.org_name} • {product.category}</p>
                   </div>
                 </div>
               ))}

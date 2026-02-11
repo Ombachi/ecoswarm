@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import {
   MessageSquare,
-  Users,
+  ShoppingBag,
   Mail,
   ChevronRight,
   Flame,
@@ -171,8 +171,8 @@ export function DashboardScreen() {
       // Navigate based on challenge type
       if (challenge.action_type === "post") {
         navigate("/agora");
-      } else if (challenge.action_type === "swarm") {
-        navigate("/swarms");
+      } else if (challenge.action_type === "ecomarket") {
+        navigate("/ecomarket");
       } else if (challenge.action_type === "letter") {
         navigate("/tools");
       } else if (challenge.action_type === "module") {
@@ -197,11 +197,11 @@ export function DashboardScreen() {
       path: "/agora",
     },
     {
-      id: 'swarms',
-      icon: Users,
-      label: isSwahili ? "Join Swarm" : "Join Swarm",
+      id: 'ecomarket',
+      icon: ShoppingBag,
+      label: isSwahili ? "EcoMarket" : "EcoMarket",
       color: "from-secondary to-eco-blue",
-      path: "/swarms",
+      path: "/ecomarket",
     },
     {
       id: 'letter',
@@ -396,9 +396,9 @@ export function DashboardScreen() {
               <p className="text-[10px] text-muted-foreground">Letters Sent</p>
             </div>
             <div className="eco-stat-card">
-              <Users className="w-6 h-6 text-eco-gold" />
-              <p className="text-xl font-bold text-foreground">{user.stats.swarmsJoined}</p>
-              <p className="text-[10px] text-muted-foreground">Swarms Joined</p>
+              <MessageSquare className="w-6 h-6 text-eco-gold" />
+              <p className="text-xl font-bold text-foreground">{user.stats.postsCreated}</p>
+              <p className="text-[10px] text-muted-foreground">Stories Shared</p>
             </div>
           </div>
         </div>

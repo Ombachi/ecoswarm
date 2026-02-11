@@ -10,7 +10,7 @@ export const mockUser: User = {
   badges: [
     { id: '1', name: 'First Steps', icon: '🌱', description: 'Joined EcoSwarm' },
     { id: '2', name: 'Voice Heard', icon: '📢', description: 'Sent first letter' },
-    { id: '3', name: 'Swarm Leader', icon: '🐝', description: 'Joined 5 swarms' },
+    { id: '3', name: 'Marketplace Pro', icon: '🛒', description: 'Listed 5 products' },
     { id: '4', name: 'Streak Master', icon: '🔥', description: '7 day streak' },
   ],
   stats: {
@@ -517,8 +517,8 @@ export const mockChallenges: Challenge[] = [
   },
   {
     id: '2',
-    title: 'Join a Swarm',
-    description: 'Become part of a campaign that matters to you',
+    title: 'Browse EcoMarket',
+    description: 'Discover eco-friendly products and services',
     points: 30,
     type: 'daily',
     completed: true,
@@ -544,10 +544,10 @@ export const airQualityData = {
 export const allBadges: Badge[] = [
   { id: '1', name: 'First Steps', icon: '🌱', description: 'Joined EcoSwarm' },
   { id: '2', name: 'Voice Heard', icon: '📢', description: 'Sent first letter' },
-  { id: '3', name: 'Swarm Leader', icon: '🐝', description: 'Joined 5 swarms' },
+  { id: '3', name: 'Marketplace Pro', icon: '🛒', description: 'Listed 5 products' },
   { id: '4', name: 'Streak Master', icon: '🔥', description: '7 day streak' },
   { id: '5', name: 'Influencer', icon: '⭐', description: '100 likes on a post' },
   { id: '6', name: 'Policy Maker', icon: '📜', description: 'Sent 10 letters' },
   { id: '7', name: 'Educator', icon: '🎓', description: 'Completed all modules' },
-  { id: '8', name: 'Community Builder', icon: '🤝', description: 'Created a swarm' },
+  { id: '8', name: 'Community Builder', icon: '🤝', description: 'Listed first product' },
 ];

@@ -26,6 +26,19 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+const ecoBadgeColors: Record<string, string> = {
+  'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+  'Plastic Free': 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
+  'Made in Kenya': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  'Fair Trade': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
+  '2-Year Warranty': 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+  'Organic': 'bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-400',
+  'Biodegradable': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+  'Recycled Materials': 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+  'Solar Powered': 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+  'Water Efficient': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+};
+
 export function AgoraScreen() {
   const navigate = useNavigate();
   const { tag } = useParams<{ tag?: string }>();
@@ -351,10 +364,47 @@ export function AgoraScreen() {
                 </div>
               </div>
 
-              {/* Post Content - strip inline hashtags */}
-              <p className="text-foreground mb-3 leading-relaxed">
-                {post.content.replace(/#\w+/g, '').trim()}
-              </p>
+              {/* Post Content - strip inline hashtags and badge line, render contact as clickable */}
+              <div className="text-foreground mb-3 leading-relaxed whitespace-pre-line">
+                {post.content.replace(/#\w+/g, '').trim().split('\n')
+                  .filter(line => !line.startsWith('🏷️'))
+                  .map((line, i) => {
+                    // Make phone numbers clickable
+                    const phoneMatch = line.match(/📞\s*([\d\s+()-]+)/);
+                    if (phoneMatch) {
+                      const phone = phoneMatch[1].trim();
+                      return (
+                        <span key={i}>
+                          📞 <a href={`tel:${phone}`} className="text-primary font-semibold underline">{phone}</a>
+                          {'\n'}
+                        </span>
+                      );
+                    }
+                    return <span key={i}>{line}{'\n'}</span>;
+                  })}
+              </div>
+
+              {/* Colored Eco-Proof Badges for product posts */}
+              {post.tags.includes('EcoProduct') && (() => {
+                const badgeLine = post.content.split('\n').find(l => l.startsWith('🏷️'));
+                if (!badgeLine) return null;
+                const badges = badgeLine.replace('🏷️ ', '').split(' • ').map(b => b.trim()).filter(Boolean);
+                if (badges.length === 0) return null;
+                return (
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {badges.map((badge) => (
+                      <span
+                        key={badge}
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold ${
+                          ecoBadgeColors[badge] || 'bg-muted text-muted-foreground'
+                        }`}
+                      >
+                        {badge}
+                      </span>
+                    ))}
+                  </div>
+                );
+              })()}
 
               {/* Media Display - Clickable for zoom */}
               {post.mediaUrl ? (

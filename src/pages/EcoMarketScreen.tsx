@@ -15,6 +15,19 @@ import {
   MapPin,
 } from 'lucide-react';
 
+const ecoBadgeColors: Record<string, string> = {
+  'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+  'Plastic Free': 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
+  'Made in Kenya': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  'Fair Trade': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
+  '2-Year Warranty': 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+  'Organic': 'bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-400',
+  'Biodegradable': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+  'Recycled Materials': 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+  'Solar Powered': 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+  'Water Efficient': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+};
+
 interface Product {
   id: string;
   user_id: string;
@@ -129,14 +142,19 @@ export function EcoMarketScreen() {
 
       setProducts([newProduct as Product, ...products]);
 
-      // Auto-post to Agora Square
+      // Auto-post to Agora Square with improved layout
+      const badgeText = productData.badges.length > 0 ? productData.badges.join(' • ') : '';
       const postContent = [
-        `🛒 New on EcoMarket: "${productData.productName}"`,
-        `🏢 By: ${productData.orgName}`,
-        `\n${productData.description}`,
-        `\n💰 KSh ${productData.price.toLocaleString()}`,
+        `🛒 New on EcoMarket!`,
+        ``,
+        `🏢 ${productData.orgName}`,
+        `📦 ${productData.productName}`,
+        ``,
+        productData.description,
+        ``,
+        `💰 KSh ${productData.price.toLocaleString()}`,
         `📞 ${productData.contactPhone}`,
-        productData.badges.length > 0 ? `\n🏷️ ${productData.badges.join(' • ')}` : '',
+        badgeText ? `\n🏷️ ${badgeText}` : '',
       ].filter(Boolean).join('\n');
 
       await supabase.from('posts').insert({
@@ -318,7 +336,9 @@ export function EcoMarketScreen() {
                   {product.badges.map((badge) => (
                     <span
                       key={badge}
-                      className="eco-badge text-[10px] px-2 py-0.5"
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold ${
+                        ecoBadgeColors[badge] || 'bg-muted text-muted-foreground'
+                      }`}
                     >
                       {badge}
                     </span>

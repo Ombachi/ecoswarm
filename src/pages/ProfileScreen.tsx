@@ -8,7 +8,7 @@ import {
   Settings,
   ChevronRight,
   Mail,
-  Users,
+  ShoppingBag,
   MessageSquare,
   Trophy,
   Share2,
@@ -31,21 +31,21 @@ export function ProfileScreen() {
       color: 'text-secondary',
     },
     {
-      icon: Users,
-      value: user.stats.swarmsJoined,
-      label: isSwahili ? 'Makundi Yaliyojiunga' : 'Swarms Joined',
-      color: 'text-eco-gold',
-    },
-    {
       icon: MessageSquare,
       value: user.stats.postsCreated,
       label: isSwahili ? 'Hadithi Zilizoshirikiwa' : 'Stories Shared',
-      color: 'text-eco-orange',
+      color: 'text-eco-gold',
     },
     {
       icon: BookOpen,
       value: user.stats.coursesCompleted,
-      label: isSwahili ? 'Kozi Zilizokamilika' : 'Courses Completed',
+      label: isSwahili ? 'Kozi Zilizokamilika' : 'Courses Done',
+      color: 'text-eco-orange',
+    },
+    {
+      icon: ShoppingBag,
+      value: 0,
+      label: isSwahili ? 'Bidhaa' : 'Products Listed',
       color: 'text-primary',
     },
   ];
