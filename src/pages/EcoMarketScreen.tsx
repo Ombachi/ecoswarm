@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { CreateProductModal } from '@/components/ecomarket/CreateProductModal';
+import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { toast } from 'sonner';
 import {
   Search,
@@ -65,6 +66,17 @@ export function EcoMarketScreen() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [expandedDesc, setExpandedDesc] = useState<string | null>(null);
+  const [lightboxMedia, setLightboxMedia] = useState<{
+    url: string;
+    type: 'image' | 'video';
+    rect: DOMRect | null;
+  } | null>(null);
+
+  const openLightbox = (url: string, type: 'image' | 'video', event: React.MouseEvent) => {
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    setLightboxMedia({ url, type, rect });
+  };
 
   useEffect(() => {
     loadProducts();
@@ -247,7 +259,7 @@ export function EcoMarketScreen() {
         </div>
 
         {/* Category Filters */}
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 pr-4">
           {categoryFilters.map((cat) => (
             <button
               key={cat.id}
@@ -281,25 +293,45 @@ export function EcoMarketScreen() {
               className="eco-card overflow-hidden animate-slide-up"
               style={{ animationDelay: `${Math.min(index, 5) * 0.08}s` }}
             >
-              {/* Media */}
+              {/* Media - matches Agora Square format */}
               {product.media_url && (
                 <div className="-mx-4 -mt-4 mb-3">
                   {product.media_type === 'video' ? (
-                    <video
-                      src={product.media_url}
-                      className="w-full aspect-[4/5] object-cover"
-                      muted
-                      loop
-                      playsInline
-                      autoPlay
-                    />
+                    <div
+                      className="relative cursor-pointer group"
+                      onClick={(e) => openLightbox(product.media_url!, 'video', e)}
+                    >
+                      <video
+                        src={product.media_url}
+                        className="w-full max-h-80 object-cover"
+                        muted
+                        loop
+                        playsInline
+                        autoPlay
+                      />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-sm font-medium">
+                          Tap to view full screen
+                        </div>
+                      </div>
+                    </div>
                   ) : (
-                    <img
-                      src={product.media_url}
-                      alt={product.product_name}
-                      className="w-full aspect-[4/5] object-cover"
-                      loading="lazy"
-                    />
+                    <div
+                      className="relative cursor-pointer group"
+                      onClick={(e) => openLightbox(product.media_url!, 'image', e)}
+                    >
+                      <img
+                        src={product.media_url}
+                        alt={product.product_name}
+                        className="w-full max-h-80 object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-sm font-medium">
+                          Tap to zoom
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
@@ -378,6 +410,17 @@ export function EcoMarketScreen() {
         onClose={() => setShowCreateModal(false)}
         onProductCreated={handleProductCreated}
       />
+
+      {/* Media Lightbox */}
+      {lightboxMedia && (
+        <AdvancedMediaViewer
+          isOpen={!!lightboxMedia}
+          onClose={() => setLightboxMedia(null)}
+          mediaUrl={lightboxMedia.url}
+          mediaType={lightboxMedia.type}
+          initialRect={lightboxMedia.rect}
+        />
+      )}
     </AppLayout>
   );
 }
