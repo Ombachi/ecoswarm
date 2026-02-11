@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { ChevronLeft, Leaf, Target, Eye, Sparkles, Users, MessageSquare, Mail, Heart, Globe, Zap } from "lucide-react";
+import { ChevronLeft, Leaf, Target, Eye, Sparkles, ShoppingBag, Users, MessageSquare, Mail, Heart, Globe, Zap } from "lucide-react";
 
 export function AboutScreen() {
   const navigate = useNavigate();
@@ -13,9 +13,9 @@ export function AboutScreen() {
       color: "from-primary to-secondary",
     },
     {
-      icon: Users,
-      title: "Swarm Campaigns",
-      description: "Unite with others on causes that matter. Collective action for real impact.",
+      icon: ShoppingBag,
+      title: "EcoMarket",
+      description: "Discover and list eco-friendly products and services from local organizations.",
       color: "from-secondary to-eco-blue",
     },
     {
