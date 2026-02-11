@@ -202,6 +202,57 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          badges: string[] | null
+          category: string
+          contact_phone: string
+          created_at: string
+          description: string
+          id: string
+          location: string | null
+          media_type: string | null
+          media_url: string | null
+          org_name: string
+          price: number
+          product_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          badges?: string[] | null
+          category: string
+          contact_phone: string
+          created_at?: string
+          description: string
+          id?: string
+          location?: string | null
+          media_type?: string | null
+          media_url?: string | null
+          org_name: string
+          price?: number
+          product_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          badges?: string[] | null
+          category?: string
+          contact_phone?: string
+          created_at?: string
+          description?: string
+          id?: string
+          location?: string | null
+          media_type?: string | null
+          media_url?: string | null
+          org_name?: string
+          price?: number
+          product_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null
