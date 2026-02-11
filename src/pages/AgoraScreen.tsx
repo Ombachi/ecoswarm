@@ -22,7 +22,7 @@ import {
   Loader2,
   X,
   ChevronLeft,
-  Users,
+  ShoppingBag,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -424,14 +424,14 @@ export function AgoraScreen() {
                 </div>
               )}
 
-              {/* Join the Swarm CTA for swarm posts */}
-              {post.tags.includes('JoinTheSwarm') && (
+              {/* EcoMarket CTA for product posts */}
+              {post.tags.includes('EcoProduct') && (
                 <button
-                  onClick={() => navigate('/swarms')}
+                  onClick={() => navigate('/ecomarket')}
                   className="w-full mb-2 py-2.5 px-4 rounded-xl eco-gradient-bg text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
                 >
-                  <Users className="w-4 h-4" />
-                  Join the Swarm 🐝
+                  <ShoppingBag className="w-4 h-4" />
+                  View on EcoMarket 🛒
                 </button>
               )}
 

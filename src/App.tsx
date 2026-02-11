@@ -18,7 +18,7 @@ const ForgotPasswordScreen = lazy(() => import("@/pages/ForgotPasswordScreen").t
 const ResetPasswordScreen = lazy(() => import("@/pages/ResetPasswordScreen").then(m => ({ default: m.ResetPasswordScreen })));
 const DashboardScreen = lazy(() => import("@/pages/DashboardScreen").then(m => ({ default: m.DashboardScreen })));
 const AgoraScreen = lazy(() => import("@/pages/AgoraScreen").then(m => ({ default: m.AgoraScreen })));
-const SwarmsScreen = lazy(() => import("@/pages/SwarmsScreen").then(m => ({ default: m.SwarmsScreen })));
+const EcoMarketScreen = lazy(() => import("@/pages/EcoMarketScreen").then(m => ({ default: m.EcoMarketScreen })));
 const ToolsScreen = lazy(() => import("@/pages/ToolsScreen").then(m => ({ default: m.ToolsScreen })));
 const ProfileScreen = lazy(() => import("@/pages/ProfileScreen").then(m => ({ default: m.ProfileScreen })));
 const AboutScreen = lazy(() => import("@/pages/AboutScreen").then(m => ({ default: m.AboutScreen })));
@@ -82,7 +82,7 @@ function AppRoutes() {
         <Route path="/dashboard" element={requireAuthed(<DashboardScreen />)} />
         <Route path="/agora" element={requireAuthed(<AgoraScreen />)} />
         <Route path="/agora/tag/:tag" element={requireAuthed(<AgoraScreen />)} />
-        <Route path="/swarms" element={requireAuthed(<SwarmsScreen />)} />
+        <Route path="/ecomarket" element={requireAuthed(<EcoMarketScreen />)} />
         <Route path="/tools" element={requireAuthed(<ToolsScreen />)} />
         <Route path="/profile" element={requireAuthed(<ProfileScreen />)} />
         <Route path="/settings" element={requireAuthed(<SettingsScreen />)} />
