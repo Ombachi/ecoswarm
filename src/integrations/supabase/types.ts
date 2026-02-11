@@ -358,6 +358,13 @@ export type Database = {
             foreignKeyName: "swarm_memberships_swarm_id_fkey"
             columns: ["swarm_id"]
             isOneToOne: false
+            referencedRelation: "public_swarms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "swarm_memberships_swarm_id_fkey"
+            columns: ["swarm_id"]
+            isOneToOne: false
             referencedRelation: "swarms"
             referencedColumns: ["id"]
           },
@@ -526,6 +533,57 @@ export type Database = {
           swarms_joined?: number | null
           top_concern?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      public_swarms: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          current_signatures: number | null
+          description: string | null
+          goal: string | null
+          id: string | null
+          image_url: string | null
+          name: string | null
+          org_name: string | null
+          participants: number | null
+          social_links: string | null
+          target_signatures: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_signatures?: number | null
+          description?: string | null
+          goal?: string | null
+          id?: string | null
+          image_url?: string | null
+          name?: string | null
+          org_name?: string | null
+          participants?: number | null
+          social_links?: string | null
+          target_signatures?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_signatures?: number | null
+          description?: string | null
+          goal?: string | null
+          id?: string | null
+          image_url?: string | null
+          name?: string | null
+          org_name?: string | null
+          participants?: number | null
+          social_links?: string | null
+          target_signatures?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }
