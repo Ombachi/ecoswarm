@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useApp } from "@/context/AppContext";
 import { Package, Eye, MessageSquare, TrendingUp } from "lucide-react";
@@ -11,7 +11,7 @@ interface ProductStat {
   description: string;
 }
 
-export function DevAnalyticsTab() {
+export const DevAnalyticsTab = React.forwardRef<HTMLDivElement, Record<string, never>>(function DevAnalyticsTab(_props, ref) {
   const { user } = useApp();
   const [products, setProducts] = useState<ProductStat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +52,7 @@ export function DevAnalyticsTab() {
   }
 
   return (
-    <div className="space-y-4">
+    <div ref={ref} className="space-y-4">
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-3">
         <div className="eco-card p-3 text-center">
@@ -106,4 +106,6 @@ export function DevAnalyticsTab() {
       )}
     </div>
   );
-}
+});
+
+DevAnalyticsTab.displayName = 'DevAnalyticsTab';

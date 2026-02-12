@@ -41,7 +41,7 @@ interface Challenge {
 
 export function DashboardScreen() {
   const navigate = useNavigate();
-  const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, refreshUser, logout } = useApp();
+  const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, refreshUser, logout, authUserId } = useApp();
   const { isInstallable, isInstalled, promptInstall } = usePWAInstall();
 
   const [challenges, setChallenges] = useState<Challenge[]>([]);
@@ -49,6 +49,30 @@ export function DashboardScreen() {
   const [isLoadingChallenges, setIsLoadingChallenges] = useState(true);
   const [productCount, setProductCount] = useState(0);
   const [isDeveloper, setIsDeveloper] = useState(false);
+  const [roleChecked, setRoleChecked] = useState(false);
+
+  // Check role as soon as we have an auth ID (don't wait for full profile)
+  useEffect(() => {
+    const uid = user?.id || authUserId;
+    if (!uid) return;
+
+    const checkRole = async () => {
+      try {
+        const { data } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', uid)
+          .eq('role', 'ecodeveloper')
+          .maybeSingle();
+        setIsDeveloper(!!data);
+      } catch (e) {
+        console.error('Role check failed:', e);
+      } finally {
+        setRoleChecked(true);
+      }
+    };
+    checkRole();
+  }, [user?.id, authUserId]);
 
   useEffect(() => {
     if (user) {
@@ -59,13 +83,6 @@ export function DashboardScreen() {
         .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .then(({ count }) => setProductCount(count || 0));
-      supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'ecodeveloper')
-        .maybeSingle()
-        .then(({ data }) => setIsDeveloper(!!data));
     }
   }, [user]);
 
@@ -201,7 +218,18 @@ export function DashboardScreen() {
     }
   };
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <AppLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-10 h-10 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
+            <p className="text-muted-foreground text-sm">Loading dashboard...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   const dailyChallenge = challenges.find((c) => c.type === "daily" && !c.completed);
 
@@ -302,7 +330,7 @@ export function DashboardScreen() {
         </div>
 
         {/* Tabs for dev analytics */}
-        {isDeveloper ? (
+        {roleChecked && isDeveloper ? (
           <Tabs defaultValue="home">
             <TabsList className="w-full">
               <TabsTrigger value="home" className="flex-1 gap-1">
