@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { 
   ChevronLeft, 
   User, 
@@ -22,7 +23,7 @@ import { Switch } from '@/components/ui/switch';
 export function SettingsScreen() {
   const navigate = useNavigate();
   const { user, isDarkMode, toggleDarkMode, isSwahili, toggleLanguage, logout } = useApp();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const { isSupported: pushSupported, isSubscribed: pushSubscribed, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushNotifications(user?.id);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -72,10 +73,10 @@ export function SettingsScreen() {
         },
         {
           icon: Bell,
-          label: 'Notifications',
-          description: 'Receive push notifications',
-          value: notificationsEnabled,
-          action: () => setNotificationsEnabled(!notificationsEnabled),
+          label: 'Push Notifications',
+          description: pushSupported ? 'Get notified about new activity' : 'Not supported on this device',
+          value: pushSubscribed,
+          action: () => pushSubscribed ? pushUnsubscribe() : pushSubscribe(),
           type: 'toggle' as const,
         },
       ],
