@@ -41,7 +41,7 @@ export function SplashScreen() {
   }, []);
 
   const handleGetStarted = () => {
-    navigate("/signup");
+    navigate("/role-select");
   };
 
   const handleLogout = async () => {
