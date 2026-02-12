@@ -579,7 +579,6 @@ export type Database = {
         Row: {
           eco_points: number | null
           id: string | null
-          location: string | null
           name: string | null
           rank: number | null
           streak: number | null
