@@ -17,7 +17,6 @@ interface LeaderboardEntry {
   user_id: string;
   name: string;
   eco_points: number | null;
-  location: string | null;
   streak: number | null;
   rank: number;
 }
@@ -42,7 +41,7 @@ export function LeaderboardScreen() {
       // This view only exposes non-sensitive fields: id, user_id, name, eco_points, location, streak, rank
       const { data, error } = await supabase
         .from('leaderboard')
-        .select('id, user_id, name, eco_points, location, streak, rank')
+        .select('id, user_id, name, eco_points, streak, rank')
         .order('rank', { ascending: true })
         .limit(100);
 
@@ -53,7 +52,6 @@ export function LeaderboardScreen() {
         user_id: entry.user_id || '',
         name: entry.name || 'Anonymous',
         eco_points: entry.eco_points,
-        location: entry.location,
         streak: entry.streak,
         rank: entry.rank || 0,
       }));
@@ -224,7 +222,7 @@ export function LeaderboardScreen() {
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-foreground">{entry.name}</p>
-                  <p className="text-xs text-muted-foreground">📍 {entry.location || 'Kenya'}</p>
+                  <p className="text-xs text-muted-foreground">🌍 EcoWarrior</p>
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-primary">{entry.eco_points || 0}</p>
