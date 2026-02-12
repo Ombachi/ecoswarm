@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Leaf, ChevronLeft, ChevronRight, User, MapPin, Heart, Phone, Mail, CheckCircle } from "lucide-react";
+import { Leaf, ChevronLeft, ChevronRight, User, MapPin, Heart, Phone, Mail, CheckCircle, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
@@ -29,8 +30,8 @@ const counties = [
 ];
 
 const roles = [
-  { id: "ecowarrior", label: "EcoWarrior", emoji: "🌍", description: "Activist / User — browse, post, send letters, join hubs" },
-  { id: "ecodeveloper", label: "EcoDeveloper", emoji: "🏢", description: "Org / Company — all above + create products in EcoMarket" },
+  { id: "ecowarrior", label: "EcoWarrior", emoji: "🌍", description: "Activist / User — browse, post, send letters, join hubs", tooltip: "EcoWarrior: Join, share, act. Browse eco-content, post in Agora Square, send letters to leaders, and join capacity hubs." },
+  { id: "ecodeveloper", label: "EcoDeveloper", emoji: "🏢", description: "Org / Company — all above + create products in EcoMarket", tooltip: "EcoDeveloper: For orgs/devs to market eco-products. Everything Warriors get, plus create and manage product listings in EcoMarket." },
 ];
 
 const concerns = [
@@ -325,27 +326,43 @@ export function SignupScreen() {
             </div>
             <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Choose Your Role</h2>
             <p className="text-muted-foreground mb-6 text-center">You can always change this later</p>
-            <div className="space-y-3">
-              {roles.map((role) => (
-                <button
-                  key={role.id}
-                  onClick={() => setSelectedRole(role.id)}
-                  className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
-                    selectedRole === role.id
-                      ? "border-primary bg-eco-green-light"
-                      : "border-border bg-card hover:border-primary/50"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl">{role.emoji}</span>
-                    <div>
-                      <span className="font-bold text-foreground block">{role.label}</span>
-                      <span className="text-xs text-muted-foreground">{role.description}</span>
-                    </div>
+            <TooltipProvider delayDuration={200}>
+              <div className="space-y-3">
+                {roles.map((role) => (
+                  <div key={role.id} className="relative">
+                    <button
+                      onClick={() => setSelectedRole(role.id)}
+                      className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
+                        selectedRole === role.id
+                          ? "border-primary bg-eco-green-light"
+                          : "border-border bg-card hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">{role.emoji}</span>
+                        <div className="flex-1">
+                          <span className="font-bold text-foreground block">{role.label}</span>
+                          <span className="text-xs text-muted-foreground">{role.description}</span>
+                        </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              className="p-1.5 rounded-full bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Info className="w-4 h-4" />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-[260px] text-xs">
+                            {role.tooltip}
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </button>
                   </div>
-                </button>
-              ))}
-            </div>
+                ))}
+              </div>
+            </TooltipProvider>
           </div>
         );
 

@@ -9,6 +9,8 @@ import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { Confetti } from "@/components/common/Confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { DevAnalyticsTab } from "@/components/dashboard/DevAnalyticsTab";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   MessageSquare,
   ShoppingBag,
@@ -23,6 +25,7 @@ import {
   CheckCircle,
   Trophy,
   LogOut,
+  BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -45,6 +48,7 @@ export function DashboardScreen() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [isLoadingChallenges, setIsLoadingChallenges] = useState(true);
   const [productCount, setProductCount] = useState(0);
+  const [isDeveloper, setIsDeveloper] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -55,6 +59,13 @@ export function DashboardScreen() {
         .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .then(({ count }) => setProductCount(count || 0));
+      supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'ecodeveloper')
+        .maybeSingle()
+        .then(({ data }) => setIsDeveloper(!!data));
     }
   }, [user]);
 
@@ -290,176 +301,54 @@ export function DashboardScreen() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div>
-          <h2 className="font-semibold text-foreground mb-3">{isSwahili ? "Hatua za Haraka" : "Quick Actions"}</h2>
-          <div className="grid grid-cols-4 gap-3">
-            {quickActions.map((action) => (
-              <button
-                key={action.id}
-                onClick={() => navigate(action.path)}
-                className="eco-card p-4 flex flex-col items-center gap-2 hover:shadow-lg transition-all"
-              >
-                <div
-                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}
-                >
-                  <action.icon className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xs font-medium text-foreground text-center">{action.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Daily Challenge - Interactive */}
-        {dailyChallenge && (
-          <div className="eco-card p-4 border-l-4 border-l-eco-gold">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">
-                  {isSwahili ? "Changamoto ya Leo" : "Daily Challenge"}
-                </p>
-                <h3 className="font-semibold text-foreground">{dailyChallenge.title}</h3>
-                <p className="text-sm text-muted-foreground">{dailyChallenge.description}</p>
+        {/* Tabs for dev analytics */}
+        {isDeveloper ? (
+          <Tabs defaultValue="home">
+            <TabsList className="w-full">
+              <TabsTrigger value="home" className="flex-1 gap-1">
+                🏠 Home
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex-1 gap-1">
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="home">
+              <div className="space-y-6 pt-2">
+                <DashboardHomeContent
+                  quickActions={quickActions}
+                  navigate={navigate}
+                  isSwahili={isSwahili}
+                  dailyChallenge={dailyChallenge}
+                  handleCompleteChallenge={handleCompleteChallenge}
+                  challenges={challenges}
+                  user={user}
+                  productCount={productCount}
+                  isInstalled={isInstalled}
+                  promptInstall={promptInstall}
+                />
               </div>
-              <EcoPointsBadge points={dailyChallenge.points} size="sm" />
-            </div>
-            <button
-              onClick={() => handleCompleteChallenge(dailyChallenge.id)}
-              className="w-full eco-button-primary py-3 flex items-center justify-center gap-2"
-            >
-              <Trophy className="w-5 h-5" />
-              {isSwahili ? "Anza Changamoto" : "Start Challenge"}
-            </button>
-          </div>
+            </TabsContent>
+            <TabsContent value="analytics">
+              <div className="pt-2">
+                <DevAnalyticsTab />
+              </div>
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <DashboardHomeContent
+            quickActions={quickActions}
+            navigate={navigate}
+            isSwahili={isSwahili}
+            dailyChallenge={dailyChallenge}
+            handleCompleteChallenge={handleCompleteChallenge}
+            challenges={challenges}
+            user={user}
+            productCount={productCount}
+            isInstalled={isInstalled}
+            promptInstall={promptInstall}
+          />
         )}
-
-        {/* All Challenges */}
-        <div>
-          <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-eco-gold" />
-            {isSwahili ? "Changamoto Zote" : "All Challenges"}
-          </h2>
-          <div className="space-y-3">
-            {challenges.map((challenge) => (
-              <div
-                key={challenge.id}
-                className={`eco-card p-4 flex items-center gap-4 ${challenge.completed ? "opacity-60" : ""}`}
-              >
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    challenge.completed ? "eco-gradient-bg" : "bg-muted"
-                  }`}
-                >
-                  {challenge.completed ? (
-                    <CheckCircle className="w-5 h-5 text-white" />
-                  ) : (
-                    <Trophy className="w-5 h-5 text-muted-foreground" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-foreground">{challenge.title}</h4>
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full ${
-                        challenge.type === "daily"
-                          ? "bg-eco-gold/20 text-eco-gold"
-                          : challenge.type === "weekly"
-                            ? "bg-primary/20 text-primary"
-                            : "bg-secondary/20 text-secondary"
-                      }`}
-                    >
-                      {challenge.type}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{challenge.description}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-primary">+{challenge.points}</p>
-                  <p className="text-[10px] text-muted-foreground">pts</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Impact Summary */}
-        <div className="eco-card p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-foreground">{isSwahili ? "Athari Yako" : "Your Impact"}</h2>
-            <button
-              onClick={() => navigate("/profile")}
-              className="text-primary text-sm font-medium flex items-center gap-1"
-            >
-              {isSwahili ? "Ona zaidi" : "See all"}
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="eco-stat-card">
-              <Mail className="w-6 h-6 text-secondary" />
-              <p className="text-xl font-bold text-foreground">{user.stats.lettersSent}</p>
-              <p className="text-[10px] text-muted-foreground">Letters Sent</p>
-            </div>
-            <div className="eco-stat-card">
-              <MessageSquare className="w-6 h-6 text-eco-gold" />
-              <p className="text-xl font-bold text-foreground">{user.stats.postsCreated}</p>
-              <p className="text-[10px] text-muted-foreground">Stories Shared</p>
-            </div>
-            <div className="eco-stat-card">
-              <ShoppingBag className="w-6 h-6 text-primary" />
-              <p className="text-xl font-bold text-foreground">{productCount}</p>
-              <p className="text-[10px] text-muted-foreground">Products Listed</p>
-            </div>
-            <div className="eco-stat-card">
-              <Target className="w-6 h-6 text-eco-orange" />
-              <p className="text-xl font-bold text-foreground">{user.stats.coursesCompleted}</p>
-              <p className="text-[10px] text-muted-foreground">Courses Done</p>
-            </div>
-          </div>
-        </div>
-
-
-        {/* About Link */}
-        <button
-          onClick={() => navigate("/about")}
-          className="w-full eco-card p-4 flex items-center gap-4 hover:shadow-md transition-all"
-        >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-eco-blue flex items-center justify-center">
-            <Info className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="font-semibold text-foreground text-sm">{isSwahili ? "Kuhusu EcoSwarm" : "About EcoSwarm"}</p>
-            <p className="text-xs text-muted-foreground">Learn why we built this platform</p>
-          </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </button>
-
-        {/* PWA Install Banner */}
-        <div className="eco-card p-4 bg-gradient-to-r from-eco-green-light to-eco-blue-light border-none">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full eco-gradient-bg flex items-center justify-center flex-shrink-0">
-              {isInstalled ? (
-                <CheckCircle className="w-5 h-5 text-white" />
-              ) : (
-                <Download className="w-5 h-5 text-white" />
-              )}
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold text-foreground text-sm">
-                {isInstalled ? "EcoSwarm Installed!" : "Install EcoSwarm"}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {isInstalled ? "Thanks for installing! Enjoy the app." : "Works offline! Earn 50 EcoPoints 🎁"}
-              </p>
-            </div>
-            {!isInstalled && (
-              <button onClick={promptInstall} className="eco-button-primary py-2 px-4 text-sm">
-                Install
-              </button>
-            )}
-          </div>
-        </div>
 
         {/* Footer */}
         <div className="text-center text-xs text-muted-foreground pt-4">
@@ -467,5 +356,193 @@ export function DashboardScreen() {
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+/* Extracted home content to avoid duplication */
+function DashboardHomeContent({
+  quickActions,
+  navigate,
+  isSwahili,
+  dailyChallenge,
+  handleCompleteChallenge,
+  challenges,
+  user,
+  productCount,
+  isInstalled,
+  promptInstall,
+}: any) {
+  return (
+    <>
+      {/* Quick Actions */}
+      <div>
+        <h2 className="font-semibold text-foreground mb-3">{isSwahili ? "Hatua za Haraka" : "Quick Actions"}</h2>
+        <div className="grid grid-cols-4 gap-3">
+          {quickActions.map((action: any) => (
+            <button
+              key={action.id}
+              onClick={() => navigate(action.path)}
+              className="eco-card p-4 flex flex-col items-center gap-2 hover:shadow-lg transition-all"
+            >
+              <div
+                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}
+              >
+                <action.icon className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xs font-medium text-foreground text-center">{action.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Daily Challenge */}
+      {dailyChallenge && (
+        <div className="eco-card p-4 border-l-4 border-l-eco-gold">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">
+                {isSwahili ? "Changamoto ya Leo" : "Daily Challenge"}
+              </p>
+              <h3 className="font-semibold text-foreground">{dailyChallenge.title}</h3>
+              <p className="text-sm text-muted-foreground">{dailyChallenge.description}</p>
+            </div>
+            <EcoPointsBadge points={dailyChallenge.points} size="sm" />
+          </div>
+          <button
+            onClick={() => handleCompleteChallenge(dailyChallenge.id)}
+            className="w-full eco-button-primary py-3 flex items-center justify-center gap-2"
+          >
+            <Trophy className="w-5 h-5" />
+            {isSwahili ? "Anza Changamoto" : "Start Challenge"}
+          </button>
+        </div>
+      )}
+
+      {/* All Challenges */}
+      <div>
+        <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+          <Trophy className="w-5 h-5 text-eco-gold" />
+          {isSwahili ? "Changamoto Zote" : "All Challenges"}
+        </h2>
+        <div className="space-y-3">
+          {challenges.map((challenge: Challenge) => (
+            <div
+              key={challenge.id}
+              className={`eco-card p-4 flex items-center gap-4 ${challenge.completed ? "opacity-60" : ""}`}
+            >
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  challenge.completed ? "eco-gradient-bg" : "bg-muted"
+                }`}
+              >
+                {challenge.completed ? (
+                  <CheckCircle className="w-5 h-5 text-white" />
+                ) : (
+                  <Trophy className="w-5 h-5 text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-semibold text-foreground">{challenge.title}</h4>
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded-full ${
+                      challenge.type === "daily"
+                        ? "bg-eco-gold/20 text-eco-gold"
+                        : challenge.type === "weekly"
+                          ? "bg-primary/20 text-primary"
+                          : "bg-secondary/20 text-secondary"
+                    }`}
+                  >
+                    {challenge.type}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">{challenge.description}</p>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-primary">+{challenge.points}</p>
+                <p className="text-[10px] text-muted-foreground">pts</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Impact Summary */}
+      <div className="eco-card p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-foreground">{isSwahili ? "Athari Yako" : "Your Impact"}</h2>
+          <button
+            onClick={() => navigate("/profile")}
+            className="text-primary text-sm font-medium flex items-center gap-1"
+          >
+            {isSwahili ? "Ona zaidi" : "See all"}
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="eco-stat-card">
+            <Mail className="w-6 h-6 text-secondary" />
+            <p className="text-xl font-bold text-foreground">{user.stats.lettersSent}</p>
+            <p className="text-[10px] text-muted-foreground">Letters Sent</p>
+          </div>
+          <div className="eco-stat-card">
+            <MessageSquare className="w-6 h-6 text-eco-gold" />
+            <p className="text-xl font-bold text-foreground">{user.stats.postsCreated}</p>
+            <p className="text-[10px] text-muted-foreground">Stories Shared</p>
+          </div>
+          <div className="eco-stat-card">
+            <ShoppingBag className="w-6 h-6 text-primary" />
+            <p className="text-xl font-bold text-foreground">{productCount}</p>
+            <p className="text-[10px] text-muted-foreground">Products Listed</p>
+          </div>
+          <div className="eco-stat-card">
+            <Target className="w-6 h-6 text-eco-orange" />
+            <p className="text-xl font-bold text-foreground">{user.stats.coursesCompleted}</p>
+            <p className="text-[10px] text-muted-foreground">Courses Done</p>
+          </div>
+        </div>
+      </div>
+
+      {/* About Link */}
+      <button
+        onClick={() => navigate("/about")}
+        className="w-full eco-card p-4 flex items-center gap-4 hover:shadow-md transition-all"
+      >
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-eco-blue flex items-center justify-center">
+          <Info className="w-5 h-5 text-white" />
+        </div>
+        <div className="flex-1 text-left">
+          <p className="font-semibold text-foreground text-sm">{isSwahili ? "Kuhusu EcoSwarm" : "About EcoSwarm"}</p>
+          <p className="text-xs text-muted-foreground">Learn why we built this platform</p>
+        </div>
+        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+      </button>
+
+      {/* PWA Install Banner */}
+      <div className="eco-card p-4 bg-gradient-to-r from-eco-green-light to-eco-blue-light border-none">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full eco-gradient-bg flex items-center justify-center flex-shrink-0">
+            {isInstalled ? (
+              <CheckCircle className="w-5 h-5 text-white" />
+            ) : (
+              <Download className="w-5 h-5 text-white" />
+            )}
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-foreground text-sm">
+              {isInstalled ? "EcoSwarm Installed!" : "Install EcoSwarm"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {isInstalled ? "Thanks for installing! Enjoy the app." : "Works offline! Earn 50 EcoPoints 🎁"}
+            </p>
+          </div>
+          {!isInstalled && (
+            <button onClick={promptInstall} className="eco-button-primary py-2 px-4 text-sm">
+              Install
+            </button>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
