@@ -501,6 +501,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       leaderboard: {
@@ -617,6 +638,13 @@ export type Database = {
     }
     Functions: {
       get_user_likes: { Args: { p_post_ids: string[] }; Returns: string[] }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       join_swarm: {
         Args: { p_swarm_id: string; p_votes?: number }
         Returns: Json
@@ -624,7 +652,7 @@ export type Database = {
       toggle_post_like: { Args: { p_post_id: string }; Returns: Json }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "ecowarrior" | "ecodeveloper"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -751,6 +779,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["ecowarrior", "ecodeveloper"],
+    },
   },
 } as const

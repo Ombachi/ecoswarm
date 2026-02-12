@@ -28,6 +28,11 @@ const counties = [
   "Bomet",
 ];
 
+const roles = [
+  { id: "ecowarrior", label: "EcoWarrior", emoji: "🌍", description: "Activist / User — browse, post, send letters, join hubs" },
+  { id: "ecodeveloper", label: "EcoDeveloper", emoji: "🏢", description: "Org / Company — all above + create products in EcoMarket" },
+];
+
 const concerns = [
   { id: "climate", label: "Climate Action", emoji: "🌡️" },
   { id: "environmental", label: "Environmental Challenges", emoji: "🌍" },
@@ -48,11 +53,11 @@ export function SignupScreen() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
-  const [age, setAge] = useState("");
   const [sex, setSex] = useState("");
   const [county, setCounty] = useState("Nairobi");
   const [phone, setPhone] = useState("");
   const [topConcern, setTopConcern] = useState("");
+  const [selectedRole, setSelectedRole] = useState("ecowarrior");
   const [otpCode, setOtpCode] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -61,18 +66,20 @@ export function SignupScreen() {
       case 0:
         return email && password && confirmPassword && password === confirmPassword && password.length >= 6;
       case 1:
-        return name && age && sex;
+        return name && sex;
       case 2:
         return county && phone;
       case 3:
         return topConcern;
+      case 4:
+        return selectedRole;
       default:
         return false;
     }
   };
 
   const handleNext = () => {
-    if (step < 3) {
+    if (step < 4) {
       setStep(step + 1);
     } else {
       handleSignup();
@@ -100,11 +107,11 @@ export function SignupScreen() {
           emailRedirectTo: `${window.location.origin}/login`,
           data: {
             name,
-            age: parseInt(age),
             sex,
             county,
             phone,
             top_concern: topConcern,
+            role: selectedRole,
           },
         },
       });
@@ -120,7 +127,6 @@ export function SignupScreen() {
           user_id: data.user.id,
           email,
           name,
-          age: parseInt(age),
           sex,
           county,
           phone,
@@ -128,6 +134,12 @@ export function SignupScreen() {
           top_concern: topConcern,
           streak: 1,
           last_active_at: new Date().toISOString(),
+        });
+
+        // Assign role
+        await supabase.from("user_roles").insert({
+          user_id: data.user.id,
+          role: selectedRole as any,
         });
 
         if (profileError) {
@@ -217,15 +229,6 @@ export function SignupScreen() {
                 className="eco-input"
                 autoFocus
               />
-              <input
-                type="number"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                placeholder="Your age"
-                className="eco-input"
-                min="13"
-                max="100"
-              />
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Sex</p>
                 <div className="grid grid-cols-3 gap-3">
@@ -314,6 +317,38 @@ export function SignupScreen() {
           </div>
         );
 
+      case 4:
+        return (
+          <div className="animate-slide-up">
+            <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
+              <Leaf className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Choose Your Role</h2>
+            <p className="text-muted-foreground mb-6 text-center">You can always change this later</p>
+            <div className="space-y-3">
+              {roles.map((role) => (
+                <button
+                  key={role.id}
+                  onClick={() => setSelectedRole(role.id)}
+                  className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
+                    selectedRole === role.id
+                      ? "border-primary bg-eco-green-light"
+                      : "border-border bg-card hover:border-primary/50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{role.emoji}</span>
+                    <div>
+                      <span className="font-bold text-foreground block">{role.label}</span>
+                      <span className="text-xs text-muted-foreground">{role.description}</span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -331,7 +366,7 @@ export function SignupScreen() {
       {/* Progress bar */}
       <div className="px-4 mb-4">
         <div className="flex gap-2">
-          {[0, 1, 2, 3].map((i) => (
+          {[0, 1, 2, 3, 4].map((i) => (
             <div
               key={i}
               className={`h-1.5 flex-1 rounded-full transition-all ${i <= step ? "eco-gradient-bg" : "bg-muted"}`}
@@ -352,7 +387,7 @@ export function SignupScreen() {
         >
           {isLoading ? (
             "Creating account..."
-          ) : step === 3 ? (
+          ) : step === 4 ? (
             <>🌍 Join EcoSwarm</>
           ) : (
             <>

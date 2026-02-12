@@ -66,6 +66,7 @@ export function EcoMarketScreen() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [expandedDesc, setExpandedDesc] = useState<string | null>(null);
+  const [isDeveloper, setIsDeveloper] = useState(false);
   const [lightboxMedia, setLightboxMedia] = useState<{
     url: string;
     type: 'image' | 'video';
@@ -80,7 +81,16 @@ export function EcoMarketScreen() {
 
   useEffect(() => {
     loadProducts();
-  }, [categoryFilter]);
+    if (user) {
+      supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'ecodeveloper')
+        .maybeSingle()
+        .then(({ data }) => setIsDeveloper(!!data));
+    }
+  }, [categoryFilter, user]);
 
   const loadProducts = async () => {
     setIsLoading(true);
@@ -229,13 +239,15 @@ export function EcoMarketScreen() {
             <h1 className="text-xl font-bold text-foreground">EcoMarket</h1>
             <p className="text-xs text-muted-foreground">Eco-friendly products & services</p>
           </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="eco-button-primary py-2 px-4 text-sm flex items-center gap-1"
-          >
-            <Plus className="w-4 h-4" />
-            List Product
-          </button>
+          {isDeveloper && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="eco-button-primary py-2 px-4 text-sm flex items-center gap-1"
+            >
+              <Plus className="w-4 h-4" />
+              List Product
+            </button>
+          )}
         </div>
 
         {/* Search */}
@@ -396,13 +408,15 @@ export function EcoMarketScreen() {
         )}
       </div>
 
-      {/* Floating Create Button */}
-      <button
-        onClick={() => setShowCreateModal(true)}
-        className="eco-floating-button animate-pulse-glow"
-      >
-        <Plus className="w-6 h-6" />
-      </button>
+      {/* Floating Create Button - only for EcoDevelopers */}
+      {isDeveloper && (
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="eco-floating-button animate-pulse-glow"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
 
       {/* Create Product Modal */}
       <CreateProductModal
