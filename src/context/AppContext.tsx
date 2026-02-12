@@ -77,8 +77,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const buildPlaceholderUser = (authUser: { id: string; email?: string | null }): User => {
-    const fallbackName = (authUser.email || 'EcoWarrior').split('@')[0] || 'EcoWarrior';
+  const buildPlaceholderUser = (authUser: { id: string; email?: string | null; user_metadata?: Record<string, any> }): User => {
+    const metaName = authUser.user_metadata?.name;
+    const fallbackName = metaName || (authUser.email || 'EcoWarrior').split('@')[0] || 'EcoWarrior';
     return {
       id: authUser.id,
       name: fallbackName,
@@ -181,18 +182,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const ensureProfileExists = async (authUser: { id: string; email?: string | null }) => {
+  const ensureProfileExists = async (authUser: { id: string; email?: string | null; user_metadata?: Record<string, any> }) => {
     const existing = await fetchUserProfile(authUser.id);
     if (existing) return existing;
 
-    // Create a minimal profile row so new users don't get stuck on splash.
-    const fallbackName = (authUser.email || 'EcoWarrior').split('@')[0] || 'EcoWarrior';
+    // Use the name from auth metadata (set during signup) instead of email prefix
+    const metaName = authUser.user_metadata?.name;
+    const fallbackName = metaName || (authUser.email || 'EcoWarrior').split('@')[0] || 'EcoWarrior';
 
     const { error: insertError } = await supabase.from('profiles').insert({
       user_id: authUser.id,
       email: authUser.email || '',
       name: fallbackName,
-      location: 'Kenya',
+      location: authUser.user_metadata?.county || 'Kenya',
+      county: authUser.user_metadata?.county || undefined,
+      sex: authUser.user_metadata?.sex || undefined,
+      phone: authUser.user_metadata?.phone || undefined,
+      top_concern: authUser.user_metadata?.top_concern || undefined,
     });
 
     if (insertError && !insertError.message.toLowerCase().includes('duplicate')) {
@@ -225,7 +231,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let isMounted = true;
 
-    const hydrateUserInBackground = async (authUser: { id: string; email?: string | null }, event?: string) => {
+    const hydrateUserInBackground = async (authUser: { id: string; email?: string | null; user_metadata?: Record<string, any> }, event?: string) => {
       // Always ensure the UI has *something* to render to avoid infinite loading.
       if (isMounted) {
         setIsOnboarded(true);
@@ -233,14 +239,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       // Then do the real profile fetch/create work without blocking rendering.
-      let appUser = await ensureProfileExists({ id: authUser.id, email: authUser.email });
+      let appUser = await ensureProfileExists({ id: authUser.id, email: authUser.email, user_metadata: authUser.user_metadata });
 
       // If still missing (network/RLS timing), retry a few times with backoff.
       if (!appUser && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
         const delays = [800, 1500, 2500];
         for (const delay of delays) {
           await new Promise((resolve) => setTimeout(resolve, delay));
-          appUser = await ensureProfileExists({ id: authUser.id, email: authUser.email });
+          appUser = await ensureProfileExists({ id: authUser.id, email: authUser.email, user_metadata: authUser.user_metadata });
           if (appUser) break;
         }
       }
@@ -278,7 +284,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         if (session?.user) {
           // Do not block initial render on profile fetch.
-          void hydrateUserInBackground({ id: session.user.id, email: session.user.email }, 'INITIAL_SESSION');
+          void hydrateUserInBackground({ id: session.user.id, email: session.user.email, user_metadata: session.user.user_metadata }, 'INITIAL_SESSION');
         } else {
           setUser(null);
           setIsOnboarded(false);
@@ -307,7 +313,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setAuthUserId(session?.user?.id ?? null);
 
       if (session?.user) {
-        void hydrateUserInBackground({ id: session.user.id, email: session.user.email }, event);
+        void hydrateUserInBackground({ id: session.user.id, email: session.user.email, user_metadata: session.user.user_metadata }, event);
       } else {
         setUser(null);
         setIsOnboarded(false);

@@ -23,6 +23,7 @@ import {
   X,
   ChevronLeft,
   ShoppingBag,
+  Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -50,6 +51,8 @@ export function AgoraScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [filterTag, setFilterTag] = useState<string | null>(tag || null);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
   const [lightboxMedia, setLightboxMedia] = useState<{ 
     url: string; 
     type: 'image' | 'video';
@@ -267,6 +270,34 @@ export function AgoraScreen() {
     supabase.from('posts').update({ comments: count }).eq('id', postId);
   };
 
+  const canEditPost = (post: Post) => {
+    if (!user || post.userId !== user.id) return false;
+    if (post.likes > 0 || post.comments > 0 || post.shares > 0) return false;
+    const minutesSinceCreation = (Date.now() - new Date(post.createdAt).getTime()) / 60000;
+    return minutesSinceCreation <= 30;
+  };
+
+  const handleEditPost = (post: Post) => {
+    setEditingPostId(post.id);
+    setEditContent(post.content);
+  };
+
+  const handleSaveEdit = async (postId: string) => {
+    if (!editContent.trim()) return;
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .update({ content: editContent, tags: extractHashtags(editContent) })
+        .eq('id', postId);
+      if (error) throw error;
+      setPosts(posts.map(p => p.id === postId ? { ...p, content: editContent, tags: extractHashtags(editContent) } : p));
+      setEditingPostId(null);
+      toast.success('Post updated!');
+    } catch {
+      toast.error('Failed to update post');
+    }
+  };
+
   return (
     <AppLayout>
       {/* Header */}
@@ -362,9 +393,32 @@ export function AgoraScreen() {
                     })}
                   </p>
                 </div>
+                {canEditPost(post) && (
+                  <button
+                    onClick={() => handleEditPost(post)}
+                    className="p-1.5 rounded-full text-muted-foreground hover:bg-muted hover:text-primary transition-all"
+                    title="Edit post (within 30 min)"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
-              {/* Post Content - strip inline hashtags and badge line, render contact as clickable */}
+              {/* Post Content */}
+              {editingPostId === post.id ? (
+                <div className="mb-3 space-y-2">
+                  <textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-border bg-card text-foreground text-sm resize-none min-h-[80px] focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <button onClick={() => setEditingPostId(null)} className="px-3 py-1.5 text-sm rounded-lg bg-muted text-muted-foreground">Cancel</button>
+                    <button onClick={() => handleSaveEdit(post.id)} className="px-3 py-1.5 text-sm rounded-lg eco-gradient-bg text-white font-medium">Save</button>
+                  </div>
+                </div>
+              ) : (
+              <>
               <div className="text-foreground mb-3 leading-relaxed whitespace-pre-line">
                 {post.content.replace(/#\w+/g, '').trim().split('\n')
                   .filter(line => !line.startsWith('🏷️'))
@@ -483,6 +537,8 @@ export function AgoraScreen() {
                   <ShoppingBag className="w-4 h-4" />
                   View on EcoMarket 🛒
                 </button>
+              )}
+              </>
               )}
 
               {/* Actions */}
