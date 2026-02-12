@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import { mockUser } from "@/data/mockData";
 import { ChevronRight, MapPin, Leaf, Sparkles } from "lucide-react";
+import { kenyanCounties } from "@/data/kenyanCounties";
 
 const concerns = [
   { id: "pollution", label: "Air Pollution", emoji: "💨" },
@@ -69,25 +70,13 @@ export function OnboardingScreen() {
             </div>
             <h2 className="text-2xl font-bold text-foreground mb-2">Where are you based?</h2>
             <p className="text-muted-foreground mb-6">We will show you local environmental issues and swarms</p>
-            <div className="space-y-3">
-              {["Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret"].map((city) => (
-                <button
-                  key={city}
-                  onClick={() => setLocation(city)}
-                  className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
-                    location === city
-                      ? "border-primary bg-eco-green-light"
-                      : "border-border bg-card hover:border-primary/50"
-                  }`}
-                >
-                  <span className="font-medium">{city}</span>
-                  {location === city && (
-                    <div className="w-6 h-6 rounded-full eco-gradient-bg flex items-center justify-center">
-                      <ChevronRight className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                </button>
-              ))}
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">County</p>
+              <select value={location} onChange={(e) => setLocation(e.target.value)} className="eco-input">
+                {kenyanCounties.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
             </div>
           </div>
         );

@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { SplashScreen } from "@/pages/SplashScreen";
 import { LoginScreen } from "@/pages/LoginScreen";
 import { SignupScreen } from "@/pages/SignupScreen";
+import { RoleSelectScreen } from "@/pages/RoleSelectScreen";
 
 // Lazy loaded routes for code splitting
 const OnboardingScreen = lazy(() => import("@/pages/OnboardingScreen").then(m => ({ default: m.OnboardingScreen })));
@@ -68,6 +69,7 @@ function AppRoutes() {
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
         <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SplashScreen />} />
+        <Route path="/role-select" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RoleSelectScreen />} />
         <Route path="/onboarding" element={<OnboardingScreen />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen />} />
         <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupScreen />} />

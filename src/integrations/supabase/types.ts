@@ -128,6 +128,57 @@ export type Database = {
         }
         Relationships: []
       }
+      org_profiles: {
+        Row: {
+          certifications_url: string | null
+          company_name: string
+          company_type: string
+          created_at: string
+          description_of_work: string | null
+          id: string
+          main_products_services: string[] | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_linkedin: string | null
+          social_twitter: string | null
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          certifications_url?: string | null
+          company_name: string
+          company_type?: string
+          created_at?: string
+          description_of_work?: string | null
+          id?: string
+          main_products_services?: string[] | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          certifications_url?: string | null
+          company_name?: string
+          company_type?: string
+          created_at?: string
+          description_of_work?: string | null
+          id?: string
+          main_products_services?: string[] | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       post_likes: {
         Row: {
           created_at: string

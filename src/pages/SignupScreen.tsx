@@ -1,37 +1,24 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Leaf, ChevronLeft, ChevronRight, User, MapPin, Heart, Phone, Mail, CheckCircle, Info } from "lucide-react";
+import {
+  ChevronLeft, ChevronRight, User, MapPin, Heart, Phone, Mail,
+  Building2, Globe, FileUp, Briefcase, Info,
+} from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { kenyanCounties } from "@/data/kenyanCounties";
+import { Textarea } from "@/components/ui/textarea";
 
-const counties = [
-  "Nairobi",
-  "Mombasa",
-  "Kisumu",
-  "Nakuru",
-  "Eldoret",
-  "Kiambu",
-  "Machakos",
-  "Kajiado",
-  "Uasin Gishu",
-  "Nyeri",
-  "Meru",
-  "Kilifi",
-  "Kakamega",
-  "Bungoma",
-  "Kisii",
-  "Nyamira",
-  "Trans Nzoia",
-  "Nandi",
-  "Kericho",
-  "Bomet",
+const companyTypes = [
+  "Startup", "NGO", "Cooperative", "Social Enterprise",
+  "Government Agency", "Individual Developer", "Other",
 ];
 
-const roles = [
-  { id: "ecowarrior", label: "EcoWarrior", emoji: "🌍", description: "Activist / User — browse, post, send letters, join hubs", tooltip: "EcoWarrior: Join, share, act. Browse eco-content, post in Agora Square, send letters to leaders, and join capacity hubs." },
-  { id: "ecodeveloper", label: "EcoDeveloper", emoji: "🏢", description: "Org / Company — all above + create products in EcoMarket", tooltip: "EcoDeveloper: For orgs/devs to market eco-products. Everything Warriors get, plus create and manage product listings in EcoMarket." },
+const productServiceTags = [
+  "Solar Products", "Waste Management", "Water Solutions",
+  "Reforestation Tools", "Clean Energy", "Carbon Credits",
+  "Eco-Fashion", "Organic Farming", "Recycling", "Conservation",
 ];
 
 const concerns = [
@@ -45,11 +32,15 @@ const concerns = [
 
 export function SignupScreen() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const selectedRole = searchParams.get("role") === "ecodeveloper" ? "ecodeveloper" : "ecowarrior";
+  const isDevRole = selectedRole === "ecodeveloper";
+
   const [step, setStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
+  const certFileRef = useRef<HTMLInputElement>(null);
 
-  // Form state
+  // Common fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -58,29 +49,49 @@ export function SignupScreen() {
   const [county, setCounty] = useState("Nairobi");
   const [phone, setPhone] = useState("");
   const [topConcern, setTopConcern] = useState("");
-  const [selectedRole, setSelectedRole] = useState("ecowarrior");
-  const [otpCode, setOtpCode] = useState("");
-  const [userId, setUserId] = useState<string | null>(null);
+
+  // EcoDeveloper-only fields
+  const [companyName, setCompanyName] = useState("");
+  const [companyType, setCompanyType] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [socialTwitter, setSocialTwitter] = useState("");
+  const [socialInstagram, setSocialInstagram] = useState("");
+  const [socialFacebook, setSocialFacebook] = useState("");
+  const [socialLinkedin, setSocialLinkedin] = useState("");
+  const [descriptionOfWork, setDescriptionOfWork] = useState("");
+  const [certFile, setCertFile] = useState<File | null>(null);
+  const [mainProductsServices, setMainProductsServices] = useState<string[]>([]);
+
+  // Steps differ by role
+  const warriorSteps = ["account", "personal", "location", "concern"];
+  const devSteps = ["account", "company", "social", "location", "products", "concern"];
+  const steps = isDevRole ? devSteps : warriorSteps;
+  const totalSteps = steps.length;
 
   const canProceed = () => {
-    switch (step) {
-      case 0:
+    const currentStep = steps[step];
+    switch (currentStep) {
+      case "account":
         return email && password && confirmPassword && password === confirmPassword && password.length >= 6;
-      case 1:
+      case "personal":
         return name && sex;
-      case 2:
+      case "company":
+        return name && companyName && companyType;
+      case "social":
+        return true; // All optional
+      case "location":
         return county && phone;
-      case 3:
+      case "products":
+        return mainProductsServices.length > 0;
+      case "concern":
         return topConcern;
-      case 4:
-        return selectedRole;
       default:
         return false;
     }
   };
 
   const handleNext = () => {
-    if (step < 4) {
+    if (step < totalSteps - 1) {
       setStep(step + 1);
     } else {
       handleSignup();
@@ -88,19 +99,29 @@ export function SignupScreen() {
   };
 
   const handleBack = () => {
-    if (step > 0) {
-      setStep(step - 1);
-    } else {
-      navigate("/");
-    }
+    if (step > 0) setStep(step - 1);
+    else navigate("/role-select");
+  };
+
+  const toggleProductService = (tag: string) => {
+    setMainProductsServices((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const uploadCertification = async (userId: string): Promise<string | null> => {
+    if (!certFile) return null;
+    const ext = certFile.name.split(".").pop();
+    const path = `${userId}/certification.${ext}`;
+    const { error } = await supabase.storage.from("eco-certifications").upload(path, certFile, { upsert: true });
+    if (error) { console.error("Cert upload error:", error); return null; }
+    return path;
   };
 
   const handleSignup = async () => {
     if (!canProceed()) return;
-
     setIsLoading(true);
     try {
-      // First, sign up with Supabase to create the auth user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -117,14 +138,17 @@ export function SignupScreen() {
         },
       });
 
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
+      if (error) { toast.error(error.message); return; }
 
       if (data.user) {
-        // Create profile immediately (user exists but email not verified yet)
-        const { error: profileError } = await supabase.from("profiles").insert({
+        if (data.user.identities && data.user.identities.length === 0) {
+          toast.error("An account with this email already exists. Please sign in.");
+          navigate("/login");
+          return;
+        }
+
+        // Create profile
+        await supabase.from("profiles").insert({
           user_id: data.user.id,
           email,
           name,
@@ -143,30 +167,34 @@ export function SignupScreen() {
           role: selectedRole as any,
         });
 
-        if (profileError) {
-          console.error("Profile creation error:", profileError);
-          // Profile might already exist, that's okay
-        }
-
         // Award First Steps badge
         await supabase.from("user_badges").insert({
           user_id: data.user.id,
-          badge_id: "1", // First Steps badge
+          badge_id: "1",
         });
 
-        // Check if email confirmation is required
-        if (data.user.identities && data.user.identities.length === 0) {
-          // User already exists
-          toast.error("An account with this email already exists. Please sign in.");
-          navigate("/login");
-          return;
+        // EcoDeveloper: create org profile
+        if (isDevRole) {
+          const certPath = await uploadCertification(data.user.id);
+          await supabase.from("org_profiles" as any).insert({
+            user_id: data.user.id,
+            company_name: companyName,
+            company_type: companyType,
+            website_url: websiteUrl || null,
+            social_twitter: socialTwitter || null,
+            social_instagram: socialInstagram || null,
+            social_facebook: socialFacebook || null,
+            social_linkedin: socialLinkedin || null,
+            description_of_work: descriptionOfWork || null,
+            certifications_url: certPath,
+            main_products_services: mainProductsServices,
+          });
         }
 
-        // Show verification message - don't navigate to dashboard
         toast.success("Please check your email to verify your account! 📧");
         navigate("/login");
       }
-    } catch (err) {
+    } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
@@ -174,46 +202,34 @@ export function SignupScreen() {
   };
 
   const renderStep = () => {
-    switch (step) {
-      case 0:
+    const currentStep = steps[step];
+
+    switch (currentStep) {
+      case "account":
         return (
           <div className="animate-slide-up">
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
               <Mail className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Create Your Account</h2>
-            <p className="text-muted-foreground mb-6 text-center">Join the movement for change</p>
+            <p className="text-muted-foreground mb-6 text-center">
+              {isDevRole ? "Register your organization" : "Join the movement for change"}
+            </p>
             <div className="space-y-4">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email address"
-                className="eco-input"
-                autoFocus
-              />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password (min 6 characters)"
-                className="eco-input"
-              />
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm password"
-                className="eco-input"
-              />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email address" className="eco-input" autoFocus />
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password (min 6 characters)" className="eco-input" />
+              <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm password" className="eco-input" />
               {password && confirmPassword && password !== confirmPassword && (
-                <p className="text-sm text-red-500">Passwords do not match</p>
+                <p className="text-sm text-destructive">Passwords do not match</p>
               )}
             </div>
           </div>
         );
 
-      case 1:
+      case "personal":
         return (
           <div className="animate-slide-up">
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
@@ -222,27 +238,16 @@ export function SignupScreen() {
             <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Tell Us About Yourself</h2>
             <p className="text-muted-foreground mb-6 text-center">Help us personalize your experience</p>
             <div className="space-y-4">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                className="eco-input"
-                autoFocus
-              />
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)}
+                placeholder="Your name" className="eco-input" autoFocus />
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Sex</p>
                 <div className="grid grid-cols-3 gap-3">
                   {["Male", "Female", "Other"].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => setSex(option)}
+                    <button key={option} onClick={() => setSex(option)}
                       className={`p-3 rounded-xl border-2 transition-all ${
-                        sex === option
-                          ? "border-primary bg-eco-green-light"
-                          : "border-border bg-card hover:border-primary/50"
-                      }`}
-                    >
+                        sex === option ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/50"
+                      }`}>
                       <span className="font-medium text-sm">{option}</span>
                     </button>
                   ))}
@@ -252,7 +257,71 @@ export function SignupScreen() {
           </div>
         );
 
-      case 2:
+      case "company":
+        return (
+          <div className="animate-slide-up">
+            <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
+              <Building2 className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Organization Details</h2>
+            <p className="text-muted-foreground mb-6 text-center">Tell us about your organization</p>
+            <div className="space-y-4">
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)}
+                placeholder="Full name (contact person)" className="eco-input" autoFocus />
+              <input type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)}
+                placeholder="Company / Organization name" className="eco-input" />
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Company Type</p>
+                <select value={companyType} onChange={(e) => setCompanyType(e.target.value)} className="eco-input">
+                  <option value="">Select type...</option>
+                  {companyTypes.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Brief Description of Work</p>
+                <Textarea value={descriptionOfWork} onChange={(e) => setDescriptionOfWork(e.target.value)}
+                  placeholder="1-2 sentences about what your organization does"
+                  className="eco-input min-h-[80px]" maxLength={300} />
+              </div>
+            </div>
+          </div>
+        );
+
+      case "social":
+        return (
+          <div className="animate-slide-up">
+            <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
+              <Globe className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Online Presence</h2>
+            <p className="text-muted-foreground mb-6 text-center">All fields are optional</p>
+            <div className="space-y-3 max-h-[45vh] overflow-y-auto pb-4">
+              <input type="url" value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)}
+                placeholder="Website URL" className="eco-input" />
+              <input type="text" value={socialTwitter} onChange={(e) => setSocialTwitter(e.target.value)}
+                placeholder="X / Twitter handle" className="eco-input" />
+              <input type="text" value={socialInstagram} onChange={(e) => setSocialInstagram(e.target.value)}
+                placeholder="Instagram handle" className="eco-input" />
+              <input type="text" value={socialFacebook} onChange={(e) => setSocialFacebook(e.target.value)}
+                placeholder="Facebook page" className="eco-input" />
+              <input type="text" value={socialLinkedin} onChange={(e) => setSocialLinkedin(e.target.value)}
+                placeholder="LinkedIn profile" className="eco-input" />
+              <div className="space-y-2 pt-2">
+                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                  <FileUp className="w-4 h-4" /> Eco-Proof / Certifications
+                </p>
+                <input ref={certFileRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  onChange={(e) => setCertFile(e.target.files?.[0] || null)}
+                  className="eco-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary file:font-medium" />
+                {certFile && <p className="text-xs text-muted-foreground">📎 {certFile.name}</p>}
+              </div>
+            </div>
+          </div>
+        );
+
+      case "location":
         return (
           <div className="animate-slide-up">
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
@@ -264,10 +333,8 @@ export function SignupScreen() {
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">County</p>
                 <select value={county} onChange={(e) => setCounty(e.target.value)} className="eco-input">
-                  {counties.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
+                  {kenyanCounties.map((c) => (
+                    <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
               </div>
@@ -275,23 +342,40 @@ export function SignupScreen() {
                 <p className="text-sm text-muted-foreground">Phone Number</p>
                 <div className="flex gap-2">
                   <div className="eco-input w-20 flex items-center justify-center bg-muted">
-                    <Phone className="w-4 h-4 mr-1" />
-                    +254
+                    <Phone className="w-4 h-4 mr-1" />+254
                   </div>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="7XX XXX XXX"
-                    className="eco-input flex-1"
-                  />
+                  <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+                    placeholder="7XX XXX XXX" className="eco-input flex-1" />
                 </div>
               </div>
             </div>
           </div>
         );
 
-      case 3:
+      case "products":
+        return (
+          <div className="animate-slide-up">
+            <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
+              <Briefcase className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Products & Services</h2>
+            <p className="text-muted-foreground mb-6 text-center">Select all that apply</p>
+            <div className="grid grid-cols-2 gap-3 max-h-[45vh] overflow-y-auto pb-4">
+              {productServiceTags.map((tag) => (
+                <button key={tag} onClick={() => toggleProductService(tag)}
+                  className={`p-3 rounded-xl border-2 transition-all text-left text-sm font-medium ${
+                    mainProductsServices.includes(tag)
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-card hover:border-primary/50"
+                  }`}>
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+
+      case "concern":
         return (
           <div className="animate-slide-up">
             <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
@@ -301,68 +385,17 @@ export function SignupScreen() {
             <p className="text-muted-foreground mb-6 text-center">We'll personalize your feed based on your passion</p>
             <div className="grid grid-cols-2 gap-3 max-h-[45vh] overflow-y-auto pb-4">
               {concerns.map((concern) => (
-                <button
-                  key={concern.id}
-                  onClick={() => setTopConcern(concern.label)}
+                <button key={concern.id} onClick={() => setTopConcern(concern.label)}
                   className={`p-4 rounded-xl border-2 transition-all text-left ${
                     topConcern === concern.label
-                      ? "border-primary bg-eco-green-light"
+                      ? "border-primary bg-primary/10"
                       : "border-border bg-card hover:border-primary/50"
-                  }`}
-                >
+                  }`}>
                   <span className="text-2xl mb-2 block">{concern.emoji}</span>
                   <span className="font-medium text-sm">{concern.label}</span>
                 </button>
               ))}
             </div>
-          </div>
-        );
-
-      case 4:
-        return (
-          <div className="animate-slide-up">
-            <div className="w-20 h-20 rounded-2xl eco-gradient-bg flex items-center justify-center mb-6 mx-auto">
-              <Leaf className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Choose Your Role</h2>
-            <p className="text-muted-foreground mb-6 text-center">You can always change this later</p>
-            <TooltipProvider delayDuration={200}>
-              <div className="space-y-3">
-                {roles.map((role) => (
-                  <div key={role.id} className="relative">
-                    <button
-                      onClick={() => setSelectedRole(role.id)}
-                      className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
-                        selectedRole === role.id
-                          ? "border-primary bg-eco-green-light"
-                          : "border-border bg-card hover:border-primary/50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-3xl">{role.emoji}</span>
-                        <div className="flex-1">
-                          <span className="font-bold text-foreground block">{role.label}</span>
-                          <span className="text-xs text-muted-foreground">{role.description}</span>
-                        </div>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span
-                              className="p-1.5 rounded-full bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Info className="w-4 h-4" />
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-[260px] text-xs">
-                            {role.tooltip}
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </TooltipProvider>
           </div>
         );
 
@@ -374,18 +407,20 @@ export function SignupScreen() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div className="p-4 flex items-center">
+      <div className="p-4 flex items-center gap-3">
         <button onClick={handleBack} className="p-2 rounded-full bg-muted text-muted-foreground">
           <ChevronLeft className="w-5 h-5" />
         </button>
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          {isDevRole ? "🏢 EcoDeveloper" : "🌍 EcoWarrior"} Sign Up
+        </span>
       </div>
 
       {/* Progress bar */}
       <div className="px-4 mb-4">
         <div className="flex gap-2">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
+          {steps.map((_, i) => (
+            <div key={i}
               className={`h-1.5 flex-1 rounded-full transition-all ${i <= step ? "eco-gradient-bg" : "bg-muted"}`}
             />
           ))}
@@ -397,28 +432,18 @@ export function SignupScreen() {
 
       {/* Footer */}
       <div className="p-6">
-        <button
-          onClick={handleNext}
-          disabled={!canProceed() || isLoading}
-          className="w-full eco-button-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {isLoading ? (
-            "Creating account..."
-          ) : step === 4 ? (
+        <button onClick={handleNext} disabled={!canProceed() || isLoading}
+          className="w-full eco-button-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          {isLoading ? "Creating account..." : step === totalSteps - 1 ? (
             <>🌍 Join EcoSwarm</>
           ) : (
-            <>
-              Continue
-              <ChevronRight className="w-5 h-5" />
-            </>
+            <>Continue <ChevronRight className="w-5 h-5" /></>
           )}
         </button>
 
         <p className="text-center text-muted-foreground text-sm mt-4">
           Already have an account?{" "}
-          <button onClick={() => navigate("/login")} className="text-primary font-semibold">
-            Sign In
-          </button>
+          <button onClick={() => navigate("/login")} className="text-primary font-semibold">Sign In</button>
         </p>
       </div>
     </div>
