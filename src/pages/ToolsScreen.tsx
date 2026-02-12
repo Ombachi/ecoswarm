@@ -5,6 +5,7 @@ import { useApp } from '@/context/AppContext';
 import { mockLetterTemplates, mockRecipients, mockLearningModules } from '@/data/mockData';
 import { Confetti } from '@/components/common/Confetti';
 import { supabase } from '@/integrations/supabase/client';
+import { createAutoPost, buildLetterAutoPost } from '@/utils/autoPost';
 import {
   Mail,
   GraduationCap,
@@ -87,6 +88,18 @@ export function ToolsScreen() {
       }
 
       showNotification('EcoLetter sent! 📨', 50);
+
+      // Auto-post to Agora Square
+      if (user) {
+        const excerpt = getPreviewLetter().split('\n').filter(l => l.trim()).slice(0, 2).join(' ');
+        await createAutoPost({
+          userId: user.id,
+          userName: user.name,
+          content: buildLetterAutoPost(template.title, `${recipient.title} ${recipient.name}`, excerpt),
+          tags: ['EcoLetter', 'ClimateAction', 'EcoSwarm', 'Advocacy'],
+        });
+        updateStats({ postsCreated: user.stats.postsCreated + 1 });
+      }
 
       setTimeout(() => {
         setShowConfetti(false);
