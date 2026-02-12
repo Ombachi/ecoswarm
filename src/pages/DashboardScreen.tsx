@@ -44,11 +44,17 @@ export function DashboardScreen() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isLoadingChallenges, setIsLoadingChallenges] = useState(true);
+  const [productCount, setProductCount] = useState(0);
 
   useEffect(() => {
     if (user) {
       loadChallenges();
       updateStreak();
+      supabase
+        .from('products')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .then(({ count }) => setProductCount(count || 0));
     }
   }, [user]);
 
@@ -399,6 +405,16 @@ export function DashboardScreen() {
               <MessageSquare className="w-6 h-6 text-eco-gold" />
               <p className="text-xl font-bold text-foreground">{user.stats.postsCreated}</p>
               <p className="text-[10px] text-muted-foreground">Stories Shared</p>
+            </div>
+            <div className="eco-stat-card">
+              <ShoppingBag className="w-6 h-6 text-primary" />
+              <p className="text-xl font-bold text-foreground">{productCount}</p>
+              <p className="text-[10px] text-muted-foreground">Products Listed</p>
+            </div>
+            <div className="eco-stat-card">
+              <Target className="w-6 h-6 text-eco-orange" />
+              <p className="text-xl font-bold text-foreground">{user.stats.coursesCompleted}</p>
+              <p className="text-[10px] text-muted-foreground">Courses Done</p>
             </div>
           </div>
         </div>

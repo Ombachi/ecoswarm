@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 interface PublicProfile {
+  user_id: string;
   name: string;
   location: string | null;
   county: string | null;
@@ -29,7 +30,7 @@ interface PublicProfile {
 }
 
 export function PublicImpactScreen() {
-  const { userId } = useParams<{ userId: string }>();
+  const { userId, userName } = useParams<{ userId?: string; userName?: string }>();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,21 +39,28 @@ export function PublicImpactScreen() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!userId) {
+      if (!userId && !userName) {
         setError("Invalid profile link");
         setIsLoading(false);
         return;
       }
 
       try {
-        // Fetch from secure public_profiles view (excludes PII like email, phone, age, sex)
-        const { data: profileData, error: profileError } = await supabase
+        let query = supabase
           .from("public_profiles")
           .select(
-          "name, location, county, bio, avatar_url, eco_points, streak, top_concern, letters_sent, posts_created, courses_completed",
-          )
-          .eq("user_id", userId)
-          .single();
+            "user_id, name, location, county, bio, avatar_url, eco_points, streak, top_concern, letters_sent, posts_created, courses_completed",
+          );
+
+        if (userId) {
+          query = query.eq("user_id", userId);
+        } else if (userName) {
+          // Decode the slug back to a name for matching
+          const decodedName = decodeURIComponent(userName).replace(/-/g, ' ');
+          query = query.ilike("name", decodedName);
+        }
+
+        const { data: profileData, error: profileError } = await query.single();
 
         if (profileError || !profileData) {
           setError("EcoWarrior not found");
@@ -66,7 +74,7 @@ export function PublicImpactScreen() {
         const { data: productsData } = await supabase
           .from("products")
           .select("product_name, org_name, category")
-          .eq("user_id", userId);
+          .eq("user_id", profileData.user_id);
 
         if (productsData) {
           setProducts(productsData);
@@ -80,7 +88,7 @@ export function PublicImpactScreen() {
     };
 
     fetchProfile();
-  }, [userId]);
+  }, [userId, userName]);
 
   const handleJoinMovement = () => {
     navigate("/signup");

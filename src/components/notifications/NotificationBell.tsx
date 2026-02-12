@@ -77,13 +77,29 @@ export function NotificationBell() {
     setUnreadCount(0);
   };
 
-  const handleNotificationClick = (notif: Notification) => {
-    if (notif.type === 'swarm' && notif.reference_id) {
-      navigate('/swarms');
+  const handleNotificationClick = async (notif: Notification) => {
+    // Mark as read
+    if (!notif.is_read) {
+      await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notif.id);
+      setNotifications((prev) => prev.map((n) => n.id === notif.id ? { ...n, is_read: true } : n));
+      setUnreadCount((prev) => Math.max(prev - 1, 0));
+    }
+
+    if (notif.type === 'product' && notif.reference_id) {
+      navigate('/ecomarket');
+    } else if (notif.type === 'swarm' && notif.reference_id) {
+      navigate('/ecomarket');
+    } else if (notif.type === 'post' && notif.reference_id) {
+      navigate(`/post/${notif.reference_id}`);
     } else if (notif.type === 'post') {
       navigate('/agora');
     } else if (notif.type === 'course') {
       navigate('/tools');
+    } else {
+      navigate('/agora');
     }
     setIsOpen(false);
   };

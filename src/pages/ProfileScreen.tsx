@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
+import { supabase } from '@/integrations/supabase/client';
 import { ProgressRing } from '@/components/common/ProgressRing';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { allBadges } from '@/data/mockData';
@@ -20,8 +22,20 @@ import {
 export function ProfileScreen() {
   const navigate = useNavigate();
   const { user, isSwahili } = useApp();
+  const [productCount, setProductCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('products')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .then(({ count }) => setProductCount(count || 0));
+  }, [user]);
 
   if (!user) return null;
+
+  const profileSlug = encodeURIComponent(user.name.replace(/\s+/g, '-').toLowerCase());
 
   const statItems = [
     {
@@ -44,7 +58,7 @@ export function ProfileScreen() {
     },
     {
       icon: ShoppingBag,
-      value: 0,
+      value: productCount,
       label: isSwahili ? 'Bidhaa' : 'Products Listed',
       color: 'text-primary',
     },
@@ -196,9 +210,9 @@ export function ProfileScreen() {
           </h3>
           <div className="eco-card p-4">
             <SocialShareButtons
-              url={`${window.location.origin}/profile/${user.id}`}
+              url={`${window.location.origin}/u/${profileSlug}`}
               title={`🌍 I'm making waves on EcoSwarm!`}
-              text={`🏆 ${user.ecoPoints} EcoPoints earned | 🐝 ${user.stats.swarmsJoined} Swarms joined | 🔥 ${user.streak}-day streak!\n\nJoin Africa's Gen Z EcoWarriors movement! Create your impact profile now 👇`}
+              text={`🏆 ${user.ecoPoints} EcoPoints earned | ✉️ ${user.stats.lettersSent} Letters sent | 📦 ${productCount} Products listed | 🔥 ${user.streak}-day streak!\n\nJoin Africa's Gen Z EcoWarriors movement! Create your impact profile now 👇`}
             />
           </div>
         </div>
