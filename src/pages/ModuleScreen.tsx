@@ -15,6 +15,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { createAutoPost, buildCourseAutoPost } from '@/utils/autoPost';
 
 // Extended module content with study material and questions
 const moduleContent: Record<string, {
@@ -423,7 +424,7 @@ const moduleContent: Record<string, {
 export function ModuleScreen() {
   const { moduleId } = useParams<{ moduleId: string }>();
   const navigate = useNavigate();
-  const { user, addPoints, showNotification, completeCourse, earnBadge } = useApp();
+  const { user, addPoints, showNotification, completeCourse, earnBadge, updateStats } = useApp();
 
   const [currentSection, setCurrentSection] = useState(0);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -511,6 +512,19 @@ export function ModuleScreen() {
 
         showNotification(`Module completed! 🎓`, module.points);
         toast.success(`You earned ${module.points} EcoPoints!`);
+
+        // Auto-post to Agora Square
+        if (user) {
+          const keyTakeaway = content.sections[0]?.title || 'Key environmental insights';
+          await createAutoPost({
+            userId: user.id,
+            userName: user.name,
+            content: buildCourseAutoPost(module.title, module.points, keyTakeaway),
+            tags: ['CapacityHub', 'Learning', 'EcoSwarm', 'ClimateEducation'],
+          });
+          updateStats({ postsCreated: user.stats.postsCreated + 1 });
+        }
+
         setTimeout(() => setShowConfetti(false), 3000);
       }
     }
