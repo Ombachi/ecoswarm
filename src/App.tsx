@@ -77,6 +77,7 @@ function AppRoutes() {
         <Route path="/terms-of-service" element={<TermsOfServiceScreen />} />
         <Route path="/offline" element={<OfflinePage />} />
         <Route path="/profile/:userId" element={<PublicImpactScreen />} />
+        <Route path="/u/:userName" element={<PublicImpactScreen />} />
         <Route path="/post/:postId" element={<PostViewScreen />} />
 
         <Route path="/dashboard" element={requireAuthed(<DashboardScreen />)} />
