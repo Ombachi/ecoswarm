@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, X, Users, MessageSquare, BookOpen } from 'lucide-react';
+import { Bell, X, Users, MessageSquare, BookOpen, Trophy } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useApp } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
@@ -98,6 +98,8 @@ export function NotificationBell() {
       navigate('/agora');
     } else if (notif.type === 'course') {
       navigate('/tools');
+    } else if (notif.type === 'rank') {
+      navigate('/leaderboard');
     } else {
       navigate('/agora');
     }
@@ -109,6 +111,7 @@ export function NotificationBell() {
       case 'swarm': return <Users className="w-4 h-4 text-eco-gold" />;
       case 'post': return <MessageSquare className="w-4 h-4 text-secondary" />;
       case 'course': return <BookOpen className="w-4 h-4 text-primary" />;
+      case 'rank': return <Trophy className="w-4 h-4 text-yellow-500" />;
       default: return <Bell className="w-4 h-4 text-muted-foreground" />;
     }
   };
