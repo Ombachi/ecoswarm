@@ -23,6 +23,7 @@ export function ProfileScreen() {
   const navigate = useNavigate();
   const { user, isSwahili } = useApp();
   const [productCount, setProductCount] = useState(0);
+  const [isDeveloper, setIsDeveloper] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -31,6 +32,13 @@ export function ProfileScreen() {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .then(({ count }) => setProductCount(count || 0));
+    supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'ecodeveloper')
+      .maybeSingle()
+      .then(({ data }) => setIsDeveloper(!!data));
   }, [user]);
 
   if (!user) return null;
@@ -50,12 +58,12 @@ export function ProfileScreen() {
       label: isSwahili ? 'Hadithi Zilizoshirikiwa' : 'Stories Shared',
       color: 'text-eco-gold',
     },
-    {
+    ...(!isDeveloper ? [{
       icon: BookOpen,
       value: user.stats.coursesCompleted,
       label: isSwahili ? 'Kozi Zilizokamilika' : 'Courses Done',
       color: 'text-eco-orange',
-    },
+    }] : []),
     {
       icon: ShoppingBag,
       value: productCount,
@@ -131,7 +139,9 @@ export function ProfileScreen() {
               </div>
             </ProgressRing>
             <div className="flex-1">
-              <p className="font-semibold text-foreground mb-1">Silver EcoWarrior</p>
+              <p className="font-semibold text-foreground mb-1">
+                Silver {isDeveloper ? 'EcoDeveloper' : 'EcoWarrior'}
+              </p>
               <p className="text-sm text-muted-foreground mb-2">
                 750 more points to Gold
               </p>

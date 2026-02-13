@@ -323,7 +323,7 @@ export function DashboardScreen() {
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {Math.max(2000 - user.ecoPoints, 0)} more to Gold EcoWarrior
+                {Math.max(2000 - user.ecoPoints, 0)} more to Gold {isDeveloper ? 'EcoDeveloper' : 'EcoWarrior'}
               </p>
             </div>
           </div>
@@ -354,6 +354,7 @@ export function DashboardScreen() {
                   productCount={productCount}
                   isInstalled={isInstalled}
                   promptInstall={promptInstall}
+                  isDeveloper={isDeveloper}
                 />
               </div>
             </TabsContent>
@@ -375,6 +376,7 @@ export function DashboardScreen() {
             productCount={productCount}
             isInstalled={isInstalled}
             promptInstall={promptInstall}
+            isDeveloper={false}
           />
         )}
 
@@ -399,6 +401,7 @@ function DashboardHomeContent({
   productCount,
   isInstalled,
   promptInstall,
+  isDeveloper,
 }: any) {
   return (
     <>
@@ -523,11 +526,13 @@ function DashboardHomeContent({
             <p className="text-xl font-bold text-foreground">{productCount}</p>
             <p className="text-[10px] text-muted-foreground">Products Listed</p>
           </div>
-          <div className="eco-stat-card">
-            <Target className="w-6 h-6 text-eco-orange" />
-            <p className="text-xl font-bold text-foreground">{user.stats.coursesCompleted}</p>
-            <p className="text-[10px] text-muted-foreground">Courses Done</p>
-          </div>
+          {!isDeveloper && (
+            <div className="eco-stat-card">
+              <Target className="w-6 h-6 text-eco-orange" />
+              <p className="text-xl font-bold text-foreground">{user.stats.coursesCompleted}</p>
+              <p className="text-[10px] text-muted-foreground">Courses Done</p>
+            </div>
+          )}
         </div>
       </div>
 

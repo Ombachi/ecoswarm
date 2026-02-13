@@ -24,17 +24,14 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video' | 'file') => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (file) processFile(file, type);
+  };
 
-    // File size limit (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File size must be less than 10MB');
-      return;
-    }
-
+  const processFile = (file: File, type: 'image' | 'video' | 'file') => {
     setMediaFile(file);
     setMediaType(type);
 
@@ -44,6 +41,15 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
     } else {
       setMediaPreview(null);
     }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    const type = file.type.startsWith('image/') ? 'image' : file.type.startsWith('video/') ? 'video' : 'file';
+    processFile(file, type);
   };
 
   const removeMedia = () => {
@@ -111,7 +117,12 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end pb-20">
-      <div className="bg-card w-full rounded-t-3xl p-6 animate-slide-up max-h-[80vh] overflow-auto">
+      <div
+        className={`bg-card w-full rounded-t-3xl p-6 animate-slide-up max-h-[80vh] overflow-auto ${isDragging ? 'ring-2 ring-primary ring-inset' : ''}`}
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+      >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-foreground">Share Your Story</h2>
           <button
@@ -210,6 +221,7 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
             ref={fileInputRef}
             type="file"
             accept="image/*"
+            capture={undefined}
             onChange={(e) => handleFileSelect(e, 'image')}
             className="hidden"
           />

@@ -67,6 +67,7 @@ export function EcoMarketScreen() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [expandedDesc, setExpandedDesc] = useState<string | null>(null);
   const [isDeveloper, setIsDeveloper] = useState(false);
+  const [orgName, setOrgName] = useState('');
   const [lightboxMedia, setLightboxMedia] = useState<{
     url: string;
     type: 'image' | 'video';
@@ -88,7 +89,20 @@ export function EcoMarketScreen() {
         .eq('user_id', user.id)
         .eq('role', 'ecodeveloper')
         .maybeSingle()
-        .then(({ data }) => setIsDeveloper(!!data));
+        .then(({ data }) => {
+          setIsDeveloper(!!data);
+          if (data) {
+            // Fetch org name for prefill
+            supabase
+              .from('org_profiles')
+              .select('company_name')
+              .eq('user_id', user.id)
+              .maybeSingle()
+              .then(({ data: orgData }) => {
+                if (orgData) setOrgName(orgData.company_name);
+              });
+          }
+        });
     }
   }, [categoryFilter, user]);
 
@@ -422,6 +436,7 @@ export function EcoMarketScreen() {
       <CreateProductModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
+        defaultOrgName={orgName}
         onProductCreated={handleProductCreated}
       />
 
