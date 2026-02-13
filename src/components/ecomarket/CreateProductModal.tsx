@@ -30,6 +30,7 @@ const ecoBadges = [
 interface CreateProductModalProps {
   isOpen: boolean;
   onClose: () => void;
+  defaultOrgName?: string;
   onProductCreated: (product: {
     orgName: string;
     productName: string;
@@ -43,9 +44,9 @@ interface CreateProductModalProps {
   }) => void;
 }
 
-export function CreateProductModal({ isOpen, onClose, onProductCreated }: CreateProductModalProps) {
+export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductCreated }: CreateProductModalProps) {
   const [step, setStep] = useState(1);
-  const [orgName, setOrgName] = useState('');
+  const [orgName, setOrgName] = useState(defaultOrgName || '');
   const [productName, setProductName] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
@@ -64,14 +65,24 @@ export function CreateProductModal({ isOpen, onClose, onProductCreated }: Create
     );
   };
 
+  const [isDragging, setIsDragging] = useState(false);
+
+  const processFile = (file: File) => {
+    setMediaFile(file);
+    const url = URL.createObjectURL(file);
+    setMediaPreview(url);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setMediaFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setMediaPreview(reader.result as string);
-      reader.readAsDataURL(file);
-    }
+    if (file) processFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
   };
 
   const canProceed = () => {
@@ -119,7 +130,7 @@ export function CreateProductModal({ isOpen, onClose, onProductCreated }: Create
         mediaType,
       });
 
-      // Reset
+      // Reset form but don't close - let user stay on page
       setStep(1);
       setOrgName('');
       setProductName('');
@@ -130,7 +141,7 @@ export function CreateProductModal({ isOpen, onClose, onProductCreated }: Create
       setContactPhone('');
       setMediaFile(null);
       setMediaPreview(null);
-      onClose();
+      // Don't call onClose() - keep user on the EcoMarket page
     } catch (err) {
       console.error('Error creating product:', err);
       toast.error('Failed to create product');
@@ -223,21 +234,26 @@ export function CreateProductModal({ isOpen, onClose, onProductCreated }: Create
             <>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Product Image / Video</label>
-                <label className="flex flex-col items-center justify-center w-full h-40 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer bg-muted/30 transition-all">
-                  {mediaPreview ? (
-                    mediaFile?.type.startsWith('video/') ? (
-                      <video src={mediaPreview} className="w-full h-full object-cover rounded-xl" />
-                    ) : (
-                      <img src={mediaPreview} alt="Preview" className="w-full h-full object-cover rounded-xl" />
-                    )
+              <label
+                className={`flex flex-col items-center justify-center w-full h-40 rounded-xl border-2 border-dashed cursor-pointer bg-muted/30 transition-all ${isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+              >
+                {mediaPreview ? (
+                  mediaFile?.type.startsWith('video/') ? (
+                    <video src={mediaPreview} className="w-full h-full object-cover rounded-xl" />
                   ) : (
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <Upload className="w-8 h-8" />
-                      <span className="text-sm">Tap to upload photo or video</span>
-                    </div>
-                  )}
-                  <input type="file" accept="image/*,video/*" onChange={handleFileChange} className="hidden" />
-                </label>
+                    <img src={mediaPreview} alt="Preview" className="w-full h-full object-cover rounded-xl" />
+                  )
+                ) : (
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                    <Upload className="w-8 h-8" />
+                    <span className="text-sm">Tap or drag & drop to upload</span>
+                  </div>
+                )}
+                <input type="file" accept="image/*,video/*" onChange={handleFileChange} className="hidden" />
+              </label>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Description *</label>
