@@ -577,10 +577,12 @@ export type Database = {
     Views: {
       leaderboard: {
         Row: {
+          avatar_url: string | null
           eco_points: number | null
           id: string | null
           name: string | null
           rank: number | null
+          role: string | null
           streak: number | null
           user_id: string | null
         }
