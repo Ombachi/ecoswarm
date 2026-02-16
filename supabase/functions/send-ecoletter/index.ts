@@ -96,6 +96,12 @@ const handler = async (req: Request): Promise<Response> => {
       to: [body.recipientEmail],
       reply_to: body.senderEmail,
       subject: `EcoLetter: ${body.templateTitle} - From ${body.senderName}, ${body.senderLocation}`,
+      headers: {
+        "X-Entity-Ref-ID": crypto.randomUUID(),
+        "List-Unsubscribe": "<mailto:support@ecoswarm.co.ke?subject=unsubscribe>",
+        "Precedence": "bulk",
+        "X-Mailer": "EcoSwarm Platform",
+      },
       html: `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #228B22 0%, #32CD32 100%); padding: 20px; border-radius: 12px 12px 0 0;">
