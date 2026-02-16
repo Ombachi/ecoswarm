@@ -65,12 +65,17 @@ const handler = async (req: Request): Promise<Response> => {
 
     const typeLabel = feedbackTypeLabels[body.type] || body.type;
 
-    // Send to support team
     const emailResponse = await resend.emails.send({
       from: "EcoSwarm Feedback <feedback@ecoswarm.co.ke>",
       to: ["support@ecoswarm.co.ke"],
       reply_to: body.userEmail || undefined,
       subject: `[${typeLabel}] ${body.subject}`,
+      headers: {
+        "X-Entity-Ref-ID": crypto.randomUUID(),
+        "List-Unsubscribe": "<mailto:support@ecoswarm.co.ke?subject=unsubscribe>",
+        "Precedence": "bulk",
+        "X-Mailer": "EcoSwarm Platform",
+      },
       html: `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #228B22 0%, #32CD32 100%); padding: 20px; border-radius: 12px 12px 0 0;">

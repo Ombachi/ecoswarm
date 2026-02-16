@@ -174,6 +174,27 @@ export function DashboardScreen() {
     }
   };
 
+  const getChallengeRoute = (actionType: string | null) => {
+    switch (actionType) {
+      case "post": return "/agora";
+      case "engage": return "/agora";
+      case "ecomarket": return "/ecomarket";
+      case "letter": return "/tools";
+      case "module": return "/tools";
+      default: return "/dashboard";
+    }
+  };
+
+  const handleStartChallenge = (challengeId: string) => {
+    const challenge = challenges.find((c) => c.id === challengeId);
+    if (!challenge || challenge.completed) return;
+    
+    // Navigate to the relevant page so users can complete the challenge there
+    const route = getChallengeRoute(challenge.action_type);
+    toast.info(`🎯 Challenge: ${challenge.title} — Complete it to earn ${challenge.points} EcoPoints!`);
+    navigate(route);
+  };
+
   const handleCompleteChallenge = async (challengeId: string) => {
     if (!user) return;
 
@@ -181,7 +202,6 @@ export function DashboardScreen() {
     if (!challenge || challenge.completed) return;
 
     try {
-      // Insert completion record
       const { error } = await supabase.from("user_challenges").insert({
         user_id: user.id,
         challenge_id: challengeId,
@@ -189,29 +209,12 @@ export function DashboardScreen() {
 
       if (error && !error.message.includes("duplicate")) throw error;
 
-      // Update local state
       setChallenges(challenges.map((c) => (c.id === challengeId ? { ...c, completed: true } : c)));
-
-      // Award points
       addPoints(challenge.points);
       showNotification(`Challenge completed! 🎉`, challenge.points);
-
-      // Show confetti
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
-
       toast.success(`You earned ${challenge.points} EcoPoints!`);
-
-      // Navigate based on challenge type
-      if (challenge.action_type === "post") {
-        navigate("/agora");
-      } else if (challenge.action_type === "ecomarket") {
-        navigate("/ecomarket");
-      } else if (challenge.action_type === "letter") {
-        navigate("/tools");
-      } else if (challenge.action_type === "module") {
-        navigate("/tools");
-      }
     } catch (error) {
       console.error("Error completing challenge:", error);
       toast.error("Failed to complete challenge");
@@ -349,6 +352,7 @@ export function DashboardScreen() {
                   isSwahili={isSwahili}
                   dailyChallenge={dailyChallenge}
                   handleCompleteChallenge={handleCompleteChallenge}
+                  handleStartChallenge={handleStartChallenge}
                   challenges={challenges}
                   user={user}
                   productCount={productCount}
@@ -371,6 +375,7 @@ export function DashboardScreen() {
             isSwahili={isSwahili}
             dailyChallenge={dailyChallenge}
             handleCompleteChallenge={handleCompleteChallenge}
+            handleStartChallenge={handleStartChallenge}
             challenges={challenges}
             user={user}
             productCount={productCount}
@@ -396,6 +401,7 @@ function DashboardHomeContent({
   isSwahili,
   dailyChallenge,
   handleCompleteChallenge,
+  handleStartChallenge,
   challenges,
   user,
   productCount,
@@ -440,7 +446,7 @@ function DashboardHomeContent({
             <EcoPointsBadge points={dailyChallenge.points} size="sm" />
           </div>
           <button
-            onClick={() => handleCompleteChallenge(dailyChallenge.id)}
+            onClick={() => handleStartChallenge(dailyChallenge.id)}
             className="w-full eco-button-primary py-3 flex items-center justify-center gap-2"
           >
             <Trophy className="w-5 h-5" />
@@ -457,9 +463,13 @@ function DashboardHomeContent({
         </h2>
         <div className="space-y-3">
           {challenges.map((challenge: Challenge) => (
-            <div
+            <button
               key={challenge.id}
-              className={`eco-card p-4 flex items-center gap-4 ${challenge.completed ? "opacity-60" : ""}`}
+              onClick={() => !challenge.completed && handleStartChallenge(challenge.id)}
+              disabled={challenge.completed}
+              className={`eco-card p-4 flex items-center gap-4 w-full text-left transition-all ${
+                challenge.completed ? "opacity-60" : "hover:shadow-md cursor-pointer active:scale-[0.98]"
+              }`}
             >
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -489,11 +499,14 @@ function DashboardHomeContent({
                 </div>
                 <p className="text-xs text-muted-foreground">{challenge.description}</p>
               </div>
-              <div className="text-right">
-                <p className="font-bold text-primary">+{challenge.points}</p>
-                <p className="text-[10px] text-muted-foreground">pts</p>
+              <div className="text-right flex items-center gap-2">
+                <div>
+                  <p className="font-bold text-primary">+{challenge.points}</p>
+                  <p className="text-[10px] text-muted-foreground">pts</p>
+                </div>
+                {!challenge.completed && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>

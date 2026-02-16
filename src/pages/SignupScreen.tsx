@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ChevronLeft, ChevronRight, User, MapPin, Heart, Phone, Mail,
-  Building2, Globe, FileUp, Briefcase, Info,
+  Building2, Globe, FileUp, Briefcase, Info, Eye, EyeOff, Check, X,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
@@ -68,11 +68,23 @@ export function SignupScreen() {
   const steps = isDevRole ? devSteps : warriorSteps;
   const totalSteps = steps.length;
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const passwordChecks = {
+    minLength: password.length >= 8,
+    hasUpper: /[A-Z]/.test(password),
+    hasLower: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  };
+  const allPasswordChecksPassed = Object.values(passwordChecks).every(Boolean);
+
   const canProceed = () => {
     const currentStep = steps[step];
     switch (currentStep) {
       case "account":
-        return email && password && confirmPassword && password === confirmPassword && password.length >= 6;
+        return email && allPasswordChecksPassed && confirmPassword && password === confirmPassword;
       case "personal":
         return name && sex;
       case "company":
@@ -218,10 +230,45 @@ export function SignupScreen() {
             <div className="space-y-4">
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email address" className="eco-input" autoFocus />
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password (min 6 characters)" className="eco-input" />
-              <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm password" className="eco-input" />
+              <div className="relative">
+                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Create a password" className="eco-input pr-12" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              {/* Password strength indicators */}
+              {password && (
+                <div className="space-y-1.5 px-1">
+                  {[
+                    { key: "minLength", label: "At least 8 characters" },
+                    { key: "hasUpper", label: "One uppercase letter" },
+                    { key: "hasLower", label: "One lowercase letter" },
+                    { key: "hasNumber", label: "One number" },
+                    { key: "hasSpecial", label: "One special character (!@#$...)" },
+                  ].map(({ key, label }) => (
+                    <div key={key} className="flex items-center gap-2 text-xs">
+                      {passwordChecks[key as keyof typeof passwordChecks] ? (
+                        <Check className="w-3.5 h-3.5 text-primary" />
+                      ) : (
+                        <X className="w-3.5 h-3.5 text-destructive" />
+                      )}
+                      <span className={passwordChecks[key as keyof typeof passwordChecks] ? "text-primary" : "text-muted-foreground"}>
+                        {label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="relative">
+                <input type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm password" className="eco-input pr-12" />
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
               {password && confirmPassword && password !== confirmPassword && (
                 <p className="text-sm text-destructive">Passwords do not match</p>
               )}
