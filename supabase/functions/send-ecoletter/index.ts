@@ -92,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // ===== SEND EMAIL VIA RESEND =====
     const emailResponse = await resend.emails.send({
-      from: "EcoSwarm <noreply@resend.dev>",
+      from: "EcoSwarm <hello@ecoswarm.co.ke>",
       to: [body.recipientEmail],
       reply_to: body.senderEmail,
       subject: `EcoLetter: ${body.templateTitle} - From ${body.senderName}, ${body.senderLocation}`,
