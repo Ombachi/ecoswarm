@@ -5,6 +5,7 @@ import { useApp } from "@/context/AppContext";
 import { ChevronLeft, MessageCircle, Send, Loader2, Bug, Lightbulb, ThumbsUp, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const feedbackSchema = z.object({
   type: z.string().min(1, "Please select a feedback type"),
@@ -55,8 +56,23 @@ export function FeedbackScreen() {
     setIsSubmitting(true);
 
     try {
-      // Simulate sending feedback (in production, this would go to a database or email service)
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("You must be logged in to send feedback.");
+        return;
+      }
+
+      const response = await supabase.functions.invoke("send-feedback", {
+        body: {
+          type,
+          subject,
+          message,
+          userName: user?.name || "Anonymous",
+          userEmail: session.user.email || "",
+        },
+      });
+
+      if (response.error) throw new Error(response.error.message);
 
       toast.success("Thank you for your feedback! 💚");
       navigate(-1);
