@@ -31,3 +31,7 @@ export async function createAutoPost({ userId, userName, content, tags }: AutoPo
 export function buildCourseAutoPost(courseTitle: string, points: number) {
   return `🎓 Completed "${courseTitle}" in the Capacity Hub!\n\nEarned +${points} EcoPoints! 🌱\n\n#CapacityHub #Learning #EcoSwarm #ClimateEducation`;
 }
+
+export function buildLetterAutoPost(templateTitle: string) {
+  return `📨 Just sent an EcoLetter: "${templateTitle}"!\n\nEarned +50 EcoPoints! 🌱\n\nRaise your voice too — head to the EcoLetter Forge!\n\n#EcoLetter #ClimateAction #EcoSwarm #Advocacy`;
+}
