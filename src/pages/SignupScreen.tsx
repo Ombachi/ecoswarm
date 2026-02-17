@@ -159,9 +159,14 @@ export function SignupScreen() {
           return;
         }
 
-        // Create profile
+        // Attempt to create profile, role, badge now (best-effort).
+        // If email confirmation is required, auth.uid() may be null and RLS
+        // will reject these inserts. That's OK — ensureProfileExists in
+        // AppContext will retry everything on first login.
+        const userId = data.user.id;
+
         await supabase.from("profiles").insert({
-          user_id: data.user.id,
+          user_id: userId,
           email,
           name,
           sex,
@@ -171,25 +176,29 @@ export function SignupScreen() {
           top_concern: topConcern,
           streak: 1,
           last_active_at: new Date().toISOString(),
+        }).then(({ error }) => {
+          if (error) console.warn('Signup profile insert (may retry on login):', error?.message);
         });
 
-        // Assign role
         await supabase.from("user_roles").insert({
-          user_id: data.user.id,
+          user_id: userId,
           role: selectedRole as any,
+        }).then(({ error }) => {
+          if (error) console.warn('Signup role insert (may retry on login):', error?.message);
         });
 
-        // Award First Steps badge
         await supabase.from("user_badges").insert({
-          user_id: data.user.id,
+          user_id: userId,
           badge_id: "1",
+        }).then(({ error }) => {
+          if (error) console.warn('Signup badge insert (may retry on login):', error?.message);
         });
 
         // EcoDeveloper: create org profile
         if (isDevRole) {
-          const certPath = await uploadCertification(data.user.id);
+          const certPath = await uploadCertification(userId);
           await supabase.from("org_profiles" as any).insert({
-            user_id: data.user.id,
+            user_id: userId,
             company_name: companyName,
             company_type: companyType,
             website_url: websiteUrl || null,
@@ -200,6 +209,8 @@ export function SignupScreen() {
             description_of_work: descriptionOfWork || null,
             certifications_url: certPath,
             main_products_services: mainProductsServices,
+          }).then(({ error }) => {
+            if (error) console.warn('Signup org_profile insert (may retry on login):', error?.message);
           });
         }
 
