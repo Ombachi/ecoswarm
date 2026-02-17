@@ -5,6 +5,7 @@ import { useApp } from '@/context/AppContext';
 import { mockLetterTemplates, mockRecipients, mockLearningModules } from '@/data/mockData';
 import { Confetti } from '@/components/common/Confetti';
 import { supabase } from '@/integrations/supabase/client';
+import { createAutoPost, buildLetterAutoPost } from '@/utils/autoPost';
 
 import {
   Mail,
@@ -88,6 +89,14 @@ export function ToolsScreen() {
       }
 
       showNotification('EcoLetter sent! 📨', 50);
+
+      // Auto-post to Agora Square
+      await createAutoPost({
+        userId: user.id,
+        userName: user.name,
+        content: buildLetterAutoPost(template.title),
+        tags: ['EcoLetter', 'ClimateAction', 'EcoSwarm', 'Advocacy'],
+      });
 
 
       setTimeout(() => {
