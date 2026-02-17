@@ -1,6 +1,6 @@
-import { useNavigate } from 'react-router-dom';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { ChevronLeft, Shield, Lock, Eye, Database, UserCheck, Mail } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { ChevronLeft, Shield, Lock, Eye, Database, UserCheck, Mail } from "lucide-react";
 
 export function PrivacyPolicyScreen() {
   const navigate = useNavigate();
@@ -8,7 +8,7 @@ export function PrivacyPolicyScreen() {
   const sections = [
     {
       icon: Database,
-      title: 'Information We Collect',
+      title: "Information We Collect",
       content: `We collect information you provide directly to us, including:
       
 • **Account Information**: Name, email address, phone number, county, age, and gender when you create an account.
@@ -20,7 +20,7 @@ We do NOT collect or store sensitive personal data beyond what is necessary for 
     },
     {
       icon: Eye,
-      title: 'How We Use Your Information',
+      title: "How We Use Your Information",
       content: `Your information is used to:
 
 • Provide and maintain EcoSwarm services
@@ -35,7 +35,7 @@ We never sell your personal data to third parties.`,
     },
     {
       icon: Lock,
-      title: 'Data Security',
+      title: "Data Security",
       content: `We take data security seriously:
 
 • All data is encrypted in transit using TLS/SSL
@@ -48,7 +48,7 @@ While we implement strong security measures, no system is 100% secure. We encour
     },
     {
       icon: UserCheck,
-      title: 'Your Rights',
+      title: "Your Rights",
       content: `You have the right to:
 
 • **Access**: Request a copy of your personal data
@@ -61,7 +61,7 @@ To exercise these rights, contact us through the Send Feedback feature or email 
     },
     {
       icon: Shield,
-      title: 'Data Retention',
+      title: "Data Retention",
       content: `We retain your data as follows:
 
 • **Account Data**: Kept until you delete your account
@@ -72,11 +72,11 @@ When you delete your account, we remove your personal data within 30 days, excep
     },
     {
       icon: Mail,
-      title: 'Contact Us',
+      title: "Contact Us",
       content: `For privacy-related questions or concerns:
 
 • Use the **Send Feedback** feature in Settings
-• Email: privacy@ecoswarm.ke
+• Email: feedback@ecoswarm.ke
 • Address: EcoSwarm Kenya, Nairobi, Kenya
 
 We respond to all privacy inquiries within 7 business days.
@@ -90,10 +90,7 @@ We respond to all privacy inquiries within 7 business days.
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-full bg-muted text-muted-foreground"
-          >
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full bg-muted text-muted-foreground">
             <ChevronLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold text-foreground">Privacy Policy</h1>
@@ -121,9 +118,7 @@ We respond to all privacy inquiries within 7 business days.
               </div>
               <h3 className="font-bold text-foreground">{section.title}</h3>
             </div>
-            <div className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
-              {section.content}
-            </div>
+            <div className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">{section.content}</div>
           </div>
         ))}
 
