@@ -142,7 +142,7 @@ export function PublicImpactScreen() {
             <img
               src={profile.avatar_url}
               alt={profile.name}
-              className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white/30 mb-4"
+              className="w-24 h-24 rounded-full mx-auto object-contain bg-muted/30 border-4 border-white/30 mb-4"
             />
           ) : (
             <div className="w-24 h-24 rounded-full mx-auto bg-white/20 backdrop-blur flex items-center justify-center text-4xl font-bold text-white border-4 border-white/30 mb-4">

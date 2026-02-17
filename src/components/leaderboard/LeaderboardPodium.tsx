@@ -20,7 +20,7 @@ export function LeaderboardPodium({ top3, onNameClick }: LeaderboardPodiumProps)
       <div className="flex flex-col items-center">
         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-xl font-bold text-white mb-2">
           {top3[1].avatar_url ? (
-            <img src={top3[1].avatar_url} alt="" className="w-full h-full rounded-2xl object-cover" />
+            <img src={top3[1].avatar_url} alt="" className="w-full h-full rounded-2xl object-contain" />
           ) : top3[1].name.charAt(0)}
         </div>
         <div className="bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-t-xl text-center w-20">
@@ -36,7 +36,7 @@ export function LeaderboardPodium({ top3, onNameClick }: LeaderboardPodiumProps)
       <div className="flex flex-col items-center">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-2xl font-bold text-white mb-2 ring-4 ring-yellow-300/50">
           {top3[0].avatar_url ? (
-            <img src={top3[0].avatar_url} alt="" className="w-full h-full rounded-2xl object-cover" />
+            <img src={top3[0].avatar_url} alt="" className="w-full h-full rounded-2xl object-contain" />
           ) : top3[0].name.charAt(0)}
         </div>
         <div className="bg-gradient-to-b from-yellow-100 to-yellow-50 dark:from-yellow-900/30 dark:to-yellow-800/20 px-4 py-3 rounded-t-xl text-center w-24">
@@ -52,7 +52,7 @@ export function LeaderboardPodium({ top3, onNameClick }: LeaderboardPodiumProps)
       <div className="flex flex-col items-center">
         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-xl font-bold text-white mb-2">
           {top3[2].avatar_url ? (
-            <img src={top3[2].avatar_url} alt="" className="w-full h-full rounded-2xl object-cover" />
+            <img src={top3[2].avatar_url} alt="" className="w-full h-full rounded-2xl object-contain" />
           ) : top3[2].name.charAt(0)}
         </div>
         <div className="bg-orange-100 dark:bg-orange-900/30 px-4 py-2 rounded-t-xl text-center w-20">

@@ -9,7 +9,7 @@ interface AutoPostOptions {
 
 /**
  * Creates an automated post in Agora Square on behalf of the user.
- * Used for milestone events like sending EcoLetters or completing courses.
+ * Used for milestone events like completing courses.
  */
 export async function createAutoPost({ userId, userName, content, tags }: AutoPostOptions) {
   try {
@@ -28,3 +28,6 @@ export async function createAutoPost({ userId, userName, content, tags }: AutoPo
   }
 }
 
+export function buildCourseAutoPost(courseTitle: string, points: number) {
+  return `🎓 Completed "${courseTitle}" in the Capacity Hub!\n\nEarned +${points} EcoPoints! 🌱\n\n#CapacityHub #Learning #EcoSwarm #ClimateEducation`;
+}

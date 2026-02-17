@@ -99,7 +99,7 @@ export function ProfileScreen() {
               <img
                 src={user.avatar}
                 alt={user.name}
-                className="w-20 h-20 rounded-2xl object-cover"
+                className="w-20 h-20 rounded-2xl object-contain bg-muted"
               />
             ) : (
               <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-4xl font-bold text-white">
