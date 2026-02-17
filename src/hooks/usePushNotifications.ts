@@ -4,10 +4,28 @@ import { supabase } from '@/integrations/supabase/client';
 export function usePushNotifications(userId: string | undefined) {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
+  const [vapidKey, setVapidKey] = useState<string | null>(null);
 
   useEffect(() => {
     setIsSupported('serviceWorker' in navigator && 'PushManager' in window);
   }, []);
+
+  // Fetch VAPID public key from backend
+  useEffect(() => {
+    if (!isSupported) return;
+    
+    const fetchVapidKey = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-vapid-key');
+        if (!error && data?.publicKey) {
+          setVapidKey(data.publicKey);
+        }
+      } catch (e) {
+        console.error('Failed to fetch VAPID key:', e);
+      }
+    };
+    fetchVapidKey();
+  }, [isSupported]);
 
   useEffect(() => {
     if (!isSupported || !userId) return;
@@ -25,23 +43,17 @@ export function usePushNotifications(userId: string | undefined) {
   };
 
   const subscribe = async () => {
-    if (!userId || !isSupported) return false;
+    if (!userId || !isSupported || !vapidKey) return false;
 
     try {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') return false;
 
       const registration = await navigator.serviceWorker.ready;
-      
-      const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-      if (!vapidPublicKey) {
-        console.error('VAPID public key not configured');
-        return false;
-      }
 
       const subscription = await (registration as any).pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: vapidPublicKey,
+        applicationServerKey: vapidKey,
       });
 
       const json = subscription.toJSON();
