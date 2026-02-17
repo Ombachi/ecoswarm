@@ -126,7 +126,7 @@ export function SignupScreen() {
     const ext = certFile.name.split(".").pop();
     const path = `${userId}/certification.${ext}`;
     const { error } = await supabase.storage.from("eco-certifications").upload(path, certFile, { upsert: true });
-    if (error) { console.error("Cert upload error:", error); return null; }
+    if (error) { console.error("Cert upload error:", error?.message || 'An error occurred'); return null; }
     return path;
   };
 

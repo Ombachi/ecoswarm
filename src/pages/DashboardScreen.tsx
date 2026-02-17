@@ -66,7 +66,7 @@ export function DashboardScreen() {
           .maybeSingle();
         setIsDeveloper(!!data);
       } catch (e) {
-        console.error('Role check failed:', e);
+        console.error('Role check failed:', (e as Error)?.message || 'An error occurred');
       } finally {
         setRoleChecked(true);
       }
@@ -114,7 +114,7 @@ export function DashboardScreen() {
 
       setChallenges(challengesWithStatus);
     } catch (error) {
-      console.error("Error loading challenges:", error);
+      console.error("Error loading challenges:", (error as Error)?.message || 'An error occurred');
     } finally {
       setIsLoadingChallenges(false);
     }
@@ -170,7 +170,7 @@ export function DashboardScreen() {
         await refreshUser();
       }
     } catch (error) {
-      console.error("Error updating streak:", error);
+      console.error("Error updating streak:", (error as Error)?.message || 'An error occurred');
     }
   };
 
@@ -216,7 +216,7 @@ export function DashboardScreen() {
       setTimeout(() => setShowConfetti(false), 3000);
       toast.success(`You earned ${challenge.points} EcoPoints!`);
     } catch (error) {
-      console.error("Error completing challenge:", error);
+      console.error("Error completing challenge:", (error as Error)?.message || 'An error occurred');
       toast.error("Failed to complete challenge");
     }
   };

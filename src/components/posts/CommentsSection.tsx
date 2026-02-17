@@ -47,7 +47,7 @@ export function CommentsSection({ postId, onCommentCountChange }: CommentsSectio
       setComments(data || []);
       onCommentCountChange?.(data?.length || 0);
     } catch (error) {
-      console.error('Error fetching comments:', error);
+      console.error('Error fetching comments:', (error as Error)?.message || 'An error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +93,7 @@ export function CommentsSection({ postId, onCommentCountChange }: CommentsSectio
       onCommentCountChange?.(comments.length + 1);
       toast.success('Comment added!');
     } catch (error) {
-      console.error('Error adding comment:', error);
+      console.error('Error adding comment:', (error as Error)?.message || 'An error occurred');
       toast.error('Failed to add comment');
     } finally {
       setIsSubmitting(false);
@@ -113,7 +113,7 @@ export function CommentsSection({ postId, onCommentCountChange }: CommentsSectio
       onCommentCountChange?.(comments.length - 1);
       toast.success('Comment deleted');
     } catch (error) {
-      console.error('Error deleting comment:', error);
+      console.error('Error deleting comment:', (error as Error)?.message || 'An error occurred');
       toast.error('Failed to delete comment');
     }
   };

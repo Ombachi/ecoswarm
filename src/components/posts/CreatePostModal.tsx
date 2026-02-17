@@ -83,7 +83,7 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
           .upload(fileName, mediaFile);
 
         if (uploadError) {
-          console.error('Upload error:', uploadError);
+          console.error('Upload error:', uploadError?.message || 'An error occurred');
           toast.error('Failed to upload media');
           return;
         }
@@ -106,7 +106,7 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
       removeMedia();
       onClose();
     } catch (err) {
-      console.error('Error creating post:', err);
+      console.error('Error creating post:', (err as Error)?.message || 'An error occurred');
       toast.error('Failed to create post');
     } finally {
       setIsUploading(false);

@@ -46,7 +46,7 @@ export function EditProfileScreen() {
         setAvatarUrl((data as unknown as { avatar_url?: string }).avatar_url || '');
       }
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error fetching profile:', (error as Error)?.message || 'An error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -84,7 +84,7 @@ export function EditProfileScreen() {
       setAvatarUrl(publicUrl);
       toast.success('Photo uploaded!');
     } catch (error) {
-      console.error('Error uploading avatar:', error);
+      console.error('Error uploading avatar:', (error as Error)?.message || 'An error occurred');
       toast.error('Failed to upload photo');
     } finally {
       setIsUploading(false);
@@ -121,7 +121,7 @@ export function EditProfileScreen() {
       toast.success('Profile updated successfully!');
       navigate('/profile');
     } catch (error) {
-      console.error('Error saving profile:', error);
+      console.error('Error saving profile:', (error as Error)?.message || 'An error occurred');
       toast.error('Failed to save profile');
     } finally {
       setIsSaving(false);

@@ -148,7 +148,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { data: profile, error } = res;
 
       if (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Error fetching profile:', (error as Error)?.message || 'An error occurred');
         return null;
       }
 
@@ -177,7 +177,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       return null;
     } catch (error) {
-      console.error('Error fetching profile (unexpected):', error);
+      console.error('Error fetching profile (unexpected):', (error as Error)?.message || 'An error occurred');
       return null;
     }
   };
@@ -202,7 +202,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
 
     if (insertError && !insertError.message.toLowerCase().includes('duplicate')) {
-      console.error('Error creating profile:', insertError);
+      console.error('Error creating profile:', insertError?.message || 'An error occurred');
       return null;
     }
 
@@ -290,7 +290,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setIsOnboarded(false);
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        console.error('Error initializing auth:', (error as Error)?.message || 'An error occurred');
         if (isMounted) {
           setAuthUserId(null);
           setUser(null);
@@ -352,7 +352,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .update({ eco_points: newPoints })
         .eq('user_id', user.id);
 
-      if (error) console.error('Error updating points:', error);
+      if (error) console.error('Error updating points:', error?.message || 'An error occurred');
     }
   };
 
@@ -378,7 +378,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .update(updateData)
           .eq('user_id', user.id);
 
-        if (error) console.error('Error updating stats:', error);
+        if (error) console.error('Error updating stats:', error?.message || 'An error occurred');
       }
     }
   };
@@ -397,7 +397,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
 
     if (error) {
-      console.error('Error earning badge:', error);
+      console.error('Error earning badge:', error?.message || 'An error occurred');
       return;
     }
 
@@ -416,7 +416,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
 
     if (error && !error.message.includes('duplicate')) {
-      console.error('Error completing course:', error);
+      console.error('Error completing course:', error?.message || 'An error occurred');
       return;
     }
 

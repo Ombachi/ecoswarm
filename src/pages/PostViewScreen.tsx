@@ -58,7 +58,7 @@ export function PostViewScreen() {
 
         setPost(postData);
       } catch (err) {
-        console.error("Error fetching post:", err);
+        console.error("Error fetching post:", (err as Error)?.message || 'An error occurred');
         setError("Failed to load post");
       } finally {
         setIsLoading(false);

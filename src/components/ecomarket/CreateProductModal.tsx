@@ -143,7 +143,7 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
       setMediaPreview(null);
       // Don't call onClose() - keep user on the EcoMarket page
     } catch (err) {
-      console.error('Error creating product:', err);
+      console.error('Error creating product:', (err as Error)?.message || 'An error occurred');
       toast.error('Failed to create product');
     } finally {
       setIsSubmitting(false);

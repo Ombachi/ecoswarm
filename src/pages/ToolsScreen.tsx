@@ -67,7 +67,7 @@ export function ToolsScreen() {
       });
 
       if (response.error) {
-        console.error('Error sending letter:', response.error);
+        console.error('Error sending letter:', response.error?.message || 'An error occurred');
         showNotification('Failed to send letter. Please try again.', 0);
         return;
       }
@@ -107,7 +107,7 @@ export function ToolsScreen() {
         resetLetter();
       }, 2000);
     } catch (error) {
-      console.error('Error sending letter:', error);
+      console.error('Error sending letter:', (error as Error)?.message || 'An error occurred');
       showNotification('Failed to send letter. Please try again.', 0);
     }
   };
