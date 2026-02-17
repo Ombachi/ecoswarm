@@ -63,6 +63,26 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Server-side length validation
+    if (body.subject.length > 100) {
+      return new Response(
+        JSON.stringify({ error: "Subject must be 100 characters or less" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    if (body.message.length > 1000) {
+      return new Response(
+        JSON.stringify({ error: "Message must be 1000 characters or less" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    if (body.userName && body.userName.length > 100) {
+      return new Response(
+        JSON.stringify({ error: "Name too long" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const typeLabel = feedbackTypeLabels[body.type] || body.type;
 
     const emailResponse = await resend.emails.send({
