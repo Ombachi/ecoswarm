@@ -46,7 +46,7 @@ export function LeaderboardListItem({ entry, index, onNameClick, isDev }: Leader
       </div>
       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-bold text-white overflow-hidden ${isDev ? 'bg-gradient-to-br from-secondary to-secondary/80' : 'eco-gradient-bg'}`}>
         {entry.avatar_url ? (
-          <img src={entry.avatar_url} alt="" className="w-full h-full object-cover" />
+          <img src={entry.avatar_url} alt="" className="w-full h-full object-contain" />
         ) : entry.name.charAt(0)}
       </div>
       <div className="flex-1">
