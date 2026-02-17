@@ -80,6 +80,20 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Server-side length validation
+    if (body.letterContent.length > 10000) {
+      return new Response(
+        JSON.stringify({ error: "Letter content must be 10,000 characters or less" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    if (body.senderName.length > 100 || (body.recipientName && body.recipientName.length > 200)) {
+      return new Response(
+        JSON.stringify({ error: "Name fields are too long" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     console.log("EcoLetter submission received:", {
       userId,
       to: `${body.recipientTitle} ${body.recipientName}`,
