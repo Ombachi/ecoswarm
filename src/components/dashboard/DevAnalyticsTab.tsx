@@ -32,7 +32,7 @@ export const DevAnalyticsTab = React.forwardRef<HTMLDivElement, Record<string, n
       if (error) throw error;
       setProducts(data || []);
     } catch (err) {
-      console.error("Error loading products:", err);
+      console.error("Error loading products:", (err as Error)?.message || 'An error occurred');
     } finally {
       setIsLoading(false);
     }

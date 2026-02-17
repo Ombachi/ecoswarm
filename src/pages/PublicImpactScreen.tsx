@@ -80,7 +80,7 @@ export function PublicImpactScreen() {
           setProducts(productsData);
         }
       } catch (err) {
-        console.error("Error fetching profile:", err);
+        console.error("Error fetching profile:", (err as Error)?.message || 'An error occurred');
         setError("Failed to load profile");
       } finally {
         setIsLoading(false);

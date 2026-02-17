@@ -72,7 +72,7 @@ export function SwarmsScreen() {
 
       setSwarms(swarmsWithJoinStatus);
     } catch (error) {
-      console.error("Error loading swarms:", error);
+      console.error("Error loading swarms:", (error as Error)?.message || 'An error occurred');
       toast.error("Failed to load swarms");
     } finally {
       setIsLoading(false);
@@ -124,7 +124,7 @@ export function SwarmsScreen() {
       setSelectedSwarm(null);
       setVoteValue(1);
     } catch (error) {
-      console.error("Error joining swarm:", error);
+      console.error("Error joining swarm:", (error as Error)?.message || 'An error occurred');
       toast.error("Failed to join swarm");
     }
   };
@@ -219,7 +219,7 @@ export function SwarmsScreen() {
       updateStats({ postsCreated: user.stats.postsCreated + 1 });
       showNotification("Swarm created & posted to Agora! 🐝", 50);
     } catch (error) {
-      console.error("Error creating swarm:", error);
+      console.error("Error creating swarm:", (error as Error)?.message || 'An error occurred');
       toast.error("Failed to create swarm");
     }
   };

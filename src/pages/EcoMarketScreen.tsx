@@ -122,7 +122,7 @@ export function EcoMarketScreen() {
       if (error) throw error;
       setProducts((data || []) as Product[]);
     } catch (error) {
-      console.error('Error loading products:', error);
+      console.error('Error loading products:', (error as Error)?.message || 'An error occurred');
       toast.error('Failed to load products');
     } finally {
       setIsLoading(false);
@@ -229,7 +229,7 @@ export function EcoMarketScreen() {
       showNotification('Product listed & posted to Agora! 🛒', 50);
       toast.success('Product published!');
     } catch (error) {
-      console.error('Error creating product:', error);
+      console.error('Error creating product:', (error as Error)?.message || 'An error occurred');
       toast.error('Failed to create product');
     }
   };
