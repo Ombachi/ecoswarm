@@ -5,7 +5,7 @@ import { useApp } from '@/context/AppContext';
 import { mockLetterTemplates, mockRecipients, mockLearningModules } from '@/data/mockData';
 import { Confetti } from '@/components/common/Confetti';
 import { supabase } from '@/integrations/supabase/client';
-import { createAutoPost } from '@/utils/autoPost';
+
 import {
   Mail,
   GraduationCap,

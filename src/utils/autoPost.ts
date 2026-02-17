@@ -28,6 +28,3 @@ export async function createAutoPost({ userId, userName, content, tags }: AutoPo
   }
 }
 
-export function buildCourseAutoPost(courseTitle: string, points: number, keyTakeaway: string) {
-  return `🎓 Completed "${courseTitle}" in the Capacity Hub!\n\nHighlights: ${keyTakeaway}\n\nEarned +${points} EcoPoints! 🌱\n\n#CapacityHub #Learning #EcoSwarm #ClimateEducation`;
-}
