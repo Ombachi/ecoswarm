@@ -184,7 +184,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const ensureProfileExists = async (authUser: { id: string; email?: string | null; user_metadata?: Record<string, any> }) => {
     const existing = await fetchUserProfile(authUser.id);
-    if (existing) return existing;
+    if (existing) {
+      // Profile exists — still ensure role & badge exist (they may have failed during signup)
+      await ensureRoleExists(authUser.id, authUser.user_metadata?.role);
+      return existing;
+    }
 
     // Use the name from auth metadata (set during signup) instead of email prefix
     const metaName = authUser.user_metadata?.name;
@@ -199,6 +203,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sex: authUser.user_metadata?.sex || undefined,
       phone: authUser.user_metadata?.phone || undefined,
       top_concern: authUser.user_metadata?.top_concern || undefined,
+      streak: 1,
+      last_active_at: new Date().toISOString(),
     });
 
     if (insertError && !insertError.message.toLowerCase().includes('duplicate')) {
@@ -206,8 +212,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return null;
     }
 
+    // Ensure role and badge exist for newly created profiles
+    await ensureRoleExists(authUser.id, authUser.user_metadata?.role);
+    await ensureFirstStepsBadgeExists(authUser.id);
+
     // Re-fetch after insert
     return await fetchUserProfile(authUser.id);
+  };
+
+  const ensureRoleExists = async (userId: string, metaRole?: string) => {
+    try {
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (existingRole) return;
+
+      const role = (metaRole === 'ecodeveloper' ? 'ecodeveloper' : 'ecowarrior') as any;
+      const { error } = await supabase.from('user_roles').insert({
+        user_id: userId,
+        role,
+      });
+
+      if (error && !error.message.toLowerCase().includes('duplicate')) {
+        console.warn('ensureRoleExists: insert failed', error?.message);
+      }
+    } catch (e) {
+      console.warn('ensureRoleExists: unexpected error', e);
+    }
   };
 
   const refreshUser = async () => {
@@ -259,6 +293,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Ensure First Steps badge exists on first sign-in.
       if (event === 'SIGNED_IN') {
         await ensureFirstStepsBadgeExists(authUser.id);
+        await ensureRoleExists(authUser.id, authUser.user_metadata?.role);
       }
 
       const badges = await fetchUserBadges(authUser.id);
