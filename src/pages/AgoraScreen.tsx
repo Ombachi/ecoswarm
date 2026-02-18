@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ShoppingBag,
   Pencil,
+  Search,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -58,6 +59,8 @@ export function AgoraScreen() {
     type: 'image' | 'video';
     rect: DOMRect | null;
   } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
 
   const openLightbox = (url: string, type: 'image' | 'video', event: React.MouseEvent) => {
     const target = event.currentTarget as HTMLElement;
@@ -316,6 +319,12 @@ export function AgoraScreen() {
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setShowSearch(!showSearch)}
+              className={`p-2 rounded-full transition-all ${showSearch ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+            >
+              <Search className="w-4 h-4" />
+            </button>
+            <button
               onClick={handleRefresh}
               disabled={isRefreshing}
               className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-all"
@@ -324,10 +333,32 @@ export function AgoraScreen() {
                 className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
               />
             </button>
-            
           </div>
         </div>
         
+        {/* Search Bar */}
+        {showSearch && (
+          <div className="mt-3 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search posts by name or content..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+              className="w-full pl-9 pr-9 py-2 rounded-xl border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Active Tag Filter */}
         {filterTag && (
           <div className="mt-3 flex items-center gap-2">
@@ -345,18 +376,26 @@ export function AgoraScreen() {
 
       {/* Feed */}
       <div className="divide-y divide-border">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        ) : posts.length === 0 ? (
+        {(() => {
+          const query = searchQuery.toLowerCase().trim();
+          const filteredPosts = query
+            ? posts.filter(p => p.userName.toLowerCase().includes(query) || p.content.toLowerCase().includes(query) || p.tags.some(t => t.toLowerCase().includes(query)))
+            : posts;
+          
+          if (isLoading) return (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          );
+          
+          if (filteredPosts.length === 0) return (
           <div className="p-8 text-center">
             <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">
-              {filterTag ? `No posts with #${filterTag}` : 'No posts yet'}
+              {searchQuery ? `No posts matching "${searchQuery}"` : filterTag ? `No posts with #${filterTag}` : 'No posts yet'}
             </p>
             <p className="text-sm text-muted-foreground">
-              {filterTag ? 'Try a different hashtag or create a post!' : 'Be the first to share your story!'}
+              {searchQuery ? 'Try a different search term' : filterTag ? 'Try a different hashtag or create a post!' : 'Be the first to share your story!'}
             </p>
             {filterTag && (
               <button onClick={clearTagFilter} className="eco-button-primary mt-4 py-2 px-4">
@@ -364,8 +403,9 @@ export function AgoraScreen() {
               </button>
             )}
           </div>
-        ) : (
-          posts.map((post, index) => (
+          );
+          
+          return filteredPosts.map((post, index) => (
             <div
               key={post.id}
               className="p-4 animate-slide-up"
@@ -610,8 +650,8 @@ export function AgoraScreen() {
                 </div>
               )}
             </div>
-          ))
-        )}
+          ));
+        })()}
       </div>
 
       {/* Floating Create Button */}
