@@ -3,6 +3,7 @@ import { BottomNav } from './BottomNav';
 import { useApp } from '@/context/AppContext';
 import { Sparkles } from 'lucide-react';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
+import { UpdatePrompt } from '@/components/pwa/UpdatePrompt';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -27,6 +28,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main className="pb-20">{children}</main>
       <BottomNav />
       <InstallPrompt />
+      <UpdatePrompt />
     </div>
   );
 }
