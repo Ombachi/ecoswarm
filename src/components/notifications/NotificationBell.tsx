@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useApp } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
+import { useAppBadge } from '@/hooks/useAppBadge';
 
 interface Notification {
   id: string;
@@ -21,6 +22,9 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  // Update app icon badge with unread count
+  useAppBadge(unreadCount);
 
   useEffect(() => {
     if (!user) return;

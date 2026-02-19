@@ -34,6 +34,7 @@ const TermsOfServiceScreen = lazy(() => import("@/pages/TermsOfServiceScreen").t
 const OfflinePage = lazy(() => import("@/pages/OfflinePage").then(m => ({ default: m.OfflinePage })));
 const PublicImpactScreen = lazy(() => import("@/pages/PublicImpactScreen").then(m => ({ default: m.PublicImpactScreen })));
 const PostViewScreen = lazy(() => import("@/pages/PostViewScreen").then(m => ({ default: m.PostViewScreen })));
+const ShareTargetPage = lazy(() => import("@/pages/ShareTargetPage").then(m => ({ default: m.ShareTargetPage })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -81,6 +82,7 @@ function AppRoutes() {
         <Route path="/profile/:userId" element={<PublicImpactScreen />} />
         <Route path="/u/:userName" element={<PublicImpactScreen />} />
         <Route path="/post/:postId" element={<PostViewScreen />} />
+        <Route path="/share-target" element={requireAuthed(<ShareTargetPage />)} />
 
         <Route path="/dashboard" element={requireAuthed(<DashboardScreen />)} />
         <Route path="/agora" element={requireAuthed(<AgoraScreen />)} />

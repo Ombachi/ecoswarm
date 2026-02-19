@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
       injectRegister: null,
       includeAssets: ["favicon.ico", "pwa-icon-192.png", "pwa-icon-512.png", "og-image.png", "robots.txt"],
       manifest: {
@@ -63,6 +63,15 @@ export default defineConfig(({ mode }) => ({
             label: "EcoSwarm Home Screen",
           },
         ],
+        share_target: {
+          action: "/share-target",
+          method: "GET",
+          params: {
+            title: "title",
+            text: "text",
+            url: "url",
+          },
+        },
         shortcuts: [
           {
             name: "EcoLetter Forge",
@@ -98,8 +107,9 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         navigateFallback: "/index.html",
         navigateFallbackAllowlist: [/^(?!\/__).*/],
+        navigateFallbackDenylist: [/^\/~oauth/],
         cleanupOutdatedCaches: true,
-        skipWaiting: true,
+        skipWaiting: false,
         clientsClaim: true,
         runtimeCaching: [
           {
