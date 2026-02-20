@@ -46,4 +46,5 @@ export const kenyanCounties = [
   "Vihiga",
   "Wajir",
   "West Pokot",
+  "International (Outside Kenya)",
 ];
