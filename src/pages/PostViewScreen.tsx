@@ -209,8 +209,8 @@ export function PostViewScreen() {
           <div className="eco-card p-4">
             <SocialShareButtons
               url={`${window.location.origin}/post/${post.id}`}
-              title={`Check out this story on EcoSwarm!`}
-              text={post.content.substring(0, 100)}
+              title="EcoSwarm 🌍"
+              text="Check this out on EcoSwarm!"
             />
           </div>
         </div>
