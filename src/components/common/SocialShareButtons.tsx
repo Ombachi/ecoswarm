@@ -16,7 +16,6 @@ export function SocialShareButtons({
 }: SocialShareButtonsProps) {
   
   const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(title);
   const encodedText = encodeURIComponent(text);
 
   const shareLinks = [
@@ -76,52 +75,72 @@ export function SocialShareButtons({
   const handleNativeShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({
-          title,
-          text,
-          url,
-        });
+        await navigator.share({ title, text, url });
         toast.success('Shared successfully!');
+        return true;
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
-          toast.error('Failed to share');
+          // Fall through to show buttons
+          return false;
         }
+        return true; // User cancelled, don't show fallback
       }
-    } else {
-      navigator.clipboard.writeText(`${text} ${url}`);
-      toast.success('Link copied to clipboard!');
     }
+    return false;
   };
+
+  // Native share button shown as primary action
+  const NativeShareButton = () => (
+    <button
+      onClick={async () => {
+        const shared = await handleNativeShare();
+        if (!shared) {
+          navigator.clipboard.writeText(`${text} ${url}`);
+          toast.success('Link copied to clipboard!');
+        }
+      }}
+      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground font-medium text-sm transition-all hover:bg-primary/90 mb-3"
+    >
+      <Share2 className="w-4 h-4" />
+      Share via your device
+    </button>
+  );
 
   if (compact) {
     return (
-      <div className="flex items-center gap-2">
-        {shareLinks.map((link) => (
-          <button
-            key={link.name}
-            onClick={() => handleShare(link)}
-            className={`w-8 h-8 rounded-full ${link.color} flex items-center justify-center text-white text-sm transition-all`}
-            title={`Share on ${link.name}`}
-          >
-            {link.icon}
-          </button>
-        ))}
+      <div>
+        {'share' in navigator && <NativeShareButton />}
+        <div className="flex items-center gap-2">
+          {shareLinks.map((link) => (
+            <button
+              key={link.name}
+              onClick={() => handleShare(link)}
+              className={`w-8 h-8 rounded-full ${link.color} flex items-center justify-center text-white text-sm transition-all`}
+              title={`Share on ${link.name}`}
+            >
+              {link.icon}
+            </button>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-3 gap-3">
-      {shareLinks.slice(0, 6).map((link) => (
-        <button
-          key={link.name}
-          onClick={() => handleShare(link)}
-          className={`${link.color} text-white rounded-xl p-3 flex flex-col items-center gap-1 transition-all`}
-        >
-          <span className="text-xl">{link.icon}</span>
-          <span className="text-xs font-medium">{link.name}</span>
-        </button>
-      ))}
+    <div>
+      {'share' in navigator && <NativeShareButton />}
+      <div className="grid grid-cols-3 gap-3">
+        {shareLinks.slice(0, 6).map((link) => (
+          <button
+            key={link.name}
+            onClick={() => handleShare(link)}
+            className={`${link.color} text-white rounded-xl p-3 flex flex-col items-center gap-1 transition-all`}
+          >
+            <span className="text-xl">{link.icon}</span>
+            <span className="text-xs font-medium">{link.name}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
