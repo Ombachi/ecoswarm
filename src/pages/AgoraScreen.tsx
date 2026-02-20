@@ -643,8 +643,8 @@ export function AgoraScreen() {
                   </p>
                   <SocialShareButtons
                     url={`${window.location.origin}/post/${post.id}`}
-                    title={`${post.userName} on EcoSwarm 🌍`}
-                    text={`"${post.content.substring(0, 80).trim()}${post.content.length > 80 ? '…' : ''}" — ${post.userName} on EcoSwarm 🌱 Join the movement!`}
+                    title="EcoSwarm 🌍"
+                    text="Check this out on EcoSwarm!"
                     compact
                   />
                 </div>
