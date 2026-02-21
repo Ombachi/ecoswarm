@@ -109,7 +109,7 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackAllowlist: [/^(?!\/__).*/],
         navigateFallbackDenylist: [/^\/~oauth/],
         cleanupOutdatedCaches: true,
-        skipWaiting: false,
+        skipWaiting: true,
         clientsClaim: true,
         runtimeCaching: [
           {
@@ -118,18 +118,7 @@ export default defineConfig(({ mode }) => ({
           },
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "supabase-api-cache",
-              expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 5,
-              },
-              networkTimeoutSeconds: 8,
-              cacheableResponse: {
-                statuses: [200],
-              },
-            },
+            handler: "NetworkOnly",
           },
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*/i,
