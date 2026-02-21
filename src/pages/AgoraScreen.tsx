@@ -59,14 +59,16 @@ export function AgoraScreen() {
     url: string; 
     type: 'image' | 'video';
     rect: DOMRect | null;
+    galleryItems?: { url: string; type: 'image' | 'video' | 'file' }[];
+    initialIndex?: number;
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
 
-  const openLightbox = (url: string, type: 'image' | 'video', event: React.MouseEvent) => {
+  const openLightbox = (url: string, type: 'image' | 'video', event: React.MouseEvent, galleryItems?: { url: string; type: 'image' | 'video' | 'file' }[], index?: number) => {
     const target = event.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
-    setLightboxMedia({ url, type, rect });
+    setLightboxMedia({ url, type, rect, galleryItems, initialIndex: index });
   };
 
   const closeLightbox = () => {
@@ -527,11 +529,11 @@ export function AgoraScreen() {
               {/* Media Display */}
               {(post.mediaItems && post.mediaItems.length > 0) ? (
                 <div className="mb-3">
-                  <MediaGallery
+                 <MediaGallery
                     items={post.mediaItems}
-                    onMediaClick={(item, _index, event) => {
+                    onMediaClick={(item, index, event) => {
                       if (item.type === 'image' || item.type === 'video') {
-                        openLightbox(item.url, item.type, event);
+                        openLightbox(item.url, item.type, event, post.mediaItems, index);
                       }
                     }}
                   />
@@ -690,6 +692,8 @@ export function AgoraScreen() {
           mediaUrl={lightboxMedia.url}
           mediaType={lightboxMedia.type}
           initialRect={lightboxMedia.rect}
+          galleryItems={lightboxMedia.galleryItems}
+          initialIndex={lightboxMedia.initialIndex}
         />
       )}
     </AppLayout>
