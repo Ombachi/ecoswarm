@@ -218,6 +218,7 @@ export type Database = {
           likes: number | null
           media_type: string | null
           media_url: string | null
+          media_urls: Json | null
           shares: number | null
           tags: string[] | null
           user_id: string
@@ -232,6 +233,7 @@ export type Database = {
           likes?: number | null
           media_type?: string | null
           media_url?: string | null
+          media_urls?: Json | null
           shares?: number | null
           tags?: string[] | null
           user_id: string
@@ -246,6 +248,7 @@ export type Database = {
           likes?: number | null
           media_type?: string | null
           media_url?: string | null
+          media_urls?: Json | null
           shares?: number | null
           tags?: string[] | null
           user_id?: string

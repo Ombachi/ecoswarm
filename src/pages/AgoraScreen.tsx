@@ -7,6 +7,7 @@ import { CreatePostModal } from '@/components/posts/CreatePostModal';
 import { CommentsSection } from '@/components/posts/CommentsSection';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
+import { MediaGallery, MediaItem } from '@/components/common/MediaGallery';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Heart,
@@ -107,20 +108,36 @@ export function AgoraScreen() {
         userLikedPostIds = (likedPosts || []) as string[];
       }
 
-      const mappedPosts: Post[] = (data || []).map((p) => ({
-        id: p.id,
-        userId: p.user_id,
-        userName: p.user_name,
-        content: p.content,
-        mediaUrl: p.media_url || undefined,
-        mediaType: p.media_type as 'image' | 'video' | undefined,
-        likes: p.likes || 0,
-        comments: p.comments || 0,
-        shares: p.shares || 0,
-        tags: p.tags || [],
-        createdAt: new Date(p.created_at),
-        isLiked: userLikedPostIds.includes(p.id),
-      }));
+      const mappedPosts: Post[] = (data || []).map((p) => {
+        // Parse media_urls JSON array
+        let mediaItems: MediaItem[] = [];
+        try {
+          const raw = (p as any).media_urls;
+          if (Array.isArray(raw) && raw.length > 0) {
+            mediaItems = raw.map((m: any) => ({ url: m.url, type: m.type || 'image', fileName: m.fileName }));
+          }
+        } catch {}
+        // Fallback to legacy single media
+        if (mediaItems.length === 0 && p.media_url) {
+          mediaItems = [{ url: p.media_url, type: (p.media_type as 'image' | 'video') || 'image' }];
+        }
+
+        return {
+          id: p.id,
+          userId: p.user_id,
+          userName: p.user_name,
+          content: p.content,
+          mediaUrl: p.media_url || undefined,
+          mediaType: p.media_type as 'image' | 'video' | undefined,
+          mediaItems,
+          likes: p.likes || 0,
+          comments: p.comments || 0,
+          shares: p.shares || 0,
+          tags: p.tags || [],
+          createdAt: new Date(p.created_at),
+          isLiked: userLikedPostIds.includes(p.id),
+        };
+      });
 
       setPosts(mappedPosts);
     } catch (error) {
@@ -201,12 +218,17 @@ export function AgoraScreen() {
 
   const handlePostCreated = async (postData: {
     content: string;
+    mediaItems?: MediaItem[];
     mediaUrl?: string;
     mediaType?: 'image' | 'video' | 'file';
   }) => {
     if (!user) return;
 
     try {
+      const mediaUrlsJson = postData.mediaItems && postData.mediaItems.length > 0
+        ? postData.mediaItems.map(m => ({ url: m.url, type: m.type, fileName: m.fileName }))
+        : [];
+
       const { data, error } = await supabase
         .from('posts')
         .insert({
@@ -215,8 +237,9 @@ export function AgoraScreen() {
           content: postData.content,
           media_url: postData.mediaUrl || null,
           media_type: postData.mediaType === 'file' ? null : postData.mediaType || null,
+          media_urls: mediaUrlsJson,
           tags: extractHashtags(postData.content),
-        })
+        } as any)
         .select()
         .single();
 
@@ -229,6 +252,7 @@ export function AgoraScreen() {
         content: data.content,
         mediaUrl: data.media_url || undefined,
         mediaType: data.media_type as 'image' | 'video' | undefined,
+        mediaItems: postData.mediaItems || [],
         likes: 0,
         comments: 0,
         shares: 0,
@@ -500,53 +524,41 @@ export function AgoraScreen() {
                 );
               })()}
 
-              {/* Media Display - Clickable for zoom */}
-              {post.mediaUrl ? (
+              {/* Media Display */}
+              {(post.mediaItems && post.mediaItems.length > 0) ? (
+                <div className="mb-3">
+                  <MediaGallery
+                    items={post.mediaItems}
+                    onMediaClick={(item, _index, event) => {
+                      if (item.type === 'image' || item.type === 'video') {
+                        openLightbox(item.url, item.type, event);
+                      }
+                    }}
+                  />
+                </div>
+              ) : post.mediaUrl ? (
                 <div className="mb-3">
                   {post.mediaType === 'video' ? (
-                    <div 
-                      className="relative cursor-pointer group"
-                      onClick={(e) => openLightbox(post.mediaUrl!, 'video', e)}
-                    >
-                      <video
-                        src={post.mediaUrl}
-                        className="w-full max-h-80 rounded-xl object-cover"
-                      />
+                    <div className="relative cursor-pointer group" onClick={(e) => openLightbox(post.mediaUrl!, 'video', e)}>
+                      <video src={post.mediaUrl} className="w-full max-h-80 rounded-xl object-cover" />
                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
                         <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5">
-                          <Video className="w-4 h-4" />
-                          Tap to view full screen
+                          <Video className="w-4 h-4" /> Tap to view full screen
                         </div>
                       </div>
                     </div>
                   ) : post.mediaType === 'image' ? (
-                    <div 
-                      className="relative cursor-pointer group"
-                      onClick={(e) => openLightbox(post.mediaUrl!, 'image', e)}
-                    >
-                      <img
-                        src={post.mediaUrl}
-                        alt="Post media"
-                        className="w-full max-h-80 rounded-xl object-cover"
-                      />
+                    <div className="relative cursor-pointer group" onClick={(e) => openLightbox(post.mediaUrl!, 'image', e)}>
+                      <img src={post.mediaUrl} alt="Post media" className="w-full max-h-80 rounded-xl object-cover" />
                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
                         <div className="bg-black/50 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5">
-                          <ImageIcon className="w-4 h-4" />
-                          Tap to zoom
+                          <ImageIcon className="w-4 h-4" /> Tap to zoom
                         </div>
                       </div>
                     </div>
                   ) : null}
                 </div>
-              ) : post.mediaType && (
-                <div className="aspect-video bg-muted rounded-xl mb-3 flex items-center justify-center">
-                  {post.mediaType === 'video' ? (
-                    <Video className="w-12 h-12 text-muted-foreground" />
-                  ) : (
-                    <ImageIcon className="w-12 h-12 text-muted-foreground" />
-                  )}
-                </div>
-              )}
+              ) : null}
 
               {/* Tags - beneath post/image (hide internal swarm_* tags) */}
               {post.tags.length > 0 && (

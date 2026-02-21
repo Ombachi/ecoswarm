@@ -28,6 +28,12 @@ export interface UserStats {
   coursesCompleted: number;
 }
 
+export interface PostMediaItem {
+  url: string;
+  type: 'image' | 'video' | 'file';
+  fileName?: string;
+}
+
 export interface Post {
   id: string;
   userId: string;
@@ -36,6 +42,7 @@ export interface Post {
   content: string;
   mediaUrl?: string;
   mediaType?: 'image' | 'video';
+  mediaItems?: PostMediaItem[];
   likes: number;
   comments: number;
   shares: number;
