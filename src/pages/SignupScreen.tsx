@@ -47,6 +47,7 @@ export function SignupScreen() {
   const [name, setName] = useState("");
   const [sex, setSex] = useState("");
   const [county, setCounty] = useState("Nairobi");
+  const [country, setCountry] = useState("");
   const [phone, setPhone] = useState("");
   const [topConcern, setTopConcern] = useState("");
 
@@ -92,7 +93,7 @@ export function SignupScreen() {
       case "social":
         return true; // All optional
       case "location":
-        return county && phone;
+        return county && phone && (county !== "International (Outside Kenya)" || country.trim().length > 0);
       case "products":
         return mainProductsServices.length > 0;
       case "concern":
@@ -143,6 +144,7 @@ export function SignupScreen() {
             name,
             sex,
             county,
+            country: county === "International (Outside Kenya)" ? country.trim() : undefined,
             phone,
             top_concern: topConcern,
             role: selectedRole,
@@ -172,7 +174,7 @@ export function SignupScreen() {
           sex,
           county,
           phone,
-          location: county,
+          location: county === "International (Outside Kenya)" ? country.trim() : county,
           top_concern: topConcern,
           streak: 1,
           last_active_at: new Date().toISOString(),
@@ -390,12 +392,25 @@ export function SignupScreen() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">County</p>
-                <select value={county} onChange={(e) => setCounty(e.target.value)} className="eco-input">
+                <select value={county} onChange={(e) => { setCounty(e.target.value); if (e.target.value !== "International (Outside Kenya)") setCountry(""); }} className="eco-input">
                   {kenyanCounties.map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
               </div>
+              {county === "International (Outside Kenya)" && (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Your Country</p>
+                  <input
+                    type="text"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    placeholder="e.g. Uganda, Tanzania, Nigeria..."
+                    className="eco-input"
+                    autoFocus
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Phone Number</p>
                 <div className="flex gap-2">

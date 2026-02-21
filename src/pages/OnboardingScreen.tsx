@@ -20,6 +20,7 @@ export function OnboardingScreen() {
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [location, setLocation] = useState("Nairobi");
+  const [country, setCountry] = useState("");
   const [selectedConcern, setSelectedConcern] = useState("");
 
   const handleNext = () => {
@@ -72,12 +73,25 @@ export function OnboardingScreen() {
             <p className="text-muted-foreground mb-6">We will show you local environmental issues and swarms</p>
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">County</p>
-              <select value={location} onChange={(e) => setLocation(e.target.value)} className="eco-input">
+              <select value={location} onChange={(e) => { setLocation(e.target.value); if (e.target.value !== "International (Outside Kenya)") setCountry(""); }} className="eco-input">
                 {kenyanCounties.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
             </div>
+            {location === "International (Outside Kenya)" && (
+              <div className="space-y-2 mt-3">
+                <p className="text-sm text-muted-foreground">Your Country</p>
+                <input
+                  type="text"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  placeholder="e.g. Uganda, Tanzania, Nigeria..."
+                  className="eco-input"
+                  autoFocus
+                />
+              </div>
+            )}
           </div>
         );
 
@@ -134,7 +148,7 @@ export function OnboardingScreen() {
       <div className="p-6">
         <button
           onClick={handleNext}
-          disabled={(step === 0 && !name) || (step === 1 && !location) || (step === 2 && !selectedConcern)}
+          disabled={(step === 0 && !name) || (step === 1 && (!location || (location === "International (Outside Kenya)" && !country.trim()))) || (step === 2 && !selectedConcern)}
           className="w-full eco-button-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {step === 2 ? (
