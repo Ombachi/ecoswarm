@@ -110,6 +110,19 @@ export function AgoraScreen() {
         userLikedPostIds = (likedPosts || []) as string[];
       }
 
+      // Fetch profile avatars for post authors
+      const uniqueUserIds = [...new Set((data || []).map(p => p.user_id))];
+      let avatarMap: Record<string, string | null> = {};
+      if (uniqueUserIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, avatar_url')
+          .in('user_id', uniqueUserIds);
+        if (profiles) {
+          profiles.forEach(p => { avatarMap[p.user_id] = p.avatar_url; });
+        }
+      }
+
       const mappedPosts: Post[] = (data || []).map((p) => {
         // Parse media_urls JSON array
         let mediaItems: MediaItem[] = [];
@@ -128,6 +141,7 @@ export function AgoraScreen() {
           id: p.id,
           userId: p.user_id,
           userName: p.user_name,
+          userAvatar: avatarMap[p.user_id] || undefined,
           content: p.content,
           mediaUrl: p.media_url || undefined,
           mediaType: p.media_type as 'image' | 'video' | undefined,
@@ -441,9 +455,13 @@ export function AgoraScreen() {
               <div className="flex items-start gap-3 mb-3">
                 <button
                   onClick={() => navigate(`/profile/${post.userId}`)}
-                  className="eco-avatar flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                  className="flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-primary transition-all rounded-full"
                 >
-                  {post.userName.charAt(0)}
+                  {post.userAvatar ? (
+                    <img src={post.userAvatar} alt={post.userName} className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <div className="eco-avatar">{post.userName.charAt(0)}</div>
+                  )}
                 </button>
                 <div className="flex-1 min-w-0">
                   <button
@@ -488,6 +506,7 @@ export function AgoraScreen() {
               <div className="text-foreground mb-3 leading-relaxed whitespace-pre-line">
                 {post.content.replace(/#\w+/g, '').trim().split('\n')
                   .filter(line => !line.startsWith('🏷️'))
+                  .filter(line => line.trim().length > 0)
                   .map((line, i) => {
                     // Make phone numbers clickable
                     const phoneMatch = line.match(/📞\s*([\d\s+()-]+)/);
