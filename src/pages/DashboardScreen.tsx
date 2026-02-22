@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useApp } from "@/context/AppContext";
@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { DevAnalyticsTab } from "@/components/dashboard/DevAnalyticsTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useVisibilityRefetch } from "@/hooks/useVisibilityRefetch";
 import {
   MessageSquare,
   ShoppingBag,
@@ -51,6 +52,14 @@ export function DashboardScreen() {
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [roleChecked, setRoleChecked] = useState(false);
 
+  // Refetch dashboard data when app becomes visible (PWA resume)
+  const handleVisibilityRefetch = useCallback(() => {
+    if (user) {
+      refreshUser();
+      loadChallenges();
+    }
+  }, [user]);
+  useVisibilityRefetch(handleVisibilityRefetch);
   // Check role as soon as we have an auth ID (don't wait for full profile)
   useEffect(() => {
     const uid = user?.id || authUserId;

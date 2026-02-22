@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
@@ -9,6 +9,7 @@ import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { MediaGallery, MediaItem } from '@/components/common/MediaGallery';
 import { supabase } from '@/integrations/supabase/client';
+import { useVisibilityRefetch } from '@/hooks/useVisibilityRefetch';
 import {
   Heart,
   MessageCircle,
@@ -64,6 +65,10 @@ export function AgoraScreen() {
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isPulling, setIsPulling] = useState(false);
+  const pullStartY = useRef(0);
+  const feedRef = useRef<HTMLDivElement>(null);
 
   const openLightbox = (url: string, type: 'image' | 'video', event: React.MouseEvent, galleryItems?: { url: string; type: 'image' | 'video' | 'file' }[], index?: number) => {
     const target = event.currentTarget as HTMLElement;
@@ -74,6 +79,40 @@ export function AgoraScreen() {
   const closeLightbox = () => {
     setLightboxMedia(null);
   };
+
+  // Refetch when app becomes visible (PWA resume)
+  const handleVisibilityRefetch = useCallback(() => {
+    loadPosts();
+  }, [user, filterTag]);
+  useVisibilityRefetch(handleVisibilityRefetch);
+
+  // Pull-to-refresh handlers
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const scrollTop = feedRef.current?.scrollTop ?? window.scrollY;
+    if (scrollTop <= 0) {
+      pullStartY.current = e.touches[0].clientY;
+      setIsPulling(true);
+    }
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isPulling) return;
+    const diff = e.touches[0].clientY - pullStartY.current;
+    if (diff > 0) {
+      setPullDistance(Math.min(diff * 0.5, 80));
+    }
+  }, [isPulling]);
+
+  const handleTouchEnd = useCallback(async () => {
+    if (pullDistance > 50) {
+      setIsRefreshing(true);
+      await loadPosts();
+      setIsRefreshing(false);
+      toast.success('Feed refreshed!');
+    }
+    setPullDistance(0);
+    setIsPulling(false);
+  }, [pullDistance]);
 
   useEffect(() => {
     setFilterTag(tag || null);
@@ -414,8 +453,27 @@ export function AgoraScreen() {
         )}
       </div>
 
+      {/* Pull-to-refresh indicator */}
+      {pullDistance > 0 && (
+        <div
+          className="flex items-center justify-center overflow-hidden transition-all"
+          style={{ height: pullDistance }}
+        >
+          <RefreshCw
+            className={`w-6 h-6 text-primary transition-transform ${pullDistance > 50 ? 'text-primary' : 'text-muted-foreground'}`}
+            style={{ transform: `rotate(${pullDistance * 4}deg)` }}
+          />
+        </div>
+      )}
+
       {/* Feed */}
-      <div className="divide-y divide-border">
+      <div
+        ref={feedRef}
+        className="divide-y divide-border"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {(() => {
           const query = searchQuery.toLowerCase().trim();
           const filteredPosts = query
