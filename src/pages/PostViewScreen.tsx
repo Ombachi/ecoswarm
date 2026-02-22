@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SocialShareButtons } from "@/components/common/SocialShareButtons";
+import { MediaGallery, MediaItem } from "@/components/common/MediaGallery";
+import { AdvancedMediaViewer } from "@/components/common/AdvancedMediaViewer";
 import {
   Heart,
   MessageSquare,
@@ -21,6 +23,7 @@ interface PublicPost {
   content: string;
   media_url: string | null;
   media_type: string | null;
+  media_urls: any;
   likes: number;
   comments: number;
   shares: number;
@@ -34,6 +37,12 @@ export function PostViewScreen() {
   const [post, setPost] = useState<PublicPost | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lightboxMedia, setLightboxMedia] = useState<{
+    url: string;
+    type: 'image' | 'video';
+    galleryItems?: { url: string; type: 'image' | 'video' | 'file' }[];
+    initialIndex?: number;
+  } | null>(null);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -144,27 +153,42 @@ export function PostViewScreen() {
             <User className="w-4 h-4 text-muted-foreground ml-auto" />
           </button>
 
-          {/* Content */}
-          <p className="text-foreground leading-relaxed mb-4">{post.content}</p>
+          {/* Content — strip hashtags from body */}
+          <div className="text-foreground leading-relaxed mb-4 whitespace-pre-line">
+            {post.content.replace(/#\w+/g, '').trim().split('\n').filter(l => l.trim().length > 0).map((line, i) => (
+              <span key={i}>{line}{'\n'}</span>
+            ))}
+          </div>
 
-          {/* Media */}
-          {post.media_url && (
-            <div className="mb-4 rounded-xl overflow-hidden">
-              {post.media_type === "video" ? (
-                <video
-                  src={post.media_url}
-                  controls
-                  className="w-full max-h-80 object-cover"
-                />
-              ) : post.media_type === "image" ? (
-                <img
-                  src={post.media_url}
-                  alt="Post media"
-                  className="w-full max-h-80 object-cover"
-                />
-              ) : null}
-            </div>
-          )}
+          {/* Media — support media_urls array */}
+          {(() => {
+            let mediaItems: MediaItem[] = [];
+            try {
+              const raw = post.media_urls;
+              if (Array.isArray(raw) && raw.length > 0) {
+                mediaItems = raw.map((m: any) => ({ url: m.url, type: m.type || 'image', fileName: m.fileName }));
+              }
+            } catch {}
+            if (mediaItems.length === 0 && post.media_url) {
+              mediaItems = [{ url: post.media_url, type: (post.media_type as 'image' | 'video') || 'image' }];
+            }
+
+            if (mediaItems.length > 0) {
+              return (
+                <div className="mb-4">
+                  <MediaGallery
+                    items={mediaItems}
+                    onMediaClick={(item, index, event) => {
+                      if (item.type === 'image' || item.type === 'video') {
+                        setLightboxMedia({ url: item.url, type: item.type, galleryItems: mediaItems, initialIndex: index });
+                      }
+                    }}
+                  />
+                </div>
+              );
+            }
+            return null;
+          })()}
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
@@ -239,6 +263,18 @@ export function PostViewScreen() {
       <div className="text-center text-xs text-muted-foreground py-6 px-6">
         <p>© 2026 EcoSwarm.</p>
       </div>
+
+      {/* Media Lightbox */}
+      {lightboxMedia && (
+        <AdvancedMediaViewer
+          isOpen={!!lightboxMedia}
+          onClose={() => setLightboxMedia(null)}
+          mediaUrl={lightboxMedia.url}
+          mediaType={lightboxMedia.type}
+          galleryItems={lightboxMedia.galleryItems}
+          initialIndex={lightboxMedia.initialIndex}
+        />
+      )}
     </div>
   );
 }
