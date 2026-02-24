@@ -35,6 +35,7 @@ const OfflinePage = lazy(() => import("@/pages/OfflinePage").then(m => ({ defaul
 const PublicImpactScreen = lazy(() => import("@/pages/PublicImpactScreen").then(m => ({ default: m.PublicImpactScreen })));
 const PostViewScreen = lazy(() => import("@/pages/PostViewScreen").then(m => ({ default: m.PostViewScreen })));
 const ShareTargetPage = lazy(() => import("@/pages/ShareTargetPage").then(m => ({ default: m.ShareTargetPage })));
+const LandingPage = lazy(() => import("@/pages/LandingPage").then(m => ({ default: m.LandingPage })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -69,7 +70,8 @@ function AppRoutes() {
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
-        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SplashScreen />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+        <Route path="/welcome" element={<SplashScreen />} />
         <Route path="/role-select" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RoleSelectScreen />} />
         <Route path="/onboarding" element={<OnboardingScreen />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen />} />
