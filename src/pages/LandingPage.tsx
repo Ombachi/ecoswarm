@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import {
   Leaf, Users, MessageCircle, Globe, ArrowRight, Heart,
   TreePine, Megaphone, BookOpen, Shield, Mail, ChevronDown,
+  Target, Eye, Sparkles, ShoppingBag, Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/landing-hero.jpg";
+import agoraImage from "@/assets/agora-history.jpg";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -26,23 +28,34 @@ const features = [
   {
     icon: MessageCircle,
     title: "Agora Square",
-    desc: "A public forum where eco-warriors share ideas, rally support, and amplify grassroots voices.",
+    desc: "Share your stories, ideas, and experiences with a community that cares.",
+    color: "from-primary to-secondary",
   },
   {
-    icon: Users,
-    title: "Swarm Campaigns",
-    desc: "Launch petitions and collective actions that turn individual passion into unstoppable movements.",
-  },
-  {
-    icon: BookOpen,
-    title: "Eco-Learning",
-    desc: "Bite-sized courses on climate science, advocacy, and sustainability — earn points as you learn.",
-  },
-  {
-    icon: Shield,
+    icon: ShoppingBag,
     title: "EcoMarket",
-    desc: "Discover and promote verified eco-friendly products and services from across Kenya.",
+    desc: "Discover and list eco-friendly products and services from local organizations.",
+    color: "from-secondary to-[hsl(var(--eco-blue))]",
   },
+  {
+    icon: Mail,
+    title: "EcoLetter Forge",
+    desc: "Generate powerful advocacy letters to decision-makers.",
+    color: "from-[hsl(var(--eco-gold))] to-[hsl(var(--eco-orange))]",
+  },
+  {
+    icon: Sparkles,
+    title: "Capacity Hub",
+    desc: "Learn, grow, and earn points while building your activism skills.",
+    color: "from-[hsl(var(--eco-orange))] to-destructive",
+  },
+];
+
+const values = [
+  { emoji: "🌍", title: "Global Mindset", desc: "Think globally, act locally" },
+  { emoji: "🤝", title: "Collective Power", desc: "Together we achieve more" },
+  { emoji: "📢", title: "Amplified Voices", desc: "Every voice deserves to be heard" },
+  { emoji: "🔥", title: "Passionate Action", desc: "Turn passion into real change" },
 ];
 
 export function LandingPage() {
@@ -65,8 +78,9 @@ export function LandingPage() {
           </button>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <button onClick={() => scrollTo("about")} className="hover:text-foreground transition-colors">About</button>
-            <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Features</button>
+            <button onClick={() => scrollTo("mission")} className="hover:text-foreground transition-colors">Mission</button>
             <button onClick={() => scrollTo("why")} className="hover:text-foreground transition-colors">Our Why</button>
+            <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Features</button>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
@@ -87,11 +101,7 @@ export function LandingPage() {
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 py-20 md:py-32 w-full">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            className="max-w-2xl"
-          >
+          <motion.div initial="hidden" animate="visible" className="max-w-2xl">
             <motion.div custom={0} variants={fadeUp} className="eco-badge mb-6">
               <Globe className="w-3.5 h-3.5" /> Your Digital Agora
             </motion.div>
@@ -136,41 +146,21 @@ export function LandingPage() {
         </div>
 
         <button
-          onClick={() => scrollTo("stats")}
+          onClick={() => scrollTo("about")}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce text-muted-foreground"
         >
           <ChevronDown className="w-7 h-7" />
         </button>
       </section>
 
-      {/* ── Stats Bar ── */}
-      <section id="stats" className="py-12 md:py-16 border-b border-border/50">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
-          {stats.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="flex flex-col items-center text-center gap-2"
-            >
-              <s.icon className="w-7 h-7 text-primary" />
-              <span className="text-2xl md:text-3xl font-extrabold">{s.value}</span>
-              <span className="text-xs text-muted-foreground">{s.label}</span>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── About ── */}
+      {/* ── About: The Agora Story ── */}
       <section id="about" className="py-20 md:py-28">
         <div className="max-w-6xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center max-w-2xl mx-auto mb-16"
+            className="text-center max-w-2xl mx-auto mb-12"
           >
             <span className="eco-badge mb-4 inline-flex"><Heart className="w-3.5 h-3.5" /> About EcoSwarm</span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
@@ -184,24 +174,119 @@ export function LandingPage() {
             </p>
           </motion.div>
 
-          {/* Features Grid */}
-          <div id="features" className="grid sm:grid-cols-2 gap-6">
-            {features.map((f, i) => (
+          {/* Agora History */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="grid md:grid-cols-2 gap-8 items-center"
+          >
+            <div className="rounded-2xl overflow-hidden shadow-lg">
+              <img
+                src={agoraImage}
+                alt="The ancient Agora of Athens"
+                className="w-full h-64 md:h-80 object-cover"
+              />
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold text-foreground">
+                Inspired by the Ancient Agora
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                In ancient Athens, the <strong>Agora</strong> was the beating heart of
+                civic life — an open marketplace where citizens gathered not just to
+                trade, but to debate ideas, challenge power, and shape democracy.
+                Philosophers like Socrates stood among potters and farmers, proving
+                that every voice, regardless of status, could reshape society.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                EcoSwarm carries that spirit into the digital age. Where the Athenians
+                debated governance, <strong>we debate the planet's future</strong>.
+                Where they gathered in marble-columned squares, we gather on screens
+                — but the principle is the same:{" "}
+                <span className="text-foreground font-semibold">
+                  collective dialogue drives collective change.
+                </span>
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Mission ── */}
+      <section id="mission" className="py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-0 eco-gradient-bg opacity-[0.04]" />
+        <div className="max-w-6xl mx-auto px-4 relative z-10">
+          <div className="grid md:grid-cols-2 gap-8">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="eco-card-elevated p-8"
+            >
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                  <Target className="w-7 h-7 text-primary-foreground" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black text-foreground">Our Mission</h2>
+                  <p className="text-sm text-muted-foreground">Why we exist</p>
+                </div>
+              </div>
+              <p className="text-foreground leading-relaxed text-lg">
+                To amplify voices, connect passions, and transform digital engagement
+                into real-world impact.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="eco-card-elevated p-8"
+            >
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[hsl(var(--eco-gold))] to-[hsl(var(--eco-orange))] flex items-center justify-center">
+                  <Eye className="w-7 h-7 text-primary-foreground" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black text-foreground">Our Vision</h2>
+                  <p className="text-sm text-muted-foreground">Where we're headed</p>
+                </div>
+              </div>
+              <p className="text-foreground leading-relaxed text-lg">
+                A digital agora for collective impact — a generation that doesn't just
+                inherit the Earth, but actively heals it.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Values ── */}
+      <section className="py-16 md:py-24">
+        <div className="max-w-6xl mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-black">Our Values</h2>
+          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {values.map((value, i) => (
               <motion.div
-                key={f.title}
+                key={value.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="eco-card-elevated flex gap-4 p-6"
+                className="eco-card-elevated p-6 text-center"
               >
-                <div className="w-12 h-12 rounded-xl eco-gradient-bg flex-shrink-0 flex items-center justify-center">
-                  <f.icon className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg mb-1">{f.title}</h3>
-                  <p className="text-muted-foreground text-sm">{f.desc}</p>
-                </div>
+                <span className="text-4xl mb-3 block">{value.emoji}</span>
+                <h3 className="font-bold text-foreground mb-1">{value.title}</h3>
+                <p className="text-sm text-muted-foreground">{value.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -209,7 +294,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Our Why ── */}
-      <section id="why" className="py-20 md:py-28 relative overflow-hidden">
+      <section id="why" className="py-16 md:py-24 relative overflow-hidden">
         <div className="absolute inset-0 eco-gradient-bg opacity-[0.04]" />
         <div className="max-w-6xl mx-auto px-4 relative z-10">
           <motion.div
@@ -218,7 +303,7 @@ export function LandingPage() {
             viewport={{ once: true }}
             className="max-w-3xl mx-auto"
           >
-            <span className="eco-badge mb-4 inline-flex"><Leaf className="w-3.5 h-3.5" /> Our Why</span>
+            <span className="eco-badge mb-4 inline-flex"><Heart className="w-3.5 h-3.5" /> Our Why</span>
             <h2 className="text-3xl md:text-4xl font-black mb-6">
               From Powerlessness to <span className="eco-gradient-text">Purpose</span>
             </h2>
@@ -236,26 +321,86 @@ export function LandingPage() {
                 where learning leads to doing, and where no voice is too quiet to
                 matter.
               </p>
-              <p className="font-semibold text-foreground text-lg">
-                Our mission is simple: turn climate anxiety into collective power.
-                Our vision is a generation that doesn't just inherit the Earth — but
-                actively heals it.
-              </p>
-            </div>
-
-            <div className="mt-10 flex flex-wrap gap-3">
-              <Button
-                size="lg"
-                onClick={() => navigate("/role-select")}
-                className="eco-gradient-bg text-primary-foreground border-0 gap-2"
-              >
-                Join the Movement <ArrowRight className="w-4 h-4" />
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/login")}>
-                Sign In
-              </Button>
+              <div className="eco-card p-5 bg-gradient-to-br from-[hsl(var(--eco-green-light))] to-[hsl(var(--eco-blue-light))] border-none">
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <Zap className="w-5 h-5 text-[hsl(var(--eco-gold))] flex-shrink-0 mt-0.5" />
+                    <span className="text-foreground text-sm">
+                      <strong>Social media is loud.</strong> We turn noise into real momentum.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Globe className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                    <span className="text-foreground text-sm">
+                      <strong>Issues are interconnected.</strong> Your voice matters on all fronts.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Users className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span className="text-foreground text-sm">
+                      <strong>Collective action beats individual effort.</strong> One spark alone flickers — together, we blaze.
+                    </span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* ── What You Can Do ── */}
+      <section id="features" className="py-16 md:py-24">
+        <div className="max-w-6xl mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center max-w-2xl mx-auto mb-12"
+          >
+            <span className="eco-badge mb-4 inline-flex"><Sparkles className="w-3.5 h-3.5" /> Platform</span>
+            <h2 className="text-3xl md:text-4xl font-black">What You Can Do</h2>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 gap-6">
+            {features.map((f, i) => (
+              <motion.div
+                key={f.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="eco-card-elevated flex gap-4 p-6"
+              >
+                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${f.color} flex-shrink-0 flex items-center justify-center`}>
+                  <f.icon className="w-7 h-7 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-1">{f.title}</h3>
+                  <p className="text-muted-foreground text-sm">{f.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Stats Bar ── */}
+      <section id="stats" className="py-12 md:py-16 border-y border-border/50">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
+          {stats.map((s, i) => (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="flex flex-col items-center text-center gap-2"
+            >
+              <s.icon className="w-7 h-7 text-primary" />
+              <span className="text-2xl md:text-3xl font-extrabold">{s.value}</span>
+              <span className="text-xs text-muted-foreground">{s.label}</span>
+            </motion.div>
+          ))}
         </div>
       </section>
 
@@ -286,10 +431,10 @@ export function LandingPage() {
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => navigate("/about")}
+                onClick={() => navigate("/login")}
                 className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
               >
-                Learn More
+                Sign In
               </Button>
             </div>
           </motion.div>
@@ -297,9 +442,10 @@ export function LandingPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-border/50 py-12 md:py-16">
+      <footer className="border-t border-border/50 py-12 md:py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid sm:grid-cols-3 gap-10 mb-10">
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-10 mb-10">
+            {/* Brand */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 rounded-lg eco-gradient-bg flex items-center justify-center">
@@ -313,16 +459,29 @@ export function LandingPage() {
               </p>
             </div>
 
+            {/* Platform */}
             <div>
-              <h4 className="font-bold mb-3 text-sm">Quick Links</h4>
+              <h4 className="font-bold mb-3 text-sm">Platform</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><button onClick={() => navigate("/about")} className="hover:text-foreground transition-colors">About</button></li>
-                <li><button onClick={() => navigate("/terms-of-service")} className="hover:text-foreground transition-colors">Terms of Service</button></li>
-                <li><button onClick={() => navigate("/privacy-policy")} className="hover:text-foreground transition-colors">Privacy Policy</button></li>
-                <li><button onClick={() => navigate("/feedback")} className="hover:text-foreground transition-colors">Feedback</button></li>
+                <li><button onClick={() => scrollTo("about")} className="hover:text-foreground transition-colors">About</button></li>
+                <li><button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Features</button></li>
+                <li><button onClick={() => scrollTo("why")} className="hover:text-foreground transition-colors">Our Why</button></li>
+                <li><button onClick={() => navigate("/role-select")} className="hover:text-foreground transition-colors">Get Started</button></li>
               </ul>
             </div>
 
+            {/* Legal & Info */}
+            <div>
+              <h4 className="font-bold mb-3 text-sm">Legal &amp; Info</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><button onClick={() => navigate("/terms-of-service")} className="hover:text-foreground transition-colors">Terms of Service</button></li>
+                <li><button onClick={() => navigate("/privacy-policy")} className="hover:text-foreground transition-colors">Privacy Policy</button></li>
+                <li><button onClick={() => navigate("/feedback")} className="hover:text-foreground transition-colors">Give Feedback</button></li>
+                <li><button onClick={() => navigate("/about")} className="hover:text-foreground transition-colors">About (In-App)</button></li>
+              </ul>
+            </div>
+
+            {/* Connect */}
             <div>
               <h4 className="font-bold mb-3 text-sm">Connect</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -338,8 +497,9 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="border-t border-border/50 pt-6 text-center text-xs text-muted-foreground">
-            © {new Date().getFullYear()} EcoSwarm. Built with 💚 for the planet.
+          <div className="border-t border-border/50 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+            <p>© {new Date().getFullYear()} EcoSwarm. Built with 💚 for the planet.</p>
+            <p>Made with 💚 for You</p>
           </div>
         </div>
       </footer>
