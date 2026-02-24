@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
-import { mockLearningModules } from '@/data/mockData';
-import { Confetti } from '@/components/common/Confetti';
 import { supabase } from '@/integrations/supabase/client';
+import { Confetti } from '@/components/common/Confetti';
 import {
   ChevronLeft,
   Play,
@@ -434,9 +433,42 @@ export function ModuleScreen() {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
+  const [module, setModule] = useState<any>(null);
+  const [totalModules, setTotalModules] = useState(0);
+  const [isLoadingModule, setIsLoadingModule] = useState(true);
 
-  const module = mockLearningModules.find((m) => m.id === moduleId);
-  const content = moduleId ? moduleContent[moduleId] : null;
+  // Fetch course from database
+  useEffect(() => {
+    const fetchCourse = async () => {
+      if (!moduleId) return;
+      setIsLoadingModule(true);
+      const { data } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('id', moduleId)
+        .maybeSingle();
+      if (data) {
+        setModule({
+          id: data.id,
+          title: data.title,
+          description: data.description,
+          duration: data.duration,
+          points: data.points,
+          category: data.category,
+          sortOrder: data.sort_order,
+        });
+      }
+      // Get total count for badge check
+      const { count } = await supabase
+        .from('courses')
+        .select('id', { count: 'exact', head: true });
+      setTotalModules(count || 0);
+      setIsLoadingModule(false);
+    };
+    fetchCourse();
+  }, [moduleId]);
+
+  const content = module?.sortOrder ? moduleContent[String(module.sortOrder)] : null;
 
   useEffect(() => {
     checkIfCompleted();
@@ -452,6 +484,17 @@ export function ModuleScreen() {
       .maybeSingle();
     setAlreadyCompleted(!!data);
   };
+
+  if (isLoadingModule) {
+    return (
+      <AppLayout>
+        <div className="p-4 text-center">
+          <div className="w-8 h-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading module...</p>
+        </div>
+      </AppLayout>
+    );
+  }
 
   if (!module || !content) {
     return (
@@ -506,7 +549,7 @@ export function ModuleScreen() {
         await completeCourse(moduleId!);
 
         // Check if earned the Educator badge (all modules complete)
-        if (user && user.stats.coursesCompleted + 1 >= mockLearningModules.length) {
+        if (user && user.stats.coursesCompleted + 1 >= totalModules) {
           await earnBadge('8');
         }
 

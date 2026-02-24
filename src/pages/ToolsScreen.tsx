@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
-import { mockLetterTemplates, mockRecipients, mockLearningModules } from '@/data/mockData';
 import { Confetti } from '@/components/common/Confetti';
 import { supabase } from '@/integrations/supabase/client';
 import { createAutoPost, buildLetterAutoPost } from '@/utils/autoPost';
@@ -30,12 +29,34 @@ export function ToolsScreen() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [completedModules, setCompletedModules] = useState<string[]>([]);
-
+  const [letterTemplates, setLetterTemplates] = useState<any[]>([]);
+  const [recipients, setRecipients] = useState<any[]>([]);
+  const [learningModules, setLearningModules] = useState<any[]>([]);
+  const [isLoadingContent, setIsLoadingContent] = useState(true);
   useEffect(() => {
+    loadContent();
     if (user) {
       loadCompletions();
     }
   }, [user]);
+
+  const loadContent = async () => {
+    setIsLoadingContent(true);
+    try {
+      const [templatesRes, recipientsRes, coursesRes] = await Promise.all([
+        supabase.from('letter_templates').select('*').order('sort_order'),
+        supabase.from('recipients').select('*').order('sort_order'),
+        supabase.from('courses').select('*').order('sort_order'),
+      ]);
+      setLetterTemplates(templatesRes.data || []);
+      setRecipients(recipientsRes.data || []);
+      setLearningModules(coursesRes.data || []);
+    } catch (error) {
+      console.error('Error loading content:', (error as Error)?.message || 'An error occurred');
+    } finally {
+      setIsLoadingContent(false);
+    }
+  };
 
   const loadCompletions = async () => {
     if (!user) return;
@@ -47,8 +68,8 @@ export function ToolsScreen() {
   };
 
   const handleSubmitLetter = async () => {
-    const template = mockLetterTemplates.find((t) => t.id === selectedTemplate);
-    const recipient = mockRecipients.find((r) => r.id === selectedRecipient);
+    const template = letterTemplates.find((t: any) => t.id === selectedTemplate);
+    const recipient = recipients.find((r: any) => r.id === selectedRecipient);
     
     if (!template || !recipient || !user) return;
 
@@ -120,8 +141,8 @@ export function ToolsScreen() {
   };
 
   const getPreviewLetter = () => {
-    const template = mockLetterTemplates.find((t) => t.id === selectedTemplate);
-    const recipient = mockRecipients.find((r) => r.id === selectedRecipient);
+    const template = letterTemplates.find((t: any) => t.id === selectedTemplate);
+    const recipient = recipients.find((r: any) => r.id === selectedRecipient);
     if (!template || !recipient || !user) return '';
 
     return template.content
@@ -211,7 +232,7 @@ export function ToolsScreen() {
               </p>
 
               <div className="space-y-3">
-                {mockLetterTemplates.map((template) => (
+                {letterTemplates.map((template: any) => (
                   <button
                     key={template.id}
                     onClick={() => setSelectedTemplate(template.id)}
@@ -288,7 +309,7 @@ export function ToolsScreen() {
               </p>
 
               <div className="space-y-3">
-                {mockRecipients.map((recipient) => (
+                {recipients.map((recipient: any) => (
                   <button
                     key={recipient.id}
                     onClick={() => setSelectedRecipient(recipient.id)}
@@ -398,7 +419,7 @@ export function ToolsScreen() {
           </p>
 
           <div className="grid gap-4">
-            {mockLearningModules.map((module, index) => {
+            {learningModules.map((module: any, index: number) => {
               const isCompleted = completedModules.includes(module.id);
               return (
               <button
