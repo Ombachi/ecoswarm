@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   ChevronLeft, 
   User, 
@@ -11,11 +12,11 @@ import {
   Globe, 
   LogOut,
   ChevronRight,
-  Info,
   Shield,
   Heart,
   MessageCircle,
   Loader2,
+  Settings2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
@@ -25,6 +26,14 @@ export function SettingsScreen() {
   const { user, isDarkMode, toggleDarkMode, isSwahili, toggleLanguage, logout } = useApp();
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushNotifications(user?.id);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      supabase.from('user_roles').select('role').eq('user_id', user.id).eq('role', 'admin').maybeSingle()
+        .then(({ data }) => setIsAdmin(!!data));
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -50,6 +59,13 @@ export function SettingsScreen() {
           action: () => navigate('/edit-profile'),
           type: 'link' as const,
         },
+        ...(isAdmin ? [{
+          icon: Settings2,
+          label: 'Admin Panel',
+          description: 'Manage courses, templates & recipients',
+          action: () => navigate('/admin'),
+          type: 'link' as const,
+        }] : []),
       ],
     },
     {
