@@ -21,7 +21,6 @@ import {
   Moon,
   Sun,
   Target,
-  Info,
   Download,
   CheckCircle,
   Trophy,
@@ -558,20 +557,6 @@ function DashboardHomeContent({
         </div>
       </div>
 
-      {/* About Link */}
-      <button
-        onClick={() => navigate("/about")}
-        className="w-full eco-card p-4 flex items-center gap-4 hover:shadow-md transition-all"
-      >
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-eco-blue flex items-center justify-center">
-          <Info className="w-5 h-5 text-white" />
-        </div>
-        <div className="flex-1 text-left">
-          <p className="font-semibold text-foreground text-sm">{isSwahili ? "Kuhusu EcoSwarm" : "About EcoSwarm"}</p>
-          <p className="text-xs text-muted-foreground">Learn why we built this platform</p>
-        </div>
-        <ChevronRight className="w-5 h-5 text-muted-foreground" />
-      </button>
 
       {/* PWA Install Banner */}
       <div className="eco-card p-4 bg-gradient-to-r from-eco-green-light to-eco-blue-light border-none">
