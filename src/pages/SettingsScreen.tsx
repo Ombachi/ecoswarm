@@ -85,13 +85,6 @@ export function SettingsScreen() {
       title: 'Support',
       items: [
         {
-          icon: Info,
-          label: 'About EcoSwarm',
-          description: 'Learn more about our mission',
-          action: () => navigate('/about'),
-          type: 'link' as const,
-        },
-        {
           icon: Shield,
           label: 'Privacy Policy',
           description: 'How we protect your data',

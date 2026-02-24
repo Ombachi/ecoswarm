@@ -102,10 +102,6 @@ export function LandingPage() {
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 py-20 md:py-32 w-full">
           <motion.div initial="hidden" animate="visible" className="max-w-2xl">
-            <motion.div custom={0} variants={fadeUp} className="eco-badge mb-6">
-              <Globe className="w-3.5 h-3.5" /> Your Digital Agora
-            </motion.div>
-
             <motion.h1
               custom={1}
               variants={fadeUp}
@@ -125,23 +121,6 @@ export function LandingPage() {
               environmental issues that matter most — one swarm at a time.
             </motion.p>
 
-            <motion.div custom={3} variants={fadeUp} className="flex flex-wrap gap-3">
-              <Button
-                size="lg"
-                onClick={() => navigate("/role-select")}
-                className="eco-gradient-bg text-primary-foreground border-0 text-base px-8 gap-2"
-              >
-                Get Started <ArrowRight className="w-4 h-4" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => navigate("/login")}
-                className="text-base px-8"
-              >
-                Sign In
-              </Button>
-            </motion.div>
           </motion.div>
         </div>
 
@@ -432,7 +411,7 @@ export function LandingPage() {
                 size="lg"
                 variant="outline"
                 onClick={() => navigate("/login")}
-                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+                className="border-primary-foreground text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/30 font-bold"
               >
                 Sign In
               </Button>
@@ -476,8 +455,6 @@ export function LandingPage() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><button onClick={() => navigate("/terms-of-service")} className="hover:text-foreground transition-colors">Terms of Service</button></li>
                 <li><button onClick={() => navigate("/privacy-policy")} className="hover:text-foreground transition-colors">Privacy Policy</button></li>
-                <li><button onClick={() => navigate("/feedback")} className="hover:text-foreground transition-colors">Give Feedback</button></li>
-                <li><button onClick={() => navigate("/about")} className="hover:text-foreground transition-colors">About (In-App)</button></li>
               </ul>
             </div>
 
