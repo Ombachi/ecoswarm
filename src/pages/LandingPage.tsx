@@ -513,7 +513,7 @@ export function LandingPage() {
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
                   <a href="mailto:hello@ecoswarm.co.ke" className="hover:text-foreground transition-colors">
-                    hello@ecoswarm.app
+                    hello@ecoswarm.co.ke
                   </a>
                 </li>
                 <li className="flex items-center gap-2">
@@ -524,7 +524,7 @@ export function LandingPage() {
                     rel="noopener noreferrer"
                     className="hover:text-foreground transition-colors"
                   >
-                    ecoswarm.lovable.app
+                    ecoswarm.co.ke
                   </a>
                 </li>
               </ul>
