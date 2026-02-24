@@ -95,6 +95,84 @@ export type Database = {
         }
         Relationships: []
       }
+      courses: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string
+          duration: string
+          id: string
+          is_active: boolean
+          points: number
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          duration?: string
+          id?: string
+          is_active?: boolean
+          points?: number
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          duration?: string
+          id?: string
+          is_active?: boolean
+          points?: number
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      letter_templates: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -412,6 +490,45 @@ export type Database = {
         }
         Relationships: []
       }
+      recipients: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string
+          id: string
+          is_active: boolean
+          name: string
+          organization: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email: string
+          id?: string
+          is_active?: boolean
+          name: string
+          organization: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          organization?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       swarm_memberships: {
         Row: {
           id: string
@@ -707,7 +824,7 @@ export type Database = {
       toggle_post_like: { Args: { p_post_id: string }; Returns: Json }
     }
     Enums: {
-      app_role: "ecowarrior" | "ecodeveloper"
+      app_role: "ecowarrior" | "ecodeveloper" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -835,7 +952,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["ecowarrior", "ecodeveloper"],
+      app_role: ["ecowarrior", "ecodeveloper", "admin"],
     },
   },
 } as const
