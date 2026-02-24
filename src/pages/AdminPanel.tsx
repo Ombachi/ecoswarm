@@ -20,8 +20,10 @@ import {
   Save,
   Loader2,
   Shield,
+  BookOpen,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { CourseContentEditor } from '@/components/admin/CourseContentEditor';
 
 interface Course {
   id: string;
@@ -68,6 +70,8 @@ export function AdminPanel() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [editType, setEditType] = useState<'course' | 'template' | 'recipient' | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingContentCourseId, setEditingContentCourseId] = useState<string | null>(null);
+  const [editingContentCourseTitle, setEditingContentCourseTitle] = useState('');
 
   useEffect(() => {
     checkAdmin();
@@ -200,6 +204,13 @@ export function AdminPanel() {
       </div>
 
       <div className="p-4">
+        {editingContentCourseId ? (
+          <CourseContentEditor
+            courseId={editingContentCourseId}
+            courseTitle={editingContentCourseTitle}
+            onBack={() => setEditingContentCourseId(null)}
+          />
+        ) : (
         <Tabs defaultValue="courses">
           <TabsList className="w-full">
             <TabsTrigger value="courses" className="flex-1 gap-1 text-xs">
@@ -231,6 +242,13 @@ export function AdminPanel() {
                     <p className="text-xs text-primary mt-1">{c.duration} • {c.points} pts • Order: {c.sort_order}</p>
                   </div>
                   <div className="flex gap-1">
+                    <button
+                      onClick={() => { setEditingContentCourseId(c.id); setEditingContentCourseTitle(c.title); }}
+                      className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20"
+                      title="Manage Content"
+                    >
+                      <BookOpen className="w-4 h-4 text-primary" />
+                    </button>
                     <button onClick={() => openEdit(c, 'course')} className="p-2 rounded-lg bg-muted hover:bg-muted/80">
                       <Pencil className="w-4 h-4 text-muted-foreground" />
                     </button>
@@ -297,6 +315,7 @@ export function AdminPanel() {
             ))}
           </TabsContent>
         </Tabs>
+        )}
       </div>
 
       {/* Edit/Create Modal */}
