@@ -36,6 +36,7 @@ const PublicImpactScreen = lazy(() => import("@/pages/PublicImpactScreen").then(
 const PostViewScreen = lazy(() => import("@/pages/PostViewScreen").then(m => ({ default: m.PostViewScreen })));
 const ShareTargetPage = lazy(() => import("@/pages/ShareTargetPage").then(m => ({ default: m.ShareTargetPage })));
 const LandingPage = lazy(() => import("@/pages/LandingPage").then(m => ({ default: m.LandingPage })));
+const AdminPanel = lazy(() => import("@/pages/AdminPanel").then(m => ({ default: m.AdminPanel })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -99,6 +100,7 @@ function AppRoutes() {
         <Route path="/leaderboard" element={requireAuthed(<LeaderboardScreen />)} />
         <Route path="/edit-profile" element={requireAuthed(<EditProfileScreen />)} />
         <Route path="/module/:moduleId" element={requireAuthed(<ModuleScreen />)} />
+        <Route path="/admin" element={requireAuthed(<AdminPanel />)} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
