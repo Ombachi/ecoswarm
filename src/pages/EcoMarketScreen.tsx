@@ -68,11 +68,49 @@ export function EcoMarketScreen() {
   const [expandedDesc, setExpandedDesc] = useState<string | null>(null);
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [orgName, setOrgName] = useState('');
+  const [trackedViews, setTrackedViews] = useState<Set<string>>(new Set());
   const [lightboxMedia, setLightboxMedia] = useState<{
     url: string;
     type: 'image' | 'video';
     rect: DOMRect | null;
   } | null>(null);
+
+  // Track product view
+  const trackInteraction = async (productId: string, type: 'view' | 'click') => {
+    if (!user) return;
+    // Only track view once per session per product
+    if (type === 'view') {
+      if (trackedViews.has(productId)) return;
+      setTrackedViews(prev => new Set(prev).add(productId));
+    }
+    try {
+      await supabase.from('product_interactions').insert({
+        product_id: productId,
+        user_id: user.id,
+        interaction_type: type,
+        location: user.location || null,
+      } as any);
+    } catch {}
+  };
+
+  // Track views via IntersectionObserver
+  useEffect(() => {
+    if (!user || products.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const productId = entry.target.getAttribute('data-product-id');
+            if (productId) trackInteraction(productId, 'view');
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    const cards = document.querySelectorAll('[data-product-id]');
+    cards.forEach(card => observer.observe(card));
+    return () => observer.disconnect();
+  }, [user, products, trackedViews]);
 
   const openLightbox = (url: string, type: 'image' | 'video', event: React.MouseEvent) => {
     const target = event.currentTarget as HTMLElement;
@@ -316,6 +354,7 @@ export function EcoMarketScreen() {
           filteredProducts.map((product, index) => (
             <div
               key={product.id}
+              data-product-id={product.id}
               className="eco-card overflow-hidden animate-slide-up"
               style={{ animationDelay: `${Math.min(index, 5) * 0.08}s` }}
             >
@@ -411,6 +450,7 @@ export function EcoMarketScreen() {
                 </span>
                 <a
                   href={`tel:${product.contact_phone}`}
+                  onClick={() => trackInteraction(product.id, 'click')}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl eco-gradient-bg text-white text-sm font-semibold hover:opacity-90 transition-opacity"
                 >
                   <Phone className="w-4 h-4" />
