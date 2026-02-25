@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
@@ -8,6 +8,7 @@ import { CommentsSection } from '@/components/posts/CommentsSection';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { MediaGallery, MediaItem } from '@/components/common/MediaGallery';
+import { LinkifiedText } from '@/components/common/LinkifiedText';
 import { supabase } from '@/integrations/supabase/client';
 import { useVisibilityRefetch } from '@/hooks/useVisibilityRefetch';
 import {
@@ -43,6 +44,86 @@ const ecoBadgeColors: Record<string, string> = {
   'Water Efficient': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
 };
 
+function EditPostOverlay({ post, editContent, setEditContent, onCancel, onSave, editMediaItems, setEditMediaItems }: {
+  post: Post;
+  editContent: string;
+  setEditContent: (s: string) => void;
+  onCancel: () => void;
+  onSave: () => void;
+  editMediaItems: MediaItem[];
+  setEditMediaItems: React.Dispatch<React.SetStateAction<MediaItem[]>>;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    for (const file of Array.from(files)) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      const { error } = await supabase.storage.from('post-media').upload(fileName, file);
+      if (error) { toast.error('Upload failed'); continue; }
+      const { data: { publicUrl } } = supabase.storage.from('post-media').getPublicUrl(fileName);
+      const type = file.type.startsWith('image/') ? 'image' : file.type.startsWith('video/') ? 'video' : 'file';
+      setEditMediaItems(prev => [...prev, { url: publicUrl, type: type as 'image' | 'video' | 'file', fileName: file.name }]);
+    }
+    e.target.value = '';
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-background flex flex-col">
+      <div className="flex items-center justify-between p-4 border-b border-border">
+        <button onClick={onCancel} className="text-muted-foreground text-sm font-medium">Cancel</button>
+        <h2 className="text-base font-bold text-foreground">Edit Post</h2>
+        <button onClick={onSave} className="px-4 py-1.5 text-sm rounded-full eco-gradient-bg text-white font-semibold">Save</button>
+      </div>
+      <div className="flex-1 overflow-auto p-4 space-y-4">
+        <textarea
+          value={editContent}
+          onChange={(e) => setEditContent(e.target.value)}
+          className="w-full p-3 rounded-xl border border-border bg-card text-foreground text-sm resize-none min-h-[150px] focus:outline-none focus:ring-2 focus:ring-primary"
+          autoFocus
+        />
+        {/* Media items grid */}
+        {editMediaItems.length > 0 && (
+          <div className="grid grid-cols-2 gap-2">
+            {editMediaItems.map((item, i) => (
+              <div key={i} className="relative rounded-xl overflow-hidden bg-muted">
+                {item.type === 'image' && <img src={item.url} alt="" className="w-full h-32 object-cover" />}
+                {item.type === 'video' && <video src={item.url} className="w-full h-32 object-cover" />}
+                {item.type === 'file' && (
+                  <div className="h-32 flex items-center justify-center p-2">
+                    <p className="text-xs text-muted-foreground truncate">{item.fileName || 'File'}</p>
+                  </div>
+                )}
+                <button
+                  onClick={() => setEditMediaItems(prev => prev.filter((_, idx) => idx !== i))}
+                  className="absolute top-1 right-1 p-1 rounded-full bg-black/50 text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        {/* Add media button */}
+        <div>
+          <input ref={fileInputRef} type="file" accept="image/*,video/*,.pdf,.doc,.docx" multiple onChange={handleFileUpload} className="hidden" />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all text-sm"
+          >
+            <ImageIcon className="w-4 h-4" /> Add Media
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AgoraScreen() {
   const navigate = useNavigate();
   const { tag } = useParams<{ tag?: string }>();
@@ -56,6 +137,7 @@ export function AgoraScreen() {
   const [filterTag, setFilterTag] = useState<string | null>(tag || null);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
+  const [editMediaItems, setEditMediaItems] = useState<MediaItem[]>([]);
   const [lightboxMedia, setLightboxMedia] = useState<{ 
     url: string; 
     type: 'image' | 'video';
@@ -362,18 +444,36 @@ export function AgoraScreen() {
   const handleEditPost = (post: Post) => {
     setEditingPostId(post.id);
     setEditContent(post.content);
+    setEditMediaItems(post.mediaItems || []);
   };
 
   const handleSaveEdit = async (postId: string) => {
     if (!editContent.trim()) return;
     try {
+      const mediaUrlsJson = editMediaItems.length > 0
+        ? editMediaItems.map(m => ({ url: m.url, type: m.type, fileName: m.fileName }))
+        : [];
       const { error } = await supabase
         .from('posts')
-        .update({ content: editContent, tags: extractHashtags(editContent) })
+        .update({
+          content: editContent,
+          tags: extractHashtags(editContent),
+          media_urls: mediaUrlsJson,
+          media_url: editMediaItems[0]?.url || null,
+          media_type: editMediaItems[0]?.type === 'file' ? null : editMediaItems[0]?.type || null,
+        } as any)
         .eq('id', postId);
       if (error) throw error;
-      setPosts(posts.map(p => p.id === postId ? { ...p, content: editContent, tags: extractHashtags(editContent) } : p));
+      setPosts(posts.map(p => p.id === postId ? {
+        ...p,
+        content: editContent,
+        tags: extractHashtags(editContent),
+        mediaItems: editMediaItems,
+        mediaUrl: editMediaItems[0]?.url,
+        mediaType: editMediaItems[0]?.type as 'image' | 'video' | undefined,
+      } : p));
       setEditingPostId(null);
+      setEditMediaItems([]);
       toast.success('Post updated!');
     } catch {
       toast.error('Failed to update post');
@@ -548,17 +648,15 @@ export function AgoraScreen() {
 
               {/* Post Content */}
               {editingPostId === post.id ? (
-                <div className="mb-3 space-y-2">
-                  <textarea
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-border bg-card text-foreground text-sm resize-none min-h-[80px] focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <div className="flex gap-2 justify-end">
-                    <button onClick={() => setEditingPostId(null)} className="px-3 py-1.5 text-sm rounded-lg bg-muted text-muted-foreground">Cancel</button>
-                    <button onClick={() => handleSaveEdit(post.id)} className="px-3 py-1.5 text-sm rounded-lg eco-gradient-bg text-white font-medium">Save</button>
-                  </div>
-                </div>
+                <EditPostOverlay
+                  post={post}
+                  editContent={editContent}
+                  setEditContent={setEditContent}
+                  onCancel={() => { setEditingPostId(null); setEditMediaItems([]); }}
+                  onSave={() => handleSaveEdit(post.id)}
+                  editMediaItems={editMediaItems}
+                  setEditMediaItems={setEditMediaItems}
+                />
               ) : (
               <>
               <div className="text-foreground mb-3 leading-relaxed whitespace-pre-line">
@@ -577,7 +675,7 @@ export function AgoraScreen() {
                         </span>
                       );
                     }
-                    return <span key={i}>{line}{'\n'}</span>;
+                    return <span key={i}><LinkifiedText text={line} />{'\n'}</span>;
                   })}
               </div>
 
