@@ -459,6 +459,7 @@ export type Database = {
           location: string | null
           media_type: string | null
           media_url: string | null
+          media_urls: Json | null
           org_name: string
           price: number
           product_name: string
@@ -475,6 +476,7 @@ export type Database = {
           location?: string | null
           media_type?: string | null
           media_url?: string | null
+          media_urls?: Json | null
           org_name: string
           price?: number
           product_name: string
@@ -491,6 +493,7 @@ export type Database = {
           location?: string | null
           media_type?: string | null
           media_url?: string | null
+          media_urls?: Json | null
           org_name?: string
           price?: number
           product_name?: string

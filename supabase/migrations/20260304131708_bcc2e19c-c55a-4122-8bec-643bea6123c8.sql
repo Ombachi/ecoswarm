@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS media_urls jsonb DEFAULT '[]'::jsonb;

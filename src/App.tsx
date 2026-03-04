@@ -81,6 +81,7 @@ function AppRoutes() {
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
         <Route path="/about" element={<AboutScreen />} />
         <Route path="/terms-of-service" element={<TermsOfServiceScreen />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyScreen />} />
         <Route path="/offline" element={<OfflinePage />} />
         <Route path="/profile/:userId" element={<PublicImpactScreen />} />
         <Route path="/u/:userName" element={<PublicImpactScreen />} />
@@ -94,7 +95,7 @@ function AppRoutes() {
         <Route path="/tools" element={requireAuthed(<ToolsScreen />)} />
         <Route path="/profile" element={requireAuthed(<ProfileScreen />)} />
         <Route path="/settings" element={requireAuthed(<SettingsScreen />)} />
-        <Route path="/privacy-policy" element={requireAuthed(<PrivacyPolicyScreen />)} />
+        {/* privacy-policy is public - defined above */}
         <Route path="/feedback" element={requireAuthed(<FeedbackScreen />)} />
         <Route path="/rate-app" element={requireAuthed(<RateAppScreen />)} />
         <Route path="/leaderboard" element={requireAuthed(<LeaderboardScreen />)} />
