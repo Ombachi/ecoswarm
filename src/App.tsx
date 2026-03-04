@@ -81,6 +81,7 @@ function AppRoutes() {
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
         <Route path="/about" element={<AboutScreen />} />
         <Route path="/terms-of-service" element={<TermsOfServiceScreen />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyScreen />} />
         <Route path="/offline" element={<OfflinePage />} />
         <Route path="/profile/:userId" element={<PublicImpactScreen />} />
         <Route path="/u/:userName" element={<PublicImpactScreen />} />
