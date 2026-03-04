@@ -137,6 +137,10 @@ export function SplashScreen() {
           By continuing, you agree to our{" "}
           <button onClick={() => navigate("/terms-of-service")} className="underline hover:text-white/70">
             Terms of Service
+          </button>{" "}
+          and{" "}
+          <button onClick={() => navigate("/privacy-policy")} className="underline hover:text-white/70">
+            Privacy Policy
           </button>
         </p>
       </div>
