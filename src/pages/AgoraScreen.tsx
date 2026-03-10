@@ -727,12 +727,19 @@ export function AgoraScreen() {
                   )}
                 </button>
                 <div className="flex-1 min-w-0">
-                  <button
-                    onClick={() => navigate(`/profile/${post.userId}`)}
-                    className="font-semibold text-foreground hover:text-primary transition-colors text-left"
-                  >
-                    {post.userName}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => navigate(`/profile/${post.userId}`)}
+                      className="font-semibold text-foreground hover:text-primary transition-colors text-left"
+                    >
+                      {post.userName}
+                    </button>
+                    {isSwarmPost && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">
+                        <Users className="w-3 h-3" /> Swarm
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {new Date(post.createdAt).toLocaleDateString('en-KE', {
                       day: 'numeric',
