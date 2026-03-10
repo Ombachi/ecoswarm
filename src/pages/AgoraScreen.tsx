@@ -944,7 +944,8 @@ export function AgoraScreen() {
                 </div>
               )}
             </div>
-          ));
+          );
+          });
         })()}
       </div>
 
