@@ -538,6 +538,17 @@ export function EcoMarketScreen() {
           initialRect={lightboxMedia.rect}
         />
       )}
+
+      {chatProduct && (
+        <ProductChat
+          isOpen={!!chatProduct}
+          onClose={() => setChatProduct(null)}
+          productId={chatProduct.id}
+          productName={chatProduct.name}
+          sellerId={chatProduct.sellerId}
+          sellerName={chatProduct.sellerName}
+        />
+      )}
     </AppLayout>
   );
 }
