@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { Post } from '@/types/ecoswarm';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
+import { CreateSwarmModal } from '@/components/swarms/CreateSwarmModal';
 import { CommentsSection } from '@/components/posts/CommentsSection';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
@@ -28,6 +29,9 @@ import {
   ShoppingBag,
   Pencil,
   Search,
+  Users,
+  Target,
+  FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -130,6 +134,8 @@ export function AgoraScreen() {
   const { user, addPoints, showNotification, updateStats } = useApp();
   const [posts, setPosts] = useState<Post[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showSwarmModal, setShowSwarmModal] = useState(false);
+  const [showCreateMenu, setShowCreateMenu] = useState(false);
   const [expandedComments, setExpandedComments] = useState<string | null>(null);
   const [expandedShare, setExpandedShare] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -408,6 +414,102 @@ export function AgoraScreen() {
     }
   };
 
+  const handleSwarmCreated = async (swarmData: {
+    name: string;
+    description: string;
+    goal: string;
+    category: string;
+    targetSignatures: number;
+    orgName?: string;
+    socialLinks?: string;
+    phone?: string;
+    goalType: string;
+    targetNumber: number;
+    endDate: string;
+    inviteMethod: string;
+    location?: string;
+  }) => {
+    if (!user) { toast.error('Please log in'); return; }
+    try {
+      const { data: newSwarm, error } = await supabase
+        .from('swarms')
+        .insert({
+          name: swarmData.name,
+          description: swarmData.description,
+          goal: swarmData.goal,
+          category: swarmData.category,
+          target_signatures: swarmData.targetSignatures,
+          current_signatures: 1,
+          participants: 1,
+          created_by: user.id,
+          org_name: swarmData.orgName || null,
+          social_links: swarmData.socialLinks || null,
+          phone: swarmData.phone || null,
+          goal_type: swarmData.goalType,
+          target_number: swarmData.targetNumber,
+          end_date: swarmData.endDate,
+          invite_method: swarmData.inviteMethod,
+          location: swarmData.location || null,
+        } as any)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      await supabase.from('swarm_memberships').insert({
+        swarm_id: newSwarm.id,
+        user_id: user.id,
+        votes: 1,
+      });
+
+      const postContent = [
+        `🐝 New Swarm: "${swarmData.name}"`,
+        swarmData.orgName ? `🏢 ${swarmData.orgName}` : '',
+        swarmData.location ? `📍 ${swarmData.location}` : '',
+        `\n${swarmData.description}`,
+        `\n🎯 Goal: ${swarmData.goal}`,
+        `\n📊 Target: ${swarmData.targetNumber} | ${swarmData.goalType}`,
+        `\n🗓️ Ends: ${new Date(swarmData.endDate).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' })}`,
+      ].filter(Boolean).join('\n');
+
+      await supabase.from('posts').insert({
+        user_id: user.id,
+        user_name: user.name,
+        content: postContent,
+        tags: [swarmData.category.replace(/\s+/g, ''), 'EcoSwarm', 'JoinTheSwarm', `swarm_${newSwarm.id}`],
+      });
+
+      const { data: allProfiles } = await supabase
+        .from('public_profiles')
+        .select('user_id')
+        .neq('user_id', user.id);
+
+      if (allProfiles && allProfiles.length > 0) {
+        const notifications = allProfiles
+          .filter((p) => p.user_id)
+          .map((p) => ({
+            user_id: p.user_id!,
+            type: 'swarm',
+            title: '🐝 New Swarm Launched!',
+            message: `Join "${swarmData.name}" — ${swarmData.description.substring(0, 80)}...`,
+            reference_id: newSwarm.id,
+          }));
+        if (notifications.length > 0) {
+          await supabase.from('notifications').insert(notifications);
+        }
+      }
+
+      addPoints(50);
+      updateStats({ postsCreated: user.stats.postsCreated + 1 });
+      showNotification('Swarm launched & posted to Agora! 🐝', 50);
+      await loadPosts();
+    } catch (error) {
+      console.error('Error creating swarm:', error);
+      toast.error('Failed to create swarm');
+      throw error;
+    }
+  };
+
   const extractHashtags = (text: string): string[] => {
     const regex = /#(\w+)/g;
     const matches = text.match(regex);
@@ -603,10 +705,13 @@ export function AgoraScreen() {
           </div>
           );
           
-          return filteredPosts.map((post, index) => (
+          return filteredPosts.map((post, index) => {
+            const isSwarmPost = post.tags.some(t => t.startsWith('swarm_'));
+            const swarmId = post.tags.find(t => t.startsWith('swarm_'))?.replace('swarm_', '');
+            return (
             <div
               key={post.id}
-              className="p-4 animate-slide-up"
+              className={`p-4 animate-slide-up ${isSwarmPost ? 'border-l-4 border-l-primary bg-primary/5' : ''}`}
               style={{ animationDelay: `${Math.min(index, 5) * 0.1}s` }}
             >
               {/* Post Header */}
@@ -622,12 +727,19 @@ export function AgoraScreen() {
                   )}
                 </button>
                 <div className="flex-1 min-w-0">
-                  <button
-                    onClick={() => navigate(`/profile/${post.userId}`)}
-                    className="font-semibold text-foreground hover:text-primary transition-colors text-left"
-                  >
-                    {post.userName}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => navigate(`/profile/${post.userId}`)}
+                      className="font-semibold text-foreground hover:text-primary transition-colors text-left"
+                    >
+                      {post.userName}
+                    </button>
+                    {isSwarmPost && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">
+                        <Users className="w-3 h-3" /> Swarm
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {new Date(post.createdAt).toLocaleDateString('en-KE', {
                       day: 'numeric',
@@ -839,14 +951,48 @@ export function AgoraScreen() {
                 </div>
               )}
             </div>
-          ));
+          );
+          });
         })()}
       </div>
 
+      {/* Create Menu Overlay */}
+      {showCreateMenu && (
+        <div className="fixed inset-0 z-40 bg-black/30" onClick={() => setShowCreateMenu(false)}>
+          <div className="absolute bottom-24 right-4 flex flex-col gap-3 items-end" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => { setShowCreateMenu(false); setShowSwarmModal(true); }}
+              className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-card shadow-xl border border-border animate-slide-up"
+            >
+              <div className="w-10 h-10 rounded-xl eco-gradient-bg flex items-center justify-center">
+                <Users className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-foreground">Launch a Swarm</p>
+                <p className="text-[11px] text-muted-foreground">Start a campaign</p>
+              </div>
+            </button>
+            <button
+              onClick={() => { setShowCreateMenu(false); setShowCreateModal(true); }}
+              className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-card shadow-xl border border-border animate-slide-up"
+              style={{ animationDelay: '0.05s' }}
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                <FileText className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-foreground">Create Post</p>
+                <p className="text-[11px] text-muted-foreground">Share your story</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Floating Create Button */}
       <button
-        onClick={() => setShowCreateModal(true)}
-        className="eco-floating-button animate-pulse-glow"
+        onClick={() => setShowCreateMenu(!showCreateMenu)}
+        className={`eco-floating-button ${showCreateMenu ? 'rotate-45' : 'animate-pulse-glow'} transition-transform`}
       >
         <Plus className="w-6 h-6" />
       </button>
@@ -857,6 +1003,13 @@ export function AgoraScreen() {
         onClose={() => setShowCreateModal(false)}
         userName={user?.name || 'User'}
         onPostCreated={handlePostCreated}
+      />
+
+      {/* Create Swarm Modal */}
+      <CreateSwarmModal
+        isOpen={showSwarmModal}
+        onClose={() => setShowSwarmModal(false)}
+        onSwarmCreated={handleSwarmCreated}
       />
 
       {/* Media Lightbox */}
