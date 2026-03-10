@@ -479,18 +479,35 @@ export function EcoMarketScreen() {
                   </div>
                 )}
 
-                {/* Price + Contact */}
+                {/* Price + Contact + Chat */}
                 <div className="flex items-center justify-between pt-2 border-t border-border">
                   <span className="text-lg font-bold text-foreground">KSh {product.price.toLocaleString()}</span>
-                  <a
-                    href={`tel:${product.contact_phone}`}
-                    onClick={() => trackInteraction(product.id, 'click')}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl eco-gradient-bg text-white text-sm font-semibold hover:opacity-90 transition-opacity"
-                    aria-label={`Call ${product.org_name} at ${product.contact_phone}`}
-                  >
-                    <Phone className="w-4 h-4" aria-hidden="true" />
-                    {product.contact_phone}
-                  </a>
+                  <div className="flex items-center gap-2">
+                    {/* Chat button - only show if not own product */}
+                    {user && product.user_id !== user.id && (
+                      <button
+                        onClick={() => setChatProduct({
+                          id: product.id,
+                          name: product.product_name,
+                          sellerId: product.user_id,
+                          sellerName: product.org_name,
+                        })}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-foreground text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all"
+                        aria-label={`Message ${product.org_name}`}
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                      </button>
+                    )}
+                    <a
+                      href={`tel:${product.contact_phone}`}
+                      onClick={() => trackInteraction(product.id, 'click')}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl eco-gradient-bg text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+                      aria-label={`Call ${product.org_name} at ${product.contact_phone}`}
+                    >
+                      <Phone className="w-4 h-4" aria-hidden="true" />
+                      {product.contact_phone}
+                    </a>
+                  </div>
                 </div>
               </article>
             );
