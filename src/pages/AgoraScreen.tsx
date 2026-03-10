@@ -848,10 +848,43 @@ export function AgoraScreen() {
         })()}
       </div>
 
+      {/* Create Menu Overlay */}
+      {showCreateMenu && (
+        <div className="fixed inset-0 z-40 bg-black/30" onClick={() => setShowCreateMenu(false)}>
+          <div className="absolute bottom-24 right-4 flex flex-col gap-3 items-end" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => { setShowCreateMenu(false); setShowSwarmModal(true); }}
+              className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-card shadow-xl border border-border animate-slide-up"
+            >
+              <div className="w-10 h-10 rounded-xl eco-gradient-bg flex items-center justify-center">
+                <Users className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-foreground">Launch a Swarm</p>
+                <p className="text-[11px] text-muted-foreground">Start a campaign</p>
+              </div>
+            </button>
+            <button
+              onClick={() => { setShowCreateMenu(false); setShowCreateModal(true); }}
+              className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-card shadow-xl border border-border animate-slide-up"
+              style={{ animationDelay: '0.05s' }}
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                <FileText className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-foreground">Create Post</p>
+                <p className="text-[11px] text-muted-foreground">Share your story</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Floating Create Button */}
       <button
-        onClick={() => setShowCreateModal(true)}
-        className="eco-floating-button animate-pulse-glow"
+        onClick={() => setShowCreateMenu(!showCreateMenu)}
+        className={`eco-floating-button ${showCreateMenu ? 'rotate-45' : 'animate-pulse-glow'} transition-transform`}
       >
         <Plus className="w-6 h-6" />
       </button>
@@ -862,6 +895,13 @@ export function AgoraScreen() {
         onClose={() => setShowCreateModal(false)}
         userName={user?.name || 'User'}
         onPostCreated={handlePostCreated}
+      />
+
+      {/* Create Swarm Modal */}
+      <CreateSwarmModal
+        isOpen={showSwarmModal}
+        onClose={() => setShowSwarmModal(false)}
+        onSwarmCreated={handleSwarmCreated}
       />
 
       {/* Media Lightbox */}
