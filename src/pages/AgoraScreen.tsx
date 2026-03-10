@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { Post } from '@/types/ecoswarm';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
+import { CreateSwarmModal } from '@/components/swarms/CreateSwarmModal';
 import { CommentsSection } from '@/components/posts/CommentsSection';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
@@ -28,6 +29,9 @@ import {
   ShoppingBag,
   Pencil,
   Search,
+  Users,
+  Target,
+  FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
