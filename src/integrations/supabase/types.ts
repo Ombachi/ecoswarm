@@ -252,6 +252,44 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          product_id: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          product_id?: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          product_id?: string | null
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -692,14 +730,19 @@ export type Database = {
           created_by: string
           current_signatures: number
           description: string
+          end_date: string | null
           goal: string
+          goal_type: string | null
           id: string
           image_url: string | null
+          invite_method: string | null
+          location: string | null
           name: string
           org_name: string | null
           participants: number
           phone: string | null
           social_links: string | null
+          target_number: number | null
           target_signatures: number
           updated_at: string
         }
@@ -709,14 +752,19 @@ export type Database = {
           created_by: string
           current_signatures?: number
           description: string
+          end_date?: string | null
           goal: string
+          goal_type?: string | null
           id?: string
           image_url?: string | null
+          invite_method?: string | null
+          location?: string | null
           name: string
           org_name?: string | null
           participants?: number
           phone?: string | null
           social_links?: string | null
+          target_number?: number | null
           target_signatures?: number
           updated_at?: string
         }
@@ -726,14 +774,19 @@ export type Database = {
           created_by?: string
           current_signatures?: number
           description?: string
+          end_date?: string | null
           goal?: string
+          goal_type?: string | null
           id?: string
           image_url?: string | null
+          invite_method?: string | null
+          location?: string | null
           name?: string
           org_name?: string | null
           participants?: number
           phone?: string | null
           social_links?: string | null
+          target_number?: number | null
           target_signatures?: number
           updated_at?: string
         }
