@@ -705,10 +705,13 @@ export function AgoraScreen() {
           </div>
           );
           
-          return filteredPosts.map((post, index) => (
+          return filteredPosts.map((post, index) => {
+            const isSwarmPost = post.tags.some(t => t.startsWith('swarm_'));
+            const swarmId = post.tags.find(t => t.startsWith('swarm_'))?.replace('swarm_', '');
+            return (
             <div
               key={post.id}
-              className="p-4 animate-slide-up"
+              className={`p-4 animate-slide-up ${isSwarmPost ? 'border-l-4 border-l-primary bg-primary/5' : ''}`}
               style={{ animationDelay: `${Math.min(index, 5) * 0.1}s` }}
             >
               {/* Post Header */}
