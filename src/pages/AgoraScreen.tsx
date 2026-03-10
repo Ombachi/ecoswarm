@@ -134,7 +134,8 @@ export function AgoraScreen() {
   const { user, addPoints, showNotification, updateStats } = useApp();
   const [posts, setPosts] = useState<Post[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [expandedComments, setExpandedComments] = useState<string | null>(null);
+  const [showSwarmModal, setShowSwarmModal] = useState(false);
+  const [showCreateMenu, setShowCreateMenu] = useState(false);
   const [expandedShare, setExpandedShare] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
