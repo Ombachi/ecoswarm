@@ -70,6 +70,7 @@ export function EcoMarketScreen() {
     type: 'image' | 'video';
     rect: DOMRect | null;
   } | null>(null);
+  const [chatProduct, setChatProduct] = useState<{ id: string; name: string; sellerId: string; sellerName: string } | null>(null);
 
   const trackInteraction = async (productId: string, type: 'view' | 'click' | 'save' | 'share') => {
     if (!user) return;
