@@ -136,6 +136,7 @@ export function AgoraScreen() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSwarmModal, setShowSwarmModal] = useState(false);
   const [showCreateMenu, setShowCreateMenu] = useState(false);
+  const [expandedComments, setExpandedComments] = useState<string | null>(null);
   const [expandedShare, setExpandedShare] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
