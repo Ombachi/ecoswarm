@@ -414,6 +414,102 @@ export function AgoraScreen() {
     }
   };
 
+  const handleSwarmCreated = async (swarmData: {
+    name: string;
+    description: string;
+    goal: string;
+    category: string;
+    targetSignatures: number;
+    orgName?: string;
+    socialLinks?: string;
+    phone?: string;
+    goalType: string;
+    targetNumber: number;
+    endDate: string;
+    inviteMethod: string;
+    location?: string;
+  }) => {
+    if (!user) { toast.error('Please log in'); return; }
+    try {
+      const { data: newSwarm, error } = await supabase
+        .from('swarms')
+        .insert({
+          name: swarmData.name,
+          description: swarmData.description,
+          goal: swarmData.goal,
+          category: swarmData.category,
+          target_signatures: swarmData.targetSignatures,
+          current_signatures: 1,
+          participants: 1,
+          created_by: user.id,
+          org_name: swarmData.orgName || null,
+          social_links: swarmData.socialLinks || null,
+          phone: swarmData.phone || null,
+          goal_type: swarmData.goalType,
+          target_number: swarmData.targetNumber,
+          end_date: swarmData.endDate,
+          invite_method: swarmData.inviteMethod,
+          location: swarmData.location || null,
+        } as any)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      await supabase.from('swarm_memberships').insert({
+        swarm_id: newSwarm.id,
+        user_id: user.id,
+        votes: 1,
+      });
+
+      const postContent = [
+        `🐝 New Swarm: "${swarmData.name}"`,
+        swarmData.orgName ? `🏢 ${swarmData.orgName}` : '',
+        swarmData.location ? `📍 ${swarmData.location}` : '',
+        `\n${swarmData.description}`,
+        `\n🎯 Goal: ${swarmData.goal}`,
+        `\n📊 Target: ${swarmData.targetNumber} | ${swarmData.goalType}`,
+        `\n🗓️ Ends: ${new Date(swarmData.endDate).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' })}`,
+      ].filter(Boolean).join('\n');
+
+      await supabase.from('posts').insert({
+        user_id: user.id,
+        user_name: user.name,
+        content: postContent,
+        tags: [swarmData.category.replace(/\s+/g, ''), 'EcoSwarm', 'JoinTheSwarm', `swarm_${newSwarm.id}`],
+      });
+
+      const { data: allProfiles } = await supabase
+        .from('public_profiles')
+        .select('user_id')
+        .neq('user_id', user.id);
+
+      if (allProfiles && allProfiles.length > 0) {
+        const notifications = allProfiles
+          .filter((p) => p.user_id)
+          .map((p) => ({
+            user_id: p.user_id!,
+            type: 'swarm',
+            title: '🐝 New Swarm Launched!',
+            message: `Join "${swarmData.name}" — ${swarmData.description.substring(0, 80)}...`,
+            reference_id: newSwarm.id,
+          }));
+        if (notifications.length > 0) {
+          await supabase.from('notifications').insert(notifications);
+        }
+      }
+
+      addPoints(50);
+      updateStats({ postsCreated: user.stats.postsCreated + 1 });
+      showNotification('Swarm launched & posted to Agora! 🐝', 50);
+      await loadPosts();
+    } catch (error) {
+      console.error('Error creating swarm:', error);
+      toast.error('Failed to create swarm');
+      throw error;
+    }
+  };
+
   const extractHashtags = (text: string): string[] => {
     const regex = /#(\w+)/g;
     const matches = text.match(regex);
