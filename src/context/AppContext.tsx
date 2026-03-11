@@ -216,6 +216,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await ensureRoleExists(authUser.id, authUser.user_metadata?.role);
     await ensureFirstStepsBadgeExists(authUser.id);
 
+    // Create welcome post for new user
+    await createWelcomePost(authUser.id, fallbackName, authUser.user_metadata?.role);
+
     // Re-fetch after insert
     return await fetchUserProfile(authUser.id);
   };
