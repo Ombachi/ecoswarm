@@ -708,7 +708,20 @@ export function AgoraScreen() {
           
           return filteredPosts.map((post, index) => {
             const isSwarmPost = post.tags.some(t => t.startsWith('swarm_'));
-            const swarmId = post.tags.find(t => t.startsWith('swarm_'))?.replace('swarm_', '');
+            const isWelcomePost = post.tags.includes('welcome_post');
+
+            if (isWelcomePost) {
+              return (
+                <WelcomePost
+                  key={post.id}
+                  post={post}
+                  onSayHi={(userName) => {
+                    setExpandedComments(post.id);
+                  }}
+                />
+              );
+            }
+
             return (
             <div
               key={post.id}
