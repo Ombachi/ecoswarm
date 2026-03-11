@@ -5,6 +5,7 @@ import { useApp } from '@/context/AppContext';
 import { Post } from '@/types/ecoswarm';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
 import { CreateSwarmModal } from '@/components/swarms/CreateSwarmModal';
+import { WelcomePost } from '@/components/posts/WelcomePost';
 import { CommentsSection } from '@/components/posts/CommentsSection';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
