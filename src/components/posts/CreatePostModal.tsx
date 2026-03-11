@@ -117,11 +117,11 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
 
         <div className="flex items-start gap-3 mb-4">
           <div className="eco-avatar flex-shrink-0">{userName?.charAt(0) || 'U'}</div>
-          <textarea
+          <RichTextEditor
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={setContent}
             placeholder="What environmental issue are you facing? Share your story..."
-            className="flex-1 bg-transparent border-none outline-none resize-none text-foreground placeholder:text-muted-foreground min-h-[120px]"
+            className="flex-1"
             autoFocus
           />
         </div>
