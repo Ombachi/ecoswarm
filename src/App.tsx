@@ -102,6 +102,7 @@ function AppRoutes() {
         <Route path="/leaderboard" element={requireAuthed(<LeaderboardScreen />)} />
         <Route path="/edit-profile" element={requireAuthed(<EditProfileScreen />)} />
         <Route path="/module/:moduleId" element={requireAuthed(<ModuleScreen />)} />
+        <Route path="/inbox" element={requireAuthed(<InboxScreen />)} />
         <Route path="/admin" element={requireAuthed(<AdminPanel />)} />
         <Route path="*" element={<NotFound />} />
       </Routes>
