@@ -138,6 +138,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const ensureFirstStepsBadgeExists = async (userId: string) => {
     // Make this idempotent at the DB layer so the badge can't be "missed"
     // due to UI timing/race conditions.
     try {
