@@ -57,8 +57,14 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
     });
   };
 
+  const getPlainText = (html: string) => {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
+  };
+
   const handleSubmit = async () => {
-    if (!content.trim()) return;
+    if (!getPlainText(content).trim()) return;
     setIsUploading(true);
 
     try {
