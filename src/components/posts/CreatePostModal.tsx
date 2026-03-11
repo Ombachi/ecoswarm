@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { X, Hash, Image as ImageIcon, Video, FileText, Send, Loader2, Plus } from 'lucide-react';
+import { X, Image as ImageIcon, Video, FileText, Send, Loader2, Plus } from 'lucide-react';
+import { RichTextEditor } from './RichTextEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { MediaItem } from '@/components/common/MediaGallery';
