@@ -37,6 +37,7 @@ const PostViewScreen = lazy(() => import("@/pages/PostViewScreen").then(m => ({ 
 const ShareTargetPage = lazy(() => import("@/pages/ShareTargetPage").then(m => ({ default: m.ShareTargetPage })));
 const LandingPage = lazy(() => import("@/pages/LandingPage").then(m => ({ default: m.LandingPage })));
 const AdminPanel = lazy(() => import("@/pages/AdminPanel").then(m => ({ default: m.AdminPanel })));
+const InboxScreen = lazy(() => import("@/pages/InboxScreen").then(m => ({ default: m.InboxScreen })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
