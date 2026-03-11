@@ -101,6 +101,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   };
 
+  const createWelcomePost = async (userId: string, userName: string, role?: string) => {
+    try {
+      const roleName = role === 'ecodeveloper' ? 'EcoDeveloper' : 'EcoWarrior';
+      const roleTag = role === 'ecodeveloper' ? 'ecodeveloper' : 'ecowarrior';
+      const content = `🌟 A new ${roleName} just joined! Welcome @${userName}! Let's show them some love in the comments 💚`;
+
+      await supabase.from('posts').insert({
+        user_id: userId,
+        user_name: userName,
+        content,
+        tags: ['welcome_post', roleTag, `welcome_user_${userName}`],
+      });
+
+      // Notify all existing users
+      const { data: allProfiles } = await supabase
+        .from('public_profiles')
+        .select('user_id')
+        .neq('user_id', userId);
+
+      if (allProfiles && allProfiles.length > 0) {
+        const notifications = allProfiles
+          .filter((p) => p.user_id)
+          .map((p) => ({
+            user_id: p.user_id!,
+            type: 'welcome',
+            title: '🎉 A new member just joined the Swarm!',
+            message: `Welcome @${userName} — our newest ${roleName}! Say hi in the Agora!`,
+          }));
+        if (notifications.length > 0) {
+          await supabase.from('notifications').insert(notifications);
+        }
+      }
+    } catch (e) {
+      console.warn('createWelcomePost: failed', e);
+    }
+  };
+
   const ensureFirstStepsBadgeExists = async (userId: string) => {
     // Make this idempotent at the DB layer so the badge can't be "missed"
     // due to UI timing/race conditions.
@@ -215,6 +252,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Ensure role and badge exist for newly created profiles
     await ensureRoleExists(authUser.id, authUser.user_metadata?.role);
     await ensureFirstStepsBadgeExists(authUser.id);
+
+    // Create welcome post for new user
+    await createWelcomePost(authUser.id, fallbackName, authUser.user_metadata?.role);
 
     // Re-fetch after insert
     return await fetchUserProfile(authUser.id);
