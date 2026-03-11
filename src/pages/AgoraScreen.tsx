@@ -712,13 +712,49 @@ export function AgoraScreen() {
 
             if (isWelcomePost) {
               return (
-                <WelcomePost
-                  key={post.id}
-                  post={post}
-                  onSayHi={(userName) => {
-                    setExpandedComments(post.id);
-                  }}
-                />
+                <div key={post.id}>
+                  <WelcomePost
+                    post={post}
+                    onSayHi={(userName) => {
+                      setExpandedComments(post.id);
+                    }}
+                  />
+                  {/* Actions for welcome posts */}
+                  <div className="px-4 pb-2 flex items-center justify-between border-b border-border bg-primary/5">
+                    <button
+                      onClick={() => handleLike(post.id)}
+                      className={`flex items-center gap-1.5 text-sm transition-all ${post.isLiked ? 'text-red-500' : 'text-muted-foreground'}`}
+                    >
+                      <Heart className={`w-5 h-5 ${post.isLiked ? 'fill-current' : ''}`} />
+                      <span>{post.likes}</span>
+                    </button>
+                    <button
+                      onClick={() => toggleComments(post.id)}
+                      className={`flex items-center gap-1.5 text-sm ${expandedComments === post.id ? 'text-primary' : 'text-muted-foreground'}`}
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      <span>{post.comments}</span>
+                    </button>
+                    <button
+                      onClick={() => toggleShare(post.id)}
+                      className={`flex items-center gap-1.5 text-sm ${expandedShare === post.id ? 'text-primary' : 'text-muted-foreground'}`}
+                    >
+                      <Share2 className="w-5 h-5" />
+                      <span>{post.shares}</span>
+                    </button>
+                  </div>
+                  {expandedComments === post.id && (
+                    <div className="px-4 pb-4 bg-primary/5">
+                      <CommentsSection postId={post.id} onCommentCountChange={(count) => handleCommentCountChange(post.id, count)} />
+                    </div>
+                  )}
+                  {expandedShare === post.id && (
+                    <div className="px-4 pb-4 bg-primary/5 border-t border-border pt-3">
+                      <p className="text-sm font-semibold text-foreground mb-3">Share this post</p>
+                      <SocialShareButtons url={`${window.location.origin}/post/${post.id}`} title="EcoSwarm 🌍" text="Check this out on EcoSwarm!" compact />
+                    </div>
+                  )}
+                </div>
               );
             }
 
