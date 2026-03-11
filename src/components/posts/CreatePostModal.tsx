@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { X, Hash, Image as ImageIcon, Video, FileText, Send, Loader2, Plus } from 'lucide-react';
+import { X, Image as ImageIcon, Video, FileText, Send, Loader2, Plus } from 'lucide-react';
+import { RichTextEditor } from './RichTextEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { MediaItem } from '@/components/common/MediaGallery';
@@ -56,8 +57,14 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
     });
   };
 
+  const getPlainText = (html: string) => {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
+  };
+
   const handleSubmit = async () => {
-    if (!content.trim()) return;
+    if (!getPlainText(content).trim()) return;
     setIsUploading(true);
 
     try {
@@ -116,11 +123,11 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
 
         <div className="flex items-start gap-3 mb-4">
           <div className="eco-avatar flex-shrink-0">{userName?.charAt(0) || 'U'}</div>
-          <textarea
+          <RichTextEditor
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={setContent}
             placeholder="What environmental issue are you facing? Share your story..."
-            className="flex-1 bg-transparent border-none outline-none resize-none text-foreground placeholder:text-muted-foreground min-h-[120px]"
+            className="flex-1"
             autoFocus
           />
         </div>
@@ -198,7 +205,7 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
         {/* Post Button */}
         <button
           onClick={handleSubmit}
-          disabled={!content.trim() || isUploading}
+          disabled={!content.trim() || content === '<br>' || isUploading}
           className="w-full eco-button-primary py-4 text-lg flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {isUploading ? (
