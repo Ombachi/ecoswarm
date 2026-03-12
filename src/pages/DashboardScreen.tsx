@@ -187,6 +187,7 @@ export function DashboardScreen() {
       case "post": return "/agora";
       case "engage": return "/agora";
       case "ecomarket": return "/ecomarket";
+      case "inbox": return "/inbox";
       case "letter": return "/tools";
       case "module": return "/tools";
       default: return "/dashboard";
