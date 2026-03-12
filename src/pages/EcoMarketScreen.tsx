@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,6 +8,7 @@ import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { toast } from 'sonner';
 import {
   Search, Plus, Phone, Loader2, X, ShoppingBag, ChevronDown, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, MessageCircle,
+  Inbox, ShoppingCart, Package, ArrowLeft,
 } from 'lucide-react';
 
 const ecoBadgeColors: Record<string, string> = {
@@ -71,6 +72,31 @@ export function EcoMarketScreen() {
     rect: DOMRect | null;
   } | null>(null);
   const [chatProduct, setChatProduct] = useState<{ id: string; name: string; sellerId: string; sellerName: string } | null>(null);
+  const [activeView, setActiveView] = useState<'browse' | 'inbox' | 'purchases'>('browse');
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // ── Real-time unread message count ──
+  const fetchUnreadCount = useCallback(async () => {
+    if (!user) return;
+    const { count, error } = await supabase
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('receiver_id', user.id)
+      .eq('is_read', false);
+    if (!error && count !== null) setUnreadCount(count);
+  }, [user]);
+
+  useEffect(() => {
+    fetchUnreadCount();
+    if (!user) return;
+    const channel = supabase
+      .channel('inbox-unread')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` }, () => {
+        fetchUnreadCount();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, fetchUnreadCount]);
 
   const trackInteraction = async (productId: string, type: 'view' | 'click' | 'save' | 'share') => {
     if (!user) return;
@@ -309,7 +335,111 @@ export function EcoMarketScreen() {
   const getMediaIndex = (productId: string) => mediaIndices[productId] || 0;
   const setMediaIndex = (productId: string, idx: number) => setMediaIndices(prev => ({ ...prev, [productId]: idx }));
 
-  if (isLoading) {
+  // ── Inbox sub-view (inline) ──
+  const InboxView = () => {
+    const [conversations, setConversations] = useState<any[]>([]);
+    const [inboxLoading, setInboxLoading] = useState(true);
+
+    useEffect(() => {
+      if (!user) return;
+      (async () => {
+        setInboxLoading(true);
+        const { data: messages } = await supabase
+          .from('messages')
+          .select('*')
+          .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+          .order('created_at', { ascending: false });
+
+        const convMap = new Map<string, any>();
+        for (const msg of messages || []) {
+          const otherId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
+          const key = `${msg.product_id || 'direct'}-${otherId}`;
+          if (!convMap.has(key)) {
+            convMap.set(key, { productId: msg.product_id || '', otherUserId: otherId, lastMessage: msg.content, lastMessageAt: msg.created_at || '', unreadCount: 0, productName: '', otherUserName: '' });
+          }
+          if (msg.receiver_id === user.id && !msg.is_read) convMap.get(key)!.unreadCount++;
+        }
+
+        const productIds = [...new Set([...convMap.values()].map((c: any) => c.productId).filter(Boolean))];
+        let productMap: Record<string, string> = {};
+        if (productIds.length > 0) {
+          const { data: prods } = await supabase.from('products').select('id, product_name').in('id', productIds);
+          if (prods) prods.forEach(p => { productMap[p.id] = p.product_name; });
+        }
+        const userIds = [...new Set([...convMap.values()].map((c: any) => c.otherUserId))];
+        let userMap: Record<string, string> = {};
+        if (userIds.length > 0) {
+          const { data: profiles } = await supabase.from('public_profiles').select('user_id, name').in('user_id', userIds);
+          if (profiles) profiles.forEach(p => { if (p.user_id && p.name) userMap[p.user_id] = p.name; });
+        }
+
+        const result = [...convMap.values()].map((c: any) => ({ ...c, productName: productMap[c.productId] || 'Direct Message', otherUserName: userMap[c.otherUserId] || 'User' }));
+        result.sort((a: any, b: any) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
+        setConversations(result);
+        setInboxLoading(false);
+      })();
+    }, [user]);
+
+    const formatTime = (dateStr: string) => {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      const now = new Date();
+      const diffH = (now.getTime() - d.getTime()) / 3600000;
+      if (diffH < 24) return d.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
+      if (diffH < 168) return d.toLocaleDateString('en-KE', { weekday: 'short' });
+      return d.toLocaleDateString('en-KE', { day: 'numeric', month: 'short' });
+    };
+
+    if (inboxLoading) return <div className="flex items-center justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    if (conversations.length === 0) return (
+      <div className="p-8 text-center">
+        <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+        <p className="text-foreground font-semibold">No messages yet</p>
+        <p className="text-sm text-muted-foreground mt-1">Start a conversation from a product listing!</p>
+      </div>
+    );
+
+    return (
+      <div className="divide-y divide-border">
+        {conversations.map((conv: any) => (
+          <button
+            key={`${conv.productId}-${conv.otherUserId}`}
+            onClick={() => setChatProduct({ id: conv.productId, name: conv.productName, sellerId: conv.otherUserId, sellerName: conv.otherUserName })}
+            className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
+          >
+            <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Package className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <p className="font-semibold text-foreground text-sm truncate">{conv.otherUserName}</p>
+                <span className="text-[10px] text-muted-foreground flex-shrink-0 ml-2">{formatTime(conv.lastMessageAt)}</span>
+              </div>
+              <p className="text-xs text-muted-foreground truncate">Re: {conv.productName}</p>
+              <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.lastMessage}</p>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {conv.unreadCount > 0 && (
+                <span className="w-5 h-5 rounded-full eco-gradient-bg text-white text-[10px] font-bold flex items-center justify-center">{conv.unreadCount}</span>
+              )}
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </button>
+        ))}
+      </div>
+    );
+  };
+
+  // ── Purchases sub-view (placeholder) ──
+  const PurchasesView = () => (
+    <div className="p-8 text-center">
+      <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+      <p className="text-foreground font-semibold">No purchases yet</p>
+      <p className="text-sm text-muted-foreground mt-1">Products you inquire about will appear here.</p>
+    </div>
+  );
+
+  if (isLoading && activeView === 'browse') {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
@@ -324,11 +454,22 @@ export function EcoMarketScreen() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
         <div className="flex items-center justify-between mb-3">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">EcoMarket</h1>
-            <p className="text-xs text-muted-foreground">Eco-friendly products & services</p>
+          <div className="flex items-center gap-2">
+            {activeView !== 'browse' && (
+              <button onClick={() => setActiveView('browse')} className="p-1 rounded-lg hover:bg-muted transition-colors">
+                <ArrowLeft className="w-5 h-5 text-foreground" />
+              </button>
+            )}
+            <div>
+              <h1 className="text-xl font-bold text-foreground">
+                {activeView === 'browse' ? 'EcoMarket' : activeView === 'inbox' ? 'Product Inbox' : 'My Purchases'}
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                {activeView === 'browse' ? 'Eco-friendly products & services' : activeView === 'inbox' ? 'Your product conversations' : 'Track your purchases'}
+              </p>
+            </div>
           </div>
-          {isDeveloper && (
+          {isDeveloper && activeView === 'browse' && (
             <button
               onClick={() => setShowCreateModal(true)}
               className="eco-button-primary py-2 px-4 text-sm flex items-center gap-1"
@@ -339,187 +480,231 @@ export function EcoMarketScreen() {
           )}
         </div>
 
-        {/* Search */}
-        <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search products, orgs, badges..."
-            className="eco-input pl-10 py-2.5 text-sm"
-            aria-label="Search products"
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-label="Clear search">
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Category Filters */}
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 pr-4" role="tablist" aria-label="Product categories">
-          {categoryFilters.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setCategoryFilter(cat.id)}
-              role="tab"
-              aria-selected={categoryFilter === cat.id}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                categoryFilter === cat.id
-                  ? 'eco-gradient-bg text-white'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-              }`}
-            >
-              <span aria-hidden="true">{cat.emoji}</span>
-              {cat.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Products Grid */}
-      <div className="p-4 space-y-4 pb-24">
-        {filteredProducts.length === 0 ? (
-          <div className="text-center py-12">
-            <ShoppingBag className="w-12 h-12 mx-auto text-muted-foreground mb-4" aria-hidden="true" />
-            <p className="text-muted-foreground">
-              {searchQuery ? 'No products match your search' : 'No products yet. Be the first to list!'}
-            </p>
-          </div>
-        ) : (
-          filteredProducts.map((product, index) => {
-            const media = getProductMedia(product);
-            const currentMediaIdx = getMediaIndex(product.id);
-            const currentMedia = media[currentMediaIdx];
-            const isSaved = savedProducts.has(product.id);
-
-            return (
-              <article
-                key={product.id}
-                data-product-id={product.id}
-                className="eco-card overflow-hidden animate-slide-up"
-                style={{ animationDelay: `${Math.min(index, 5) * 0.08}s` }}
+        {activeView === 'browse' && (
+          <>
+            {/* Quick Action Dashboard Cards */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <button
+                onClick={() => setActiveView('inbox')}
+                className="relative flex items-center gap-2.5 p-3 rounded-xl bg-primary/10 hover:bg-primary/15 transition-colors text-left"
               >
-                {/* Media carousel */}
-                {media.length > 0 && currentMedia && (
-                  <div className="-mx-4 -mt-4 mb-3 relative">
-                    {currentMedia.type === 'video' ? (
-                      <div className="relative cursor-pointer group" onClick={(e) => openLightbox(currentMedia.url, 'video', e)}>
-                        <video src={currentMedia.url} className="w-full max-h-80 object-cover" muted loop playsInline autoPlay aria-label={`${product.product_name} video`} />
-                      </div>
-                    ) : (
-                      <div className="relative cursor-pointer group" onClick={(e) => openLightbox(currentMedia.url, 'image', e)}>
-                        <img src={currentMedia.url} alt={`${product.product_name} by ${product.org_name}`} className="w-full max-h-80 object-cover" loading="lazy" />
-                      </div>
-                    )}
-                    {/* Carousel nav */}
-                    {media.length > 1 && (
-                      <>
-                        {currentMediaIdx > 0 && (
-                          <button onClick={() => setMediaIndex(product.id, currentMediaIdx - 1)} className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 backdrop-blur-sm text-foreground" aria-label="Previous photo">
-                            <ChevronLeft className="w-4 h-4" />
-                          </button>
-                        )}
-                        {currentMediaIdx < media.length - 1 && (
-                          <button onClick={() => setMediaIndex(product.id, currentMediaIdx + 1)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 backdrop-blur-sm text-foreground" aria-label="Next photo">
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
-                        )}
-                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                          {media.map((_, i) => (
-                            <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === currentMediaIdx ? 'bg-white' : 'bg-white/40'}`} />
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
+                <div className="w-9 h-9 rounded-full eco-gradient-bg flex items-center justify-center flex-shrink-0">
+                  <Inbox className="w-4 h-4 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-foreground">Product Inbox</p>
+                  <p className="text-[10px] text-muted-foreground">Messages</p>
+                </div>
+                {unreadCount > 0 && (
+                  <span className="absolute top-2 right-2 min-w-[18px] h-[18px] rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center px-1">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
                 )}
-
-                {/* Header: Org + Product Name + Save */}
-                <div className="flex items-start justify-between mb-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-primary">{product.org_name}</p>
-                    <h3 className="text-lg font-bold text-foreground leading-tight">{product.product_name}</h3>
-                  </div>
-                  <button
-                    onClick={() => toggleSave(product.id)}
-                    className={`p-2 rounded-full transition-colors flex-shrink-0 ${isSaved ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
-                    aria-label={isSaved ? 'Product saved' : 'Save product'}
-                    aria-pressed={isSaved}
-                  >
-                    {isSaved ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
-                  </button>
+              </button>
+              <button
+                onClick={() => setActiveView('purchases')}
+                className="flex items-center gap-2.5 p-3 rounded-xl bg-accent/50 hover:bg-accent/70 transition-colors text-left"
+              >
+                <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                  <ShoppingCart className="w-4 h-4 text-accent-foreground" />
                 </div>
-
-                {/* Description */}
-                <div className="mb-3">
-                  <p className={`text-sm text-muted-foreground leading-relaxed ${expandedDesc !== product.id ? 'line-clamp-3' : ''}`}>
-                    {product.description}
-                  </p>
-                  {product.description.length > 120 && (
-                    <button
-                      onClick={() => setExpandedDesc(expandedDesc === product.id ? null : product.id)}
-                      className="text-xs text-primary font-medium mt-1 flex items-center gap-0.5"
-                    >
-                      {expandedDesc === product.id ? 'Show less' : 'Read more'}
-                      <ChevronDown className={`w-3 h-3 transition-transform ${expandedDesc === product.id ? 'rotate-180' : ''}`} />
-                    </button>
-                  )}
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-foreground">My Purchases</p>
+                  <p className="text-[10px] text-muted-foreground">Track orders</p>
                 </div>
+              </button>
+            </div>
 
-                {/* Eco-Proof Badges */}
-                {product.badges && product.badges.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    {product.badges.map((badge) => (
-                      <span key={badge} className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold ${ecoBadgeColors[badge] || 'bg-muted text-muted-foreground'}`}>
-                        {badge}
-                      </span>
-                    ))}
-                  </div>
-                )}
+            {/* Search */}
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search products, orgs, badges..."
+                className="eco-input pl-10 py-2.5 text-sm"
+                aria-label="Search products"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-label="Clear search">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
 
-                {/* Price + Contact + Chat */}
-                <div className="flex items-center justify-between pt-2 border-t border-border">
-                  <span className="text-lg font-bold text-foreground">KSh {product.price.toLocaleString()}</span>
-                  <div className="flex items-center gap-2">
-                    {/* Chat button - only show if not own product */}
-                    {user && product.user_id !== user.id && (
-                      <button
-                        onClick={() => setChatProduct({
-                          id: product.id,
-                          name: product.product_name,
-                          sellerId: product.user_id,
-                          sellerName: product.org_name,
-                        })}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-foreground text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all"
-                        aria-label={`Message ${product.org_name}`}
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                      </button>
-                    )}
-                    <a
-                      href={`tel:${product.contact_phone}`}
-                      onClick={() => trackInteraction(product.id, 'click')}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl eco-gradient-bg text-white text-sm font-semibold hover:opacity-90 transition-opacity"
-                      aria-label={`Call ${product.org_name} at ${product.contact_phone}`}
-                    >
-                      <Phone className="w-4 h-4" aria-hidden="true" />
-                      {product.contact_phone}
-                    </a>
-                  </div>
-                </div>
-              </article>
-            );
-          })
+            {/* Category Filters */}
+            <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 pr-4" role="tablist" aria-label="Product categories">
+              {categoryFilters.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setCategoryFilter(cat.id)}
+                  role="tab"
+                  aria-selected={categoryFilter === cat.id}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                    categoryFilter === cat.id
+                      ? 'eco-gradient-bg text-white'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  <span aria-hidden="true">{cat.emoji}</span>
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </>
         )}
       </div>
 
-      {/* Floating Create Button */}
-      {isDeveloper && (
-        <button onClick={() => setShowCreateModal(true)} className="eco-floating-button animate-pulse-glow" aria-label="List a new product">
-          <Plus className="w-6 h-6" />
-        </button>
+      {/* Content based on active view */}
+      {activeView === 'inbox' ? (
+        <InboxView />
+      ) : activeView === 'purchases' ? (
+        <PurchasesView />
+      ) : (
+        <>
+          {/* Products Grid */}
+          <div className="p-4 space-y-4 pb-24">
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <ShoppingBag className="w-12 h-12 mx-auto text-muted-foreground mb-4" aria-hidden="true" />
+                <p className="text-muted-foreground">
+                  {searchQuery ? 'No products match your search' : 'No products yet. Be the first to list!'}
+                </p>
+              </div>
+            ) : (
+              filteredProducts.map((product, index) => {
+                const media = getProductMedia(product);
+                const currentMediaIdx = getMediaIndex(product.id);
+                const currentMedia = media[currentMediaIdx];
+                const isSaved = savedProducts.has(product.id);
+
+                return (
+                  <article
+                    key={product.id}
+                    data-product-id={product.id}
+                    className="eco-card overflow-hidden animate-slide-up"
+                    style={{ animationDelay: `${Math.min(index, 5) * 0.08}s` }}
+                  >
+                    {/* Media carousel */}
+                    {media.length > 0 && currentMedia && (
+                      <div className="-mx-4 -mt-4 mb-3 relative">
+                        {currentMedia.type === 'video' ? (
+                          <div className="relative cursor-pointer group" onClick={(e) => openLightbox(currentMedia.url, 'video', e)}>
+                            <video src={currentMedia.url} className="w-full max-h-80 object-cover" muted loop playsInline autoPlay aria-label={`${product.product_name} video`} />
+                          </div>
+                        ) : (
+                          <div className="relative cursor-pointer group" onClick={(e) => openLightbox(currentMedia.url, 'image', e)}>
+                            <img src={currentMedia.url} alt={`${product.product_name} by ${product.org_name}`} className="w-full max-h-80 object-cover" loading="lazy" />
+                          </div>
+                        )}
+                        {media.length > 1 && (
+                          <>
+                            {currentMediaIdx > 0 && (
+                              <button onClick={() => setMediaIndex(product.id, currentMediaIdx - 1)} className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 backdrop-blur-sm text-foreground" aria-label="Previous photo">
+                                <ChevronLeft className="w-4 h-4" />
+                              </button>
+                            )}
+                            {currentMediaIdx < media.length - 1 && (
+                              <button onClick={() => setMediaIndex(product.id, currentMediaIdx + 1)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 backdrop-blur-sm text-foreground" aria-label="Next photo">
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                            )}
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                              {media.map((_, i) => (
+                                <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === currentMediaIdx ? 'bg-white' : 'bg-white/40'}`} />
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Header: Org + Product Name + Save */}
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold text-primary">{product.org_name}</p>
+                        <h3 className="text-lg font-bold text-foreground leading-tight">{product.product_name}</h3>
+                      </div>
+                      <button
+                        onClick={() => toggleSave(product.id)}
+                        className={`p-2 rounded-full transition-colors flex-shrink-0 ${isSaved ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                        aria-label={isSaved ? 'Product saved' : 'Save product'}
+                        aria-pressed={isSaved}
+                      >
+                        {isSaved ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
+                      </button>
+                    </div>
+
+                    {/* Description */}
+                    <div className="mb-3">
+                      <p className={`text-sm text-muted-foreground leading-relaxed ${expandedDesc !== product.id ? 'line-clamp-3' : ''}`}>
+                        {product.description}
+                      </p>
+                      {product.description.length > 120 && (
+                        <button
+                          onClick={() => setExpandedDesc(expandedDesc === product.id ? null : product.id)}
+                          className="text-xs text-primary font-medium mt-1 flex items-center gap-0.5"
+                        >
+                          {expandedDesc === product.id ? 'Show less' : 'Read more'}
+                          <ChevronDown className={`w-3 h-3 transition-transform ${expandedDesc === product.id ? 'rotate-180' : ''}`} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Eco-Proof Badges */}
+                    {product.badges && product.badges.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        {product.badges.map((badge) => (
+                          <span key={badge} className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold ${ecoBadgeColors[badge] || 'bg-muted text-muted-foreground'}`}>
+                            {badge}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Price + Contact + Chat */}
+                    <div className="flex items-center justify-between pt-2 border-t border-border">
+                      <span className="text-lg font-bold text-foreground">KSh {product.price.toLocaleString()}</span>
+                      <div className="flex items-center gap-2">
+                        {user && product.user_id !== user.id && (
+                          <button
+                            onClick={() => setChatProduct({
+                              id: product.id,
+                              name: product.product_name,
+                              sellerId: product.user_id,
+                              sellerName: product.org_name,
+                            })}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-foreground text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all"
+                            aria-label={`Message ${product.org_name}`}
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </button>
+                        )}
+                        <a
+                          href={`tel:${product.contact_phone}`}
+                          onClick={() => trackInteraction(product.id, 'click')}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl eco-gradient-bg text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+                          aria-label={`Call ${product.org_name} at ${product.contact_phone}`}
+                        >
+                          <Phone className="w-4 h-4" aria-hidden="true" />
+                          {product.contact_phone}
+                        </a>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })
+            )}
+          </div>
+
+          {/* Floating Create Button */}
+          {isDeveloper && (
+            <button onClick={() => setShowCreateModal(true)} className="eco-floating-button animate-pulse-glow" aria-label="List a new product">
+              <Plus className="w-6 h-6" />
+            </button>
+          )}
+        </>
       )}
 
       <CreateProductModal
@@ -542,7 +727,7 @@ export function EcoMarketScreen() {
       {chatProduct && (
         <ProductChat
           isOpen={!!chatProduct}
-          onClose={() => setChatProduct(null)}
+          onClose={() => { setChatProduct(null); fetchUnreadCount(); }}
           productId={chatProduct.id}
           productName={chatProduct.name}
           sellerId={chatProduct.sellerId}
