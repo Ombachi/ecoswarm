@@ -101,8 +101,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   };
 
+  // Track whether we've already created a welcome post in this session
+  const welcomePostCreatedRef = React.useRef<Set<string>>(new Set());
+
   const createWelcomePost = async (userId: string, userName: string, role?: string) => {
+    // Prevent duplicate welcome posts in same session
+    if (welcomePostCreatedRef.current.has(userId)) return;
+    welcomePostCreatedRef.current.add(userId);
+
     try {
+      // Check if welcome post already exists in DB
+      const { data: existing } = await supabase
+        .from('posts')
+        .select('id')
+        .eq('user_id', userId)
+        .contains('tags', ['welcome_post'])
+        .maybeSingle();
+
+      if (existing) return;
+
       const roleName = role === 'ecodeveloper' ? 'EcoDeveloper' : 'EcoWarrior';
       const roleTag = role === 'ecodeveloper' ? 'ecodeveloper' : 'ecowarrior';
       const content = `🌟 A new ${roleName} just joined! Welcome @${userName}! Let's show them some love in the comments 💚`;
@@ -134,6 +151,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch (e) {
+      // If it failed, allow retry
+      welcomePostCreatedRef.current.delete(userId);
       console.warn('createWelcomePost: failed', e);
     }
   };

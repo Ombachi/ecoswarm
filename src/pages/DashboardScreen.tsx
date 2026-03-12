@@ -187,6 +187,7 @@ export function DashboardScreen() {
       case "post": return "/agora";
       case "engage": return "/agora";
       case "ecomarket": return "/ecomarket";
+      case "inbox": return "/inbox";
       case "letter": return "/tools";
       case "module": return "/tools";
       default: return "/dashboard";
@@ -260,11 +261,11 @@ export function DashboardScreen() {
       path: "/ecomarket",
     },
     {
-      id: 'letter',
+      id: 'inbox',
       icon: Mail,
-      label: isSwahili ? "Send Letter" : "Send Letter",
+      label: "Product Inbox",
       color: "from-eco-gold to-eco-orange",
-      path: "/tools",
+      path: "/inbox",
     },
     {
       id: 'capacity',
