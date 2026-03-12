@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,6 +8,7 @@ import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { toast } from 'sonner';
 import {
   Search, Plus, Phone, Loader2, X, ShoppingBag, ChevronDown, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, MessageCircle,
+  Inbox, ShoppingCart, Package, ArrowLeft,
 } from 'lucide-react';
 
 const ecoBadgeColors: Record<string, string> = {
