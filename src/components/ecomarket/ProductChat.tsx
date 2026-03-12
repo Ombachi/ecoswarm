@@ -112,10 +112,10 @@ export function ProductChat({ isOpen, onClose, productId, productName, sellerId,
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:justify-center">
-      <div className="bg-card w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl max-h-[85vh] flex flex-col animate-slide-up">
+    <div className="fixed inset-0 z-[60] bg-background flex flex-col sm:bg-black/50 sm:items-center sm:justify-center">
+      <div className="bg-card w-full h-full sm:max-w-md sm:max-h-[85vh] sm:rounded-2xl flex flex-col sm:h-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-4 border-b border-border safe-area-top">
           <div className="min-w-0">
             <h3 className="font-semibold text-foreground truncate">{sellerName}</h3>
             <p className="text-xs text-muted-foreground truncate">Re: {productName}</p>
@@ -126,7 +126,7 @@ export function ProductChat({ isOpen, onClose, productId, productName, sellerId,
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-auto p-4 space-y-3 min-h-[200px]">
+        <div className="flex-1 overflow-auto p-4 space-y-3">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -158,8 +158,8 @@ export function ProductChat({ isOpen, onClose, productId, productName, sellerId,
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <div className="p-3 border-t border-border flex items-center gap-2">
+        {/* Input - with safe area padding for mobile */}
+        <div className="p-3 border-t border-border flex items-center gap-2 pb-safe">
           <input
             type="text"
             value={newMessage}

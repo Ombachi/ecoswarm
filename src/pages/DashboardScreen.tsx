@@ -260,11 +260,11 @@ export function DashboardScreen() {
       path: "/ecomarket",
     },
     {
-      id: 'letter',
+      id: 'inbox',
       icon: Mail,
-      label: isSwahili ? "Send Letter" : "Send Letter",
+      label: "Product Inbox",
       color: "from-eco-gold to-eco-orange",
-      path: "/tools",
+      path: "/inbox",
     },
     {
       id: 'capacity',
