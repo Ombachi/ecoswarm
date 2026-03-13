@@ -22,6 +22,7 @@ export type Database = {
           id: string
           is_active: boolean
           points: number
+          target_role: string | null
           title: string
           type: string
         }
@@ -32,6 +33,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           points?: number
+          target_role?: string | null
           title: string
           type?: string
         }
@@ -42,6 +44,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           points?: number
+          target_role?: string | null
           title?: string
           type?: string
         }
