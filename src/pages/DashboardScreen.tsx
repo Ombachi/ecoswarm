@@ -261,11 +261,11 @@ export function DashboardScreen() {
       path: "/ecomarket",
     },
     {
-      id: 'inbox',
+      id: 'letter',
       icon: Mail,
-      label: "Product Inbox",
+      label: isSwahili ? "Tuma Barua" : "Send Letter",
       color: "from-eco-gold to-eco-orange",
-      path: "/inbox",
+      path: "/tools",
     },
     {
       id: 'capacity',
