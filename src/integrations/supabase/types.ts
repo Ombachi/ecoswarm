@@ -22,6 +22,7 @@ export type Database = {
           id: string
           is_active: boolean
           points: number
+          target_role: string | null
           title: string
           type: string
         }
@@ -32,6 +33,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           points?: number
+          target_role?: string | null
           title: string
           type?: string
         }
@@ -42,6 +44,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           points?: number
+          target_role?: string | null
           title?: string
           type?: string
         }
@@ -791,6 +794,62 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      transactions: {
+        Row: {
+          bonus_points: number
+          buyer_id: string
+          cash_paid: number
+          created_at: string
+          id: string
+          mpesa_receipt: string | null
+          payment_method: string | null
+          points_used: number
+          product_id: string | null
+          product_name: string
+          seller_id: string
+          status: string
+          total_price: number
+        }
+        Insert: {
+          bonus_points?: number
+          buyer_id: string
+          cash_paid?: number
+          created_at?: string
+          id?: string
+          mpesa_receipt?: string | null
+          payment_method?: string | null
+          points_used?: number
+          product_id?: string | null
+          product_name: string
+          seller_id: string
+          status?: string
+          total_price?: number
+        }
+        Update: {
+          bonus_points?: number
+          buyer_id?: string
+          cash_paid?: number
+          created_at?: string
+          id?: string
+          mpesa_receipt?: string | null
+          payment_method?: string | null
+          points_used?: number
+          product_id?: string | null
+          product_name?: string
+          seller_id?: string
+          status?: string
+          total_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_badges: {
         Row: {

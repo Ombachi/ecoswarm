@@ -83,7 +83,7 @@ export function DashboardScreen() {
   }, [user?.id, authUserId]);
 
   useEffect(() => {
-    if (user) {
+    if (user && roleChecked) {
       loadChallenges();
       updateStreak();
       supabase
@@ -92,7 +92,7 @@ export function DashboardScreen() {
         .eq('user_id', user.id)
         .then(({ count }) => setProductCount(count || 0));
     }
-  }, [user]);
+  }, [user, roleChecked, isDeveloper]);
 
   const loadChallenges = async () => {
     if (!user) return;
@@ -114,11 +114,17 @@ export function DashboardScreen() {
 
       const completedIds = completedData?.map((c) => c.challenge_id) || [];
 
-      // Mark completed challenges
-      const challengesWithStatus = (challengesData || []).map((c) => ({
-        ...c,
-        completed: completedIds.includes(c.id),
-      }));
+      // Filter challenges by role and mark completed
+      const userRole = isDeveloper ? 'ecodeveloper' : 'ecowarrior';
+      const challengesWithStatus = (challengesData || [])
+        .filter((c: any) => {
+          const targetRole = c.target_role || 'all';
+          return targetRole === 'all' || targetRole === userRole;
+        })
+        .map((c) => ({
+          ...c,
+          completed: completedIds.includes(c.id),
+        }));
 
       setChallenges(challengesWithStatus);
     } catch (error) {
@@ -261,11 +267,11 @@ export function DashboardScreen() {
       path: "/ecomarket",
     },
     {
-      id: 'inbox',
+      id: 'letter',
       icon: Mail,
-      label: "Product Inbox",
+      label: isSwahili ? "Tuma Barua" : "Send Letter",
       color: "from-eco-gold to-eco-orange",
-      path: "/inbox",
+      path: "/tools",
     },
     {
       id: 'capacity',

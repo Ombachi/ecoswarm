@@ -5,11 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { CreateProductModal } from '@/components/ecomarket/CreateProductModal';
 import { ProductChat } from '@/components/ecomarket/ProductChat';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
+import { usePurchase } from '@/hooks/usePurchase';
+import { Confetti } from '@/components/common/Confetti';
 import { toast } from 'sonner';
 import {
   Search, Plus, Phone, Loader2, X, ShoppingBag, ChevronDown, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, MessageCircle,
-  Inbox, ShoppingCart, Package, ArrowLeft,
+  Inbox, ShoppingCart, Package, ArrowLeft, Leaf, Check, Sparkles, Share2,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -41,6 +44,19 @@ interface Product {
   created_at: string;
 }
 
+interface Transaction {
+  id: string;
+  product_id: string;
+  product_name: string;
+  points_used: number;
+  cash_paid: number;
+  total_price: number;
+  bonus_points: number;
+  status: string;
+  created_at: string;
+  seller_id: string;
+}
+
 const categoryFilters = [
   { id: '', label: 'All', emoji: '🛒' },
   { id: 'Water', label: 'Water', emoji: '💧' },
@@ -55,6 +71,8 @@ const categoryFilters = [
 
 export function EcoMarketScreen() {
   const { user, addPoints, showNotification, updateStats } = useApp();
+  const navigate = useNavigate();
+  const { processPurchase, isProcessing } = usePurchase();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -74,6 +92,14 @@ export function EcoMarketScreen() {
   const [chatProduct, setChatProduct] = useState<{ id: string; name: string; sellerId: string; sellerName: string } | null>(null);
   const [activeView, setActiveView] = useState<'browse' | 'inbox' | 'purchases'>('browse');
   const [unreadCount, setUnreadCount] = useState(0);
+
+  // Buy flow state
+  const [buyProduct, setBuyProduct] = useState<Product | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [purchaseResult, setPurchaseResult] = useState<{ bonusPoints: number; pointsUsed: number; cashPaid: number; productName: string } | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   // ── Real-time unread message count ──
   const fetchUnreadCount = useCallback(async () => {
@@ -114,7 +140,6 @@ export function EcoMarketScreen() {
     } catch {}
   };
 
-  // Track views via IntersectionObserver
   useEffect(() => {
     if (!user || products.length === 0) return;
     const observer = new IntersectionObserver(
@@ -133,7 +158,6 @@ export function EcoMarketScreen() {
     return () => observer.disconnect();
   }, [user, products, trackedViews]);
 
-  // Load saved products for current user
   useEffect(() => {
     if (!user) return;
     supabase
@@ -148,9 +172,7 @@ export function EcoMarketScreen() {
 
   const toggleSave = async (productId: string) => {
     if (!user) return;
-    const isSaved = savedProducts.has(productId);
-    if (isSaved) {
-      // We can't delete via RLS, so just toggle UI (save is one-time)
+    if (savedProducts.has(productId)) {
       toast.info('Already saved!');
       return;
     }
@@ -204,7 +226,6 @@ export function EcoMarketScreen() {
 
       const { data, error } = await query;
       if (error) throw error;
-      // Parse media_urls from JSON
       const parsed = (data || []).map((p: any) => ({
         ...p,
         badges: p.badges || [],
@@ -270,7 +291,6 @@ export function EcoMarketScreen() {
 
       setProducts([{ ...newProduct, badges: newProduct.badges || [], media_urls: Array.isArray(newProduct.media_urls) ? newProduct.media_urls as any : [] } as Product, ...products]);
 
-      // Auto-post to Agora Square
       const badgeText = productData.badges.length > 0 ? productData.badges.join(' • ') : '';
       const postContent = [
         `🛒 New on EcoMarket!`,
@@ -294,7 +314,6 @@ export function EcoMarketScreen() {
         tags: [productData.category.replace(/\s+/g, ''), 'EcoMarket', 'EcoProduct'],
       });
 
-      // Notify users
       const { data: allProfiles } = await supabase
         .from('public_profiles')
         .select('user_id')
@@ -335,7 +354,42 @@ export function EcoMarketScreen() {
   const getMediaIndex = (productId: string) => mediaIndices[productId] || 0;
   const setMediaIndex = (productId: string, idx: number) => setMediaIndices(prev => ({ ...prev, [productId]: idx }));
 
-  // ── Inbox sub-view (inline) ──
+  // ── Buy flow helpers ──
+  const getBuyButtonState = (price: number) => {
+    const points = user?.ecoPoints || 0;
+    if (points >= price) return { type: 'full' as const, label: `Redeem ${price} EcoPoints`, color: 'eco-gradient-bg text-white' };
+    if (points > 0) return { type: 'partial' as const, label: `Redeem ${points} EcoPoints + Pay KSh ${(price - points).toLocaleString()}`, color: 'bg-amber-500 text-white' };
+    return { type: 'cash' as const, label: `Pay KSh ${price.toLocaleString()}`, color: 'eco-gradient-bg text-white' };
+  };
+
+  const handleBuyClick = (product: Product) => {
+    setBuyProduct(product);
+    setShowConfirmModal(true);
+    setPhoneNumber('');
+  };
+
+  const handleConfirmPurchase = async () => {
+    if (!buyProduct || !user) return;
+    const points = user.ecoPoints || 0;
+    const pointsToUse = Math.min(points, buyProduct.price);
+    const cashRemaining = buyProduct.price - pointsToUse;
+
+    if (cashRemaining > 0 && !phoneNumber.trim()) {
+      toast.error('Please enter your M-Pesa phone number');
+      return;
+    }
+
+    const result = await processPurchase(buyProduct.id, pointsToUse, phoneNumber || undefined);
+    if (result) {
+      setShowConfirmModal(false);
+      setPurchaseResult({ ...result, productName: buyProduct.product_name });
+      setShowSuccessScreen(true);
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 4000);
+    }
+  };
+
+  // ── Inbox sub-view ──
   const InboxView = () => {
     const [conversations, setConversations] = useState<any[]>([]);
     const [inboxLoading, setInboxLoading] = useState(true);
@@ -430,14 +484,77 @@ export function EcoMarketScreen() {
     );
   };
 
-  // ── Purchases sub-view (placeholder) ──
-  const PurchasesView = () => (
-    <div className="p-8 text-center">
-      <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-      <p className="text-foreground font-semibold">No purchases yet</p>
-      <p className="text-sm text-muted-foreground mt-1">Products you inquire about will appear here.</p>
-    </div>
-  );
+  // ── Purchases sub-view ──
+  const PurchasesView = () => {
+    const [purchases, setPurchases] = useState<Transaction[]>([]);
+    const [purchasesLoading, setPurchasesLoading] = useState(true);
+
+    useEffect(() => {
+      if (!user) return;
+      (async () => {
+        setPurchasesLoading(true);
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('buyer_id', user.id)
+          .order('created_at', { ascending: false });
+        if (!error && data) setPurchases(data as any);
+        setPurchasesLoading(false);
+      })();
+    }, [user]);
+
+    if (purchasesLoading) return <div className="flex items-center justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    if (purchases.length === 0) return (
+      <div className="p-8 text-center">
+        <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+        <p className="text-foreground font-semibold">No purchases yet</p>
+        <p className="text-sm text-muted-foreground mt-1">Buy eco-products with your EcoPoints!</p>
+      </div>
+    );
+
+    return (
+      <div className="p-4 space-y-3 pb-24">
+        {purchases.map((tx) => (
+          <div key={tx.id} className="eco-card p-4">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <h4 className="font-semibold text-foreground">{tx.product_name}</h4>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(tx.created_at).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </p>
+              </div>
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${tx.status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700'}`}>
+                {tx.status === 'completed' ? '✓ Completed' : tx.status}
+              </span>
+            </div>
+            <div className="flex items-center gap-4 text-sm">
+              {tx.points_used > 0 && (
+                <span className="flex items-center gap-1 text-primary font-medium">
+                  <Leaf className="w-3.5 h-3.5" /> {tx.points_used} pts
+                </span>
+              )}
+              {Number(tx.cash_paid) > 0 && (
+                <span className="text-muted-foreground">+ KSh {Number(tx.cash_paid).toLocaleString()}</span>
+              )}
+              {tx.bonus_points > 0 && (
+                <span className="text-emerald-600 dark:text-emerald-400 font-medium">+{tx.bonus_points} bonus</span>
+              )}
+            </div>
+            {tx.product_id && (
+              <button
+                onClick={() => {
+                  setChatProduct({ id: tx.product_id, name: tx.product_name, sellerId: tx.seller_id, sellerName: '' });
+                }}
+                className="mt-3 text-xs text-primary font-medium flex items-center gap-1"
+              >
+                <MessageCircle className="w-3.5 h-3.5" /> Message seller
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   if (isLoading && activeView === 'browse') {
     return (
@@ -451,6 +568,8 @@ export function EcoMarketScreen() {
 
   return (
     <AppLayout>
+      {showConfetti && <Confetti />}
+
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
         <div className="flex items-center justify-between mb-3">
@@ -482,6 +601,14 @@ export function EcoMarketScreen() {
 
         {activeView === 'browse' && (
           <>
+            {/* EcoPoints balance bar */}
+            {user && (
+              <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10">
+                <Leaf className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-foreground">You have <span className="eco-gradient-text">{user.ecoPoints.toLocaleString()}</span> EcoPoints</span>
+              </div>
+            )}
+
             {/* Quick Action Dashboard Cards */}
             <div className="grid grid-cols-2 gap-2 mb-3">
               <button
@@ -578,6 +705,8 @@ export function EcoMarketScreen() {
                 const currentMediaIdx = getMediaIndex(product.id);
                 const currentMedia = media[currentMediaIdx];
                 const isSaved = savedProducts.has(product.id);
+                const isOwnProduct = user && product.user_id === user.id;
+                const buyState = getBuyButtonState(product.price);
 
                 return (
                   <article
@@ -663,34 +792,46 @@ export function EcoMarketScreen() {
                       </div>
                     )}
 
-                    {/* Price + Contact + Chat */}
-                    <div className="flex items-center justify-between pt-2 border-t border-border">
-                      <span className="text-lg font-bold text-foreground">KSh {product.price.toLocaleString()}</span>
-                      <div className="flex items-center gap-2">
-                        {user && product.user_id !== user.id && (
-                          <button
-                            onClick={() => setChatProduct({
-                              id: product.id,
-                              name: product.product_name,
-                              sellerId: product.user_id,
-                              sellerName: product.org_name,
-                            })}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-foreground text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all"
-                            aria-label={`Message ${product.org_name}`}
+                    {/* Price + Actions */}
+                    <div className="pt-3 border-t border-border space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-bold text-foreground">KSh {product.price.toLocaleString()}</span>
+                        <div className="flex items-center gap-2">
+                          {!isOwnProduct && (
+                            <button
+                              onClick={() => setChatProduct({
+                                id: product.id,
+                                name: product.product_name,
+                                sellerId: product.user_id,
+                                sellerName: product.org_name,
+                              })}
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-foreground text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all"
+                              aria-label={`Message ${product.org_name}`}
+                            >
+                              <MessageCircle className="w-4 h-4" />
+                            </button>
+                          )}
+                          <a
+                            href={`tel:${product.contact_phone}`}
+                            onClick={() => trackInteraction(product.id, 'click')}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-foreground text-sm font-medium hover:bg-primary/10 transition-all"
+                            aria-label={`Call ${product.org_name}`}
                           >
-                            <MessageCircle className="w-4 h-4" />
-                          </button>
-                        )}
-                        <a
-                          href={`tel:${product.contact_phone}`}
-                          onClick={() => trackInteraction(product.id, 'click')}
-                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl eco-gradient-bg text-white text-sm font-semibold hover:opacity-90 transition-opacity"
-                          aria-label={`Call ${product.org_name} at ${product.contact_phone}`}
-                        >
-                          <Phone className="w-4 h-4" aria-hidden="true" />
-                          {product.contact_phone}
-                        </a>
+                            <Phone className="w-4 h-4" aria-hidden="true" />
+                          </a>
+                        </div>
                       </div>
+
+                      {/* Smart Buy Button */}
+                      {!isOwnProduct && (
+                        <button
+                          onClick={() => handleBuyClick(product)}
+                          className={`w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${buyState.color}`}
+                        >
+                          <Leaf className="w-4 h-4" />
+                          {buyState.label}
+                        </button>
+                      )}
                     </div>
                   </article>
                 );
@@ -705,6 +846,137 @@ export function EcoMarketScreen() {
             </button>
           )}
         </>
+      )}
+
+      {/* ── Purchase Confirmation Modal ── */}
+      {showConfirmModal && buyProduct && user && (
+        <div className="fixed inset-0 z-[60] bg-black/60 flex items-end sm:items-center justify-center" onClick={() => !isProcessing && setShowConfirmModal(false)}>
+          <div
+            className="bg-card w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-6 space-y-5 animate-slide-up pb-safe"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center">
+              <div className="w-14 h-14 rounded-full eco-gradient-bg flex items-center justify-center mx-auto mb-3">
+                <ShoppingBag className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground">Confirm Purchase</h3>
+              <p className="text-sm text-muted-foreground mt-1">{buyProduct.product_name}</p>
+            </div>
+
+            {/* Breakdown */}
+            <div className="bg-muted/50 rounded-xl p-4 space-y-2.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Total price</span>
+                <span className="font-semibold text-foreground">KSh {buyProduct.price.toLocaleString()}</span>
+              </div>
+              {(() => {
+                const points = user.ecoPoints || 0;
+                const pointsToUse = Math.min(points, buyProduct.price);
+                const cashRemaining = buyProduct.price - pointsToUse;
+
+                return (
+                  <>
+                    {pointsToUse > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-primary flex items-center gap-1"><Leaf className="w-3.5 h-3.5" /> EcoPoints</span>
+                        <span className="font-semibold text-primary">-{pointsToUse} pts</span>
+                      </div>
+                    )}
+                    {cashRemaining > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Remaining (M-Pesa)</span>
+                        <span className="font-semibold text-foreground">KSh {cashRemaining.toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div className="border-t border-border pt-2 flex justify-between text-sm">
+                      <span className="text-muted-foreground">Points after</span>
+                      <span className="font-semibold text-foreground">{(points - pointsToUse)} + 50 bonus 🎁</span>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* M-Pesa phone input if cash needed */}
+            {(() => {
+              const cashRemaining = buyProduct.price - Math.min(user.ecoPoints || 0, buyProduct.price);
+              if (cashRemaining <= 0) return null;
+              return (
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">M-Pesa Phone Number</label>
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="e.g. 0712345678"
+                    className="eco-input py-2.5 text-sm"
+                  />
+                </div>
+              );
+            })()}
+
+            {/* Confirm buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                disabled={isProcessing}
+                className="flex-1 py-3 rounded-xl border border-border text-foreground font-medium text-sm hover:bg-muted transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmPurchase}
+                disabled={isProcessing}
+                className="flex-1 py-3 rounded-xl eco-gradient-bg text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-60"
+              >
+                {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                {user.ecoPoints >= buyProduct.price ? 'Confirm Redemption' : 'Confirm & Pay'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Success Screen ── */}
+      {showSuccessScreen && purchaseResult && (
+        <div className="fixed inset-0 z-[70] bg-background flex flex-col items-center justify-center p-6 text-center">
+          <div className="animate-slide-up space-y-6 max-w-sm">
+            <div className="w-20 h-20 rounded-full eco-gradient-bg flex items-center justify-center mx-auto">
+              <Sparkles className="w-10 h-10 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">Purchase Complete! 🎉</h2>
+              <p className="text-muted-foreground">You've earned <span className="font-bold text-primary">+{purchaseResult.bonusPoints} bonus EcoPoints</span></p>
+            </div>
+            <div className="bg-muted/50 rounded-xl p-4 space-y-2 text-sm text-left">
+              <p className="font-semibold text-foreground">{purchaseResult.productName}</p>
+              {purchaseResult.pointsUsed > 0 && <p className="text-primary flex items-center gap-1"><Leaf className="w-3.5 h-3.5" /> {purchaseResult.pointsUsed} EcoPoints redeemed</p>}
+              {purchaseResult.cashPaid > 0 && <p className="text-muted-foreground">KSh {purchaseResult.cashPaid.toLocaleString()} paid via M-Pesa</p>}
+            </div>
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={() => {
+                  setShowSuccessScreen(false);
+                  setPurchaseResult(null);
+                  navigate('/agora');
+                }}
+                className="flex-1 py-3 rounded-xl border border-primary text-primary font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary/5 transition-colors"
+              >
+                <Share2 className="w-4 h-4" /> Share in Agora
+              </button>
+              <button
+                onClick={() => {
+                  setShowSuccessScreen(false);
+                  setPurchaseResult(null);
+                  setActiveView('purchases');
+                }}
+                className="flex-1 py-3 rounded-xl eco-gradient-bg text-white font-bold text-sm"
+              >
+                View Purchases
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <CreateProductModal
