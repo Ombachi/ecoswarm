@@ -114,11 +114,17 @@ export function DashboardScreen() {
 
       const completedIds = completedData?.map((c) => c.challenge_id) || [];
 
-      // Mark completed challenges
-      const challengesWithStatus = (challengesData || []).map((c) => ({
-        ...c,
-        completed: completedIds.includes(c.id),
-      }));
+      // Filter challenges by role and mark completed
+      const userRole = isDeveloper ? 'ecodeveloper' : 'ecowarrior';
+      const challengesWithStatus = (challengesData || [])
+        .filter((c: any) => {
+          const targetRole = c.target_role || 'all';
+          return targetRole === 'all' || targetRole === userRole;
+        })
+        .map((c) => ({
+          ...c,
+          completed: completedIds.includes(c.id),
+        }));
 
       setChallenges(challengesWithStatus);
     } catch (error) {
