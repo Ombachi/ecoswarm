@@ -83,7 +83,7 @@ export function DashboardScreen() {
   }, [user?.id, authUserId]);
 
   useEffect(() => {
-    if (user) {
+    if (user && roleChecked) {
       loadChallenges();
       updateStreak();
       supabase
@@ -92,7 +92,7 @@ export function DashboardScreen() {
         .eq('user_id', user.id)
         .then(({ count }) => setProductCount(count || 0));
     }
-  }, [user]);
+  }, [user, roleChecked, isDeveloper]);
 
   const loadChallenges = async () => {
     if (!user) return;
