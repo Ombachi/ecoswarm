@@ -9,6 +9,8 @@ interface PurchaseResult {
   pointsUsed: number;
   cashPaid: number;
   newPoints: number;
+  verificationStatus: string;
+  isPending: boolean;
 }
 
 export function usePurchase() {
@@ -39,6 +41,8 @@ export function usePurchase() {
         pointsUsed: data.pointsUsed,
         cashPaid: data.cashPaid,
         newPoints: data.newPoints,
+        verificationStatus: data.verificationStatus || 'verified',
+        isPending: data.isPending || false,
       };
     } catch (err: any) {
       toast.error(err.message || 'Purchase failed');
@@ -48,5 +52,18 @@ export function usePurchase() {
     }
   };
 
-  return { processPurchase, isProcessing };
+  const verifyPayment = async (transactionId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-payment', {
+        body: { transactionId },
+      });
+      if (error) throw error;
+      return data;
+    } catch (err: any) {
+      toast.error(err.message || 'Verification failed');
+      return null;
+    }
+  };
+
+  return { processPurchase, verifyPayment, isProcessing };
 }

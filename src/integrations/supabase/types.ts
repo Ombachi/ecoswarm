@@ -687,6 +687,77 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          mpesa_phone: string | null
+          mpesa_receipt: string | null
+          processed_at: string | null
+          seller_id: string
+          status: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          mpesa_phone?: string | null
+          mpesa_receipt?: string | null
+          processed_at?: string | null
+          seller_id: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          mpesa_phone?: string | null
+          mpesa_receipt?: string | null
+          processed_at?: string | null
+          seller_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      seller_ratings: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          rating: number
+          review: string | null
+          seller_id: string
+          transaction_id: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          rating: number
+          review?: string | null
+          seller_id: string
+          transaction_id: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          review?: string | null
+          seller_id?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_ratings_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       swarm_memberships: {
         Row: {
           id: string
@@ -795,6 +866,47 @@ export type Database = {
         }
         Relationships: []
       }
+      transaction_disputes: {
+        Row: {
+          created_at: string
+          id: string
+          raised_by: string
+          reason: string
+          resolution: string | null
+          resolved_at: string | null
+          status: string
+          transaction_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          raised_by: string
+          reason: string
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string
+          transaction_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          raised_by?: string
+          reason?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_disputes_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           bonus_points: number
@@ -802,6 +914,7 @@ export type Database = {
           cash_paid: number
           created_at: string
           id: string
+          mpesa_checkout_id: string | null
           mpesa_receipt: string | null
           payment_method: string | null
           points_used: number
@@ -810,6 +923,8 @@ export type Database = {
           seller_id: string
           status: string
           total_price: number
+          verification_status: string | null
+          verified_at: string | null
         }
         Insert: {
           bonus_points?: number
@@ -817,6 +932,7 @@ export type Database = {
           cash_paid?: number
           created_at?: string
           id?: string
+          mpesa_checkout_id?: string | null
           mpesa_receipt?: string | null
           payment_method?: string | null
           points_used?: number
@@ -825,6 +941,8 @@ export type Database = {
           seller_id: string
           status?: string
           total_price?: number
+          verification_status?: string | null
+          verified_at?: string | null
         }
         Update: {
           bonus_points?: number
@@ -832,6 +950,7 @@ export type Database = {
           cash_paid?: number
           created_at?: string
           id?: string
+          mpesa_checkout_id?: string | null
           mpesa_receipt?: string | null
           payment_method?: string | null
           points_used?: number
@@ -840,6 +959,8 @@ export type Database = {
           seller_id?: string
           status?: string
           total_price?: number
+          verification_status?: string | null
+          verified_at?: string | null
         }
         Relationships: [
           {
