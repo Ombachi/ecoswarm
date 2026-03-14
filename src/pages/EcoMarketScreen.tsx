@@ -56,6 +56,8 @@ interface Transaction {
   status: string;
   created_at: string;
   seller_id: string;
+  verification_status?: string;
+  mpesa_receipt?: string;
 }
 
 const categoryFilters = [
