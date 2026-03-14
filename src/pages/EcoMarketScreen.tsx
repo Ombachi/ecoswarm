@@ -956,7 +956,17 @@ export function EcoMarketScreen() {
             </div>
             <div className="flex gap-3 w-full">
               <button
-                onClick={() => {
+                onClick={async () => {
+                  if (user && purchaseResult) {
+                    const content = `🛒 Just purchased "${purchaseResult.productName}" on the EcoMarket!\n\n${purchaseResult.pointsUsed > 0 ? `Redeemed ${purchaseResult.pointsUsed} EcoPoints 🌱\n` : ''}Earned +${purchaseResult.bonusPoints} bonus EcoPoints! 🎉\n\n#EcoMarket #EcoSwarm #GreenShopping`;
+                    await createAutoPost({
+                      userId: user.id,
+                      userName: user.name,
+                      content,
+                      tags: ['EcoMarket', 'EcoSwarm', 'GreenShopping'],
+                    });
+                    toast.success('Shared to Agora Square!');
+                  }
                   setShowSuccessScreen(false);
                   setPurchaseResult(null);
                   navigate('/agora');
