@@ -13,6 +13,7 @@ import {
   Inbox, ShoppingCart, Package, ArrowLeft, Leaf, Check, Sparkles, Share2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { createAutoPost } from '@/utils/autoPost';
 
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
