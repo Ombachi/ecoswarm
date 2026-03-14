@@ -13,6 +13,7 @@ import {
   Inbox, ShoppingCart, Package, ArrowLeft, Leaf, Check, Sparkles, Share2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { createAutoPost } from '@/utils/autoPost';
 
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -955,7 +956,17 @@ export function EcoMarketScreen() {
             </div>
             <div className="flex gap-3 w-full">
               <button
-                onClick={() => {
+                onClick={async () => {
+                  if (user && purchaseResult) {
+                    const content = `🛒 Just purchased "${purchaseResult.productName}" on the EcoMarket!\n\n${purchaseResult.pointsUsed > 0 ? `Redeemed ${purchaseResult.pointsUsed} EcoPoints 🌱\n` : ''}Earned +${purchaseResult.bonusPoints} bonus EcoPoints! 🎉\n\n#EcoMarket #EcoSwarm #GreenShopping`;
+                    await createAutoPost({
+                      userId: user.id,
+                      userName: user.name,
+                      content,
+                      tags: ['EcoMarket', 'EcoSwarm', 'GreenShopping'],
+                    });
+                    toast.success('Shared to Agora Square!');
+                  }
                   setShowSuccessScreen(false);
                   setPurchaseResult(null);
                   navigate('/agora');
