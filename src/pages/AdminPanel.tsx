@@ -373,16 +373,19 @@ export function AdminPanel() {
             onBack={() => setEditingContentCourseId(null)}
           />
         ) : (
-        <Tabs defaultValue="courses">
+        <Tabs defaultValue="analytics">
           <TabsList className="w-full flex-wrap h-auto gap-1 p-1">
+            <TabsTrigger value="analytics" className="flex-1 gap-1 text-[10px] px-2">
+              <BarChart3 className="w-3.5 h-3.5" /> Analytics
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex-1 gap-1 text-[10px] px-2">
+              <Users className="w-3.5 h-3.5" /> Users
+            </TabsTrigger>
             <TabsTrigger value="courses" className="flex-1 gap-1 text-[10px] px-2">
               <GraduationCap className="w-3.5 h-3.5" /> Courses
             </TabsTrigger>
             <TabsTrigger value="templates" className="flex-1 gap-1 text-[10px] px-2">
-              <Mail className="w-3.5 h-3.5" /> Templates
-            </TabsTrigger>
-            <TabsTrigger value="recipients" className="flex-1 gap-1 text-[10px] px-2">
-              <Users className="w-3.5 h-3.5" /> Recipients
+              <Mail className="w-3.5 h-3.5" /> Letters
             </TabsTrigger>
             <TabsTrigger value="disputes" className="flex-1 gap-1 text-[10px] px-2 relative">
               <AlertTriangle className="w-3.5 h-3.5" /> Disputes
@@ -404,6 +407,16 @@ export function AdminPanel() {
               <DollarSign className="w-3.5 h-3.5" /> Txns
             </TabsTrigger>
           </TabsList>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <AdminAnalyticsTab />
+          </TabsContent>
+
+          {/* Users Tab */}
+          <TabsContent value="users">
+            <AdminUsersTab />
+          </TabsContent>
 
           {/* Courses Tab */}
           <TabsContent value="courses" className="space-y-3 pt-3">
