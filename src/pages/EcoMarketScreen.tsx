@@ -843,6 +843,8 @@ export function EcoMarketScreen() {
         <InboxView />
       ) : activeView === 'purchases' ? (
         <PurchasesView />
+      ) : activeView === 'earnings' ? (
+        <SellerEarnings onBack={() => setActiveView('browse')} />
       ) : (
         <>
           {/* Products Grid */}
