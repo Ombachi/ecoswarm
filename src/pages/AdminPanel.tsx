@@ -315,7 +315,7 @@ export function AdminPanel() {
     );
   };
 
-  if (isChecking) {
+  if (isCheckingAdmin) {
     return (
       <AppLayout>
         <div className="min-h-screen flex items-center justify-center">
@@ -332,7 +332,7 @@ export function AdminPanel() {
           <Shield className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold text-foreground mb-2">Access Denied</h1>
           <p className="text-muted-foreground mb-6">You need admin privileges to access this page.</p>
-          <Button onClick={() => navigate('/dashboard')}>Go to Dashboard</Button>
+          <Button onClick={() => navigate('/')}>Go Home</Button>
         </div>
       </AppLayout>
     );
