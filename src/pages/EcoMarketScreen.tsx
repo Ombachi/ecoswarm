@@ -725,10 +725,10 @@ export function EcoMarketScreen() {
             )}
             <div>
               <h1 className="text-xl font-bold text-foreground">
-                {activeView === 'browse' ? 'EcoMarket' : activeView === 'inbox' ? 'Product Inbox' : 'My Purchases'}
+                {activeView === 'browse' ? 'EcoMarket' : activeView === 'inbox' ? 'Product Inbox' : activeView === 'earnings' ? 'Seller Earnings' : 'My Purchases'}
               </h1>
               <p className="text-xs text-muted-foreground">
-                {activeView === 'browse' ? 'Eco-friendly products & services' : activeView === 'inbox' ? 'Your product conversations' : 'Track your purchases'}
+                {activeView === 'browse' ? 'Eco-friendly products & services' : activeView === 'inbox' ? 'Your product conversations' : activeView === 'earnings' ? 'Revenue & payouts' : 'Track your purchases'}
               </p>
             </div>
           </div>
