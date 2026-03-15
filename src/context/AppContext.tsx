@@ -550,6 +550,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         user,
         setUser,
         authUserId,
+        isAdmin,
         isOnboarded,
         setIsOnboarded,
         isDarkMode,
