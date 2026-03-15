@@ -455,58 +455,61 @@ export function AdminPanel() {
             ))}
           </TabsContent>
 
-          {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-3 pt-3">
-            <Button onClick={() => openCreate('template')} className="w-full gap-2">
-              <Plus className="w-4 h-4" /> Add Template
-            </Button>
-            {templates.map((t) => (
-              <div key={t.id} className={`eco-card p-4 ${!t.is_active ? 'opacity-50' : ''}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-foreground text-sm">{t.title}</h3>
-                      <span className="eco-badge text-[10px]">{t.category}</span>
+          {/* Letters Tab (Templates + Recipients) */}
+          <TabsContent value="templates" className="space-y-4 pt-3">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-2">Templates</h3>
+              <Button onClick={() => openCreate('template')} className="w-full gap-2 mb-3" size="sm">
+                <Plus className="w-4 h-4" /> Add Template
+              </Button>
+              {templates.map((t) => (
+                <div key={t.id} className={`eco-card p-4 mb-2 ${!t.is_active ? 'opacity-50' : ''}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-foreground text-sm">{t.title}</h3>
+                        <span className="eco-badge text-[10px]">{t.category}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2">{t.content.substring(0, 100)}...</p>
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{t.content.substring(0, 100)}...</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => openEdit(t, 'template')} className="p-2 rounded-lg bg-muted hover:bg-muted/80">
-                      <Pencil className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                    <button onClick={() => handleDelete(t.id, 'template')} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </button>
+                    <div className="flex gap-1">
+                      <button onClick={() => openEdit(t, 'template')} className="p-2 rounded-lg bg-muted hover:bg-muted/80">
+                        <Pencil className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                      <button onClick={() => handleDelete(t.id, 'template')} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </TabsContent>
+              ))}
+            </div>
 
-          {/* Recipients Tab */}
-          <TabsContent value="recipients" className="space-y-3 pt-3">
-            <Button onClick={() => openCreate('recipient')} className="w-full gap-2">
-              <Plus className="w-4 h-4" /> Add Recipient
-            </Button>
-            {recipients.map((r) => (
-              <div key={r.id} className={`eco-card p-4 ${!r.is_active ? 'opacity-50' : ''}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground text-sm">{r.name}</h3>
-                    <p className="text-xs text-muted-foreground">{r.title}, {r.organization}</p>
-                    <p className="text-xs text-primary">{r.email}</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => openEdit(r, 'recipient')} className="p-2 rounded-lg bg-muted hover:bg-muted/80">
-                      <Pencil className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                    <button onClick={() => handleDelete(r.id, 'recipient')} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </button>
+            <div className="border-t border-border pt-4">
+              <h3 className="text-sm font-semibold text-foreground mb-2">Recipients</h3>
+              <Button onClick={() => openCreate('recipient')} className="w-full gap-2 mb-3" size="sm">
+                <Plus className="w-4 h-4" /> Add Recipient
+              </Button>
+              {recipients.map((r) => (
+                <div key={r.id} className={`eco-card p-4 mb-2 ${!r.is_active ? 'opacity-50' : ''}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground text-sm">{r.name}</h3>
+                      <p className="text-xs text-muted-foreground">{r.title}, {r.organization}</p>
+                      <p className="text-xs text-primary">{r.email}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <button onClick={() => openEdit(r, 'recipient')} className="p-2 rounded-lg bg-muted hover:bg-muted/80">
+                        <Pencil className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                      <button onClick={() => handleDelete(r.id, 'recipient')} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </TabsContent>
 
           {/* Disputes Tab */}
