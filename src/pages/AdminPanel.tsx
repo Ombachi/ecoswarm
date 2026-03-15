@@ -104,7 +104,7 @@ interface Transaction {
 
 export function AdminPanel() {
   const navigate = useNavigate();
-  const { user } = useApp();
+  const { user, isAdmin, logout } = useApp();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
