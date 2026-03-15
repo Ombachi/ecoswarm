@@ -754,36 +754,47 @@ export function EcoMarketScreen() {
             )}
 
             {/* Quick Action Dashboard Cards */}
-            <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className={`grid ${isDeveloper ? 'grid-cols-3' : 'grid-cols-2'} gap-2 mb-3`}>
               <button
                 onClick={() => setActiveView('inbox')}
-                className="relative flex items-center gap-2.5 p-3 rounded-xl bg-primary/10 hover:bg-primary/15 transition-colors text-left"
+                className="relative flex items-center gap-2 p-3 rounded-xl bg-primary/10 hover:bg-primary/15 transition-colors text-left"
               >
-                <div className="w-9 h-9 rounded-full eco-gradient-bg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-full eco-gradient-bg flex items-center justify-center flex-shrink-0">
                   <Inbox className="w-4 h-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-foreground">Product Inbox</p>
-                  <p className="text-[10px] text-muted-foreground">Messages</p>
+                  <p className="text-[10px] font-bold text-foreground">Inbox</p>
                 </div>
                 {unreadCount > 0 && (
-                  <span className="absolute top-2 right-2 min-w-[18px] h-[18px] rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center px-1">
+                  <span className="absolute top-1.5 right-1.5 min-w-[16px] h-[16px] rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center px-0.5">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
               </button>
               <button
                 onClick={() => setActiveView('purchases')}
-                className="flex items-center gap-2.5 p-3 rounded-xl bg-accent/50 hover:bg-accent/70 transition-colors text-left"
+                className="flex items-center gap-2 p-3 rounded-xl bg-accent/50 hover:bg-accent/70 transition-colors text-left"
               >
-                <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
                   <ShoppingCart className="w-4 h-4 text-accent-foreground" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-foreground">My Purchases</p>
-                  <p className="text-[10px] text-muted-foreground">Track orders</p>
+                  <p className="text-[10px] font-bold text-foreground">Purchases</p>
                 </div>
               </button>
+              {isDeveloper && (
+                <button
+                  onClick={() => setActiveView('earnings')}
+                  className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/15 transition-colors text-left"
+                >
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <Wallet className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold text-foreground">Earnings</p>
+                  </div>
+                </button>
+              )}
             </div>
 
             {/* Search */}
