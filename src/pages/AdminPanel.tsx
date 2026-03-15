@@ -345,14 +345,23 @@ export function AdminPanel() {
     <AppLayout>
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-full bg-muted text-muted-foreground">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-foreground">Admin Panel</h1>
-            <p className="text-xs text-muted-foreground">Manage content, disputes & payouts</p>
+            <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
+            <p className="text-xs text-muted-foreground">EcoSwarm Control Panel</p>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs"
+            onClick={async () => {
+              await logout();
+              toast.success('Logged out');
+              navigate('/');
+            }}
+          >
+            <LogOut className="w-3.5 h-3.5" /> Logout
+          </Button>
         </div>
       </div>
 
