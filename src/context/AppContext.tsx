@@ -319,6 +319,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setIsAdmin(false);
     setIsOnboarded(false);
   };
 
