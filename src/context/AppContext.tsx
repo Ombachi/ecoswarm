@@ -33,6 +33,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isOnboarded, setIsOnboarded] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSwahili, setIsSwahili] = useState(false);
