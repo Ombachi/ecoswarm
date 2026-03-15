@@ -94,7 +94,7 @@ export function EcoMarketScreen() {
     rect: DOMRect | null;
   } | null>(null);
   const [chatProduct, setChatProduct] = useState<{ id: string; name: string; sellerId: string; sellerName: string } | null>(null);
-  const [activeView, setActiveView] = useState<'browse' | 'inbox' | 'purchases'>('browse');
+  const [activeView, setActiveView] = useState<'browse' | 'inbox' | 'purchases' | 'earnings'>('browse');
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Buy flow state
