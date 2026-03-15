@@ -134,21 +134,23 @@ export function AdminPanel() {
   const [processingPayoutId, setProcessingPayoutId] = useState<string | null>(null);
 
   useEffect(() => {
-    checkAdmin();
-  }, [user]);
-
-  const checkAdmin = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .maybeSingle();
-    setIsAdmin(!!data);
-    setIsChecking(false);
-    if (data) loadAll();
-  };
+    if (isAdmin) {
+      setIsCheckingAdmin(false);
+      loadAll();
+    } else if (user) {
+      // Fallback check for direct URL navigation
+      supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle()
+        .then(({ data }) => {
+          setIsCheckingAdmin(false);
+          if (data) loadAll();
+        });
+    }
+  }, [user, isAdmin]);
 
   const loadAll = async () => {
     setIsLoading(true);
