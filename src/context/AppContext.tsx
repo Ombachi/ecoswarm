@@ -361,7 +361,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const badges = await fetchUserBadges(authUser.id);
       appUser = { ...appUser, badges };
 
+      // Check admin role
+      const { data: adminRole } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', authUser.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
       if (isMounted) {
+        setIsAdmin(!!adminRole);
         setUser(appUser);
         setIsOnboarded(true);
       }
