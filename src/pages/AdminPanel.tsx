@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import {
   ChevronLeft,
   GraduationCap,
@@ -21,6 +22,12 @@ import {
   Loader2,
   Shield,
   BookOpen,
+  AlertTriangle,
+  Wallet,
+  CheckCircle,
+  XCircle,
+  Clock,
+  DollarSign,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CourseContentEditor } from '@/components/admin/CourseContentEditor';
@@ -55,6 +62,43 @@ interface Recipient {
   sort_order: number;
 }
 
+interface Dispute {
+  id: string;
+  transaction_id: string;
+  raised_by: string;
+  reason: string;
+  status: string;
+  resolution: string | null;
+  created_at: string;
+  resolved_at: string | null;
+}
+
+interface Payout {
+  id: string;
+  seller_id: string;
+  amount: number;
+  status: string;
+  mpesa_phone: string | null;
+  mpesa_receipt: string | null;
+  created_at: string;
+  processed_at: string | null;
+}
+
+interface Transaction {
+  id: string;
+  buyer_id: string;
+  seller_id: string;
+  product_name: string;
+  points_used: number;
+  cash_paid: number;
+  total_price: number;
+  status: string;
+  payment_method: string | null;
+  verification_status: string | null;
+  mpesa_receipt: string | null;
+  created_at: string;
+}
+
 export function AdminPanel() {
   const navigate = useNavigate();
   const { user } = useApp();
@@ -64,7 +108,13 @@ export function AdminPanel() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [templates, setTemplates] = useState<LetterTemplate[]>([]);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
+  const [disputes, setDisputes] = useState<Dispute[]>([]);
+  const [payouts, setPayouts] = useState<Payout[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Profile name cache
+  const [profileNames, setProfileNames] = useState<Record<string, string>>({});
 
   // Edit modal state
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -72,6 +122,14 @@ export function AdminPanel() {
   const [isSaving, setIsSaving] = useState(false);
   const [editingContentCourseId, setEditingContentCourseId] = useState<string | null>(null);
   const [editingContentCourseTitle, setEditingContentCourseTitle] = useState('');
+
+  // Dispute resolution modal
+  const [resolvingDispute, setResolvingDispute] = useState<Dispute | null>(null);
+  const [resolutionText, setResolutionText] = useState('');
+  const [isResolving, setIsResolving] = useState(false);
+
+  // Payout approval
+  const [processingPayoutId, setProcessingPayoutId] = useState<string | null>(null);
 
   useEffect(() => {
     checkAdmin();
@@ -92,16 +150,41 @@ export function AdminPanel() {
 
   const loadAll = async () => {
     setIsLoading(true);
-    const [c, t, r] = await Promise.all([
+    const [c, t, r, d, p, tx] = await Promise.all([
       supabase.from('courses').select('*').order('sort_order'),
       supabase.from('letter_templates').select('*').order('sort_order'),
       supabase.from('recipients').select('*').order('sort_order'),
+      supabase.from('transaction_disputes').select('*').order('created_at', { ascending: false }),
+      supabase.from('seller_payouts').select('*').order('created_at', { ascending: false }),
+      supabase.from('transactions').select('*').order('created_at', { ascending: false }).limit(50),
     ]);
     setCourses(c.data || []);
     setTemplates(t.data || []);
     setRecipients(r.data || []);
+    setDisputes((d.data as Dispute[]) || []);
+    setPayouts((p.data as Payout[]) || []);
+    setTransactions((tx.data as Transaction[]) || []);
+
+    // Collect unique user IDs to resolve names
+    const userIds = new Set<string>();
+    (d.data || []).forEach((item: any) => userIds.add(item.raised_by));
+    (p.data || []).forEach((item: any) => userIds.add(item.seller_id));
+    (tx.data || []).forEach((item: any) => { userIds.add(item.buyer_id); userIds.add(item.seller_id); });
+
+    if (userIds.size > 0) {
+      const { data: profiles } = await supabase
+        .from('public_profiles')
+        .select('user_id, name')
+        .in('user_id', Array.from(userIds));
+      const names: Record<string, string> = {};
+      (profiles || []).forEach((p: any) => { if (p.user_id) names[p.user_id] = p.name || 'Unknown'; });
+      setProfileNames(names);
+    }
+
     setIsLoading(false);
   };
+
+  const getName = (userId: string) => profileNames[userId] || userId.slice(0, 8);
 
   const openCreate = (type: 'course' | 'template' | 'recipient') => {
     setEditType(type);
@@ -165,6 +248,69 @@ export function AdminPanel() {
     }
   };
 
+  const handleResolveDispute = async () => {
+    if (!resolvingDispute || !resolutionText.trim()) return;
+    setIsResolving(true);
+    try {
+      const { error } = await supabase
+        .from('transaction_disputes')
+        .update({
+          status: 'resolved',
+          resolution: resolutionText.trim(),
+          resolved_at: new Date().toISOString(),
+        })
+        .eq('id', resolvingDispute.id);
+      if (error) throw error;
+      toast.success('Dispute resolved');
+      setResolvingDispute(null);
+      setResolutionText('');
+      await loadAll();
+    } catch {
+      toast.error('Failed to resolve dispute');
+    } finally {
+      setIsResolving(false);
+    }
+  };
+
+  const handlePayoutAction = async (payoutId: string, action: 'approved' | 'rejected') => {
+    setProcessingPayoutId(payoutId);
+    try {
+      const { error } = await supabase
+        .from('seller_payouts')
+        .update({
+          status: action,
+          processed_at: new Date().toISOString(),
+        })
+        .eq('id', payoutId);
+      if (error) throw error;
+      toast.success(`Payout ${action}`);
+      await loadAll();
+    } catch {
+      toast.error('Failed to update payout');
+    } finally {
+      setProcessingPayoutId(null);
+    }
+  };
+
+  const statusBadge = (status: string) => {
+    const map: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
+      open: { variant: 'destructive', icon: <AlertTriangle className="w-3 h-3" /> },
+      resolved: { variant: 'default', icon: <CheckCircle className="w-3 h-3" /> },
+      pending: { variant: 'secondary', icon: <Clock className="w-3 h-3" /> },
+      approved: { variant: 'default', icon: <CheckCircle className="w-3 h-3" /> },
+      rejected: { variant: 'destructive', icon: <XCircle className="w-3 h-3" /> },
+      completed: { variant: 'default', icon: <CheckCircle className="w-3 h-3" /> },
+      failed: { variant: 'destructive', icon: <XCircle className="w-3 h-3" /> },
+      pending_payment: { variant: 'secondary', icon: <Clock className="w-3 h-3" /> },
+    };
+    const s = map[status] || { variant: 'outline' as const, icon: null };
+    return (
+      <Badge variant={s.variant} className="gap-1 text-[10px]">
+        {s.icon} {status}
+      </Badge>
+    );
+  };
+
   if (isChecking) {
     return (
       <AppLayout>
@@ -188,6 +334,9 @@ export function AdminPanel() {
     );
   }
 
+  const openDisputeCount = disputes.filter(d => d.status === 'open').length;
+  const pendingPayoutCount = payouts.filter(p => p.status === 'pending').length;
+
   return (
     <AppLayout>
       {/* Header */}
@@ -198,7 +347,7 @@ export function AdminPanel() {
           </button>
           <div>
             <h1 className="text-xl font-bold text-foreground">Admin Panel</h1>
-            <p className="text-xs text-muted-foreground">Manage courses, templates & recipients</p>
+            <p className="text-xs text-muted-foreground">Manage content, disputes & payouts</p>
           </div>
         </div>
       </div>
@@ -212,15 +361,34 @@ export function AdminPanel() {
           />
         ) : (
         <Tabs defaultValue="courses">
-          <TabsList className="w-full">
-            <TabsTrigger value="courses" className="flex-1 gap-1 text-xs">
-              <GraduationCap className="w-4 h-4" /> Courses
+          <TabsList className="w-full flex-wrap h-auto gap-1 p-1">
+            <TabsTrigger value="courses" className="flex-1 gap-1 text-[10px] px-2">
+              <GraduationCap className="w-3.5 h-3.5" /> Courses
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex-1 gap-1 text-xs">
-              <Mail className="w-4 h-4" /> Templates
+            <TabsTrigger value="templates" className="flex-1 gap-1 text-[10px] px-2">
+              <Mail className="w-3.5 h-3.5" /> Templates
             </TabsTrigger>
-            <TabsTrigger value="recipients" className="flex-1 gap-1 text-xs">
-              <Users className="w-4 h-4" /> Recipients
+            <TabsTrigger value="recipients" className="flex-1 gap-1 text-[10px] px-2">
+              <Users className="w-3.5 h-3.5" /> Recipients
+            </TabsTrigger>
+            <TabsTrigger value="disputes" className="flex-1 gap-1 text-[10px] px-2 relative">
+              <AlertTriangle className="w-3.5 h-3.5" /> Disputes
+              {openDisputeCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 text-[9px] flex items-center justify-center">
+                  {openDisputeCount}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="payouts" className="flex-1 gap-1 text-[10px] px-2 relative">
+              <Wallet className="w-3.5 h-3.5" /> Payouts
+              {pendingPayoutCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-[9px] flex items-center justify-center">
+                  {pendingPayoutCount}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="transactions" className="flex-1 gap-1 text-[10px] px-2">
+              <DollarSign className="w-3.5 h-3.5" /> Txns
             </TabsTrigger>
           </TabsList>
 
@@ -313,6 +481,140 @@ export function AdminPanel() {
                 </div>
               </div>
             ))}
+          </TabsContent>
+
+          {/* Disputes Tab */}
+          <TabsContent value="disputes" className="space-y-3 pt-3">
+            {disputes.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <AlertTriangle className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">No disputes yet</p>
+              </div>
+            ) : (
+              disputes.map((d) => (
+                <div key={d.id} className="eco-card p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        {statusBadge(d.status)}
+                        <span className="text-[10px] text-muted-foreground">
+                          {new Date(d.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-xs text-foreground font-medium">Raised by: {getName(d.raised_by)}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{d.reason}</p>
+                      {d.resolution && (
+                        <div className="mt-2 p-2 rounded-lg bg-primary/5 border border-primary/10">
+                          <p className="text-[10px] font-medium text-primary">Resolution:</p>
+                          <p className="text-xs text-foreground">{d.resolution}</p>
+                        </div>
+                      )}
+                    </div>
+                    {d.status === 'open' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs"
+                        onClick={() => { setResolvingDispute(d); setResolutionText(''); }}
+                      >
+                        Resolve
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </TabsContent>
+
+          {/* Payouts Tab */}
+          <TabsContent value="payouts" className="space-y-3 pt-3">
+            {payouts.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Wallet className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">No payout requests yet</p>
+              </div>
+            ) : (
+              payouts.map((p) => (
+                <div key={p.id} className="eco-card p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        {statusBadge(p.status)}
+                        <span className="text-[10px] text-muted-foreground">
+                          {new Date(p.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">KSh {Number(p.amount).toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground">Seller: {getName(p.seller_id)}</p>
+                      {p.mpesa_phone && <p className="text-xs text-muted-foreground">Phone: {p.mpesa_phone}</p>}
+                      {p.mpesa_receipt && <p className="text-xs text-primary">Receipt: {p.mpesa_receipt}</p>}
+                    </div>
+                    {p.status === 'pending' && (
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          size="sm"
+                          className="text-xs gap-1"
+                          disabled={processingPayoutId === p.id}
+                          onClick={() => handlePayoutAction(p.id, 'approved')}
+                        >
+                          {processingPayoutId === p.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="text-xs gap-1"
+                          disabled={processingPayoutId === p.id}
+                          onClick={() => handlePayoutAction(p.id, 'rejected')}
+                        >
+                          <XCircle className="w-3 h-3" /> Reject
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </TabsContent>
+
+          {/* Transactions Tab */}
+          <TabsContent value="transactions" className="space-y-3 pt-3">
+            {transactions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <DollarSign className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">No transactions yet</p>
+              </div>
+            ) : (
+              transactions.map((tx) => (
+                <div key={tx.id} className="eco-card p-4 space-y-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground text-sm">{tx.product_name}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        {statusBadge(tx.status)}
+                        {tx.verification_status && (
+                          <Badge variant="outline" className="text-[10px]">
+                            {tx.verification_status}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
+                        <span>Buyer: {getName(tx.buyer_id)}</span>
+                        <span>→</span>
+                        <span>Seller: {getName(tx.seller_id)}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-xs">
+                        <span className="text-foreground font-medium">KSh {Number(tx.total_price).toLocaleString()}</span>
+                        {tx.points_used > 0 && <span className="text-primary">{tx.points_used} pts</span>}
+                        {Number(tx.cash_paid) > 0 && <span className="text-muted-foreground">+ KSh {Number(tx.cash_paid).toLocaleString()} cash</span>}
+                      </div>
+                      {tx.mpesa_receipt && <p className="text-[10px] text-muted-foreground mt-0.5">M-Pesa: {tx.mpesa_receipt}</p>}
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{tx.payment_method} • {new Date(tx.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </TabsContent>
         </Tabs>
         )}
@@ -418,6 +720,39 @@ export function AdminPanel() {
               <Button onClick={handleSave} disabled={isSaving} className="w-full gap-2">
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {isSaving ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dispute Resolution Modal */}
+      {resolvingDispute && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-card w-full max-w-md rounded-2xl overflow-hidden">
+            <div className="p-4 border-b border-border flex items-center justify-between">
+              <h2 className="text-lg font-bold text-foreground">Resolve Dispute</h2>
+              <button onClick={() => setResolvingDispute(null)} className="p-2 rounded-full bg-muted">
+                <X className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="p-3 rounded-lg bg-muted/50">
+                <p className="text-xs font-medium text-muted-foreground mb-1">Reason:</p>
+                <p className="text-sm text-foreground">{resolvingDispute.reason}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Resolution</label>
+                <Textarea
+                  placeholder="Describe how this dispute was resolved..."
+                  value={resolutionText}
+                  onChange={(e) => setResolutionText(e.target.value)}
+                  className="min-h-[100px]"
+                />
+              </div>
+              <Button onClick={handleResolveDispute} disabled={isResolving || !resolutionText.trim()} className="w-full gap-2">
+                {isResolving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                {isResolving ? 'Resolving...' : 'Mark as Resolved'}
               </Button>
             </div>
           </div>
