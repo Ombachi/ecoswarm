@@ -10,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import {
-  ChevronLeft,
   GraduationCap,
   Mail,
   Users,
@@ -28,9 +27,13 @@ import {
   XCircle,
   Clock,
   DollarSign,
+  BarChart3,
+  LogOut,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CourseContentEditor } from '@/components/admin/CourseContentEditor';
+import { AdminUsersTab } from '@/components/admin/AdminUsersTab';
+import { AdminAnalyticsTab } from '@/components/admin/AdminAnalyticsTab';
 
 interface Course {
   id: string;
@@ -101,9 +104,8 @@ interface Transaction {
 
 export function AdminPanel() {
   const navigate = useNavigate();
-  const { user } = useApp();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
+  const { user, isAdmin, logout } = useApp();
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(!isAdmin);
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [templates, setTemplates] = useState<LetterTemplate[]>([]);
@@ -132,21 +134,23 @@ export function AdminPanel() {
   const [processingPayoutId, setProcessingPayoutId] = useState<string | null>(null);
 
   useEffect(() => {
-    checkAdmin();
-  }, [user]);
-
-  const checkAdmin = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .maybeSingle();
-    setIsAdmin(!!data);
-    setIsChecking(false);
-    if (data) loadAll();
-  };
+    if (isAdmin) {
+      setIsCheckingAdmin(false);
+      loadAll();
+    } else if (user) {
+      // Fallback check for direct URL navigation
+      supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle()
+        .then(({ data }) => {
+          setIsCheckingAdmin(false);
+          if (data) loadAll();
+        });
+    }
+  }, [user, isAdmin]);
 
   const loadAll = async () => {
     setIsLoading(true);
@@ -311,7 +315,7 @@ export function AdminPanel() {
     );
   };
 
-  if (isChecking) {
+  if (isCheckingAdmin) {
     return (
       <AppLayout>
         <div className="min-h-screen flex items-center justify-center">
@@ -328,7 +332,7 @@ export function AdminPanel() {
           <Shield className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold text-foreground mb-2">Access Denied</h1>
           <p className="text-muted-foreground mb-6">You need admin privileges to access this page.</p>
-          <Button onClick={() => navigate('/dashboard')}>Go to Dashboard</Button>
+          <Button onClick={() => navigate('/')}>Go Home</Button>
         </div>
       </AppLayout>
     );
@@ -341,14 +345,23 @@ export function AdminPanel() {
     <AppLayout>
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-full bg-muted text-muted-foreground">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-foreground">Admin Panel</h1>
-            <p className="text-xs text-muted-foreground">Manage content, disputes & payouts</p>
+            <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
+            <p className="text-xs text-muted-foreground">EcoSwarm Control Panel</p>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs"
+            onClick={async () => {
+              await logout();
+              toast.success('Logged out');
+              navigate('/');
+            }}
+          >
+            <LogOut className="w-3.5 h-3.5" /> Logout
+          </Button>
         </div>
       </div>
 
@@ -360,16 +373,19 @@ export function AdminPanel() {
             onBack={() => setEditingContentCourseId(null)}
           />
         ) : (
-        <Tabs defaultValue="courses">
+        <Tabs defaultValue="analytics">
           <TabsList className="w-full flex-wrap h-auto gap-1 p-1">
+            <TabsTrigger value="analytics" className="flex-1 gap-1 text-[10px] px-2">
+              <BarChart3 className="w-3.5 h-3.5" /> Analytics
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex-1 gap-1 text-[10px] px-2">
+              <Users className="w-3.5 h-3.5" /> Users
+            </TabsTrigger>
             <TabsTrigger value="courses" className="flex-1 gap-1 text-[10px] px-2">
               <GraduationCap className="w-3.5 h-3.5" /> Courses
             </TabsTrigger>
             <TabsTrigger value="templates" className="flex-1 gap-1 text-[10px] px-2">
-              <Mail className="w-3.5 h-3.5" /> Templates
-            </TabsTrigger>
-            <TabsTrigger value="recipients" className="flex-1 gap-1 text-[10px] px-2">
-              <Users className="w-3.5 h-3.5" /> Recipients
+              <Mail className="w-3.5 h-3.5" /> Letters
             </TabsTrigger>
             <TabsTrigger value="disputes" className="flex-1 gap-1 text-[10px] px-2 relative">
               <AlertTriangle className="w-3.5 h-3.5" /> Disputes
@@ -391,6 +407,16 @@ export function AdminPanel() {
               <DollarSign className="w-3.5 h-3.5" /> Txns
             </TabsTrigger>
           </TabsList>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <AdminAnalyticsTab />
+          </TabsContent>
+
+          {/* Users Tab */}
+          <TabsContent value="users">
+            <AdminUsersTab />
+          </TabsContent>
 
           {/* Courses Tab */}
           <TabsContent value="courses" className="space-y-3 pt-3">
@@ -429,58 +455,61 @@ export function AdminPanel() {
             ))}
           </TabsContent>
 
-          {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-3 pt-3">
-            <Button onClick={() => openCreate('template')} className="w-full gap-2">
-              <Plus className="w-4 h-4" /> Add Template
-            </Button>
-            {templates.map((t) => (
-              <div key={t.id} className={`eco-card p-4 ${!t.is_active ? 'opacity-50' : ''}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-foreground text-sm">{t.title}</h3>
-                      <span className="eco-badge text-[10px]">{t.category}</span>
+          {/* Letters Tab (Templates + Recipients) */}
+          <TabsContent value="templates" className="space-y-4 pt-3">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-2">Templates</h3>
+              <Button onClick={() => openCreate('template')} className="w-full gap-2 mb-3" size="sm">
+                <Plus className="w-4 h-4" /> Add Template
+              </Button>
+              {templates.map((t) => (
+                <div key={t.id} className={`eco-card p-4 mb-2 ${!t.is_active ? 'opacity-50' : ''}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-foreground text-sm">{t.title}</h3>
+                        <span className="eco-badge text-[10px]">{t.category}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2">{t.content.substring(0, 100)}...</p>
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{t.content.substring(0, 100)}...</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => openEdit(t, 'template')} className="p-2 rounded-lg bg-muted hover:bg-muted/80">
-                      <Pencil className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                    <button onClick={() => handleDelete(t.id, 'template')} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </button>
+                    <div className="flex gap-1">
+                      <button onClick={() => openEdit(t, 'template')} className="p-2 rounded-lg bg-muted hover:bg-muted/80">
+                        <Pencil className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                      <button onClick={() => handleDelete(t.id, 'template')} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </TabsContent>
+              ))}
+            </div>
 
-          {/* Recipients Tab */}
-          <TabsContent value="recipients" className="space-y-3 pt-3">
-            <Button onClick={() => openCreate('recipient')} className="w-full gap-2">
-              <Plus className="w-4 h-4" /> Add Recipient
-            </Button>
-            {recipients.map((r) => (
-              <div key={r.id} className={`eco-card p-4 ${!r.is_active ? 'opacity-50' : ''}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground text-sm">{r.name}</h3>
-                    <p className="text-xs text-muted-foreground">{r.title}, {r.organization}</p>
-                    <p className="text-xs text-primary">{r.email}</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => openEdit(r, 'recipient')} className="p-2 rounded-lg bg-muted hover:bg-muted/80">
-                      <Pencil className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                    <button onClick={() => handleDelete(r.id, 'recipient')} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </button>
+            <div className="border-t border-border pt-4">
+              <h3 className="text-sm font-semibold text-foreground mb-2">Recipients</h3>
+              <Button onClick={() => openCreate('recipient')} className="w-full gap-2 mb-3" size="sm">
+                <Plus className="w-4 h-4" /> Add Recipient
+              </Button>
+              {recipients.map((r) => (
+                <div key={r.id} className={`eco-card p-4 mb-2 ${!r.is_active ? 'opacity-50' : ''}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground text-sm">{r.name}</h3>
+                      <p className="text-xs text-muted-foreground">{r.title}, {r.organization}</p>
+                      <p className="text-xs text-primary">{r.email}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <button onClick={() => openEdit(r, 'recipient')} className="p-2 rounded-lg bg-muted hover:bg-muted/80">
+                        <Pencil className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                      <button onClick={() => handleDelete(r.id, 'recipient')} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </TabsContent>
 
           {/* Disputes Tab */}

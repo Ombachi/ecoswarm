@@ -10,10 +10,11 @@ import { Confetti } from '@/components/common/Confetti';
 import { toast } from 'sonner';
 import {
   Search, Plus, Phone, Loader2, X, ShoppingBag, ChevronDown, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, MessageCircle,
-  Inbox, ShoppingCart, Package, ArrowLeft, Leaf, Check, Sparkles, Share2, Star, AlertTriangle, Shield, ShieldCheck,
+  Inbox, ShoppingCart, Package, ArrowLeft, Leaf, Check, Sparkles, Share2, Star, AlertTriangle, Shield, ShieldCheck, Wallet,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createAutoPost } from '@/utils/autoPost';
+import { SellerEarnings } from '@/components/ecomarket/SellerEarnings';
 
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -93,7 +94,7 @@ export function EcoMarketScreen() {
     rect: DOMRect | null;
   } | null>(null);
   const [chatProduct, setChatProduct] = useState<{ id: string; name: string; sellerId: string; sellerName: string } | null>(null);
-  const [activeView, setActiveView] = useState<'browse' | 'inbox' | 'purchases'>('browse');
+  const [activeView, setActiveView] = useState<'browse' | 'inbox' | 'purchases' | 'earnings'>('browse');
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Buy flow state
@@ -724,10 +725,10 @@ export function EcoMarketScreen() {
             )}
             <div>
               <h1 className="text-xl font-bold text-foreground">
-                {activeView === 'browse' ? 'EcoMarket' : activeView === 'inbox' ? 'Product Inbox' : 'My Purchases'}
+                {activeView === 'browse' ? 'EcoMarket' : activeView === 'inbox' ? 'Product Inbox' : activeView === 'earnings' ? 'Seller Earnings' : 'My Purchases'}
               </h1>
               <p className="text-xs text-muted-foreground">
-                {activeView === 'browse' ? 'Eco-friendly products & services' : activeView === 'inbox' ? 'Your product conversations' : 'Track your purchases'}
+                {activeView === 'browse' ? 'Eco-friendly products & services' : activeView === 'inbox' ? 'Your product conversations' : activeView === 'earnings' ? 'Revenue & payouts' : 'Track your purchases'}
               </p>
             </div>
           </div>
@@ -753,36 +754,47 @@ export function EcoMarketScreen() {
             )}
 
             {/* Quick Action Dashboard Cards */}
-            <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className={`grid ${isDeveloper ? 'grid-cols-3' : 'grid-cols-2'} gap-2 mb-3`}>
               <button
                 onClick={() => setActiveView('inbox')}
-                className="relative flex items-center gap-2.5 p-3 rounded-xl bg-primary/10 hover:bg-primary/15 transition-colors text-left"
+                className="relative flex items-center gap-2 p-3 rounded-xl bg-primary/10 hover:bg-primary/15 transition-colors text-left"
               >
-                <div className="w-9 h-9 rounded-full eco-gradient-bg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-full eco-gradient-bg flex items-center justify-center flex-shrink-0">
                   <Inbox className="w-4 h-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-foreground">Product Inbox</p>
-                  <p className="text-[10px] text-muted-foreground">Messages</p>
+                  <p className="text-[10px] font-bold text-foreground">Inbox</p>
                 </div>
                 {unreadCount > 0 && (
-                  <span className="absolute top-2 right-2 min-w-[18px] h-[18px] rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center px-1">
+                  <span className="absolute top-1.5 right-1.5 min-w-[16px] h-[16px] rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center px-0.5">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
               </button>
               <button
                 onClick={() => setActiveView('purchases')}
-                className="flex items-center gap-2.5 p-3 rounded-xl bg-accent/50 hover:bg-accent/70 transition-colors text-left"
+                className="flex items-center gap-2 p-3 rounded-xl bg-accent/50 hover:bg-accent/70 transition-colors text-left"
               >
-                <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
                   <ShoppingCart className="w-4 h-4 text-accent-foreground" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-foreground">My Purchases</p>
-                  <p className="text-[10px] text-muted-foreground">Track orders</p>
+                  <p className="text-[10px] font-bold text-foreground">Purchases</p>
                 </div>
               </button>
+              {isDeveloper && (
+                <button
+                  onClick={() => setActiveView('earnings')}
+                  className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/15 transition-colors text-left"
+                >
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <Wallet className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold text-foreground">Earnings</p>
+                  </div>
+                </button>
+              )}
             </div>
 
             {/* Search */}
@@ -831,6 +843,8 @@ export function EcoMarketScreen() {
         <InboxView />
       ) : activeView === 'purchases' ? (
         <PurchasesView />
+      ) : activeView === 'earnings' ? (
+        <SellerEarnings onBack={() => setActiveView('browse')} />
       ) : (
         <>
           {/* Products Grid */}

@@ -10,6 +10,7 @@ interface AppContextType {
   setUser: (user: User | null) => void;
   /** auth session exists even if profile row is still being created */
   authUserId: string | null;
+  isAdmin: boolean;
   isOnboarded: boolean;
   setIsOnboarded: (value: boolean) => void;
   isDarkMode: boolean;
@@ -32,6 +33,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isOnboarded, setIsOnboarded] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSwahili, setIsSwahili] = useState(false);
@@ -317,6 +319,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setIsAdmin(false);
     setIsOnboarded(false);
   };
 
@@ -358,7 +361,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const badges = await fetchUserBadges(authUser.id);
       appUser = { ...appUser, badges };
 
+      // Check admin role
+      const { data: adminRole } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', authUser.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
       if (isMounted) {
+        setIsAdmin(!!adminRole);
         setUser(appUser);
         setIsOnboarded(true);
       }
@@ -548,6 +560,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         user,
         setUser,
         authUserId,
+        isAdmin,
         isOnboarded,
         setIsOnboarded,
         isDarkMode,

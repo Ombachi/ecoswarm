@@ -54,7 +54,7 @@ function LoadingScreen() {
 }
 
 function AppRoutes() {
-  const { isOnboarded, user, isLoading, authUserId } = useApp();
+  const { isOnboarded, user, isLoading, authUserId, isAdmin } = useApp();
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -65,14 +65,20 @@ function AppRoutes() {
 
   const requireAuthed = (element: JSX.Element) => {
     if (!isAuthenticated) return <Navigate to="/" replace />;
-    // Profile loading is handled inside AppProvider; never block forever here.
+    return element;
+  };
+
+  // Admin redirect helper - admin goes straight to /admin for all regular user routes
+  const authedRoute = (element: JSX.Element) => {
+    if (!isAuthenticated) return <Navigate to="/" replace />;
+    if (isAdmin) return <Navigate to="/admin" replace />;
     return element;
   };
 
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
-        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace /> : <LandingPage />} />
         <Route path="/welcome" element={<SplashScreen />} />
         <Route path="/role-select" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RoleSelectScreen />} />
         <Route path="/onboarding" element={<OnboardingScreen />} />
@@ -89,20 +95,20 @@ function AppRoutes() {
         <Route path="/post/:postId" element={<PostViewScreen />} />
         <Route path="/share-target" element={requireAuthed(<ShareTargetPage />)} />
 
-        <Route path="/dashboard" element={requireAuthed(<DashboardScreen />)} />
-        <Route path="/agora" element={requireAuthed(<AgoraScreen />)} />
-        <Route path="/agora/tag/:tag" element={requireAuthed(<AgoraScreen />)} />
-        <Route path="/ecomarket" element={requireAuthed(<EcoMarketScreen />)} />
-        <Route path="/tools" element={requireAuthed(<ToolsScreen />)} />
-        <Route path="/profile" element={requireAuthed(<ProfileScreen />)} />
-        <Route path="/settings" element={requireAuthed(<SettingsScreen />)} />
+        <Route path="/dashboard" element={authedRoute(<DashboardScreen />)} />
+        <Route path="/agora" element={authedRoute(<AgoraScreen />)} />
+        <Route path="/agora/tag/:tag" element={authedRoute(<AgoraScreen />)} />
+        <Route path="/ecomarket" element={authedRoute(<EcoMarketScreen />)} />
+        <Route path="/tools" element={authedRoute(<ToolsScreen />)} />
+        <Route path="/profile" element={authedRoute(<ProfileScreen />)} />
+        <Route path="/settings" element={authedRoute(<SettingsScreen />)} />
         {/* privacy-policy is public - defined above */}
-        <Route path="/feedback" element={requireAuthed(<FeedbackScreen />)} />
-        <Route path="/rate-app" element={requireAuthed(<RateAppScreen />)} />
-        <Route path="/leaderboard" element={requireAuthed(<LeaderboardScreen />)} />
-        <Route path="/edit-profile" element={requireAuthed(<EditProfileScreen />)} />
-        <Route path="/module/:moduleId" element={requireAuthed(<ModuleScreen />)} />
-        <Route path="/inbox" element={requireAuthed(<InboxScreen />)} />
+        <Route path="/feedback" element={authedRoute(<FeedbackScreen />)} />
+        <Route path="/rate-app" element={authedRoute(<RateAppScreen />)} />
+        <Route path="/leaderboard" element={authedRoute(<LeaderboardScreen />)} />
+        <Route path="/edit-profile" element={authedRoute(<EditProfileScreen />)} />
+        <Route path="/module/:moduleId" element={authedRoute(<ModuleScreen />)} />
+        <Route path="/inbox" element={authedRoute(<InboxScreen />)} />
         <Route path="/admin" element={requireAuthed(<AdminPanel />)} />
         <Route path="*" element={<NotFound />} />
       </Routes>
