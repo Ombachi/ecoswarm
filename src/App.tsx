@@ -54,7 +54,7 @@ function LoadingScreen() {
 }
 
 function AppRoutes() {
-  const { isOnboarded, user, isLoading, authUserId } = useApp();
+  const { isOnboarded, user, isLoading, authUserId, isAdmin } = useApp();
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -65,7 +65,13 @@ function AppRoutes() {
 
   const requireAuthed = (element: JSX.Element) => {
     if (!isAuthenticated) return <Navigate to="/" replace />;
-    // Profile loading is handled inside AppProvider; never block forever here.
+    return element;
+  };
+
+  // Admin redirect helper - admin goes straight to /admin for all regular user routes
+  const authedRoute = (element: JSX.Element) => {
+    if (!isAuthenticated) return <Navigate to="/" replace />;
+    if (isAdmin) return <Navigate to="/admin" replace />;
     return element;
   };
 
