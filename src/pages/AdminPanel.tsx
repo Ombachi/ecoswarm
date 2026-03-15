@@ -10,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import {
-  ChevronLeft,
   GraduationCap,
   Mail,
   Users,
@@ -28,9 +27,13 @@ import {
   XCircle,
   Clock,
   DollarSign,
+  BarChart3,
+  LogOut,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CourseContentEditor } from '@/components/admin/CourseContentEditor';
+import { AdminUsersTab } from '@/components/admin/AdminUsersTab';
+import { AdminAnalyticsTab } from '@/components/admin/AdminAnalyticsTab';
 
 interface Course {
   id: string;
