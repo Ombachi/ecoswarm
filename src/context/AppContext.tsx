@@ -10,6 +10,7 @@ interface AppContextType {
   setUser: (user: User | null) => void;
   /** auth session exists even if profile row is still being created */
   authUserId: string | null;
+  isAdmin: boolean;
   isOnboarded: boolean;
   setIsOnboarded: (value: boolean) => void;
   isDarkMode: boolean;
