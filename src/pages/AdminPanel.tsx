@@ -29,6 +29,8 @@ import {
   DollarSign,
   BarChart3,
   LogOut,
+  Megaphone,
+  Send,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CourseContentEditor } from '@/components/admin/CourseContentEditor';
