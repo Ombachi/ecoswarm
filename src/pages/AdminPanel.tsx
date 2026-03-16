@@ -456,6 +456,9 @@ export function AdminPanel() {
             <TabsTrigger value="transactions" className="flex-1 gap-1 text-[10px] px-2">
               <DollarSign className="w-3.5 h-3.5" /> Txns
             </TabsTrigger>
+            <TabsTrigger value="broadcast" className="flex-1 gap-1 text-[10px] px-2">
+              <Megaphone className="w-3.5 h-3.5" /> Broadcast
+            </TabsTrigger>
           </TabsList>
 
           {/* Analytics Tab */}
