@@ -1,50 +1,79 @@
 /**
- * Service Worker Update Prompt: Detects new versions and lets user choose when to update.
+ * Service Worker Update: Detects new versions, shows prompt, and
+ * periodically checks for updates (every 60s on focus).
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export function useServiceWorkerUpdate() {
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [updateAvailable, setUpdateAvailable] = useState(false);
+  const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
 
-    const handleUpdate = async () => {
-      try {
-        const registration = await navigator.serviceWorker.ready;
+    let refreshing = false;
 
-        // Check for waiting worker on load
-        if (registration.waiting) {
-          setWaitingWorker(registration.waiting);
-          setUpdateAvailable(true);
-        }
-
-        // Listen for new updates
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          newWorker?.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              setWaitingWorker(newWorker);
-              setUpdateAvailable(true);
-            }
-          });
-        });
-      } catch {
-        // SW not registered
+    const checkForWaiting = (reg: ServiceWorkerRegistration) => {
+      if (reg.waiting && navigator.serviceWorker.controller) {
+        setWaitingWorker(reg.waiting);
+        setUpdateAvailable(true);
       }
     };
 
-    handleUpdate();
+    const listenForInstalling = (reg: ServiceWorkerRegistration) => {
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            setWaitingWorker(newWorker);
+            setUpdateAvailable(true);
+          }
+        });
+      });
+    };
 
-    // Listen for controller change (update applied)
-    let refreshing = false;
+    const init = async () => {
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        registrationRef.current = reg;
+        checkForWaiting(reg);
+        listenForInstalling(reg);
+      } catch {
+        // SW not available
+      }
+    };
+
+    init();
+
+    // Auto-reload when new SW takes over
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (!refreshing) {
         refreshing = true;
         window.location.reload();
       }
     });
+
+    // Periodically check for updates (every 60s when page is visible)
+    const intervalId = setInterval(() => {
+      if (document.visibilityState === 'visible' && registrationRef.current) {
+        registrationRef.current.update().catch(() => {});
+      }
+    }, 60_000);
+
+    // Also check on visibility change (user returns to app)
+    const onVisChange = () => {
+      if (document.visibilityState === 'visible' && registrationRef.current) {
+        registrationRef.current.update().catch(() => {});
+      }
+    };
+    document.addEventListener('visibilitychange', onVisChange);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisChange);
+    };
   }, []);
 
   const applyUpdate = useCallback(() => {

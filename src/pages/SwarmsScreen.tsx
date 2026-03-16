@@ -114,6 +114,7 @@ export function SwarmsScreen() {
       addPoints(30);
       const newCount = user.stats.swarmsJoined + 1;
       updateStats({ swarmsJoined: newCount });
+      supabase.rpc('award_co2', { p_user_id: user.id, p_action_type: 'swarm_joined' });
 
       // Award Swarm Leader badge on 5th swarm
       if (newCount >= 5) {

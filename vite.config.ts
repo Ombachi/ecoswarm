@@ -109,8 +109,6 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackAllowlist: [/^(?!\/__).*/],
         navigateFallbackDenylist: [/^\/~oauth/],
         cleanupOutdatedCaches: true,
-        skipWaiting: true,
-        clientsClaim: true,
       runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/auth\/.*/i,

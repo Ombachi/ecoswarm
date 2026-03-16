@@ -159,6 +159,7 @@ export function ModuleScreen() {
         setShowConfetti(true);
         addPoints(module.points);
         await completeCourse(moduleId!);
+        supabase.rpc('award_co2', { p_user_id: user!.id, p_action_type: 'course_completed' });
 
         if (user && user.stats.coursesCompleted + 1 >= totalModules) {
           await earnBadge('8');

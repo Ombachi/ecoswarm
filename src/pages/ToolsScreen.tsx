@@ -97,8 +97,9 @@ export function ToolsScreen() {
       setShowConfetti(true);
       addPoints(50);
 
-      // Update letters sent stat
+      // Update letters sent stat & award CO2
       updateStats({ lettersSent: user.stats.lettersSent + 1 });
+      supabase.rpc('award_co2', { p_user_id: user.id, p_action_type: 'letter_sent' });
 
       // Award Voice Heard badge on first letter
       if (user.stats.lettersSent === 0) {
