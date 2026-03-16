@@ -408,6 +408,7 @@ export function AgoraScreen() {
       setPosts([newPost, ...posts]);
       addPoints(20);
       updateStats({ postsCreated: user.stats.postsCreated + 1 });
+      supabase.rpc('award_co2', { p_user_id: user.id, p_action_type: 'post_created' });
       showNotification('Story shared! 📢', 20);
     } catch (error) {
       console.error('Error creating post:', error);
@@ -502,6 +503,7 @@ export function AgoraScreen() {
 
       addPoints(50);
       updateStats({ postsCreated: user.stats.postsCreated + 1 });
+      supabase.rpc('award_co2', { p_user_id: user.id, p_action_type: 'post_created' });
       showNotification('Swarm launched & posted to Agora! 🐝', 50);
       await loadPosts();
     } catch (error) {

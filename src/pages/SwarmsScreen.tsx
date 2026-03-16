@@ -114,6 +114,7 @@ export function SwarmsScreen() {
       addPoints(30);
       const newCount = user.stats.swarmsJoined + 1;
       updateStats({ swarmsJoined: newCount });
+      supabase.rpc('award_co2', { p_user_id: user.id, p_action_type: 'swarm_joined' });
 
       // Award Swarm Leader badge on 5th swarm
       if (newCount >= 5) {
@@ -217,6 +218,7 @@ export function SwarmsScreen() {
 
       addPoints(50);
       updateStats({ postsCreated: user.stats.postsCreated + 1 });
+      supabase.rpc('award_co2', { p_user_id: user.id, p_action_type: 'post_created' });
       showNotification("Swarm created & posted to Agora! 🐝", 50);
     } catch (error) {
       console.error("Error creating swarm:", (error as Error)?.message || 'An error occurred');
