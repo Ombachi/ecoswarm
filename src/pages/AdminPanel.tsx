@@ -286,20 +286,63 @@ export function AdminPanel() {
   const handlePayoutAction = async (payoutId: string, action: 'approved' | 'rejected') => {
     setProcessingPayoutId(payoutId);
     try {
-      const { error } = await supabase
-        .from('seller_payouts')
-        .update({
-          status: action,
-          processed_at: new Date().toISOString(),
-        })
-        .eq('id', payoutId);
-      if (error) throw error;
-      toast.success(`Payout ${action}`);
+      if (action === 'approved') {
+        // Use edge function for real M-Pesa B2C transfer
+        const { data, error } = await supabase.functions.invoke('process-payout', {
+          body: { payoutId },
+        });
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.error || 'Payout failed');
+        toast.success(data.message || 'Payout processing');
+      } else {
+        const { error } = await supabase
+          .from('seller_payouts')
+          .update({ status: 'rejected', processed_at: new Date().toISOString() })
+          .eq('id', payoutId);
+        if (error) throw error;
+        toast.success('Payout rejected');
+      }
       await loadAll();
-    } catch {
-      toast.error('Failed to update payout');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to process payout');
     } finally {
       setProcessingPayoutId(null);
+    }
+  };
+
+  const handleBroadcast = async () => {
+    if (!broadcastTitle.trim() || !broadcastMessage.trim()) return;
+    setIsBroadcasting(true);
+    try {
+      // Get all user IDs
+      const { data: profiles, error: profilesErr } = await supabase
+        .from('profiles')
+        .select('user_id');
+      if (profilesErr) throw profilesErr;
+      if (!profiles || profiles.length === 0) throw new Error('No users found');
+
+      // Batch insert notifications
+      const notifications = profiles.map((p) => ({
+        user_id: p.user_id,
+        type: 'broadcast',
+        title: broadcastTitle.trim(),
+        message: broadcastMessage.trim(),
+      }));
+
+      // Insert in chunks of 500
+      for (let i = 0; i < notifications.length; i += 500) {
+        const chunk = notifications.slice(i, i + 500);
+        const { error } = await supabase.from('notifications').insert(chunk);
+        if (error) throw error;
+      }
+
+      toast.success(`Broadcast sent to ${profiles.length} users!`);
+      setBroadcastTitle('');
+      setBroadcastMessage('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send broadcast');
+    } finally {
+      setIsBroadcasting(false);
     }
   };
 
