@@ -218,6 +218,7 @@ export function SwarmsScreen() {
 
       addPoints(50);
       updateStats({ postsCreated: user.stats.postsCreated + 1 });
+      supabase.rpc('award_co2', { p_user_id: user.id, p_action_type: 'post_created' });
       showNotification("Swarm created & posted to Agora! 🐝", 50);
     } catch (error) {
       console.error("Error creating swarm:", (error as Error)?.message || 'An error occurred');
