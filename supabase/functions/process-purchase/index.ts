@@ -201,6 +201,10 @@ serve(async (req) => {
       reference_id: transaction.id,
     });
 
+    // Award CO2 savings
+    await supabase.rpc("award_co2", { p_user_id: user.id, p_action_type: "ecomarket_purchase" });
+    await supabase.rpc("award_co2", { p_user_id: product.user_id, p_action_type: "ecomarket_sale" });
+
     // Create auto chat thread
     await supabase.from("messages").insert({
       sender_id: user.id,

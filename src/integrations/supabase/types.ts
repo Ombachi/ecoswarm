@@ -50,6 +50,30 @@ export type Database = {
         }
         Relationships: []
       }
+      co2_matrix: {
+        Row: {
+          action_type: string
+          co2_kg_per_action: number
+          created_at: string
+          description: string | null
+          id: string
+        }
+        Insert: {
+          action_type: string
+          co2_kg_per_action?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+        }
+        Update: {
+          action_type?: string
+          co2_kg_per_action?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
@@ -1159,6 +1183,14 @@ export type Database = {
       }
     }
     Functions: {
+      award_co2: {
+        Args: {
+          p_action_type: string
+          p_multiplier?: number
+          p_user_id: string
+        }
+        Returns: number
+      }
       get_user_likes: { Args: { p_post_ids: string[] }; Returns: string[] }
       has_role: {
         Args: {
