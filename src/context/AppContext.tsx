@@ -328,8 +328,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     let isMounted = true;
 
     const hydrateUserInBackground = async (authUser: { id: string; email?: string | null; user_metadata?: Record<string, any> }, event?: string) => {
-      // Always ensure the UI has *something* to render to avoid infinite loading.
+      // Check admin role FIRST before setting any user state to prevent flash
+      const { data: adminRole } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', authUser.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
       if (isMounted) {
+        setIsAdmin(!!adminRole);
         setIsOnboarded(true);
         setUser((prev) => (prev?.id === authUser.id ? prev : buildPlaceholderUser(authUser)));
       }
@@ -361,16 +369,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const badges = await fetchUserBadges(authUser.id);
       appUser = { ...appUser, badges };
 
-      // Check admin role
-      const { data: adminRole } = await supabase
-        .from('user_roles')
-        .select('id')
-        .eq('user_id', authUser.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-
       if (isMounted) {
-        setIsAdmin(!!adminRole);
         setUser(appUser);
         setIsOnboarded(true);
       }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Users, TrendingUp, Leaf, Mail, TreePine, ShoppingBag } from 'lucide-react';
+import { Loader2, Users, TrendingUp, Leaf, Mail, TreePine, ShoppingBag, GraduationCap } from 'lucide-react';
 
 interface Stats {
   totalUsers: number;
@@ -11,6 +11,7 @@ interface Stats {
   totalTransactions: number;
   totalRevenue: number;
   totalCO2Saved: number;
+  totalCourseCompletions: number;
 }
 
 export function AdminAnalyticsTab() {
@@ -23,11 +24,12 @@ export function AdminAnalyticsTab() {
 
   const loadStats = async () => {
     setIsLoading(true);
-    const [profilesRes, productsRes, txRes, swarmsRes] = await Promise.all([
+    const [profilesRes, productsRes, txRes, swarmsRes, completionsRes] = await Promise.all([
       supabase.from('profiles').select('eco_points, letters_sent, co2_saved'),
       supabase.from('products').select('id', { count: 'exact', head: true }),
       supabase.from('transactions').select('total_price, status'),
       supabase.from('swarms').select('id', { count: 'exact', head: true }),
+      supabase.from('course_completions').select('id', { count: 'exact', head: true }),
     ]);
 
     const profiles = profilesRes.data || [];
@@ -42,6 +44,7 @@ export function AdminAnalyticsTab() {
       totalTransactions: completedTx.length,
       totalRevenue: completedTx.reduce((s: number, t: any) => s + Number(t.total_price), 0),
       totalSwarmsCreated: swarmsRes.count || 0,
+      totalCourseCompletions: completionsRes.count || 0,
     });
     setIsLoading(false);
   };
@@ -54,6 +57,7 @@ export function AdminAnalyticsTab() {
     { label: 'EcoPoints Issued', value: stats.totalEcoPoints.toLocaleString(), icon: Leaf, color: 'text-emerald-600' },
     { label: 'GMV (KSh)', value: stats.totalRevenue.toLocaleString(), icon: TrendingUp, color: 'text-amber-600' },
     { label: 'Transactions', value: stats.totalTransactions.toLocaleString(), icon: ShoppingBag, color: 'text-primary' },
+    { label: 'Course Completions', value: stats.totalCourseCompletions.toLocaleString(), icon: GraduationCap, color: 'text-violet-600' },
     { label: 'Letters Sent', value: stats.totalLettersSent.toLocaleString(), icon: Mail, color: 'text-violet-600' },
     { label: 'CO₂ Saved (kg)', value: stats.totalCO2Saved.toLocaleString(), icon: TreePine, color: 'text-emerald-600' },
     { label: 'Products Listed', value: stats.totalProducts.toLocaleString(), icon: ShoppingBag, color: 'text-sky-600' },
