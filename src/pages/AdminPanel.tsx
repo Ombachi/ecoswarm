@@ -664,41 +664,8 @@ export function AdminPanel() {
           </TabsContent>
 
           {/* Broadcast Tab */}
-          <TabsContent value="broadcast" className="space-y-4 pt-3">
-            <div className="eco-card p-4 space-y-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Megaphone className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold text-foreground">Send Global Announcement</h3>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                This will send a notification to every user on the platform.
-              </p>
-              <div>
-                <label className="text-sm font-medium text-foreground mb-1 block">Title</label>
-                <Input
-                  placeholder="e.g. 📢 New Feature Launch!"
-                  value={broadcastTitle}
-                  onChange={(e) => setBroadcastTitle(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground mb-1 block">Message</label>
-                <Textarea
-                  placeholder="Write your announcement message..."
-                  value={broadcastMessage}
-                  onChange={(e) => setBroadcastMessage(e.target.value)}
-                  className="min-h-[100px]"
-                />
-              </div>
-              <Button
-                onClick={handleBroadcast}
-                disabled={isBroadcasting || !broadcastTitle.trim() || !broadcastMessage.trim()}
-                className="w-full gap-2"
-              >
-                {isBroadcasting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {isBroadcasting ? 'Sending...' : 'Send to All Users'}
-              </Button>
-            </div>
+          <TabsContent value="broadcast">
+            <AdminBroadcastTab />
           </TabsContent>
         </Tabs>
         )}
