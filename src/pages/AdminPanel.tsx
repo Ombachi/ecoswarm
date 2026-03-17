@@ -136,10 +136,7 @@ export function AdminPanel() {
   // Payout approval
   const [processingPayoutId, setProcessingPayoutId] = useState<string | null>(null);
 
-  // Broadcast
-  const [broadcastTitle, setBroadcastTitle] = useState('');
-  const [broadcastMessage, setBroadcastMessage] = useState('');
-  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  // (Broadcast state moved to AdminBroadcastTab)
 
   useEffect(() => {
     if (isAdmin) {
