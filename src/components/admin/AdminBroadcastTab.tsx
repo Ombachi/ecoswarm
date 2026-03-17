@@ -109,13 +109,13 @@ export function AdminBroadcastTab() {
     try {
       const options: PollOption[] = validOptions.map((label) => ({ label: label.trim(), votes: 0 }));
       const { error } = await supabase.from('polls').insert({
-        created_by: user?.id,
+        created_by: user?.id ?? '',
         title: newPollTitle.trim(),
         description: newPollDesc.trim() || null,
         poll_type: newPollType,
-        options,
+        options: options as any,
         is_active: true,
-      });
+      } as any);
       if (error) throw error;
 
       // Notify all users about the new poll
