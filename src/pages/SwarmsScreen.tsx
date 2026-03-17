@@ -260,7 +260,7 @@ export function SwarmsScreen() {
       </div>
 
       {/* Swarms List */}
-      <div className="p-4 space-y-4">
+      <div className="p-4 pb-24 space-y-4">
         {swarms.length === 0 ? (
           <div className="text-center py-12">
             <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
