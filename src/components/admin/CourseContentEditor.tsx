@@ -14,6 +14,9 @@ import {
   BookOpen,
   HelpCircle,
   GripVertical,
+  Video,
+  Link as LinkIcon,
+  FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
