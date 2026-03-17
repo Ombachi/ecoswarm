@@ -297,7 +297,60 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Content</label>
-                <Textarea className="min-h-[200px]" value={editingSection.content} onChange={(e) => setEditingSection({ ...editingSection, content: e.target.value })} />
+                {/* Media Embed Toolbar */}
+                <div className="flex gap-1.5 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = prompt('Enter YouTube or video URL:');
+                      if (url) {
+                        setEditingSection({
+                          ...editingSection,
+                          content: editingSection.content + `\n\n[video](${url})\n`,
+                        });
+                      }
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors"
+                  >
+                    <Video className="w-3.5 h-3.5" /> Video
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = prompt('Enter link URL:');
+                      const label = prompt('Link label (optional):') || url;
+                      if (url) {
+                        setEditingSection({
+                          ...editingSection,
+                          content: editingSection.content + `\n\n[${label}](${url})\n`,
+                        });
+                      }
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors"
+                  >
+                    <LinkIcon className="w-3.5 h-3.5" /> Link
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = prompt('Enter file/document URL:');
+                      const name = prompt('File name (optional):') || 'Download file';
+                      if (url) {
+                        setEditingSection({
+                          ...editingSection,
+                          content: editingSection.content + `\n\n[file:${name}](${url})\n`,
+                        });
+                      }
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors"
+                  >
+                    <FileText className="w-3.5 h-3.5" /> File
+                  </button>
+                </div>
+                <p className="text-[10px] text-muted-foreground mb-1">
+                  Use [video](url) for videos, [label](url) for links, [file:name](url) for files
+                </p>
+                <Textarea className="min-h-[200px] font-mono text-xs" value={editingSection.content} onChange={(e) => setEditingSection({ ...editingSection, content: e.target.value })} />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Sort Order</label>
