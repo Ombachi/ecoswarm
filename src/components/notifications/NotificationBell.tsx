@@ -163,6 +163,13 @@ export function NotificationBell() {
               </div>
             </div>
 
+            {/* Inline poll voter */}
+            {votingPollId && (
+              <div className="p-3 border-b border-border">
+                <PollVoter onClose={() => setVotingPollId(null)} />
+              </div>
+            )}
+
             {notifications.length === 0 ? (
               <div className="p-6 text-center">
                 <Bell className="w-8 h-8 text-muted-foreground mx-auto mb-2" />

@@ -144,6 +144,18 @@ export function AdminBroadcastTab() {
         }
       }
 
+      // Auto-post poll/campaign to Agora Square
+      if (user) {
+        const emoji = newPollType === 'feedback' ? '📝' : newPollType === 'campaign' ? '🌍' : '📊';
+        const postContent = `${emoji} **${typeLabel}:** ${newPollTitle.trim()}\n\n${newPollDesc.trim() || 'Share your voice!'}\n\nVote now from your notifications! 🗳️\n\n#Poll #EcoSwarm`;
+        await supabase.from('posts').insert({
+          user_id: user.id,
+          user_name: user.name,
+          content: postContent,
+          tags: ['Poll', 'EcoSwarm'],
+        });
+      }
+
       toast.success('Poll created & users notified!');
       setShowCreatePoll(false);
       setNewPollTitle('');
