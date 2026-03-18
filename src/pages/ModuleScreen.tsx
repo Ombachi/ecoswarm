@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Confetti } from '@/components/common/Confetti';
+import { SponsorBadge } from '@/components/sponsorship/SponsorBadge';
 import {
   ChevronLeft,
   CheckCircle,
@@ -11,6 +12,8 @@ import {
   Award,
   BookOpen,
   HelpCircle,
+  FileText,
+  ExternalLink,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { createAutoPost, buildCourseAutoPost } from '@/utils/autoPost';
