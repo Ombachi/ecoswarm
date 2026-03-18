@@ -75,6 +75,24 @@ export function ToolsScreen() {
     setCompletedModules(data?.map((c) => c.module_id) || []);
   };
 
+  const loadSponsorships = async () => {
+    const { data } = await supabase
+      .from('course_sponsorships')
+      .select('course_id, sponsor_name, sponsor_logo_url')
+      .eq('status', 'approved');
+    const map: Record<string, { name: string; logo: string | null }> = {};
+    (data || []).forEach((s: any) => {
+      map[s.course_id] = { name: s.sponsor_name, logo: s.sponsor_logo_url };
+    });
+    setSponsorships(map);
+  };
+
+  const loadRole = async () => {
+    if (!user) return;
+    const { data } = await supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle();
+    setUserRole(data?.role || null);
+  };
+
   const handleSubmitLetter = async () => {
     const template = letterTemplates.find((t: any) => t.id === selectedTemplate);
     const recipient = recipients.find((r: any) => r.id === selectedRecipient);
