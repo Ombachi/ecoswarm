@@ -147,7 +147,8 @@ export function AdminBroadcastTab() {
       // Auto-post poll/campaign to Agora Square
       if (user) {
         const emoji = newPollType === 'feedback' ? '📝' : newPollType === 'campaign' ? '🌍' : '📊';
-        const postContent = `${emoji} **${typeLabel}:** ${newPollTitle.trim()}\n\n${newPollDesc.trim() || 'Share your voice!'}\n\nVote now from your notifications! 🗳️\n\n#Poll #EcoSwarm`;
+        const label = newPollType === 'feedback' ? 'Feedback Survey' : newPollType === 'campaign' ? 'Campaign' : 'New Poll';
+        const postContent = `${emoji} **${label}:** ${newPollTitle.trim()}\n\n${newPollDesc.trim() || 'Share your voice!'}\n\nVote now from your notifications! 🗳️\n\n#Poll #EcoSwarm`;
         await supabase.from('posts').insert({
           user_id: user.id,
           user_name: user.name,
