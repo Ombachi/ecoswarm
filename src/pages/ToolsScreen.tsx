@@ -36,6 +36,9 @@ export function ToolsScreen() {
   const [recipients, setRecipients] = useState<any[]>([]);
   const [learningModules, setLearningModules] = useState<any[]>([]);
   const [isLoadingContent, setIsLoadingContent] = useState(true);
+  const [sponsorships, setSponsorships] = useState<Record<string, { name: string; logo: string | null }>>({});
+  const [sponsoringCourse, setSponsoringCourse] = useState<{ id: string; title: string } | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   useEffect(() => {
     loadContent();
     if (user) {
