@@ -447,3 +447,49 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
     </div>
   );
 }
+
+// Reusable upload button component
+function UploadMediaButton({ label, icon, accept, onUploaded }: {
+  label: string;
+  icon: React.ReactNode;
+  accept: string;
+  onUploaded: (url: string, name: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from('course-media').upload(path, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('course-media').getPublicUrl(path);
+      onUploaded(publicUrl, file.name);
+      toast.success(`${file.name} uploaded!`);
+    } catch {
+      toast.error('Upload failed');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  return (
+    <>
+      <input ref={fileRef} type="file" accept={accept} onChange={handleUpload} className="hidden" />
+      <button
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        disabled={uploading}
+        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors disabled:opacity-50"
+      >
+        {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : icon}
+        {uploading ? 'Uploading...' : label}
+      </button>
+    </>
+  );
+}
