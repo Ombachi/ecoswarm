@@ -211,6 +211,11 @@ export function ModuleScreen() {
           <div className="flex-1">
             <h1 className="text-lg font-bold text-foreground">{module.title}</h1>
             <p className="text-xs text-muted-foreground">{module.category} • {module.duration}</p>
+            {sponsor && (
+              <div className="mt-1">
+                <SponsorBadge sponsorName={sponsor.name} logoUrl={sponsor.logo} />
+              </div>
+            )}
           </div>
         </div>
 
