@@ -173,13 +173,14 @@ export function AdminPanel() {
 
   const loadAll = async () => {
     setIsLoading(true);
-    const [c, t, r, d, p, tx] = await Promise.all([
+    const [c, t, r, d, p, tx, sp] = await Promise.all([
       supabase.from('courses').select('*').order('sort_order'),
       supabase.from('letter_templates').select('*').order('sort_order'),
       supabase.from('recipients').select('*').order('sort_order'),
       supabase.from('transaction_disputes').select('*').order('created_at', { ascending: false }),
       supabase.from('seller_payouts').select('*').order('created_at', { ascending: false }),
       supabase.from('transactions').select('*').order('created_at', { ascending: false }).limit(50),
+      supabase.from('course_sponsorships').select('*').order('created_at', { ascending: false }),
     ]);
     setCourses(c.data || []);
     setTemplates(t.data || []);
@@ -187,6 +188,7 @@ export function AdminPanel() {
     setDisputes((d.data as Dispute[]) || []);
     setPayouts((p.data as Payout[]) || []);
     setTransactions((tx.data as Transaction[]) || []);
+    setSponsorships((sp.data as Sponsorship[]) || []);
 
     // Collect unique user IDs to resolve names
     const userIds = new Set<string>();
