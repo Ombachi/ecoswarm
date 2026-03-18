@@ -324,6 +324,19 @@ export function AdminPanel() {
     }
   };
 
+  const handleSponsorshipAction = async (id: string, action: 'approved' | 'rejected') => {
+    try {
+      const { error } = await supabase.from('course_sponsorships')
+        .update({ status: action, updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
+      toast.success(`Sponsorship ${action}`);
+      await loadAll();
+    } catch {
+      toast.error('Failed to update sponsorship');
+    }
+  };
+
   // (Broadcast handler moved to AdminBroadcastTab)
 
   const statusBadge = (status: string) => {
