@@ -125,6 +125,8 @@ export function NotificationBell() {
       case 'post': return <MessageSquare className="w-4 h-4 text-secondary" />;
       case 'course': return <BookOpen className="w-4 h-4 text-primary" />;
       case 'rank': return <Trophy className="w-4 h-4 text-yellow-500" />;
+      case 'poll': return <BarChart3 className="w-4 h-4 text-primary" />;
+      case 'broadcast': return <Bell className="w-4 h-4 text-primary" />;
       default: return <Bell className="w-4 h-4 text-muted-foreground" />;
     }
   };
