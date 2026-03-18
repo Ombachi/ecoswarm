@@ -243,8 +243,8 @@ export function ModuleScreen() {
                 {sections[currentSection].title}
               </h2>
 
-              <div className="prose prose-sm text-foreground whitespace-pre-line">
-                {sections[currentSection].content}
+              <div className="prose prose-sm text-foreground">
+                <RenderCourseContent content={sections[currentSection].content} />
               </div>
             </div>
 
