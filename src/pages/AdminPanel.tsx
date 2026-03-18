@@ -704,6 +704,55 @@ export function AdminPanel() {
           <TabsContent value="broadcast">
             <AdminBroadcastTab />
           </TabsContent>
+
+          {/* Sponsors Tab */}
+          <TabsContent value="sponsors" className="space-y-3 pt-3">
+            {sponsorships.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Building2 className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">No sponsorship requests yet</p>
+              </div>
+            ) : (
+              sponsorships.map((s) => {
+                const course = courses.find(c => c.id === s.course_id);
+                return (
+                  <div key={s.id} className="eco-card p-4 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          {statusBadge(s.status)}
+                          <span className="text-[10px] text-muted-foreground">
+                            {new Date(s.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mb-1">
+                          {s.sponsor_logo_url && (
+                            <img src={s.sponsor_logo_url} alt="" className="w-8 h-8 rounded-lg object-contain bg-muted p-0.5" />
+                          )}
+                          <div>
+                            <p className="font-semibold text-foreground text-sm">{s.sponsor_name}</p>
+                            <p className="text-xs text-primary">Course: {course?.title || 'Unknown'}</p>
+                          </div>
+                        </div>
+                        {s.message && <p className="text-xs text-muted-foreground">{s.message}</p>}
+                        <p className="text-[10px] text-muted-foreground">By: {getName(s.sponsor_user_id)}</p>
+                      </div>
+                      {s.status === 'pending' && (
+                        <div className="flex flex-col gap-1">
+                          <Button size="sm" className="text-xs gap-1" onClick={() => handleSponsorshipAction(s.id, 'approved')}>
+                            <CheckCircle className="w-3 h-3" /> Approve
+                          </Button>
+                          <Button size="sm" variant="destructive" className="text-xs gap-1" onClick={() => handleSponsorshipAction(s.id, 'rejected')}>
+                            <XCircle className="w-3 h-3" /> Reject
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </TabsContent>
         </Tabs>
         )}
       </div>
