@@ -17,6 +17,7 @@ import {
   Play,
   Lock,
   Share2,
+  Building2,
 } from 'lucide-react';
 
 export function ToolsScreen() {
