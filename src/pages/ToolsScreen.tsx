@@ -43,6 +43,8 @@ export function ToolsScreen() {
     loadContent();
     if (user) {
       loadCompletions();
+      loadSponsorships();
+      loadRole();
     }
   }, [user]);
 
