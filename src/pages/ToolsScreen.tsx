@@ -487,6 +487,11 @@ export function ToolsScreen() {
                         +{module.points} pts
                       </span>
                     </div>
+                    {sponsorships[module.id] && (
+                      <div className="mt-2">
+                        <SponsorBadge sponsorName={sponsorships[module.id].name} logoUrl={sponsorships[module.id].logo} />
+                      </div>
+                    )}
                     {module.progress !== undefined && module.progress > 0 && !isCompleted && (
                       <div className="mt-3">
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -501,7 +506,18 @@ export function ToolsScreen() {
                       </div>
                     )}
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                  <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                    {userRole === 'ecodeveloper' && !sponsorships[module.id] && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSponsoringCourse({ id: module.id, title: module.title }); }}
+                        className="p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                        title="Sponsor this course"
+                      >
+                        <Building2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </button>
               );
