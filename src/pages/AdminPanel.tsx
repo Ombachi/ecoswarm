@@ -106,6 +106,18 @@ interface Transaction {
   created_at: string;
 }
 
+interface Sponsorship {
+  id: string;
+  course_id: string;
+  sponsor_user_id: string;
+  sponsor_name: string;
+  sponsor_logo_url: string | null;
+  message: string | null;
+  status: string;
+  admin_notes: string | null;
+  created_at: string;
+}
+
 export function AdminPanel() {
   const navigate = useNavigate();
   const { user, isAdmin, logout } = useApp();
@@ -117,6 +129,7 @@ export function AdminPanel() {
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [payouts, setPayouts] = useState<Payout[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [sponsorships, setSponsorships] = useState<Sponsorship[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Profile name cache
