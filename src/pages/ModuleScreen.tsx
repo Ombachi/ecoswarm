@@ -33,6 +33,78 @@ interface Question {
   sort_order: number;
 }
 
+/** Renders course content with embedded media support */
+function RenderCourseContent({ content }: { content: string }) {
+  const lines = content.split('\n');
+  const elements: React.ReactNode[] = [];
+
+  lines.forEach((line, i) => {
+    const trimmed = line.trim();
+
+    // [video](url)
+    const videoMatch = trimmed.match(/^\[video\]\((.+)\)$/);
+    if (videoMatch) {
+      const url = videoMatch[1];
+      // YouTube embed
+      const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+      if (ytMatch) {
+        elements.push(
+          <div key={i} className="my-3 rounded-xl overflow-hidden aspect-video">
+            <iframe src={`https://www.youtube.com/embed/${ytMatch[1]}`} className="w-full h-full" allowFullScreen title="Video" />
+          </div>
+        );
+      } else {
+        elements.push(
+          <video key={i} src={url} controls className="w-full rounded-xl my-3 max-h-[300px]" />
+        );
+      }
+      return;
+    }
+
+    // [image](url)
+    const imgMatch = trimmed.match(/^\[image\]\((.+)\)$/);
+    if (imgMatch) {
+      elements.push(<img key={i} src={imgMatch[1]} alt="" className="w-full rounded-xl my-3 max-h-[400px] object-contain" />);
+      return;
+    }
+
+    // [file:name](url)
+    const fileMatch = trimmed.match(/^\[file:(.+?)\]\((.+)\)$/);
+    if (fileMatch) {
+      elements.push(
+        <a key={i} href={fileMatch[2]} target="_blank" rel="noopener noreferrer"
+          className="flex items-center gap-2 p-3 my-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors">
+          <FileText className="w-5 h-5 text-primary" />
+          <span className="text-sm font-medium text-foreground flex-1">{fileMatch[1]}</span>
+          <ExternalLink className="w-4 h-4 text-muted-foreground" />
+        </a>
+      );
+      return;
+    }
+
+    // [label](url) - regular link
+    const linkMatch = trimmed.match(/^\[(.+?)\]\((.+)\)$/);
+    if (linkMatch && !trimmed.startsWith('[video]') && !trimmed.startsWith('[image]') && !trimmed.startsWith('[file:')) {
+      elements.push(
+        <a key={i} href={linkMatch[2]} target="_blank" rel="noopener noreferrer"
+          className="text-primary underline text-sm hover:opacity-80 block my-1">
+          {linkMatch[1]}
+        </a>
+      );
+      return;
+    }
+
+    // Regular text
+    if (trimmed === '') {
+      elements.push(<br key={i} />);
+    } else {
+      elements.push(<p key={i} className="text-sm leading-relaxed">{line}</p>);
+    }
+  });
+
+  return <>{elements}</>;
+}
+
 export function ModuleScreen() {
   const { moduleId } = useParams<{ moduleId: string }>();
   const navigate = useNavigate();
