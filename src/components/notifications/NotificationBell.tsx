@@ -81,6 +81,8 @@ export function NotificationBell() {
     setUnreadCount(0);
   };
 
+  const [votingPollId, setVotingPollId] = useState<string | null>(null);
+
   const handleNotificationClick = async (notif: Notification) => {
     // Mark as read
     if (!notif.is_read) {
@@ -90,6 +92,12 @@ export function NotificationBell() {
         .eq('id', notif.id);
       setNotifications((prev) => prev.map((n) => n.id === notif.id ? { ...n, is_read: true } : n));
       setUnreadCount((prev) => Math.max(prev - 1, 0));
+    }
+
+    // Open inline poll voter for poll notifications
+    if (notif.type === 'poll' && notif.reference_id === 'poll') {
+      setVotingPollId('all');
+      return;
     }
 
     if (notif.type === 'product' && notif.reference_id) {
