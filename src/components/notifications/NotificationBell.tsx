@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Bell, X, Users, MessageSquare, BookOpen, Trophy } from 'lucide-react';
+import { Bell, X, Users, MessageSquare, BookOpen, Trophy, BarChart3 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useApp } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useAppBadge } from '@/hooks/useAppBadge';
+import { PollVoter } from '@/components/polls/PollVoter';
 
 interface Notification {
   id: string;
