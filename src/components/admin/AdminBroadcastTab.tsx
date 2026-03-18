@@ -88,6 +88,16 @@ export function AdminBroadcastTab() {
         if (error) throw error;
       }
 
+      // Auto-post announcement to Agora Square
+      if (user) {
+        await supabase.from('posts').insert({
+          user_id: user.id,
+          user_name: user.name,
+          content: `📢 **${broadcastTitle.trim()}**\n\n${broadcastMessage.trim()}\n\n#Announcement #EcoSwarm`,
+          tags: ['Announcement', 'EcoSwarm'],
+        });
+      }
+
       toast.success(`Broadcast sent to ${profiles.length} users!`);
       setBroadcastTitle('');
       setBroadcastMessage('');
