@@ -5,6 +5,8 @@ import { useApp } from '@/context/AppContext';
 import { Confetti } from '@/components/common/Confetti';
 import { supabase } from '@/integrations/supabase/client';
 import { createAutoPost, buildLetterAutoPost } from '@/utils/autoPost';
+import { SponsorBadge } from '@/components/sponsorship/SponsorBadge';
+import { SponsorCourseModal } from '@/components/sponsorship/SponsorCourseModal';
 
 import {
   Mail,
