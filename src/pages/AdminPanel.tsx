@@ -31,6 +31,7 @@ import {
   LogOut,
   Megaphone,
   Send,
+  Building2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CourseContentEditor } from '@/components/admin/CourseContentEditor';
