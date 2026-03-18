@@ -452,6 +452,14 @@ export function AdminPanel() {
             <TabsTrigger value="broadcast" className="flex-1 gap-1 text-[10px] px-2">
               <Megaphone className="w-3.5 h-3.5" /> Broadcast
             </TabsTrigger>
+            <TabsTrigger value="sponsors" className="flex-1 gap-1 text-[10px] px-2 relative">
+              <Building2 className="w-3.5 h-3.5" /> Sponsors
+              {sponsorships.filter(s => s.status === 'pending').length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-[9px] flex items-center justify-center">
+                  {sponsorships.filter(s => s.status === 'pending').length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           {/* Analytics Tab */}
