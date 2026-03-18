@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,8 @@ import {
   Video,
   Link as LinkIcon,
   FileText,
+  Upload,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -298,7 +300,7 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Content</label>
                 {/* Media Embed Toolbar */}
-                <div className="flex gap-1.5 mb-2">
+                <div className="flex gap-1.5 mb-2 flex-wrap">
                   <button
                     type="button"
                     onClick={() => {
@@ -312,7 +314,7 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
                     }}
                     className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors"
                   >
-                    <Video className="w-3.5 h-3.5" /> Video
+                    <Video className="w-3.5 h-3.5" /> Video URL
                   </button>
                   <button
                     type="button"
@@ -330,25 +332,42 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
                   >
                     <LinkIcon className="w-3.5 h-3.5" /> Link
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const url = prompt('Enter file/document URL:');
-                      const name = prompt('File name (optional):') || 'Download file';
-                      if (url) {
-                        setEditingSection({
-                          ...editingSection,
-                          content: editingSection.content + `\n\n[file:${name}](${url})\n`,
-                        });
-                      }
+                  <UploadMediaButton
+                    label="Upload Video"
+                    icon={<Video className="w-3.5 h-3.5" />}
+                    accept="video/*"
+                    onUploaded={(url, name) => {
+                      setEditingSection({
+                        ...editingSection,
+                        content: editingSection.content + `\n\n[video](${url})\n`,
+                      });
                     }}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors"
-                  >
-                    <FileText className="w-3.5 h-3.5" /> File
-                  </button>
+                  />
+                  <UploadMediaButton
+                    label="Upload File"
+                    icon={<FileText className="w-3.5 h-3.5" />}
+                    accept="*/*"
+                    onUploaded={(url, name) => {
+                      setEditingSection({
+                        ...editingSection,
+                        content: editingSection.content + `\n\n[file:${name}](${url})\n`,
+                      });
+                    }}
+                  />
+                  <UploadMediaButton
+                    label="Upload Image"
+                    icon={<ImageIcon className="w-3.5 h-3.5" />}
+                    accept="image/*"
+                    onUploaded={(url, name) => {
+                      setEditingSection({
+                        ...editingSection,
+                        content: editingSection.content + `\n\n[image](${url})\n`,
+                      });
+                    }}
+                  />
                 </div>
                 <p className="text-[10px] text-muted-foreground mb-1">
-                  Use [video](url) for videos, [label](url) for links, [file:name](url) for files
+                  Use [video](url), [image](url), [label](url) for links, [file:name](url) for files
                 </p>
                 <Textarea className="min-h-[200px] font-mono text-xs" value={editingSection.content} onChange={(e) => setEditingSection({ ...editingSection, content: e.target.value })} />
               </div>
@@ -426,5 +445,51 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
         </div>
       )}
     </div>
+  );
+}
+
+// Reusable upload button component
+function UploadMediaButton({ label, icon, accept, onUploaded }: {
+  label: string;
+  icon: React.ReactNode;
+  accept: string;
+  onUploaded: (url: string, name: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from('course-media').upload(path, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('course-media').getPublicUrl(path);
+      onUploaded(publicUrl, file.name);
+      toast.success(`${file.name} uploaded!`);
+    } catch {
+      toast.error('Upload failed');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  return (
+    <>
+      <input ref={fileRef} type="file" accept={accept} onChange={handleUpload} className="hidden" />
+      <button
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        disabled={uploading}
+        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors disabled:opacity-50"
+      >
+        {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : icon}
+        {uploading ? 'Uploading...' : label}
+      </button>
+    </>
   );
 }

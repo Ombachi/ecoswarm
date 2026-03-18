@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Confetti } from '@/components/common/Confetti';
+import { SponsorBadge } from '@/components/sponsorship/SponsorBadge';
 import {
   ChevronLeft,
   CheckCircle,
@@ -11,6 +12,8 @@ import {
   Award,
   BookOpen,
   HelpCircle,
+  FileText,
+  ExternalLink,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { createAutoPost, buildCourseAutoPost } from '@/utils/autoPost';
@@ -28,6 +31,78 @@ interface Question {
   options: string[];
   correct_index: number;
   sort_order: number;
+}
+
+/** Renders course content with embedded media support */
+function RenderCourseContent({ content }: { content: string }) {
+  const lines = content.split('\n');
+  const elements: React.ReactNode[] = [];
+
+  lines.forEach((line, i) => {
+    const trimmed = line.trim();
+
+    // [video](url)
+    const videoMatch = trimmed.match(/^\[video\]\((.+)\)$/);
+    if (videoMatch) {
+      const url = videoMatch[1];
+      // YouTube embed
+      const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+      if (ytMatch) {
+        elements.push(
+          <div key={i} className="my-3 rounded-xl overflow-hidden aspect-video">
+            <iframe src={`https://www.youtube.com/embed/${ytMatch[1]}`} className="w-full h-full" allowFullScreen title="Video" />
+          </div>
+        );
+      } else {
+        elements.push(
+          <video key={i} src={url} controls className="w-full rounded-xl my-3 max-h-[300px]" />
+        );
+      }
+      return;
+    }
+
+    // [image](url)
+    const imgMatch = trimmed.match(/^\[image\]\((.+)\)$/);
+    if (imgMatch) {
+      elements.push(<img key={i} src={imgMatch[1]} alt="" className="w-full rounded-xl my-3 max-h-[400px] object-contain" />);
+      return;
+    }
+
+    // [file:name](url)
+    const fileMatch = trimmed.match(/^\[file:(.+?)\]\((.+)\)$/);
+    if (fileMatch) {
+      elements.push(
+        <a key={i} href={fileMatch[2]} target="_blank" rel="noopener noreferrer"
+          className="flex items-center gap-2 p-3 my-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors">
+          <FileText className="w-5 h-5 text-primary" />
+          <span className="text-sm font-medium text-foreground flex-1">{fileMatch[1]}</span>
+          <ExternalLink className="w-4 h-4 text-muted-foreground" />
+        </a>
+      );
+      return;
+    }
+
+    // [label](url) - regular link
+    const linkMatch = trimmed.match(/^\[(.+?)\]\((.+)\)$/);
+    if (linkMatch && !trimmed.startsWith('[video]') && !trimmed.startsWith('[image]') && !trimmed.startsWith('[file:')) {
+      elements.push(
+        <a key={i} href={linkMatch[2]} target="_blank" rel="noopener noreferrer"
+          className="text-primary underline text-sm hover:opacity-80 block my-1">
+          {linkMatch[1]}
+        </a>
+      );
+      return;
+    }
+
+    // Regular text
+    if (trimmed === '') {
+      elements.push(<br key={i} />);
+    } else {
+      elements.push(<p key={i} className="text-sm leading-relaxed">{line}</p>);
+    }
+  });
+
+  return <>{elements}</>;
 }
 
 export function ModuleScreen() {
@@ -48,6 +123,7 @@ export function ModuleScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [totalModules, setTotalModules] = useState(0);
   const [isLoadingModule, setIsLoadingModule] = useState(true);
+  const [sponsor, setSponsor] = useState<{ name: string; logo: string | null } | null>(null);
 
   // Fetch course, sections, and questions from database
   useEffect(() => {
@@ -55,11 +131,12 @@ export function ModuleScreen() {
       if (!moduleId) return;
       setIsLoadingModule(true);
 
-      const [courseRes, sectionsRes, questionsRes, countRes] = await Promise.all([
+      const [courseRes, sectionsRes, questionsRes, countRes, sponsorRes] = await Promise.all([
         supabase.from('courses').select('*').eq('id', moduleId).maybeSingle(),
         supabase.from('course_sections').select('*').eq('course_id', moduleId).order('sort_order'),
         supabase.from('course_questions').select('*').eq('course_id', moduleId).order('sort_order'),
         supabase.from('courses').select('id', { count: 'exact', head: true }),
+        supabase.from('course_sponsorships').select('sponsor_name, sponsor_logo_url').eq('course_id', moduleId).eq('status', 'approved').maybeSingle(),
       ]);
 
       if (courseRes.data) {
@@ -78,6 +155,9 @@ export function ModuleScreen() {
         options: q.options as unknown as string[],
       })));
       setTotalModules(countRes.count || 0);
+      if (sponsorRes.data) {
+        setSponsor({ name: sponsorRes.data.sponsor_name, logo: sponsorRes.data.sponsor_logo_url });
+      }
       setIsLoadingModule(false);
     };
     fetchCourse();
@@ -203,6 +283,11 @@ export function ModuleScreen() {
           <div className="flex-1">
             <h1 className="text-lg font-bold text-foreground">{module.title}</h1>
             <p className="text-xs text-muted-foreground">{module.category} • {module.duration}</p>
+            {sponsor && (
+              <div className="mt-1">
+                <SponsorBadge sponsorName={sponsor.name} logoUrl={sponsor.logo} />
+              </div>
+            )}
           </div>
         </div>
 
@@ -230,8 +315,8 @@ export function ModuleScreen() {
                 {sections[currentSection].title}
               </h2>
 
-              <div className="prose prose-sm text-foreground whitespace-pre-line">
-                {sections[currentSection].content}
+              <div className="prose prose-sm text-foreground">
+                <RenderCourseContent content={sections[currentSection].content} />
               </div>
             </div>
 

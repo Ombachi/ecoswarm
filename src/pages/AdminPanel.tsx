@@ -31,6 +31,7 @@ import {
   LogOut,
   Megaphone,
   Send,
+  Building2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CourseContentEditor } from '@/components/admin/CourseContentEditor';
@@ -105,6 +106,18 @@ interface Transaction {
   created_at: string;
 }
 
+interface Sponsorship {
+  id: string;
+  course_id: string;
+  sponsor_user_id: string;
+  sponsor_name: string;
+  sponsor_logo_url: string | null;
+  message: string | null;
+  status: string;
+  admin_notes: string | null;
+  created_at: string;
+}
+
 export function AdminPanel() {
   const navigate = useNavigate();
   const { user, isAdmin, logout } = useApp();
@@ -116,6 +129,7 @@ export function AdminPanel() {
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [payouts, setPayouts] = useState<Payout[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [sponsorships, setSponsorships] = useState<Sponsorship[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Profile name cache
@@ -159,13 +173,14 @@ export function AdminPanel() {
 
   const loadAll = async () => {
     setIsLoading(true);
-    const [c, t, r, d, p, tx] = await Promise.all([
+    const [c, t, r, d, p, tx, sp] = await Promise.all([
       supabase.from('courses').select('*').order('sort_order'),
       supabase.from('letter_templates').select('*').order('sort_order'),
       supabase.from('recipients').select('*').order('sort_order'),
       supabase.from('transaction_disputes').select('*').order('created_at', { ascending: false }),
       supabase.from('seller_payouts').select('*').order('created_at', { ascending: false }),
       supabase.from('transactions').select('*').order('created_at', { ascending: false }).limit(50),
+      supabase.from('course_sponsorships').select('*').order('created_at', { ascending: false }),
     ]);
     setCourses(c.data || []);
     setTemplates(t.data || []);
@@ -173,6 +188,7 @@ export function AdminPanel() {
     setDisputes((d.data as Dispute[]) || []);
     setPayouts((p.data as Payout[]) || []);
     setTransactions((tx.data as Transaction[]) || []);
+    setSponsorships((sp.data as Sponsorship[]) || []);
 
     // Collect unique user IDs to resolve names
     const userIds = new Set<string>();
@@ -308,6 +324,19 @@ export function AdminPanel() {
     }
   };
 
+  const handleSponsorshipAction = async (id: string, action: 'approved' | 'rejected') => {
+    try {
+      const { error } = await supabase.from('course_sponsorships')
+        .update({ status: action, updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
+      toast.success(`Sponsorship ${action}`);
+      await loadAll();
+    } catch {
+      toast.error('Failed to update sponsorship');
+    }
+  };
+
   // (Broadcast handler moved to AdminBroadcastTab)
 
   const statusBadge = (status: string) => {
@@ -422,6 +451,14 @@ export function AdminPanel() {
             </TabsTrigger>
             <TabsTrigger value="broadcast" className="flex-1 gap-1 text-[10px] px-2">
               <Megaphone className="w-3.5 h-3.5" /> Broadcast
+            </TabsTrigger>
+            <TabsTrigger value="sponsors" className="flex-1 gap-1 text-[10px] px-2 relative">
+              <Building2 className="w-3.5 h-3.5" /> Sponsors
+              {sponsorships.filter(s => s.status === 'pending').length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-[9px] flex items-center justify-center">
+                  {sponsorships.filter(s => s.status === 'pending').length}
+                </span>
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -666,6 +703,55 @@ export function AdminPanel() {
           {/* Broadcast Tab */}
           <TabsContent value="broadcast">
             <AdminBroadcastTab />
+          </TabsContent>
+
+          {/* Sponsors Tab */}
+          <TabsContent value="sponsors" className="space-y-3 pt-3">
+            {sponsorships.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Building2 className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">No sponsorship requests yet</p>
+              </div>
+            ) : (
+              sponsorships.map((s) => {
+                const course = courses.find(c => c.id === s.course_id);
+                return (
+                  <div key={s.id} className="eco-card p-4 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          {statusBadge(s.status)}
+                          <span className="text-[10px] text-muted-foreground">
+                            {new Date(s.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mb-1">
+                          {s.sponsor_logo_url && (
+                            <img src={s.sponsor_logo_url} alt="" className="w-8 h-8 rounded-lg object-contain bg-muted p-0.5" />
+                          )}
+                          <div>
+                            <p className="font-semibold text-foreground text-sm">{s.sponsor_name}</p>
+                            <p className="text-xs text-primary">Course: {course?.title || 'Unknown'}</p>
+                          </div>
+                        </div>
+                        {s.message && <p className="text-xs text-muted-foreground">{s.message}</p>}
+                        <p className="text-[10px] text-muted-foreground">By: {getName(s.sponsor_user_id)}</p>
+                      </div>
+                      {s.status === 'pending' && (
+                        <div className="flex flex-col gap-1">
+                          <Button size="sm" className="text-xs gap-1" onClick={() => handleSponsorshipAction(s.id, 'approved')}>
+                            <CheckCircle className="w-3 h-3" /> Approve
+                          </Button>
+                          <Button size="sm" variant="destructive" className="text-xs gap-1" onClick={() => handleSponsorshipAction(s.id, 'rejected')}>
+                            <XCircle className="w-3 h-3" /> Reject
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </TabsContent>
         </Tabs>
         )}

@@ -201,6 +201,53 @@ export type Database = {
           },
         ]
       }
+      course_sponsorships: {
+        Row: {
+          admin_notes: string | null
+          course_id: string
+          created_at: string
+          id: string
+          message: string | null
+          sponsor_logo_url: string | null
+          sponsor_name: string
+          sponsor_user_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name: string
+          sponsor_user_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name?: string
+          sponsor_user_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_sponsorships_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           category: string

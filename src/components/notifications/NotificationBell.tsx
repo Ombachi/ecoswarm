@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Bell, X, Users, MessageSquare, BookOpen, Trophy } from 'lucide-react';
+import { Bell, X, Users, MessageSquare, BookOpen, Trophy, BarChart3 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useApp } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useAppBadge } from '@/hooks/useAppBadge';
+import { PollVoter } from '@/components/polls/PollVoter';
 
 interface Notification {
   id: string;
@@ -81,6 +82,8 @@ export function NotificationBell() {
     setUnreadCount(0);
   };
 
+  const [votingPollId, setVotingPollId] = useState<string | null>(null);
+
   const handleNotificationClick = async (notif: Notification) => {
     // Mark as read
     if (!notif.is_read) {
@@ -90,6 +93,12 @@ export function NotificationBell() {
         .eq('id', notif.id);
       setNotifications((prev) => prev.map((n) => n.id === notif.id ? { ...n, is_read: true } : n));
       setUnreadCount((prev) => Math.max(prev - 1, 0));
+    }
+
+    // Open inline poll voter for poll notifications
+    if (notif.type === 'poll' && notif.reference_id === 'poll') {
+      setVotingPollId('all');
+      return;
     }
 
     if (notif.type === 'product' && notif.reference_id) {
@@ -116,6 +125,8 @@ export function NotificationBell() {
       case 'post': return <MessageSquare className="w-4 h-4 text-secondary" />;
       case 'course': return <BookOpen className="w-4 h-4 text-primary" />;
       case 'rank': return <Trophy className="w-4 h-4 text-yellow-500" />;
+      case 'poll': return <BarChart3 className="w-4 h-4 text-primary" />;
+      case 'broadcast': return <Bell className="w-4 h-4 text-primary" />;
       default: return <Bell className="w-4 h-4 text-muted-foreground" />;
     }
   };
@@ -151,6 +162,13 @@ export function NotificationBell() {
                 </button>
               </div>
             </div>
+
+            {/* Inline poll voter */}
+            {votingPollId && (
+              <div className="p-3 border-b border-border">
+                <PollVoter onClose={() => setVotingPollId(null)} />
+              </div>
+            )}
 
             {notifications.length === 0 ? (
               <div className="p-6 text-center">

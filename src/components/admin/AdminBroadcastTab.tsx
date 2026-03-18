@@ -88,6 +88,16 @@ export function AdminBroadcastTab() {
         if (error) throw error;
       }
 
+      // Auto-post announcement to Agora Square
+      if (user) {
+        await supabase.from('posts').insert({
+          user_id: user.id,
+          user_name: user.name,
+          content: `📢 **${broadcastTitle.trim()}**\n\n${broadcastMessage.trim()}\n\n#Announcement #EcoSwarm`,
+          tags: ['Announcement', 'EcoSwarm'],
+        });
+      }
+
       toast.success(`Broadcast sent to ${profiles.length} users!`);
       setBroadcastTitle('');
       setBroadcastMessage('');
@@ -132,6 +142,19 @@ export function AdminBroadcastTab() {
         for (let i = 0; i < notifications.length; i += 500) {
           await supabase.from('notifications').insert(notifications.slice(i, i + 500));
         }
+      }
+
+      // Auto-post poll/campaign to Agora Square
+      if (user) {
+        const emoji = newPollType === 'feedback' ? '📝' : newPollType === 'campaign' ? '🌍' : '📊';
+        const label = newPollType === 'feedback' ? 'Feedback Survey' : newPollType === 'campaign' ? 'Campaign' : 'New Poll';
+        const postContent = `${emoji} **${label}:** ${newPollTitle.trim()}\n\n${newPollDesc.trim() || 'Share your voice!'}\n\nVote now from your notifications! 🗳️\n\n#Poll #EcoSwarm`;
+        await supabase.from('posts').insert({
+          user_id: user.id,
+          user_name: user.name,
+          content: postContent,
+          tags: ['Poll', 'EcoSwarm'],
+        });
       }
 
       toast.success('Poll created & users notified!');

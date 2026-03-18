@@ -5,6 +5,8 @@ import { useApp } from '@/context/AppContext';
 import { Confetti } from '@/components/common/Confetti';
 import { supabase } from '@/integrations/supabase/client';
 import { createAutoPost, buildLetterAutoPost } from '@/utils/autoPost';
+import { SponsorBadge } from '@/components/sponsorship/SponsorBadge';
+import { SponsorCourseModal } from '@/components/sponsorship/SponsorCourseModal';
 
 import {
   Mail,
@@ -15,6 +17,7 @@ import {
   Play,
   Lock,
   Share2,
+  Building2,
 } from 'lucide-react';
 
 export function ToolsScreen() {
@@ -33,10 +36,15 @@ export function ToolsScreen() {
   const [recipients, setRecipients] = useState<any[]>([]);
   const [learningModules, setLearningModules] = useState<any[]>([]);
   const [isLoadingContent, setIsLoadingContent] = useState(true);
+  const [sponsorships, setSponsorships] = useState<Record<string, { name: string; logo: string | null }>>({});
+  const [sponsoringCourse, setSponsoringCourse] = useState<{ id: string; title: string } | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   useEffect(() => {
     loadContent();
     if (user) {
       loadCompletions();
+      loadSponsorships();
+      loadRole();
     }
   }, [user]);
 
@@ -65,6 +73,24 @@ export function ToolsScreen() {
       .select('module_id')
       .eq('user_id', user.id);
     setCompletedModules(data?.map((c) => c.module_id) || []);
+  };
+
+  const loadSponsorships = async () => {
+    const { data } = await supabase
+      .from('course_sponsorships')
+      .select('course_id, sponsor_name, sponsor_logo_url')
+      .eq('status', 'approved');
+    const map: Record<string, { name: string; logo: string | null }> = {};
+    (data || []).forEach((s: any) => {
+      map[s.course_id] = { name: s.sponsor_name, logo: s.sponsor_logo_url };
+    });
+    setSponsorships(map);
+  };
+
+  const loadRole = async () => {
+    if (!user) return;
+    const { data } = await supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle();
+    setUserRole(data?.role || null);
   };
 
   const handleSubmitLetter = async () => {
@@ -461,6 +487,11 @@ export function ToolsScreen() {
                         +{module.points} pts
                       </span>
                     </div>
+                    {sponsorships[module.id] && (
+                      <div className="mt-2">
+                        <SponsorBadge sponsorName={sponsorships[module.id].name} logoUrl={sponsorships[module.id].logo} />
+                      </div>
+                    )}
                     {module.progress !== undefined && module.progress > 0 && !isCompleted && (
                       <div className="mt-3">
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -475,13 +506,33 @@ export function ToolsScreen() {
                       </div>
                     )}
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                  <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                    {userRole === 'ecodeveloper' && !sponsorships[module.id] && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSponsoringCourse({ id: module.id, title: module.title }); }}
+                        className="p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                        title="Sponsor this course"
+                      >
+                        <Building2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </button>
               );
             })}
           </div>
         </div>
+      )}
+
+      {/* Sponsor Course Modal */}
+      {sponsoringCourse && (
+        <SponsorCourseModal
+          courseId={sponsoringCourse.id}
+          courseTitle={sponsoringCourse.title}
+          onClose={() => setSponsoringCourse(null)}
+        />
       )}
     </AppLayout>
   );
