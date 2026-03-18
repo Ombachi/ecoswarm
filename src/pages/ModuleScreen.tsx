@@ -51,6 +51,7 @@ export function ModuleScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [totalModules, setTotalModules] = useState(0);
   const [isLoadingModule, setIsLoadingModule] = useState(true);
+  const [sponsor, setSponsor] = useState<{ name: string; logo: string | null } | null>(null);
 
   // Fetch course, sections, and questions from database
   useEffect(() => {
