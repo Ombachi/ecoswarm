@@ -525,6 +525,15 @@ export function ToolsScreen() {
           </div>
         </div>
       )}
+
+      {/* Sponsor Course Modal */}
+      {sponsoringCourse && (
+        <SponsorCourseModal
+          courseId={sponsoringCourse.id}
+          courseTitle={sponsoringCourse.title}
+          onClose={() => setSponsoringCourse(null)}
+        />
+      )}
     </AppLayout>
   );
 }
