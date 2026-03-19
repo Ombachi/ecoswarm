@@ -118,15 +118,17 @@ export function AdminBroadcastTab() {
     setIsSavingPoll(true);
     try {
       const options: PollOption[] = validOptions.map((label) => ({ label: label.trim(), votes: 0 }));
-      const { error } = await supabase.from('polls').insert({
+      const { data: newPollData, error } = await supabase.from('polls').insert({
         created_by: user?.id ?? '',
         title: newPollTitle.trim(),
         description: newPollDesc.trim() || null,
         poll_type: newPollType,
         options: options as any,
         is_active: true,
-      } as any);
+      } as any).select().single();
       if (error) throw error;
+
+      const createdPollId = newPollData?.id;
 
       // Notify all users about the new poll
       const { data: profiles } = await supabase.from('profiles').select('user_id');
@@ -137,23 +139,23 @@ export function AdminBroadcastTab() {
           type: 'poll',
           title: typeLabel,
           message: newPollTitle.trim(),
-          reference_id: 'poll',
+          reference_id: createdPollId || 'poll',
         }));
         for (let i = 0; i < notifications.length; i += 500) {
           await supabase.from('notifications').insert(notifications.slice(i, i + 500));
         }
       }
 
-      // Auto-post poll/campaign to Agora Square
+      // Auto-post poll/campaign to Agora Square with poll ID tag
       if (user) {
         const emoji = newPollType === 'feedback' ? '📝' : newPollType === 'campaign' ? '🌍' : '📊';
         const label = newPollType === 'feedback' ? 'Feedback Survey' : newPollType === 'campaign' ? 'Campaign' : 'New Poll';
-        const postContent = `${emoji} **${label}:** ${newPollTitle.trim()}\n\n${newPollDesc.trim() || 'Share your voice!'}\n\nVote now from your notifications! 🗳️\n\n#Poll #EcoSwarm`;
+        const postContent = `${emoji} **${label}:** ${newPollTitle.trim()}\n\n${newPollDesc.trim() || 'Share your voice!'}\n\nVote below! 🗳️\n\n#Poll #EcoSwarm`;
         await supabase.from('posts').insert({
           user_id: user.id,
           user_name: user.name,
           content: postContent,
-          tags: ['Poll', 'EcoSwarm'],
+          tags: ['Poll', 'EcoSwarm', ...(createdPollId ? [`poll_${createdPollId}`] : [])],
         });
       }
 

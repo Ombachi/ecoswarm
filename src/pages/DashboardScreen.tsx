@@ -26,6 +26,9 @@ import {
   Trophy,
   LogOut,
   BarChart3,
+  Users,
+  CalendarDays,
+  GraduationCap,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -252,34 +255,14 @@ export function DashboardScreen() {
   const dailyChallenge = challenges.find((c) => c.type === "daily" && !c.completed);
 
   const quickActions = [
-    {
-      id: 'agora',
-      icon: MessageSquare,
-      label: isSwahili ? "Agora Square" : "Agora Square",
-      color: "from-primary to-secondary",
-      path: "/agora",
-    },
-    {
-      id: 'ecomarket',
-      icon: ShoppingBag,
-      label: isSwahili ? "EcoMarket" : "EcoMarket",
-      color: "from-secondary to-eco-blue",
-      path: "/ecomarket",
-    },
-    {
-      id: 'letter',
-      icon: Mail,
-      label: isSwahili ? "Tuma Barua" : "Send Letter",
-      color: "from-eco-gold to-eco-orange",
-      path: "/tools",
-    },
-    {
-      id: 'capacity',
-      icon: Target,
-      label: isSwahili ? "Capacity Hub" : "Capacity Hub",
-      color: "from-eco-blue to-primary",
-      path: "/tools",
-    },
+    { id: 'agora', icon: MessageSquare, label: "Agora Square", color: "from-primary to-secondary", path: "/agora" },
+    { id: 'ecomarket', icon: ShoppingBag, label: "EcoMarket", color: "from-secondary to-eco-blue", path: "/ecomarket" },
+    { id: 'capacity', icon: GraduationCap, label: "Capacity Hub", color: "from-eco-blue to-primary", path: "/tools" },
+    { id: 'letter', icon: Mail, label: "EcoLetter Forge", color: "from-eco-gold to-eco-orange", path: "/tools" },
+    { id: 'swarms', icon: Users, label: "Swarms", color: "from-primary to-eco-green", path: "/swarms" },
+    { id: 'challenges', icon: Trophy, label: "Challenges", color: "from-eco-orange to-eco-gold", path: "/challenges" },
+    { id: 'calendar', icon: CalendarDays, label: "Eco Calendar", color: "from-eco-blue to-secondary", path: "/calendar" },
+    { id: 'leaderboard', icon: Target, label: "Leaderboard", color: "from-secondary to-primary", path: "/leaderboard" },
   ];
 
   return (
@@ -426,7 +409,7 @@ function DashboardHomeContent({
 }: any) {
   return (
     <>
-      {/* Quick Actions */}
+      {/* Quick Actions - Icon Grid */}
       <div>
         <h2 className="font-semibold text-foreground mb-3">{isSwahili ? "Hatua za Haraka" : "Quick Actions"}</h2>
         <div className="grid grid-cols-4 gap-3">
@@ -434,14 +417,12 @@ function DashboardHomeContent({
             <button
               key={action.id}
               onClick={() => navigate(action.path)}
-              className="eco-card p-4 flex flex-col items-center gap-2 hover:shadow-lg transition-all"
+              className="eco-card p-3 flex flex-col items-center gap-2 hover:shadow-lg transition-all"
             >
-              <div
-                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}
-              >
-                <action.icon className="w-6 h-6 text-white" />
+              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}>
+                <action.icon className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xs font-medium text-foreground text-center">{action.label}</span>
+              <span className="text-[10px] font-medium text-foreground text-center leading-tight">{action.label}</span>
             </button>
           ))}
         </div>
@@ -470,61 +451,22 @@ function DashboardHomeContent({
         </div>
       )}
 
-      {/* All Challenges */}
-      <div>
-        <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+      {/* View All Challenges Link */}
+      <button
+        onClick={() => navigate('/challenges')}
+        className="eco-card p-4 flex items-center gap-3 w-full text-left hover:shadow-md transition-all"
+      >
+        <div className="w-10 h-10 rounded-full bg-eco-gold/20 flex items-center justify-center">
           <Trophy className="w-5 h-5 text-eco-gold" />
-          {isSwahili ? "Changamoto Zote" : "All Challenges"}
-        </h2>
-        <div className="space-y-3">
-          {challenges.map((challenge: Challenge) => (
-            <button
-              key={challenge.id}
-              onClick={() => !challenge.completed && handleStartChallenge(challenge.id)}
-              disabled={challenge.completed}
-              className={`eco-card p-4 flex items-center gap-4 w-full text-left transition-all ${
-                challenge.completed ? "opacity-60" : "hover:shadow-md cursor-pointer active:scale-[0.98]"
-              }`}
-            >
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  challenge.completed ? "eco-gradient-bg" : "bg-muted"
-                }`}
-              >
-                {challenge.completed ? (
-                  <CheckCircle className="w-5 h-5 text-white" />
-                ) : (
-                  <Trophy className="w-5 h-5 text-muted-foreground" />
-                )}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-semibold text-foreground">{challenge.title}</h4>
-                  <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full ${
-                      challenge.type === "daily"
-                        ? "bg-eco-gold/20 text-eco-gold"
-                        : challenge.type === "weekly"
-                          ? "bg-primary/20 text-primary"
-                          : "bg-secondary/20 text-secondary"
-                    }`}
-                  >
-                    {challenge.type}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">{challenge.description}</p>
-              </div>
-              <div className="text-right flex items-center gap-2">
-                <div>
-                  <p className="font-bold text-primary">+{challenge.points}</p>
-                  <p className="text-[10px] text-muted-foreground">pts</p>
-                </div>
-                {!challenge.completed && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
-              </div>
-            </button>
-          ))}
         </div>
-      </div>
+        <div className="flex-1">
+          <h4 className="font-semibold text-foreground">{isSwahili ? "Changamoto Zote" : "View All Challenges"}</h4>
+          <p className="text-xs text-muted-foreground">
+            {challenges.filter((c: Challenge) => !c.completed).length} active challenges
+          </p>
+        </div>
+        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+      </button>
 
       {/* Impact Summary */}
       <div className="eco-card p-4">

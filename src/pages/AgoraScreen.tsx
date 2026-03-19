@@ -11,6 +11,7 @@ import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { MediaGallery, MediaItem } from '@/components/common/MediaGallery';
 import { LinkifiedText } from '@/components/common/LinkifiedText';
+import { PollVoter } from '@/components/polls/PollVoter';
 import { supabase } from '@/integrations/supabase/client';
 import { useVisibilityRefetch } from '@/hooks/useVisibilityRefetch';
 import {
@@ -939,6 +940,34 @@ export function AgoraScreen() {
                   View on EcoMarket 🛒
                 </button>
               )}
+
+              {/* Swarm CTA - Join Swarm button */}
+              {isSwarmPost && (() => {
+                const swarmTag = post.tags.find(t => t.startsWith('swarm_'));
+                const swarmId = swarmTag?.replace('swarm_', '');
+                if (!swarmId) return null;
+                return (
+                  <button
+                    onClick={() => navigate('/swarms')}
+                    className="w-full mb-2 py-2.5 px-4 rounded-xl border-2 border-primary text-primary font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary/10 transition-all"
+                  >
+                    <Users className="w-4 h-4" />
+                    View & Join Swarm 🐝
+                  </button>
+                );
+              })()}
+
+              {/* Inline Poll Voting */}
+              {post.tags.includes('Poll') && (() => {
+                const pollIdMatch = post.tags.find(t => t.startsWith('poll_'));
+                const pId = pollIdMatch?.replace('poll_', '');
+                if (!pId) return null;
+                return (
+                  <div className="mb-2">
+                    <PollVoter pollId={pId} />
+                  </div>
+                );
+              })()}
               </>
               )}
 
