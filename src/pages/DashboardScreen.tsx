@@ -409,7 +409,7 @@ function DashboardHomeContent({
 }: any) {
   return (
     <>
-      {/* Quick Actions */}
+      {/* Quick Actions - Icon Grid */}
       <div>
         <h2 className="font-semibold text-foreground mb-3">{isSwahili ? "Hatua za Haraka" : "Quick Actions"}</h2>
         <div className="grid grid-cols-4 gap-3">
@@ -417,14 +417,12 @@ function DashboardHomeContent({
             <button
               key={action.id}
               onClick={() => navigate(action.path)}
-              className="eco-card p-4 flex flex-col items-center gap-2 hover:shadow-lg transition-all"
+              className="eco-card p-3 flex flex-col items-center gap-2 hover:shadow-lg transition-all"
             >
-              <div
-                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}
-              >
-                <action.icon className="w-6 h-6 text-white" />
+              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}>
+                <action.icon className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xs font-medium text-foreground text-center">{action.label}</span>
+              <span className="text-[10px] font-medium text-foreground text-center leading-tight">{action.label}</span>
             </button>
           ))}
         </div>
