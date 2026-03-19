@@ -451,61 +451,22 @@ function DashboardHomeContent({
         </div>
       )}
 
-      {/* All Challenges */}
-      <div>
-        <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+      {/* View All Challenges Link */}
+      <button
+        onClick={() => navigate('/challenges')}
+        className="eco-card p-4 flex items-center gap-3 w-full text-left hover:shadow-md transition-all"
+      >
+        <div className="w-10 h-10 rounded-full bg-eco-gold/20 flex items-center justify-center">
           <Trophy className="w-5 h-5 text-eco-gold" />
-          {isSwahili ? "Changamoto Zote" : "All Challenges"}
-        </h2>
-        <div className="space-y-3">
-          {challenges.map((challenge: Challenge) => (
-            <button
-              key={challenge.id}
-              onClick={() => !challenge.completed && handleStartChallenge(challenge.id)}
-              disabled={challenge.completed}
-              className={`eco-card p-4 flex items-center gap-4 w-full text-left transition-all ${
-                challenge.completed ? "opacity-60" : "hover:shadow-md cursor-pointer active:scale-[0.98]"
-              }`}
-            >
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  challenge.completed ? "eco-gradient-bg" : "bg-muted"
-                }`}
-              >
-                {challenge.completed ? (
-                  <CheckCircle className="w-5 h-5 text-white" />
-                ) : (
-                  <Trophy className="w-5 h-5 text-muted-foreground" />
-                )}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-semibold text-foreground">{challenge.title}</h4>
-                  <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full ${
-                      challenge.type === "daily"
-                        ? "bg-eco-gold/20 text-eco-gold"
-                        : challenge.type === "weekly"
-                          ? "bg-primary/20 text-primary"
-                          : "bg-secondary/20 text-secondary"
-                    }`}
-                  >
-                    {challenge.type}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">{challenge.description}</p>
-              </div>
-              <div className="text-right flex items-center gap-2">
-                <div>
-                  <p className="font-bold text-primary">+{challenge.points}</p>
-                  <p className="text-[10px] text-muted-foreground">pts</p>
-                </div>
-                {!challenge.completed && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
-              </div>
-            </button>
-          ))}
         </div>
-      </div>
+        <div className="flex-1">
+          <h4 className="font-semibold text-foreground">{isSwahili ? "Changamoto Zote" : "View All Challenges"}</h4>
+          <p className="text-xs text-muted-foreground">
+            {challenges.filter((c: Challenge) => !c.completed).length} active challenges
+          </p>
+        </div>
+        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+      </button>
 
       {/* Impact Summary */}
       <div className="eco-card p-4">
