@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { X, Target, Users, Loader2, Building2, Link, Phone, MapPin, Calendar, Globe, Lock, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
 
 const goalTypes = [
   { id: 'Conservation Effort', label: 'Conservation Effort', emoji: '🌿' },
@@ -54,7 +53,6 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
   const [description, setDescription] = useState('');
   const [goal, setGoal] = useState('');
   const [category, setCategory] = useState('');
-  const [targetSignatures, setTargetSignatures] = useState('1000');
   const [socialLinks, setSocialLinks] = useState('');
   const [phone, setPhone] = useState('');
   const [goalType, setGoalType] = useState('Conservation Effort');
@@ -70,7 +68,7 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
 
   const canProceedStep1 = name.trim() && category;
   const canProceedStep2 = description.trim() && goal.trim() && goalType;
-  const canSubmit = canProceedStep1 && canProceedStep2 && parseInt(targetSignatures) > 0;
+  const canSubmit = canProceedStep1 && canProceedStep2;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -81,7 +79,7 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
         description: description.trim(),
         goal: goal.trim(),
         category,
-        targetSignatures: parseInt(targetSignatures),
+        targetSignatures: parseInt(targetNumber) || 50,
         orgName: orgName.trim() || undefined,
         socialLinks: socialLinks.trim() || undefined,
         phone: phone.trim() || undefined,
@@ -91,10 +89,9 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
         inviteMethod,
         location: location.trim() || undefined,
       });
-      // Reset
       setStep(1);
       setOrgName(''); setName(''); setDescription(''); setGoal('');
-      setCategory(''); setTargetSignatures('1000'); setSocialLinks('');
+      setCategory(''); setSocialLinks('');
       setPhone(''); setGoalType('Conservation Effort'); setTargetNumber('50');
       setInviteMethod('public'); setLocation('');
       onClose();
@@ -110,7 +107,7 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:justify-center">
-      <div className="bg-card w-full sm:max-w-lg sm:rounded-2xl rounded-t-3xl max-h-[90vh] overflow-auto animate-slide-up">
+      <div className="bg-card w-full sm:max-w-lg sm:rounded-2xl rounded-t-3xl max-h-[85vh] overflow-auto animate-slide-up pb-safe">
         {/* Header */}
         <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
@@ -139,32 +136,20 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
         <div className="p-6 space-y-5">
           {step === 1 && (
             <>
-              {/* Campaign Name */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Swarm Title *</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder='e.g., "Join our Mau Forest Conservation Drive"'
-                  className="eco-input"
-                />
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)}
+                  placeholder='e.g., "Join our Mau Forest Conservation Drive"' className="eco-input" />
               </div>
 
-              {/* Category */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Category *</label>
                 <div className="grid grid-cols-3 gap-2">
                   {categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setCategory(cat.id)}
+                    <button key={cat.id} onClick={() => setCategory(cat.id)}
                       className={`p-3 rounded-xl border-2 transition-all text-center ${
-                        category === cat.id
-                          ? 'border-primary bg-primary/10'
-                          : 'border-border bg-card hover:border-primary/50'
-                      }`}
-                    >
+                        category === cat.id ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/50'
+                      }`}>
                       <span className="text-xl block mb-1" aria-hidden="true">{cat.emoji}</span>
                       <span className="text-xs font-medium">{cat.label}</span>
                     </button>
@@ -172,26 +157,16 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
                 </div>
               </div>
 
-              {/* Org Name */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-primary" />
-                  Organization (optional)
+                  <Building2 className="w-4 h-4 text-primary" /> Organization (optional)
                 </label>
-                <input
-                  type="text"
-                  value={orgName}
-                  onChange={(e) => setOrgName(e.target.value)}
-                  placeholder="e.g., Green Earth Foundation"
-                  className="eco-input"
-                />
+                <input type="text" value={orgName} onChange={(e) => setOrgName(e.target.value)}
+                  placeholder="e.g., Green Earth Foundation" className="eco-input" />
               </div>
 
-              <button
-                onClick={() => setStep(2)}
-                disabled={!canProceedStep1}
-                className="w-full eco-button-primary py-3 text-base disabled:opacity-50"
-              >
+              <button onClick={() => setStep(2)} disabled={!canProceedStep1}
+                className="w-full eco-button-primary py-3 text-base disabled:opacity-50">
                 Next →
               </button>
             </>
@@ -199,31 +174,20 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
 
           {step === 2 && (
             <>
-              {/* Description */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Short Description *</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe what this swarm is about..."
-                  className="eco-input min-h-[100px] resize-none"
-                />
+                <textarea value={description} onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Describe what this swarm is about..." className="eco-input min-h-[100px] resize-none" />
               </div>
 
-              {/* Goal Type */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Goal Type *</label>
                 <div className="grid grid-cols-2 gap-2">
                   {goalTypes.map((gt) => (
-                    <button
-                      key={gt.id}
-                      onClick={() => setGoalType(gt.id)}
+                    <button key={gt.id} onClick={() => setGoalType(gt.id)}
                       className={`p-2.5 rounded-xl border-2 transition-all text-left flex items-center gap-2 ${
-                        goalType === gt.id
-                          ? 'border-primary bg-primary/10'
-                          : 'border-border bg-card hover:border-primary/50'
-                      }`}
-                    >
+                        goalType === gt.id ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/50'
+                      }`}>
                       <span aria-hidden="true">{gt.emoji}</span>
                       <span className="text-xs font-medium">{gt.label}</span>
                     </button>
@@ -231,25 +195,16 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
                 </div>
               </div>
 
-              {/* Campaign Goal */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <Target className="w-4 h-4 text-primary" />
-                  Campaign Goal *
+                  <Target className="w-4 h-4 text-primary" /> Campaign Goal *
                 </label>
-                <textarea
-                  value={goal}
-                  onChange={(e) => setGoal(e.target.value)}
-                  placeholder='e.g., "Send 50 advocacy letters to MPs"'
-                  className="eco-input min-h-[70px] resize-none"
-                />
+                <textarea value={goal} onChange={(e) => setGoal(e.target.value)}
+                  placeholder='e.g., "Send 50 advocacy letters to MPs"' className="eco-input min-h-[70px] resize-none" />
               </div>
 
-              <button
-                onClick={() => setStep(3)}
-                disabled={!canProceedStep2}
-                className="w-full eco-button-primary py-3 text-base disabled:opacity-50"
-              >
+              <button onClick={() => setStep(3)} disabled={!canProceedStep2}
+                className="w-full eco-button-primary py-3 text-base disabled:opacity-50">
                 Next →
               </button>
             </>
@@ -257,79 +212,39 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
 
           {step === 3 && (
             <>
-              {/* Target Number */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <Users className="w-4 h-4 text-primary" />
-                  Target Number
+                  <Users className="w-4 h-4 text-primary" /> Target Number
                 </label>
-                <input
-                  type="number"
-                  value={targetNumber}
-                  onChange={(e) => setTargetNumber(e.target.value)}
-                  placeholder="e.g., 50 volunteers, 200 trees"
-                  min="1"
-                  className="eco-input"
-                />
+                <input type="number" value={targetNumber} onChange={(e) => setTargetNumber(e.target.value)}
+                  placeholder="e.g., 50 volunteers, 200 trees" min="1" className="eco-input" />
                 <p className="text-xs text-muted-foreground">e.g., 50 volunteers, 200 trees, 1000 EcoPoints</p>
               </div>
 
-              {/* Target Signatures */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Signature Goal</label>
-                <input
-                  type="number"
-                  value={targetSignatures}
-                  onChange={(e) => setTargetSignatures(e.target.value)}
-                  min="10"
-                  className="eco-input"
-                />
-              </div>
-
-              {/* End Date */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-primary" />
-                  End Date
+                  <Calendar className="w-4 h-4 text-primary" /> End Date
                 </label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="eco-input"
-                />
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]} className="eco-input" />
               </div>
 
-              {/* Location */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-primary" />
-                  Location (optional)
+                  <MapPin className="w-4 h-4 text-primary" /> Location (optional)
                 </label>
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="e.g., Mau Forest, Narok County"
-                  className="eco-input"
-                />
+                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)}
+                  placeholder="e.g., Mau Forest, Narok County" className="eco-input" />
               </div>
 
-              {/* Invite Method */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Invite Method</label>
                 <div className="space-y-2">
                   {inviteMethods.map((m) => (
-                    <button
-                      key={m.id}
-                      onClick={() => setInviteMethod(m.id)}
+                    <button key={m.id} onClick={() => setInviteMethod(m.id)}
                       className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
-                        inviteMethod === m.id
-                          ? 'border-primary bg-primary/10'
-                          : 'border-border bg-card hover:border-primary/50'
-                      }`}
-                    >
+                        inviteMethod === m.id ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/50'
+                      }`}>
                       <m.icon className="w-5 h-5 text-primary flex-shrink-0" />
                       <div>
                         <p className="text-sm font-medium text-foreground">{m.label}</p>
@@ -340,41 +255,26 @@ export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwar
                 </div>
               </div>
 
-              {/* Contact Info */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                     <Link className="w-3 h-3" /> Social Link
                   </label>
-                  <input
-                    type="url"
-                    value={socialLinks}
-                    onChange={(e) => setSocialLinks(e.target.value)}
-                    placeholder="Optional"
-                    className="eco-input text-sm"
-                  />
+                  <input type="url" value={socialLinks} onChange={(e) => setSocialLinks(e.target.value)}
+                    placeholder="Optional" className="eco-input text-sm" />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                     <Phone className="w-3 h-3" /> Phone
                   </label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Optional"
-                    className="eco-input text-sm"
-                  />
+                  <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Optional" className="eco-input text-sm" />
                 </div>
               </div>
 
-              {/* Submit */}
-              <div className="pb-6">
-                <button
-                  onClick={handleSubmit}
-                  disabled={!canSubmit || isSubmitting}
-                  className="w-full eco-button-primary py-4 text-lg flex items-center justify-center gap-2 disabled:opacity-50"
-                >
+              <div className="pb-8">
+                <button onClick={handleSubmit} disabled={!canSubmit || isSubmitting}
+                  className="w-full eco-button-primary py-4 text-lg flex items-center justify-center gap-2 disabled:opacity-50">
                   {isSubmitting ? (
                     <><Loader2 className="w-5 h-5 animate-spin" /> Launching...</>
                   ) : (
