@@ -255,34 +255,14 @@ export function DashboardScreen() {
   const dailyChallenge = challenges.find((c) => c.type === "daily" && !c.completed);
 
   const quickActions = [
-    {
-      id: 'agora',
-      icon: MessageSquare,
-      label: isSwahili ? "Agora Square" : "Agora Square",
-      color: "from-primary to-secondary",
-      path: "/agora",
-    },
-    {
-      id: 'ecomarket',
-      icon: ShoppingBag,
-      label: isSwahili ? "EcoMarket" : "EcoMarket",
-      color: "from-secondary to-eco-blue",
-      path: "/ecomarket",
-    },
-    {
-      id: 'letter',
-      icon: Mail,
-      label: isSwahili ? "Tuma Barua" : "Send Letter",
-      color: "from-eco-gold to-eco-orange",
-      path: "/tools",
-    },
-    {
-      id: 'capacity',
-      icon: Target,
-      label: isSwahili ? "Capacity Hub" : "Capacity Hub",
-      color: "from-eco-blue to-primary",
-      path: "/tools",
-    },
+    { id: 'agora', icon: MessageSquare, label: "Agora Square", color: "from-primary to-secondary", path: "/agora" },
+    { id: 'ecomarket', icon: ShoppingBag, label: "EcoMarket", color: "from-secondary to-eco-blue", path: "/ecomarket" },
+    { id: 'capacity', icon: GraduationCap, label: "Capacity Hub", color: "from-eco-blue to-primary", path: "/tools" },
+    { id: 'letter', icon: Mail, label: "EcoLetter Forge", color: "from-eco-gold to-eco-orange", path: "/tools" },
+    { id: 'swarms', icon: Users, label: "Swarms", color: "from-primary to-eco-green", path: "/swarms" },
+    { id: 'challenges', icon: Trophy, label: "Challenges", color: "from-eco-orange to-eco-gold", path: "/challenges" },
+    { id: 'calendar', icon: CalendarDays, label: "Eco Calendar", color: "from-eco-blue to-secondary", path: "/calendar" },
+    { id: 'leaderboard', icon: Target, label: "Leaderboard", color: "from-secondary to-primary", path: "/leaderboard" },
   ];
 
   return (
