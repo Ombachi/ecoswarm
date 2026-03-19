@@ -112,6 +112,9 @@ function AppRoutes() {
         <Route path="/edit-profile" element={authedRoute(<EditProfileScreen />)} />
         <Route path="/module/:moduleId" element={authedRoute(<ModuleScreen />)} />
         <Route path="/inbox" element={authedRoute(<InboxScreen />)} />
+        <Route path="/swarms" element={authedRoute(<SwarmsScreen />)} />
+        <Route path="/challenges" element={authedRoute(<ChallengesScreen />)} />
+        <Route path="/calendar" element={authedRoute(<CalendarScreen />)} />
         <Route path="/admin" element={requireAuthed(<AdminPanel />)} />
         <Route path="*" element={<NotFound />} />
       </Routes>
