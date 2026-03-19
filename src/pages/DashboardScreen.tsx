@@ -26,6 +26,9 @@ import {
   Trophy,
   LogOut,
   BarChart3,
+  Users,
+  CalendarDays,
+  GraduationCap,
 } from "lucide-react";
 import { toast } from "sonner";
 
