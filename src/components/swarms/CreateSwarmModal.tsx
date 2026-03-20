@@ -52,13 +52,13 @@ interface CreateSwarmModalProps {
   };
 }
 
-export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwarmModalProps) {
+export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated, prefill }: CreateSwarmModalProps) {
   const [step, setStep] = useState(1);
   const [orgName, setOrgName] = useState('');
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [goal, setGoal] = useState('');
-  const [category, setCategory] = useState('');
+  const [name, setName] = useState(prefill?.name || '');
+  const [description, setDescription] = useState(prefill?.description || '');
+  const [goal, setGoal] = useState(prefill?.goal || '');
+  const [category, setCategory] = useState(prefill?.category || '');
   const [socialLinks, setSocialLinks] = useState('');
   const [phone, setPhone] = useState('');
   const [goalType, setGoalType] = useState('Conservation Effort');
