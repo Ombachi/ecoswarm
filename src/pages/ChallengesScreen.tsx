@@ -5,9 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Confetti } from '@/components/common/Confetti';
 import { EcoPointsBadge } from '@/components/common/EcoPointsBadge';
-import { Trophy, CheckCircle, ChevronRight, Loader2 } from 'lucide-react';
+import { Trophy, CheckCircle, ChevronRight, Loader2, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Challenge {
   id: string;
@@ -27,6 +26,7 @@ export function ChallengesScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isDeveloper, setIsDeveloper] = useState(false);
+  const [roleChecked, setRoleChecked] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -44,6 +44,7 @@ export function ChallengesScreen() {
       .eq('role', 'ecodeveloper')
       .maybeSingle();
     setIsDeveloper(!!data);
+    setRoleChecked(true);
   };
 
   const loadChallenges = async () => {
@@ -55,9 +56,14 @@ export function ChallengesScreen() {
         supabase.from('user_challenges').select('challenge_id').eq('user_id', user.id),
       ]);
       const completedIds = completedData?.map(c => c.challenge_id) || [];
-      setChallenges(
-        (challengesData || []).map(c => ({ ...c, completed: completedIds.includes(c.id) }))
-      );
+      // Only show EcoWarrior challenges (target_role = 'all' or 'ecowarrior')
+      const filtered = (challengesData || [])
+        .filter(c => {
+          const target = c.target_role || 'all';
+          return target === 'all' || target === 'ecowarrior';
+        })
+        .map(c => ({ ...c, completed: completedIds.includes(c.id) }));
+      setChallenges(filtered);
     } catch {
       toast.error('Failed to load challenges');
     } finally {
@@ -83,56 +89,23 @@ export function ChallengesScreen() {
     navigate(getRoute(challenge.action_type));
   };
 
-  const filterByRole = (challenges: Challenge[], role: string) =>
-    challenges.filter(c => {
-      const target = c.target_role || 'all';
-      return target === 'all' || target === role;
-    });
-
-  const ecoWarriorChallenges = filterByRole(challenges, 'ecowarrior');
-  const ecoDeveloperChallenges = filterByRole(challenges, 'ecodeveloper');
-
-  const renderList = (list: Challenge[]) => (
-    <div className="space-y-3 pt-3">
-      {list.length === 0 && (
-        <p className="text-center text-muted-foreground py-8">No challenges available</p>
-      )}
-      {list.map(challenge => (
-        <button
-          key={challenge.id}
-          onClick={() => handleStart(challenge)}
-          disabled={challenge.completed}
-          className={`eco-card p-4 flex items-center gap-4 w-full text-left transition-all ${
-            challenge.completed ? 'opacity-60' : 'hover:shadow-md active:scale-[0.98]'
-          }`}
-        >
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-            challenge.completed ? 'eco-gradient-bg' : 'bg-muted'
-          }`}>
-            {challenge.completed
-              ? <CheckCircle className="w-5 h-5 text-white" />
-              : <Trophy className="w-5 h-5 text-muted-foreground" />
-            }
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h4 className="font-semibold text-foreground">{challenge.title}</h4>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                challenge.type === 'daily' ? 'bg-eco-gold/20 text-eco-gold'
-                : challenge.type === 'weekly' ? 'bg-primary/20 text-primary'
-                : 'bg-secondary/20 text-secondary'
-              }`}>{challenge.type}</span>
-            </div>
-            <p className="text-xs text-muted-foreground">{challenge.description}</p>
-          </div>
-          <div className="text-right flex items-center gap-2">
-            <EcoPointsBadge points={challenge.points} size="sm" />
-            {!challenge.completed && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
-          </div>
-        </button>
-      ))}
-    </div>
-  );
+  // Block EcoDevelopers from accessing challenges
+  if (roleChecked && isDeveloper) {
+    return (
+      <AppLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 text-center">
+          <ShieldAlert className="w-16 h-16 text-muted-foreground mb-4" />
+          <h2 className="text-xl font-bold text-foreground mb-2">EcoWarrior Exclusive</h2>
+          <p className="text-muted-foreground mb-6">
+            Challenges are exclusively for EcoWarriors to earn EcoPoints through planet-positive actions.
+          </p>
+          <button onClick={() => navigate('/dashboard')} className="eco-button-primary py-3 px-6">
+            Back to Dashboard
+          </button>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -157,14 +130,45 @@ export function ChallengesScreen() {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <Tabs defaultValue={isDeveloper ? 'ecodeveloper' : 'ecowarrior'}>
-            <TabsList className="w-full">
-              <TabsTrigger value="ecowarrior" className="flex-1">🌿 EcoWarrior</TabsTrigger>
-              <TabsTrigger value="ecodeveloper" className="flex-1">🏢 EcoDeveloper</TabsTrigger>
-            </TabsList>
-            <TabsContent value="ecowarrior">{renderList(ecoWarriorChallenges)}</TabsContent>
-            <TabsContent value="ecodeveloper">{renderList(ecoDeveloperChallenges)}</TabsContent>
-          </Tabs>
+          <div className="space-y-3">
+            {challenges.length === 0 && (
+              <p className="text-center text-muted-foreground py-8">No challenges available</p>
+            )}
+            {challenges.map(challenge => (
+              <button
+                key={challenge.id}
+                onClick={() => handleStart(challenge)}
+                disabled={challenge.completed}
+                className={`eco-card p-4 flex items-center gap-4 w-full text-left transition-all ${
+                  challenge.completed ? 'opacity-60' : 'hover:shadow-md active:scale-[0.98]'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  challenge.completed ? 'eco-gradient-bg' : 'bg-muted'
+                }`}>
+                  {challenge.completed
+                    ? <CheckCircle className="w-5 h-5 text-white" />
+                    : <Trophy className="w-5 h-5 text-muted-foreground" />
+                  }
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-foreground">{challenge.title}</h4>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                      challenge.type === 'daily' ? 'bg-eco-gold/20 text-eco-gold'
+                      : challenge.type === 'weekly' ? 'bg-primary/20 text-primary'
+                      : 'bg-secondary/20 text-secondary'
+                    }`}>{challenge.type}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{challenge.description}</p>
+                </div>
+                <div className="text-right flex items-center gap-2">
+                  <EcoPointsBadge points={challenge.points} size="sm" />
+                  {!challenge.completed && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+                </div>
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </AppLayout>

@@ -19,6 +19,8 @@ export function InboxScreen() {
   const { user } = useApp();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeveloper, setIsDeveloper] = useState(false);
+  const [myProductIds, setMyProductIds] = useState<string[]>([]);
   const [activeChat, setActiveChat] = useState<{
     productId: string;
     productName: string;
@@ -27,10 +29,39 @@ export function InboxScreen() {
   } | null>(null);
 
   useEffect(() => {
-    if (user) loadConversations();
+    if (user) {
+      checkRoleAndLoad();
+    }
   }, [user]);
 
-  const loadConversations = async () => {
+  const checkRoleAndLoad = async () => {
+    if (!user) return;
+    // Check if EcoDeveloper
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'ecodeveloper')
+      .maybeSingle();
+    
+    const isDev = !!roleData;
+    setIsDeveloper(isDev);
+
+    // If developer, fetch their product IDs for filtering
+    let productIds: string[] = [];
+    if (isDev) {
+      const { data: products } = await supabase
+        .from('products')
+        .select('id')
+        .eq('user_id', user.id);
+      productIds = products?.map(p => p.id) || [];
+      setMyProductIds(productIds);
+    }
+
+    loadConversations(isDev, productIds);
+  };
+
+  const loadConversations = async (isDev: boolean, productIds: string[]) => {
     if (!user) return;
     setIsLoading(true);
     try {
@@ -42,9 +73,14 @@ export function InboxScreen() {
 
       if (error) throw error;
 
+      // For EcoDevelopers: only show messages tied to their own products
+      const filtered = isDev
+        ? (messages || []).filter(msg => msg.product_id && productIds.includes(msg.product_id))
+        : (messages || []);
+
       // Group by product + other user
       const convMap = new Map<string, Conversation>();
-      for (const msg of messages || []) {
+      for (const msg of filtered) {
         const otherId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
         const key = `${msg.product_id || 'direct'}-${otherId}`;
         if (!convMap.has(key)) {
@@ -65,13 +101,13 @@ export function InboxScreen() {
       }
 
       // Fetch product names
-      const productIds = [...new Set([...convMap.values()].map(c => c.productId).filter(Boolean))];
+      const pIds = [...new Set([...convMap.values()].map(c => c.productId).filter(Boolean))];
       let productMap: Record<string, string> = {};
-      if (productIds.length > 0) {
+      if (pIds.length > 0) {
         const { data: products } = await supabase
           .from('products')
           .select('id, product_name')
-          .in('id', productIds);
+          .in('id', pIds);
         if (products) products.forEach(p => { productMap[p.id] = p.product_name; });
       }
 
@@ -115,7 +151,9 @@ export function InboxScreen() {
     <AppLayout>
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
         <h1 className="text-xl font-bold text-foreground">Inbox</h1>
-        <p className="text-xs text-muted-foreground">Your product conversations</p>
+        <p className="text-xs text-muted-foreground">
+          {isDeveloper ? 'Messages about your products' : 'Your product conversations'}
+        </p>
       </div>
 
       {isLoading ? (
@@ -168,7 +206,7 @@ export function InboxScreen() {
       {activeChat && (
         <ProductChat
           isOpen={true}
-          onClose={() => { setActiveChat(null); loadConversations(); }}
+          onClose={() => { setActiveChat(null); checkRoleAndLoad(); }}
           productId={activeChat.productId}
           productName={activeChat.productName}
           sellerId={activeChat.sellerId}

@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useNavigate } from 'react-router-dom';
-import { CalendarDays, ChevronRight, Users, Bell, MapPin } from 'lucide-react';
+import { CalendarDays, ChevronRight, Users } from 'lucide-react';
+import { CreateSwarmModal } from '@/components/swarms/CreateSwarmModal';
+import { useApp } from '@/context/AppContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface ClimateDate {
   date: string; // MM-DD
@@ -19,7 +23,7 @@ const climateDates: ClimateDate[] = [
   { date: '03-22', title: 'World Water Day', description: 'Highlighting the importance of freshwater.', emoji: '💧', suggestedActions: ['Share water-saving tips', 'Send a letter on water policy'] },
   { date: '04-22', title: 'Earth Day', description: 'The largest environmental event worldwide.', emoji: '🌍', suggestedActions: ['Launch a swarm', 'Share your eco story', 'Send an EcoLetter'] },
   { date: '05-22', title: 'International Day for Biological Diversity', description: 'Raising awareness of biodiversity issues.', emoji: '🦋', suggestedActions: ['Document local species', 'Join biodiversity campaigns'] },
-  { date: '06-05', title: 'World Environment Day', description: 'The UN\'s principal vehicle for encouraging environmental awareness.', emoji: '🌱', suggestedActions: ['Organize a clean-up', 'Share your eco impact'] },
+  { date: '06-05', title: 'World Environment Day', description: "The UN's principal vehicle for encouraging environmental awareness.", emoji: '🌱', suggestedActions: ['Organize a clean-up', 'Share your eco impact'] },
   { date: '06-08', title: 'World Oceans Day', description: 'Honoring and protecting our oceans.', emoji: '🐋', suggestedActions: ['Beach clean-up swarm', 'Share ocean facts'] },
   { date: '06-17', title: 'World Day to Combat Desertification', description: 'Fighting land degradation and drought.', emoji: '🏜️', suggestedActions: ['Plant trees', 'Share anti-desertification tips'] },
   { date: '07-26', title: 'International Day of Mangrove Conservation', description: 'Protecting coastal mangrove ecosystems.', emoji: '🌿', suggestedActions: ['Support mangrove planting', 'Send an advocacy letter'] },
@@ -50,8 +54,76 @@ function getUpcoming(dates: ClimateDate[]): (ClimateDate & { fullDate: Date; day
 
 export function CalendarScreen() {
   const navigate = useNavigate();
+  const { user, addPoints, showNotification, updateStats } = useApp();
   const upcoming = getUpcoming(climateDates);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showSwarmModal, setShowSwarmModal] = useState(false);
+  const [swarmPrefill, setSwarmPrefill] = useState<{ name: string; description: string; goal: string; category: string } | null>(null);
+
+  const handleLaunchSwarm = (event: ClimateDate & { fullDate: Date }) => {
+    // Map climate date to a swarm category
+    const catMap: Record<string, string> = {
+      '💧': 'Water', '🌊': 'Water', '🐋': 'Water',
+      '🌳': 'Reforestation', '🌿': 'Reforestation', '🪴': 'Reforestation',
+      '🦁': 'Wildlife', '🦋': 'Wildlife', '🐾': 'Wildlife',
+      '⚡': 'Energy', '🚫': 'Energy',
+      '💨': 'Air Quality', '🏜️': 'Air Quality', '🔥': 'Air Quality',
+      '♻️': 'Waste',
+    };
+    const category = catMap[event.emoji] || 'Reforestation';
+
+    setSwarmPrefill({
+      name: `${event.title} Campaign ${event.fullDate.getFullYear()}`,
+      description: `${event.description} Join this swarm to take collective action on ${event.title}.`,
+      goal: event.suggestedActions[0] || 'Take collective action',
+      category,
+    });
+    setShowSwarmModal(true);
+  };
+
+  const handleSwarmCreated = async (swarmData: any) => {
+    if (!user) return;
+    try {
+      const { data: newSwarm, error } = await supabase
+        .from('swarms')
+        .insert({
+          name: swarmData.name,
+          description: swarmData.description,
+          goal: swarmData.goal,
+          category: swarmData.category,
+          target_signatures: swarmData.targetSignatures,
+          current_signatures: 1,
+          participants: 1,
+          created_by: user.id,
+          org_name: swarmData.orgName || null,
+          social_links: swarmData.socialLinks || null,
+          phone: swarmData.phone || null,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      await supabase.from('swarm_memberships').insert({
+        swarm_id: newSwarm.id,
+        user_id: user.id,
+        votes: 1,
+      });
+
+      await supabase.from('posts').insert({
+        user_id: user.id,
+        user_name: user.name,
+        content: `🐝 New Swarm Launched: "${swarmData.name}"!\n\n${swarmData.description}\n\n🎯 Goal: ${swarmData.goal}\n\nJoin the campaign!`,
+        tags: [swarmData.category.replace(/\s+/g, ''), 'EcoSwarm', 'JoinTheSwarm', `swarm_${newSwarm.id}`],
+      });
+
+      addPoints(50);
+      updateStats({ postsCreated: user.stats.postsCreated + 1 });
+      showNotification('Swarm created from Calendar! 🐝', 50);
+    } catch {
+      toast.error('Failed to create swarm');
+    }
+  };
 
   return (
     <AppLayout>
@@ -112,10 +184,10 @@ export function CalendarScreen() {
                       </div>
                       <div className="flex gap-2 pt-1">
                         <button
-                          onClick={(e) => { e.stopPropagation(); navigate('/agora'); }}
+                          onClick={(e) => { e.stopPropagation(); handleLaunchSwarm(event); }}
                           className="flex-1 py-2 px-3 rounded-xl bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center gap-1"
                         >
-                          <Users className="w-3.5 h-3.5" /> Launch Swarm
+                          <Users className="w-3.5 h-3.5" /> Create Swarm
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); navigate('/tools'); }}
@@ -133,6 +205,15 @@ export function CalendarScreen() {
           );
         })}
       </div>
+
+      {showSwarmModal && (
+        <CreateSwarmModal
+          isOpen={showSwarmModal}
+          onClose={() => { setShowSwarmModal(false); setSwarmPrefill(null); }}
+          onSwarmCreated={handleSwarmCreated}
+          prefill={swarmPrefill || undefined}
+        />
+      )}
     </AppLayout>
   );
 }
