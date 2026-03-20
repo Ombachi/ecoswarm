@@ -254,7 +254,7 @@ export function DashboardScreen() {
 
   const dailyChallenge = challenges.find((c) => c.type === "daily" && !c.completed);
 
-  const quickActions = [
+  const allQuickActions = [
     { id: 'agora', icon: MessageSquare, label: "Agora Square", color: "from-primary to-secondary", path: "/agora" },
     { id: 'ecomarket', icon: ShoppingBag, label: "EcoMarket", color: "from-secondary to-eco-blue", path: "/ecomarket" },
     { id: 'capacity', icon: GraduationCap, label: "Capacity Hub", color: "from-eco-blue to-primary", path: "/tools" },
@@ -264,6 +264,11 @@ export function DashboardScreen() {
     { id: 'calendar', icon: CalendarDays, label: "Eco Calendar", color: "from-eco-blue to-secondary", path: "/calendar" },
     { id: 'leaderboard', icon: Target, label: "Leaderboard", color: "from-secondary to-primary", path: "/leaderboard" },
   ];
+
+  // Hide Challenges for EcoDevelopers
+  const quickActions = isDeveloper
+    ? allQuickActions.filter(a => a.id !== 'challenges')
+    : allQuickActions;
 
   return (
     <AppLayout>
