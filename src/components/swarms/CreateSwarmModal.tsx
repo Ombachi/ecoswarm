@@ -44,6 +44,12 @@ interface CreateSwarmModalProps {
     inviteMethod: string;
     location?: string;
   }) => void;
+  prefill?: {
+    name: string;
+    description: string;
+    goal: string;
+    category: string;
+  };
 }
 
 export function CreateSwarmModal({ isOpen, onClose, onSwarmCreated }: CreateSwarmModalProps) {
