@@ -254,7 +254,7 @@ export function DashboardScreen() {
 
   const dailyChallenge = challenges.find((c) => c.type === "daily" && !c.completed);
 
-  const quickActions = [
+  const allQuickActions = [
     { id: 'agora', icon: MessageSquare, label: "Agora Square", color: "from-primary to-secondary", path: "/agora" },
     { id: 'ecomarket', icon: ShoppingBag, label: "EcoMarket", color: "from-secondary to-eco-blue", path: "/ecomarket" },
     { id: 'capacity', icon: GraduationCap, label: "Capacity Hub", color: "from-eco-blue to-primary", path: "/tools" },
@@ -264,6 +264,11 @@ export function DashboardScreen() {
     { id: 'calendar', icon: CalendarDays, label: "Eco Calendar", color: "from-eco-blue to-secondary", path: "/calendar" },
     { id: 'leaderboard', icon: Target, label: "Leaderboard", color: "from-secondary to-primary", path: "/leaderboard" },
   ];
+
+  // Hide Challenges for EcoDevelopers
+  const quickActions = isDeveloper
+    ? allQuickActions.filter(a => a.id !== 'challenges')
+    : allQuickActions;
 
   return (
     <AppLayout>
@@ -428,8 +433,8 @@ function DashboardHomeContent({
         </div>
       </div>
 
-      {/* Daily Challenge */}
-      {dailyChallenge && (
+      {/* Daily Challenge - only for EcoWarriors */}
+      {!isDeveloper && dailyChallenge && (
         <div className="eco-card p-4 border-l-4 border-l-eco-gold">
           <div className="flex items-center justify-between mb-3">
             <div>
@@ -450,23 +455,6 @@ function DashboardHomeContent({
           </button>
         </div>
       )}
-
-      {/* View All Challenges Link */}
-      <button
-        onClick={() => navigate('/challenges')}
-        className="eco-card p-4 flex items-center gap-3 w-full text-left hover:shadow-md transition-all"
-      >
-        <div className="w-10 h-10 rounded-full bg-eco-gold/20 flex items-center justify-center">
-          <Trophy className="w-5 h-5 text-eco-gold" />
-        </div>
-        <div className="flex-1">
-          <h4 className="font-semibold text-foreground">{isSwahili ? "Changamoto Zote" : "View All Challenges"}</h4>
-          <p className="text-xs text-muted-foreground">
-            {challenges.filter((c: Challenge) => !c.completed).length} active challenges
-          </p>
-        </div>
-        <ChevronRight className="w-5 h-5 text-muted-foreground" />
-      </button>
 
       {/* Impact Summary */}
       <div className="eco-card p-4">

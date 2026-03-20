@@ -954,6 +954,31 @@ export function EcoMarketScreen() {
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-bold text-foreground">KSh {product.price.toLocaleString()}</span>
                         <div className="flex items-center gap-2">
+                          {/* Share button */}
+                          <button
+                            onClick={async () => {
+                              trackInteraction(product.id, 'share');
+                              const shareText = `🌿 Check out "${product.product_name}" by ${product.org_name} on EcoMarket!\n\nKSh ${product.price.toLocaleString()}\n${product.description.substring(0, 100)}...\n\n`;
+                              const shareUrl = `${window.location.origin}/ecomarket`;
+                              if (navigator.share) {
+                                try {
+                                  await navigator.share({ title: product.product_name, text: shareText, url: shareUrl });
+                                } catch (err) {
+                                  if ((err as Error).name !== 'AbortError') {
+                                    navigator.clipboard.writeText(`${shareText}${shareUrl}`);
+                                    toast.success('Link copied!');
+                                  }
+                                }
+                              } else {
+                                navigator.clipboard.writeText(`${shareText}${shareUrl}`);
+                                toast.success('Link copied to clipboard!');
+                              }
+                            }}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-foreground text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all"
+                            aria-label="Share product"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </button>
                           {!isOwnProduct && (
                             <button
                               onClick={() => setChatProduct({

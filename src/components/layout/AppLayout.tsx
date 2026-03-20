@@ -4,6 +4,7 @@ import { useApp } from '@/context/AppContext';
 import { Sparkles, Shield } from 'lucide-react';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { UpdatePrompt } from '@/components/pwa/UpdatePrompt';
+import { EcoSwarmChatbot } from '@/components/chat/EcoSwarmChatbot';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -35,6 +36,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       {!isAdmin && <BottomNav />}
       <InstallPrompt />
       <UpdatePrompt />
+      {!isAdmin && <EcoSwarmChatbot />}
     </div>
   );
 }
