@@ -494,32 +494,6 @@ function DashboardHomeContent({
         </div>
       </div>
 
-
-      {/* PWA Install Banner */}
-      <div className="eco-card p-4 bg-gradient-to-r from-eco-green-light to-eco-blue-light border-none">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full eco-gradient-bg flex items-center justify-center flex-shrink-0">
-            {isInstalled ? (
-              <CheckCircle className="w-5 h-5 text-white" />
-            ) : (
-              <Download className="w-5 h-5 text-white" />
-            )}
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-foreground text-sm">
-              {isInstalled ? "EcoSwarm Installed!" : "Install EcoSwarm"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {isInstalled ? "Thanks for installing! Enjoy the app." : "Works offline! Earn 50 EcoPoints 🎁"}
-            </p>
-          </div>
-          {!isInstalled && (
-            <button onClick={promptInstall} className="eco-button-primary py-2 px-4 text-sm">
-              Install
-            </button>
-          )}
-        </div>
-      </div>
     </>
   );
 }
