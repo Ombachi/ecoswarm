@@ -117,6 +117,8 @@ export function ModuleScreen() {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
+  const [certId, setCertId] = useState('');
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
   const [module, setModule] = useState<any>(null);
   const [sections, setSections] = useState<Section[]>([]);
