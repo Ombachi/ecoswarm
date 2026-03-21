@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { GoldenCertificate } from '@/components/certificates/GoldenCertificate';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
