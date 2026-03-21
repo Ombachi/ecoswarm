@@ -249,7 +249,10 @@ export function ModuleScreen() {
         }
 
         showNotification(`Module completed! 🎓`, module.points);
-        toast.success(`You earned ${module.points} EcoPoints!`);
+
+        // Generate cert ID
+        const newCertId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        setCertId(newCertId);
 
         if (user) {
           await createAutoPost({
@@ -261,7 +264,10 @@ export function ModuleScreen() {
           updateStats({ postsCreated: user.stats.postsCreated + 1 });
         }
 
-        setTimeout(() => setShowConfetti(false), 3000);
+        setTimeout(() => {
+          setShowConfetti(false);
+          setShowCertificate(true);
+        }, 2000);
       }
     }
   };
