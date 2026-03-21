@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { GoldenCertificate } from '@/components/certificates/GoldenCertificate';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
@@ -117,6 +118,8 @@ export function ModuleScreen() {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
+  const [certId, setCertId] = useState('');
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
   const [module, setModule] = useState<any>(null);
   const [sections, setSections] = useState<Section[]>([]);
@@ -246,7 +249,10 @@ export function ModuleScreen() {
         }
 
         showNotification(`Module completed! 🎓`, module.points);
-        toast.success(`You earned ${module.points} EcoPoints!`);
+
+        // Generate cert ID
+        const newCertId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        setCertId(newCertId);
 
         if (user) {
           await createAutoPost({
@@ -258,7 +264,10 @@ export function ModuleScreen() {
           updateStats({ postsCreated: user.stats.postsCreated + 1 });
         }
 
-        setTimeout(() => setShowConfetti(false), 3000);
+        setTimeout(() => {
+          setShowConfetti(false);
+          setShowCertificate(true);
+        }, 2000);
       }
     }
   };
@@ -270,7 +279,19 @@ export function ModuleScreen() {
   return (
     <AppLayout>
       {showConfetti && <Confetti />}
-
+      {showCertificate && user && module && (
+        <GoldenCertificate
+          userName={user.name}
+          courseTitle={module.title}
+          completionDate={new Date()}
+          certId={certId}
+          points={module.points}
+          onClose={() => {
+            setShowCertificate(false);
+            navigate('/tools');
+          }}
+        />
+      )}
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
         <div className="flex items-center gap-4 mb-3">
