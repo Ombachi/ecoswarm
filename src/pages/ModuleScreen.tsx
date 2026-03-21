@@ -279,7 +279,19 @@ export function ModuleScreen() {
   return (
     <AppLayout>
       {showConfetti && <Confetti />}
-
+      {showCertificate && user && module && (
+        <GoldenCertificate
+          userName={user.name}
+          courseTitle={module.title}
+          completionDate={new Date()}
+          certId={certId}
+          points={module.points}
+          onClose={() => {
+            setShowCertificate(false);
+            navigate('/tools');
+          }}
+        />
+      )}
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
         <div className="flex items-center gap-4 mb-3">
