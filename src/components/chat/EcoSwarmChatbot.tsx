@@ -144,7 +144,7 @@ export function EcoSwarmChatbot() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-24 right-4 z-50 w-14 h-14 rounded-full eco-gradient-bg text-white shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+          className="fixed bottom-28 right-4 z-40 w-14 h-14 rounded-full eco-gradient-bg text-white shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95 md:bottom-6 md:right-6"
           aria-label="Open EcoSwarm Assistant"
         >
           <Sparkles className="w-6 h-6" />
