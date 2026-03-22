@@ -262,7 +262,7 @@ export function DashboardScreen() {
     { id: 'swarms', icon: Users, label: "Swarms", color: "from-primary to-eco-green", path: "/swarms" },
     { id: 'challenges', icon: Trophy, label: "Challenges", color: "from-eco-orange to-eco-gold", path: "/challenges" },
     { id: 'calendar', icon: CalendarDays, label: "Eco Calendar", color: "from-eco-blue to-secondary", path: "/calendar" },
-    { id: 'leaderboard', icon: Target, label: "Leaderboard", color: "from-secondary to-primary", path: "/leaderboard" },
+    { id: 'impact', icon: BarChart3, label: "My Impact", color: "from-secondary to-primary", path: "/profile" },
   ];
 
   // Hide Challenges for EcoDevelopers
