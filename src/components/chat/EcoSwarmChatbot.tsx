@@ -153,7 +153,7 @@ export function EcoSwarmChatbot() {
 
       {/* Chat window */}
       {isOpen && (
-        <div className="fixed bottom-20 right-3 left-3 sm:left-auto sm:right-4 sm:w-[380px] z-50 bg-card border border-border rounded-2xl shadow-2xl flex flex-col max-h-[70vh] animate-slide-up overflow-hidden">
+        <div className="fixed bottom-24 right-3 left-3 sm:left-auto sm:right-4 sm:w-[380px] z-50 bg-card border border-border rounded-2xl shadow-2xl flex flex-col max-h-[65vh] md:bottom-6 md:max-h-[70vh] animate-slide-up overflow-hidden">
           {/* Header */}
           <div className="eco-gradient-bg p-4 flex items-center justify-between rounded-t-2xl flex-shrink-0">
             <div className="flex items-center gap-3">

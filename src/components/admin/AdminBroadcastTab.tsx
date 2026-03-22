@@ -188,9 +188,22 @@ export function AdminBroadcastTab() {
     setViewingPoll(poll);
     const { data } = await supabase
       .from('poll_responses')
-      .select('selected_option, feedback_text, created_at')
+      .select('selected_option, feedback_text, created_at, user_id')
       .eq('poll_id', poll.id);
-    setPollResponses(data || []);
+    const responses = data || [];
+    setPollResponses(responses);
+    
+    // Also update the poll's cached vote counts from actual responses
+    if (responses.length > 0) {
+      const updatedOptions = poll.options.map((opt, i) => ({
+        ...opt,
+        votes: responses.filter(r => r.selected_option === i).length,
+      }));
+      // Update local state
+      setPolls(prev => prev.map(p => p.id === poll.id ? { ...p, options: updatedOptions } : p));
+      // Sync to DB
+      await supabase.from('polls').update({ options: updatedOptions as any }).eq('id', poll.id);
+    }
   };
 
   const pollTypeConfig: Record<PollType, { label: string; icon: any; color: string; presets: string[] }> = {
