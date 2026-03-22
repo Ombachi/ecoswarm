@@ -144,7 +144,7 @@ export function EcoSwarmChatbot() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-24 right-4 z-50 w-14 h-14 rounded-full eco-gradient-bg text-white shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+          className="fixed bottom-28 right-4 z-40 w-14 h-14 rounded-full eco-gradient-bg text-white shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95 md:bottom-6 md:right-6"
           aria-label="Open EcoSwarm Assistant"
         >
           <Sparkles className="w-6 h-6" />
@@ -153,7 +153,7 @@ export function EcoSwarmChatbot() {
 
       {/* Chat window */}
       {isOpen && (
-        <div className="fixed bottom-20 right-3 left-3 sm:left-auto sm:right-4 sm:w-[380px] z-50 bg-card border border-border rounded-2xl shadow-2xl flex flex-col max-h-[70vh] animate-slide-up overflow-hidden">
+        <div className="fixed bottom-24 right-3 left-3 sm:left-auto sm:right-4 sm:w-[380px] z-50 bg-card border border-border rounded-2xl shadow-2xl flex flex-col max-h-[65vh] md:bottom-6 md:max-h-[70vh] animate-slide-up overflow-hidden">
           {/* Header */}
           <div className="eco-gradient-bg p-4 flex items-center justify-between rounded-t-2xl flex-shrink-0">
             <div className="flex items-center gap-3">

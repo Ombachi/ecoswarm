@@ -321,15 +321,26 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── Team & Partners ── */}
+      {/* ── Stats Bar ── */}
+      <section id="stats" className="py-12 md:py-16 border-y border-border/50">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
+          {stats.map((s, i) => (
+            <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="flex flex-col items-center text-center gap-2">
+              <s.icon className="w-7 h-7 text-primary" />
+              <span className="text-2xl md:text-3xl font-extrabold">{s.value}</span>
+              <span className="text-xs text-muted-foreground">{s.label}</span>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Team & Partners (right below stats) ── */}
       <section id="team" className="py-16 md:py-24">
         <div className="max-w-6xl mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
             <span className="eco-badge mb-4 inline-flex"><Award className="w-3.5 h-3.5" /> People</span>
             <h2 className="text-3xl md:text-4xl font-black">Our Team & Partners</h2>
           </motion.div>
-
-          {/* Team */}
           <div className="grid md:grid-cols-1 gap-6 max-w-lg mx-auto mb-12">
             {team.map((member, i) => (
               <motion.div key={member.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="eco-card-elevated p-8 text-center">
@@ -342,8 +353,6 @@ export function LandingPage() {
               </motion.div>
             ))}
           </div>
-
-          {/* Partners */}
           <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {partners.map((partner, i) => (
               <motion.div key={partner.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="eco-card-elevated p-6 flex gap-4">
@@ -381,19 +390,6 @@ export function LandingPage() {
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ── Stats Bar ── */}
-      <section id="stats" className="py-12 md:py-16 border-y border-border/50">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
-          {stats.map((s, i) => (
-            <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="flex flex-col items-center text-center gap-2">
-              <s.icon className="w-7 h-7 text-primary" />
-              <span className="text-2xl md:text-3xl font-extrabold">{s.value}</span>
-              <span className="text-xs text-muted-foreground">{s.label}</span>
-            </motion.div>
-          ))}
         </div>
       </section>
 
