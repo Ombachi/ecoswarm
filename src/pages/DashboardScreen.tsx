@@ -456,44 +456,6 @@ function DashboardHomeContent({
         </div>
       )}
 
-      {/* Impact Summary */}
-      <div className="eco-card p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-foreground">{isSwahili ? "Athari Yako" : "Your Impact"}</h2>
-          <button
-            onClick={() => navigate("/profile")}
-            className="text-primary text-sm font-medium flex items-center gap-1"
-          >
-            {isSwahili ? "Ona zaidi" : "See all"}
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="eco-stat-card">
-            <Mail className="w-6 h-6 text-secondary" />
-            <p className="text-xl font-bold text-foreground">{user.stats.lettersSent}</p>
-            <p className="text-[10px] text-muted-foreground">Letters Sent</p>
-          </div>
-          <div className="eco-stat-card">
-            <MessageSquare className="w-6 h-6 text-eco-gold" />
-            <p className="text-xl font-bold text-foreground">{user.stats.postsCreated}</p>
-            <p className="text-[10px] text-muted-foreground">Stories Shared</p>
-          </div>
-          <div className="eco-stat-card">
-            <ShoppingBag className="w-6 h-6 text-primary" />
-            <p className="text-xl font-bold text-foreground">{productCount}</p>
-            <p className="text-[10px] text-muted-foreground">Products Listed</p>
-          </div>
-          {!isDeveloper && (
-            <div className="eco-stat-card">
-              <Target className="w-6 h-6 text-eco-orange" />
-              <p className="text-xl font-bold text-foreground">{user.stats.coursesCompleted}</p>
-              <p className="text-[10px] text-muted-foreground">Courses Done</p>
-            </div>
-          )}
-        </div>
-      </div>
-
     </>
   );
 }
