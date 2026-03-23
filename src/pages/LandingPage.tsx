@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -13,10 +13,7 @@ import agoraImage from '@/assets/agora-history.jpg';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1, y: 0,
-    transition: { delay: i * 0.12, duration: 0.5, ease: 'easeOut' as const },
-  }),
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.12, duration: 0.5, ease: 'easeOut' as const } }),
 };
 
 const stats = [
@@ -56,38 +53,17 @@ const kenyaStats = [
 ];
 
 const team = [
-  {
-    name: 'Ombachi Enock',
-    role: 'Founder & Visionary',
-    bio: 'Passionate about transforming climate anxiety into collective action. Building EcoSwarm to give every voice a megaphone for the planet.',
-    avatar: '🌱',
-  },
+  { name: 'Ombachi Enock', role: 'Founder & Visionary', bio: 'Passionate about transforming climate anxiety into collective action. Building EcoSwarm to give every voice a megaphone for the planet.', avatar: '🌱' },
 ];
 
 const partners = [
-  {
-    name: 'BeVisioneers',
-    subtitle: 'Mercedes-Benz Fellowship',
-    desc: 'Strategic partner in youth eco-innovation, empowering the next generation of environmental leaders.',
-    icon: '🚀',
-  },
-  {
-    name: 'Litu Diagnostics',
-    subtitle: 'Medical & Telehealth Partner',
-    desc: 'Bringing health and sustainability together through innovative diagnostics and telehealth solutions.',
-    icon: '🏥',
-  },
+  { name: 'BeVisioneers', subtitle: 'Mercedes-Benz Fellowship', desc: 'Strategic partner in youth eco-innovation, empowering the next generation of environmental leaders.', icon: '🚀' },
+  { name: 'Litu Diagnostics', subtitle: 'Medical & Telehealth Partner', desc: 'Bringing health and sustainability together through innovative diagnostics and telehealth solutions.', icon: '🏥' },
 ];
 
 function StatCard({ stat, index }: { stat: typeof globalStats[0]; index: number }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.08 }}
-      className="relative overflow-hidden rounded-2xl border border-border/50 p-5"
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.08 }} className="relative overflow-hidden rounded-2xl border border-border/50 p-5">
       <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-[0.07]`} />
       <div className="relative z-10">
         <span className="text-3xl mb-2 block">{stat.icon}</span>
@@ -100,10 +76,7 @@ function StatCard({ stat, index }: { stat: typeof globalStats[0]; index: number 
 
 export function LandingPage() {
   const navigate = useNavigate();
-
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const scrollTo = (id: string) => { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); };
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -111,17 +84,15 @@ export function LandingPage() {
       <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-16">
           <button onClick={() => scrollTo('hero')} className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl eco-gradient-bg flex items-center justify-center">
-              <Leaf className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <div className="w-9 h-9 rounded-xl eco-gradient-bg flex items-center justify-center"><Leaf className="w-5 h-5 text-primary-foreground" /></div>
             <span className="text-lg font-extrabold tracking-tight">EcoSwarm</span>
           </button>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <button onClick={() => scrollTo('about')} className="hover:text-foreground transition-colors">About</button>
             <button onClick={() => scrollTo('mission')} className="hover:text-foreground transition-colors">Mission</button>
             <button onClick={() => scrollTo('why')} className="hover:text-foreground transition-colors">Our Why</button>
-            <button onClick={() => scrollTo('team')} className="hover:text-foreground transition-colors">Team</button>
             <button onClick={() => scrollTo('features')} className="hover:text-foreground transition-colors">Features</button>
+            <button onClick={() => scrollTo('team')} className="hover:text-foreground transition-colors">Team</button>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Sign In</Button>
@@ -157,9 +128,7 @@ export function LandingPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center max-w-2xl mx-auto mb-12">
             <span className="eco-badge mb-4 inline-flex"><Heart className="w-3.5 h-3.5" /> About EcoSwarm</span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">A <span className="eco-gradient-text">Digital Agora</span> for Climate Activism</h2>
-            <p className="text-muted-foreground text-base md:text-lg">
-              EcoSwarm is a community-powered platform that transforms climate anxiety into collective action. We give every voice a megaphone and every action a ripple effect.
-            </p>
+            <p className="text-muted-foreground text-base md:text-lg">EcoSwarm is a community-powered platform that transforms climate anxiety into collective action.</p>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="grid md:grid-cols-2 gap-8 items-center">
             <div className="rounded-2xl overflow-hidden shadow-lg">
@@ -167,12 +136,8 @@ export function LandingPage() {
             </div>
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-foreground">Inspired by the Ancient Agora</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                In ancient Athens, the <strong>Agora</strong> was the beating heart of civic life — an open marketplace where citizens gathered to debate ideas, challenge power, and shape democracy.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                EcoSwarm carries that spirit into the digital age. Where the Athenians debated governance, <strong>we debate the planet's future</strong>. <span className="text-foreground font-semibold">Collective dialogue drives collective change.</span>
-              </p>
+              <p className="text-muted-foreground leading-relaxed">In ancient Athens, the <strong>Agora</strong> was the beating heart of civic life — an open marketplace where citizens gathered to debate ideas, challenge power, and shape democracy.</p>
+              <p className="text-muted-foreground leading-relaxed">EcoSwarm carries that spirit into the digital age. <span className="text-foreground font-semibold">Collective dialogue drives collective change.</span></p>
             </div>
           </motion.div>
         </div>
@@ -185,25 +150,15 @@ export function LandingPage() {
           <div className="grid md:grid-cols-2 gap-8">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="eco-card-elevated p-8">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                  <Target className="w-7 h-7 text-primary-foreground" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-black text-foreground">Our Mission</h2>
-                  <p className="text-sm text-muted-foreground">Why we exist</p>
-                </div>
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center"><Target className="w-7 h-7 text-primary-foreground" /></div>
+                <div><h2 className="text-2xl font-black text-foreground">Our Mission</h2><p className="text-sm text-muted-foreground">Why we exist</p></div>
               </div>
               <p className="text-foreground leading-relaxed text-lg">To amplify voices, connect passions, and transform digital engagement into real-world impact.</p>
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="eco-card-elevated p-8">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[hsl(var(--eco-gold))] to-[hsl(var(--eco-orange))] flex items-center justify-center">
-                  <Eye className="w-7 h-7 text-primary-foreground" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-black text-foreground">Our Vision</h2>
-                  <p className="text-sm text-muted-foreground">Where we're headed</p>
-                </div>
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[hsl(var(--eco-gold))] to-[hsl(var(--eco-orange))] flex items-center justify-center"><Eye className="w-7 h-7 text-primary-foreground" /></div>
+                <div><h2 className="text-2xl font-black text-foreground">Our Vision</h2><p className="text-sm text-muted-foreground">Where we're headed</p></div>
               </div>
               <p className="text-foreground leading-relaxed text-lg">A digital agora for collective impact.</p>
             </motion.div>
@@ -229,16 +184,14 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── Our Why – Redesigned with Infographics ── */}
+      {/* ── Our Why ── */}
       <section id="why" className="py-16 md:py-24 relative overflow-hidden">
         <div className="absolute inset-0 eco-gradient-bg opacity-[0.04]" />
         <div className="max-w-6xl mx-auto px-4 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-3xl mx-auto text-center mb-12">
             <span className="eco-badge mb-4 inline-flex"><Heart className="w-3.5 h-3.5" /> Our Why</span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">From Powerlessness to <span className="eco-gradient-text">Purpose</span></h2>
-            <p className="text-muted-foreground text-lg leading-relaxed">
-              A silent epidemic is gripping millions: <strong className="text-foreground">climate anxiety</strong>. A profound emotional response leaving people feeling sad, anxious, and utterly powerless. The young bear it most — they inherit the consequences of inaction.
-            </p>
+            <p className="text-muted-foreground text-lg leading-relaxed">A silent epidemic is gripping millions: <strong className="text-foreground">climate anxiety</strong>. The young bear it most — they inherit the consequences of inaction.</p>
           </motion.div>
 
           {/* Global Stats */}
@@ -258,61 +211,39 @@ export function LandingPage() {
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="flex items-center gap-2 mb-6">
               <span className="text-xl">🇰🇪</span>
               <h3 className="text-xl font-bold text-foreground">Kenya's Green Gap</h3>
-              <span className="text-xs text-muted-foreground ml-2">Green consumerism study</span>
             </motion.div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {kenyaStats.map((s, i) => <StatCard key={s.value} stat={s} index={i} />)}
             </div>
           </div>
 
-          {/* EcoSwarm Solution */}
+          {/* Enter EcoSwarm */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-3xl mx-auto">
             <div className="eco-card p-6 bg-gradient-to-br from-[hsl(var(--eco-green-light))] to-[hsl(var(--eco-blue-light))] border-none mb-6">
               <h3 className="text-lg font-bold text-foreground mb-3">Enter EcoSwarm 🐝</h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                A platform designed to bridge this gap and transform powerlessness into collective strength. See the issues, name them, and <strong className="text-foreground">do something about them</strong>.
-              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">A platform designed to bridge this gap and transform powerlessness into collective strength.</p>
               <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <Zap className="w-5 h-5 text-[hsl(var(--eco-gold))] flex-shrink-0 mt-0.5" />
-                  <span className="text-foreground text-sm"><strong>Social media is loud.</strong> We turn noise into real momentum.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Globe className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
-                  <span className="text-foreground text-sm"><strong>Issues are interconnected.</strong> Your voice matters on all fronts.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Users className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <span className="text-foreground text-sm"><strong>Collective action beats individual effort.</strong> One spark alone flickers — together, we blaze.</span>
-                </li>
+                <li className="flex items-start gap-3"><Zap className="w-5 h-5 text-[hsl(var(--eco-gold))] flex-shrink-0 mt-0.5" /><span className="text-foreground text-sm"><strong>Social media is loud.</strong> We turn noise into real momentum.</span></li>
+                <li className="flex items-start gap-3"><Globe className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" /><span className="text-foreground text-sm"><strong>Issues are interconnected.</strong> Your voice matters on all fronts.</span></li>
+                <li className="flex items-start gap-3"><Users className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" /><span className="text-foreground text-sm"><strong>Collective action beats individual effort.</strong> Together, we blaze.</span></li>
               </ul>
             </div>
-
-            {/* Sources */}
             <Dialog>
               <DialogTrigger asChild>
-                <button className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                  <ExternalLink className="w-3 h-3" /> View Sources & Citations
-                </button>
+                <button className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"><ExternalLink className="w-3 h-3" /> View Sources & Citations</button>
               </DialogTrigger>
               <DialogContent className="max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>Research Sources</DialogTitle>
-                </DialogHeader>
+                <DialogHeader><DialogTitle>Research Sources</DialogTitle></DialogHeader>
                 <div className="space-y-4 text-sm">
                   <div>
                     <p className="font-semibold text-foreground mb-1">Global Climate Anxiety Study</p>
-                    <p className="text-muted-foreground">Hickman et al., <em>The Lancet Planetary Health</em>, 2021. Survey of 10,000 youth aged 16–25 across 10 countries.</p>
-                    <a href="https://doi.org/10.1016/S2542-5196(21)00278-3" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1 mt-1">
-                      <ExternalLink className="w-3 h-3" /> Read the study
-                    </a>
+                    <p className="text-muted-foreground">Hickman et al., <em>The Lancet Planetary Health</em>, 2021.</p>
+                    <a href="https://doi.org/10.1016/S2542-5196(21)00278-3" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1 mt-1"><ExternalLink className="w-3 h-3" /> Read the study</a>
                   </div>
                   <div>
                     <p className="font-semibold text-foreground mb-1">Kenya Green Consumerism Study</p>
                     <p className="text-muted-foreground">Gekonge et al., <em>East African Journal of Science, Technology and Innovation</em>, 2021.</p>
-                    <a href="https://eajsti.org/index.php/EAJSTI/article/view/334" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1 mt-1">
-                      <ExternalLink className="w-3 h-3" /> Read the study
-                    </a>
+                    <a href="https://eajsti.org/index.php/EAJSTI/article/view/334" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1 mt-1"><ExternalLink className="w-3 h-3" /> Read the study</a>
                   </div>
                 </div>
               </DialogContent>
@@ -321,7 +252,25 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── Stats Bar ── */}
+      {/* ── What You Can Do (after Enter EcoSwarm) ── */}
+      <section id="features" className="py-16 md:py-24">
+        <div className="max-w-6xl mx-auto px-4">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center max-w-2xl mx-auto mb-12">
+            <span className="eco-badge mb-4 inline-flex"><Sparkles className="w-3.5 h-3.5" /> Platform</span>
+            <h2 className="text-3xl md:text-4xl font-black">What You Can Do</h2>
+          </motion.div>
+          <div className="grid sm:grid-cols-2 gap-6">
+            {features.map((f, i) => (
+              <motion.div key={f.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="eco-card-elevated flex gap-4 p-6">
+                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${f.color} flex-shrink-0 flex items-center justify-center`}><f.icon className="w-7 h-7 text-primary-foreground" /></div>
+                <div><h3 className="font-bold text-lg mb-1">{f.title}</h3><p className="text-muted-foreground text-sm">{f.desc}</p></div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Stats Bar (user statistics) ── */}
       <section id="stats" className="py-12 md:py-16 border-y border-border/50">
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((s, i) => (
@@ -344,9 +293,7 @@ export function LandingPage() {
           <div className="grid md:grid-cols-1 gap-6 max-w-lg mx-auto mb-12">
             {team.map((member, i) => (
               <motion.div key={member.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="eco-card-elevated p-8 text-center">
-                <div className="w-24 h-24 rounded-full eco-gradient-bg flex items-center justify-center mx-auto mb-4 text-4xl">
-                  {member.avatar}
-                </div>
+                <div className="w-24 h-24 rounded-full eco-gradient-bg flex items-center justify-center mx-auto mb-4 text-4xl">{member.avatar}</div>
                 <h3 className="text-xl font-bold text-foreground">{member.name}</h3>
                 <p className="text-sm text-primary font-semibold mb-3">{member.role}</p>
                 <p className="text-muted-foreground text-sm leading-relaxed">{member.bio}</p>
@@ -356,36 +303,11 @@ export function LandingPage() {
           <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {partners.map((partner, i) => (
               <motion.div key={partner.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="eco-card-elevated p-6 flex gap-4">
-                <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center text-3xl flex-shrink-0">
-                  {partner.icon}
-                </div>
+                <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center text-3xl flex-shrink-0">{partner.icon}</div>
                 <div>
                   <h3 className="font-bold text-foreground">{partner.name}</h3>
                   <p className="text-xs text-primary font-semibold mb-2">{partner.subtitle}</p>
                   <p className="text-sm text-muted-foreground">{partner.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── What You Can Do ── */}
-      <section id="features" className="py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center max-w-2xl mx-auto mb-12">
-            <span className="eco-badge mb-4 inline-flex"><Sparkles className="w-3.5 h-3.5" /> Platform</span>
-            <h2 className="text-3xl md:text-4xl font-black">What You Can Do</h2>
-          </motion.div>
-          <div className="grid sm:grid-cols-2 gap-6">
-            {features.map((f, i) => (
-              <motion.div key={f.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="eco-card-elevated flex gap-4 p-6">
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${f.color} flex-shrink-0 flex items-center justify-center`}>
-                  <f.icon className="w-7 h-7 text-primary-foreground" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg mb-1">{f.title}</h3>
-                  <p className="text-muted-foreground text-sm">{f.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -398,14 +320,10 @@ export function LandingPage() {
         <div className="max-w-6xl mx-auto px-4">
           <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="eco-gradient-bg rounded-3xl p-8 md:p-14 text-center text-primary-foreground">
             <h2 className="text-3xl md:text-4xl font-black mb-4">Ready to Make Your Voice Count?</h2>
-            <p className="text-primary-foreground/80 max-w-lg mx-auto mb-8">Join thousands of eco-warriors creating change. Sign up in seconds.</p>
+            <p className="text-primary-foreground/80 max-w-lg mx-auto mb-8">Join thousands of eco-warriors creating change.</p>
             <div className="flex flex-wrap justify-center gap-3">
-              <Button size="lg" onClick={() => navigate('/role-select')} className="bg-card text-primary hover:bg-card/90 border-0 gap-2 font-bold">
-                Get Started Free <ArrowRight className="w-4 h-4" />
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate('/login')} className="border-primary-foreground text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/30 font-bold">
-                Sign In
-              </Button>
+              <Button size="lg" onClick={() => navigate('/role-select')} className="bg-card text-primary hover:bg-card/90 border-0 gap-2 font-bold">Get Started Free <ArrowRight className="w-4 h-4" /></Button>
+              <Button size="lg" variant="outline" onClick={() => navigate('/login')} className="border-primary-foreground text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/30 font-bold">Sign In</Button>
             </div>
           </motion.div>
         </div>
@@ -417,9 +335,7 @@ export function LandingPage() {
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-10 mb-10">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg eco-gradient-bg flex items-center justify-center">
-                  <Leaf className="w-4 h-4 text-primary-foreground" />
-                </div>
+                <div className="w-8 h-8 rounded-lg eco-gradient-bg flex items-center justify-center"><Leaf className="w-4 h-4 text-primary-foreground" /></div>
                 <span className="font-extrabold text-lg">EcoSwarm</span>
               </div>
               <p className="text-sm text-muted-foreground">Your Digital Agora.</p>
@@ -430,11 +346,10 @@ export function LandingPage() {
                 <li><button onClick={() => scrollTo('about')} className="hover:text-foreground transition-colors">About</button></li>
                 <li><button onClick={() => scrollTo('features')} className="hover:text-foreground transition-colors">Features</button></li>
                 <li><button onClick={() => scrollTo('why')} className="hover:text-foreground transition-colors">Our Why</button></li>
-                <li><button onClick={() => navigate('/role-select')} className="hover:text-foreground transition-colors">Get Started</button></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-3 text-sm">Legal &amp; Info</h4>
+              <h4 className="font-bold mb-3 text-sm">Legal</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><button onClick={() => navigate('/terms-of-service')} className="hover:text-foreground transition-colors">Terms of Service</button></li>
                 <li><button onClick={() => navigate('/privacy-policy')} className="hover:text-foreground transition-colors">Privacy Policy</button></li>
@@ -443,14 +358,8 @@ export function LandingPage() {
             <div>
               <h4 className="font-bold mb-3 text-sm">Connect</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  <a href="mailto:hello@ecoswarm.co.ke" className="hover:text-foreground transition-colors">hello@ecoswarm.co.ke</a>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
-                  <a href="https://ecoswarm.co.ke" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">ecoswarm.co.ke</a>
-                </li>
+                <li className="flex items-center gap-2"><Mail className="w-4 h-4" /><a href="mailto:hello@ecoswarm.co.ke" className="hover:text-foreground transition-colors">hello@ecoswarm.co.ke</a></li>
+                <li className="flex items-center gap-2"><Globe className="w-4 h-4" /><a href="https://ecoswarm.co.ke" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">ecoswarm.co.ke</a></li>
               </ul>
             </div>
           </div>

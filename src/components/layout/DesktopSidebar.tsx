@@ -1,59 +1,43 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import {
-  MessageSquare, ShoppingBag, Mail, GraduationCap, Users, CalendarDays,
-  Trophy, Target, Leaf, Settings, LogOut, Moon, Sun, Inbox,
+  Home, MessageSquare, ShoppingBag, Mail, GraduationCap, Users, CalendarDays,
+  Trophy, Target, Leaf, Settings, LogOut, Moon, Sun, Inbox, Briefcase, Package,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-const navItems = [
-  { icon: MessageSquare, label: 'Agora Square', path: '/agora' },
-  { icon: ShoppingBag, label: 'EcoMarket', path: '/ecomarket' },
-  { icon: GraduationCap, label: 'Capacity Hub', path: '/tools' },
-  { icon: Mail, label: 'EcoLetter Forge', path: '/tools' },
-  { icon: Users, label: 'Swarms', path: '/swarms' },
-  { icon: CalendarDays, label: 'Eco Calendar', path: '/calendar' },
-  { icon: Trophy, label: 'Challenges', path: '/challenges' },
-  { icon: Target, label: 'Leaderboard', path: '/leaderboard' },
-  { icon: Inbox, label: 'Inbox', path: '/inbox' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
-];
-
 export function DesktopSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isDarkMode, toggleDarkMode, logout } = useApp();
   const [isDeveloper, setIsDeveloper] = useState(false);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'ecodeveloper')
-      .maybeSingle()
-      .then(({ data }) => setIsDeveloper(!!data));
-  }, [user?.id]);
-
-  const filteredNav = isDeveloper
-    ? navItems.filter(n => n.label !== 'Challenges')
-    : navItems;
-
   const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from('leaderboard')
-      .select('rank')
-      .eq('user_id', user.id)
-      .maybeSingle()
+    supabase.from('user_roles').select('role').eq('user_id', user.id).eq('role', 'ecodeveloper').maybeSingle()
+      .then(({ data }) => setIsDeveloper(!!data));
+    supabase.from('leaderboard').select('rank').eq('user_id', user.id).maybeSingle()
       .then(({ data }) => setLeaderboardRank(data?.rank ?? null));
   }, [user?.id]);
+
+  const navItems = [
+    { icon: Home, label: 'Dashboard', path: '/dashboard' },
+    { icon: MessageSquare, label: 'Agora Square', path: '/agora' },
+    { icon: ShoppingBag, label: 'EcoMarket', path: '/ecomarket' },
+    { icon: GraduationCap, label: 'Capacity Hub', path: '/tools' },
+    { icon: isDeveloper ? Briefcase : Mail, label: isDeveloper ? 'Business Advocacy' : 'EcoLetter Forge', path: '/tools' },
+    { icon: Users, label: 'Swarms', path: '/swarms' },
+    { icon: CalendarDays, label: 'Eco Calendar', path: '/calendar' },
+    ...(isDeveloper ? [] : [{ icon: Trophy, label: 'Challenges', path: '/challenges' }]),
+    { icon: Target, label: 'Leaderboard', path: '/leaderboard' },
+    { icon: Package, label: 'EcoMerch', path: '/merch' },
+    { icon: Inbox, label: 'Inbox', path: '/inbox' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
+  ];
 
   return (
     <aside className="w-[280px] h-screen sticky top-0 border-r border-border bg-card flex flex-col overflow-y-auto hide-scrollbar">
@@ -67,7 +51,7 @@ export function DesktopSidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 space-y-1">
-        {filteredNav.map((item) => {
+        {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <button
@@ -90,34 +74,20 @@ export function DesktopSidebar() {
       {/* Actions row */}
       <div className="px-4 py-2 flex items-center gap-2">
         <NotificationBell />
-        <button
-          onClick={toggleDarkMode}
-          className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80"
-        >
+        <button onClick={toggleDarkMode} className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80">
           {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
-        <button
-          onClick={logout}
-          className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-destructive/20 hover:text-destructive"
-          title="Log Out"
-        >
+        <button onClick={logout} className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-destructive/20 hover:text-destructive" title="Log Out">
           <LogOut className="w-4 h-4" />
         </button>
       </div>
 
       {/* Mini Profile */}
       {user && (
-        <div
-          onClick={() => navigate('/profile')}
-          className="m-3 p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-border/50 cursor-pointer hover:shadow-md transition-all"
-        >
+        <div onClick={() => navigate('/profile')} className="m-3 p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-border/50 cursor-pointer hover:shadow-md transition-all">
           <div className="flex items-center gap-3">
             <div className="eco-avatar text-sm">
-              {user.avatar ? (
-                <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" />
-              ) : (
-                user.name.charAt(0).toUpperCase()
-              )}
+              {user.avatar ? <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" /> : user.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>

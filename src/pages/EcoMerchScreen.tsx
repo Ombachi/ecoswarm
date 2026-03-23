@@ -1,0 +1,164 @@
+import { useState, useEffect } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { useApp } from '@/context/AppContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Package, ShoppingCart, Leaf, Loader2, Check, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
+import { Confetti } from '@/components/common/Confetti';
+
+interface MerchProduct {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image_url: string | null;
+  category: string;
+  stock: number;
+}
+
+export function EcoMerchScreen() {
+  const { user, addPoints, showNotification } = useApp();
+  const [products, setProducts] = useState<MerchProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [buyingId, setBuyingId] = useState<string | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [cart, setCart] = useState<Record<string, number>>({});
+  const [checkoutProduct, setCheckoutProduct] = useState<MerchProduct | null>(null);
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    setIsLoading(true);
+    const { data } = await supabase.from('merch_products').select('*').eq('is_active', true).order('created_at');
+    setProducts((data as MerchProduct[]) || []);
+    setIsLoading(false);
+  };
+
+  const handleCheckout = async () => {
+    if (!checkoutProduct || !user || !phone.trim()) {
+      toast.error('Please enter your phone number');
+      return;
+    }
+    setBuyingId(checkoutProduct.id);
+    try {
+      const pointsToUse = Math.min(user.ecoPoints, checkoutProduct.price);
+      const { error } = await supabase.from('merch_orders').insert({
+        user_id: user.id,
+        merch_id: checkoutProduct.id,
+        quantity: 1,
+        total_price: checkoutProduct.price,
+        points_used: pointsToUse,
+        shipping_address: address,
+        phone,
+      } as any);
+      if (error) throw error;
+      setShowConfetti(true);
+      addPoints(25);
+      showNotification('Order placed! 🎉', 25);
+      toast.success('Order placed successfully!');
+      setCheckoutProduct(null);
+      setPhone('');
+      setAddress('');
+      setTimeout(() => setShowConfetti(false), 3000);
+    } catch (err) {
+      toast.error('Failed to place order');
+    } finally {
+      setBuyingId(null);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  return (
+    <AppLayout>
+      {showConfetti && <Confetti />}
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
+        <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+          <Package className="w-5 h-5 text-primary" /> EcoMerch
+        </h1>
+        <p className="text-xs text-muted-foreground">Sustainable swag for eco-warriors</p>
+      </div>
+
+      <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-24">
+        {products.length === 0 ? (
+          <div className="col-span-full text-center py-16">
+            <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">No merch available yet. Check back soon!</p>
+          </div>
+        ) : products.map((product) => (
+          <div key={product.id} className="eco-card overflow-hidden flex flex-col">
+            {product.image_url ? (
+              <img src={product.image_url} alt={product.name} className="w-full h-40 object-cover -mx-4 -mt-4 mb-3" style={{ width: 'calc(100% + 2rem)' }} />
+            ) : (
+              <div className="w-full h-40 bg-gradient-to-br from-primary/10 to-secondary/10 -mx-4 -mt-4 mb-3 flex items-center justify-center" style={{ width: 'calc(100% + 2rem)' }}>
+                <Package className="w-12 h-12 text-primary/30" />
+              </div>
+            )}
+            <h3 className="font-bold text-foreground text-sm mb-1">{product.name}</h3>
+            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{product.description}</p>
+            <span className="eco-badge text-[10px] mb-2 self-start">{product.category}</span>
+            <div className="mt-auto pt-2 border-t border-border flex items-center justify-between">
+              <span className="font-bold text-foreground">KSh {product.price.toLocaleString()}</span>
+              <span className="text-[10px] text-muted-foreground">{product.stock} left</span>
+            </div>
+            <button
+              onClick={() => setCheckoutProduct(product)}
+              disabled={product.stock <= 0}
+              className="mt-2 w-full py-2 rounded-xl eco-gradient-bg text-white text-sm font-bold flex items-center justify-center gap-1 disabled:opacity-50"
+            >
+              <ShoppingCart className="w-4 h-4" /> {product.stock <= 0 ? 'Out of Stock' : 'Buy Now'}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Checkout Modal */}
+      {checkoutProduct && (
+        <div className="fixed inset-0 z-[60] bg-black/60 flex items-end sm:items-center justify-center" onClick={() => !buyingId && setCheckoutProduct(null)}>
+          <div className="bg-card w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-6 space-y-4 animate-slide-up" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center">
+              <div className="w-14 h-14 rounded-full eco-gradient-bg flex items-center justify-center mx-auto mb-3">
+                <Package className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground">{checkoutProduct.name}</h3>
+              <p className="text-sm text-muted-foreground">KSh {checkoutProduct.price.toLocaleString()}</p>
+            </div>
+            {user && (
+              <div className="bg-muted/50 rounded-xl p-3 text-sm space-y-1">
+                <div className="flex justify-between"><span className="text-muted-foreground">EcoPoints available</span><span className="font-semibold text-primary">{user.ecoPoints}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Points to use</span><span className="font-semibold">{Math.min(user.ecoPoints, checkoutProduct.price)}</span></div>
+              </div>
+            )}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Phone (M-Pesa)</label>
+              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0712345678" className="eco-input py-2.5 text-sm" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Shipping Address</label>
+              <textarea value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Your delivery address..." className="eco-input py-2.5 text-sm min-h-[60px]" />
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setCheckoutProduct(null)} disabled={!!buyingId} className="flex-1 py-3 rounded-xl border border-border text-foreground font-medium text-sm">Cancel</button>
+              <button onClick={handleCheckout} disabled={!!buyingId} className="flex-1 py-3 rounded-xl eco-gradient-bg text-white font-bold text-sm flex items-center justify-center gap-2">
+                {buyingId ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                Place Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </AppLayout>
+  );
+}

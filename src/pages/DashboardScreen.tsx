@@ -10,25 +10,12 @@ import { Confetti } from "@/components/common/Confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { DevAnalyticsTab } from "@/components/dashboard/DevAnalyticsTab";
+import { EcoSwarmChatbot } from "@/components/chat/EcoSwarmChatbot";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useVisibilityRefetch } from "@/hooks/useVisibilityRefetch";
 import {
-  MessageSquare,
-  ShoppingBag,
-  Mail,
-  ChevronRight,
-  Flame,
-  Moon,
-  Sun,
-  Target,
-  Download,
-  CheckCircle,
-  Trophy,
-  LogOut,
-  BarChart3,
-  Users,
-  CalendarDays,
-  GraduationCap,
+  MessageSquare, ShoppingBag, Mail, Flame, Moon, Sun, Target,
+  Trophy, LogOut, BarChart3, Users, CalendarDays, GraduationCap, Briefcase, Package,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -54,7 +41,6 @@ export function DashboardScreen() {
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [roleChecked, setRoleChecked] = useState(false);
 
-  // Refetch dashboard data when app becomes visible (PWA resume)
   const handleVisibilityRefetch = useCallback(() => {
     if (user) {
       refreshUser();
@@ -62,22 +48,17 @@ export function DashboardScreen() {
     }
   }, [user]);
   useVisibilityRefetch(handleVisibilityRefetch);
-  // Check role as soon as we have an auth ID (don't wait for full profile)
+
   useEffect(() => {
     const uid = user?.id || authUserId;
     if (!uid) return;
-
     const checkRole = async () => {
       try {
         const { data } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', uid)
-          .eq('role', 'ecodeveloper')
-          .maybeSingle();
+          .from('user_roles').select('role').eq('user_id', uid).eq('role', 'ecodeveloper').maybeSingle();
         setIsDeveloper(!!data);
       } catch (e) {
-        console.error('Role check failed:', (e as Error)?.message || 'An error occurred');
+        console.error('Role check failed:', (e as Error)?.message);
       } finally {
         setRoleChecked(true);
       }
@@ -89,49 +70,24 @@ export function DashboardScreen() {
     if (user && roleChecked) {
       loadChallenges();
       updateStreak();
-      supabase
-        .from('products')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .then(({ count }) => setProductCount(count || 0));
+      supabase.from('products').select('id', { count: 'exact', head: true }).eq('user_id', user.id).then(({ count }) => setProductCount(count || 0));
     }
   }, [user, roleChecked, isDeveloper]);
 
   const loadChallenges = async () => {
     if (!user) return;
-
     try {
-      // Fetch active challenges
-      const { data: challengesData, error: challengesError } = await supabase
-        .from("challenges")
-        .select("*")
-        .eq("is_active", true);
-
-      if (challengesError) throw challengesError;
-
-      // Fetch user's completed challenges
-      const { data: completedData } = await supabase
-        .from("user_challenges")
-        .select("challenge_id")
-        .eq("user_id", user.id);
-
+      const { data: challengesData, error } = await supabase.from("challenges").select("*").eq("is_active", true);
+      if (error) throw error;
+      const { data: completedData } = await supabase.from("user_challenges").select("challenge_id").eq("user_id", user.id);
       const completedIds = completedData?.map((c) => c.challenge_id) || [];
-
-      // Filter challenges by role and mark completed
       const userRole = isDeveloper ? 'ecodeveloper' : 'ecowarrior';
       const challengesWithStatus = (challengesData || [])
-        .filter((c: any) => {
-          const targetRole = c.target_role || 'all';
-          return targetRole === 'all' || targetRole === userRole;
-        })
-        .map((c) => ({
-          ...c,
-          completed: completedIds.includes(c.id),
-        }));
-
+        .filter((c: any) => { const t = c.target_role || 'all'; return t === 'all' || t === userRole; })
+        .map((c) => ({ ...c, completed: completedIds.includes(c.id) }));
       setChallenges(challengesWithStatus);
     } catch (error) {
-      console.error("Error loading challenges:", (error as Error)?.message || 'An error occurred');
+      console.error("Error loading challenges:", (error as Error)?.message);
     } finally {
       setIsLoadingChallenges(false);
     }
@@ -139,55 +95,31 @@ export function DashboardScreen() {
 
   const updateStreak = async () => {
     if (!user) return;
-
     try {
-      // Check and update streak based on last activity
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("last_active_at, streak")
-        .eq("user_id", user.id)
-        .single();
-
+      const { data: profile } = await supabase.from("profiles").select("last_active_at, streak").eq("user_id", user.id).single();
       if (profile?.last_active_at) {
         const lastActive = new Date(profile.last_active_at);
         const now = new Date();
-
-        // Reset times to midnight for accurate day comparison
         const lastActiveDay = new Date(lastActive.getFullYear(), lastActive.getMonth(), lastActive.getDate());
         const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
         const daysDiff = Math.floor((todayDay.getTime() - lastActiveDay.getTime()) / (1000 * 60 * 60 * 24));
-
         if (daysDiff === 1) {
-          // Increment streak for consecutive day
           const newStreak = (profile.streak || 0) + 1;
-          await supabase
-            .from("profiles")
-            .update({ streak: newStreak, last_active_at: now.toISOString() })
-            .eq("user_id", user.id);
+          await supabase.from("profiles").update({ streak: newStreak, last_active_at: now.toISOString() }).eq("user_id", user.id);
           await refreshUser();
-          toast.success(`🔥 ${newStreak} day streak! Keep it up!`);
+          toast.success(`🔥 ${newStreak} day streak!`);
         } else if (daysDiff > 1) {
-          // Reset streak if more than 1 day gap
-          await supabase
-            .from("profiles")
-            .update({ streak: 1, last_active_at: now.toISOString() })
-            .eq("user_id", user.id);
+          await supabase.from("profiles").update({ streak: 1, last_active_at: now.toISOString() }).eq("user_id", user.id);
           await refreshUser();
         } else if (daysDiff === 0) {
-          // Same day, just update last_active_at if not already updated today
           await supabase.from("profiles").update({ last_active_at: now.toISOString() }).eq("user_id", user.id);
         }
       } else {
-        // First time, set streak to 1
-        await supabase
-          .from("profiles")
-          .update({ streak: 1, last_active_at: new Date().toISOString() })
-          .eq("user_id", user.id);
+        await supabase.from("profiles").update({ streak: 1, last_active_at: new Date().toISOString() }).eq("user_id", user.id);
         await refreshUser();
       }
     } catch (error) {
-      console.error("Error updating streak:", (error as Error)?.message || 'An error occurred');
+      console.error("Error updating streak:", (error as Error)?.message);
     }
   };
 
@@ -206,8 +138,6 @@ export function DashboardScreen() {
   const handleStartChallenge = (challengeId: string) => {
     const challenge = challenges.find((c) => c.id === challengeId);
     if (!challenge || challenge.completed) return;
-    
-    // Navigate to the relevant page so users can complete the challenge there
     const route = getChallengeRoute(challenge.action_type);
     toast.info(`🎯 Challenge: ${challenge.title} — Complete it to earn ${challenge.points} EcoPoints!`);
     navigate(route);
@@ -215,18 +145,11 @@ export function DashboardScreen() {
 
   const handleCompleteChallenge = async (challengeId: string) => {
     if (!user) return;
-
     const challenge = challenges.find((c) => c.id === challengeId);
     if (!challenge || challenge.completed) return;
-
     try {
-      const { error } = await supabase.from("user_challenges").insert({
-        user_id: user.id,
-        challenge_id: challengeId,
-      });
-
+      const { error } = await supabase.from("user_challenges").insert({ user_id: user.id, challenge_id: challengeId });
       if (error && !error.message.includes("duplicate")) throw error;
-
       setChallenges(challenges.map((c) => (c.id === challengeId ? { ...c, completed: true } : c)));
       addPoints(challenge.points);
       showNotification(`Challenge completed! 🎉`, challenge.points);
@@ -234,7 +157,7 @@ export function DashboardScreen() {
       setTimeout(() => setShowConfetti(false), 3000);
       toast.success(`You earned ${challenge.points} EcoPoints!`);
     } catch (error) {
-      console.error("Error completing challenge:", (error as Error)?.message || 'An error occurred');
+      console.error("Error completing challenge:", (error as Error)?.message);
       toast.error("Failed to complete challenge");
     }
   };
@@ -254,15 +177,18 @@ export function DashboardScreen() {
 
   const dailyChallenge = challenges.find((c) => c.type === "daily" && !c.completed);
 
+  // Build quick actions - role-aware
   const allQuickActions = [
     { id: 'agora', icon: MessageSquare, label: "Agora Square", color: "from-primary to-secondary", path: "/agora" },
     { id: 'ecomarket', icon: ShoppingBag, label: "EcoMarket", color: "from-secondary to-eco-blue", path: "/ecomarket" },
     { id: 'capacity', icon: GraduationCap, label: "Capacity Hub", color: "from-eco-blue to-primary", path: "/tools" },
-    { id: 'letter', icon: Mail, label: "EcoLetter Forge", color: "from-eco-gold to-eco-orange", path: "/tools" },
+    { id: 'letter', icon: isDeveloper ? Briefcase : Mail, label: isDeveloper ? "Advocacy" : "EcoLetter Forge", color: "from-eco-gold to-eco-orange", path: "/tools" },
     { id: 'swarms', icon: Users, label: "Swarms", color: "from-primary to-eco-green", path: "/swarms" },
     { id: 'challenges', icon: Trophy, label: "Challenges", color: "from-eco-orange to-eco-gold", path: "/challenges" },
     { id: 'calendar', icon: CalendarDays, label: "Eco Calendar", color: "from-eco-blue to-secondary", path: "/calendar" },
+    { id: 'leaderboard', icon: Target, label: "Leaderboard", color: "from-primary to-eco-gold", path: "/leaderboard" },
     { id: 'impact', icon: BarChart3, label: "My Impact", color: "from-secondary to-primary", path: "/profile" },
+    { id: 'merch', icon: Package, label: "EcoMerch", color: "from-eco-green to-secondary", path: "/merch" },
   ];
 
   // Hide Challenges for EcoDevelopers
@@ -286,17 +212,10 @@ export function DashboardScreen() {
           <div className="flex items-center gap-2">
             <SwahiliToggle />
             <NotificationBell />
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-all"
-            >
+            <button onClick={toggleDarkMode} className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-all">
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-            <button
-              onClick={logout}
-              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all"
-              title={isSwahili ? "Ondoka" : "Log Out"}
-            >
+            <button onClick={logout} className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all" title={isSwahili ? "Ondoka" : "Log Out"}>
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -323,10 +242,7 @@ export function DashboardScreen() {
                 {isSwahili ? "Uko karibu kufikia kiwango kipya!" : "You're close to the next level!"}
               </p>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full eco-gradient-bg rounded-full transition-all"
-                  style={{ width: `${Math.min((user.ecoPoints / 2000) * 100, 100)}%` }}
-                />
+                <div className="h-full eco-gradient-bg rounded-full transition-all" style={{ width: `${Math.min((user.ecoPoints / 2000) * 100, 100)}%` }} />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {Math.max(2000 - user.ecoPoints, 0)} more to Gold {isDeveloper ? 'EcoDeveloper' : 'EcoWarrior'}
@@ -339,95 +255,46 @@ export function DashboardScreen() {
         {roleChecked && isDeveloper ? (
           <Tabs defaultValue="home">
             <TabsList className="w-full">
-              <TabsTrigger value="home" className="flex-1 gap-1">
-                🏠 Home
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex-1 gap-1">
-                <BarChart3 className="w-4 h-4" />
-                Analytics
-              </TabsTrigger>
+              <TabsTrigger value="home" className="flex-1 gap-1">🏠 Home</TabsTrigger>
+              <TabsTrigger value="analytics" className="flex-1 gap-1"><BarChart3 className="w-4 h-4" /> Analytics</TabsTrigger>
             </TabsList>
             <TabsContent value="home">
               <div className="space-y-6 pt-2">
-                <DashboardHomeContent
-                  quickActions={quickActions}
-                  navigate={navigate}
-                  isSwahili={isSwahili}
-                  dailyChallenge={dailyChallenge}
-                  handleCompleteChallenge={handleCompleteChallenge}
-                  handleStartChallenge={handleStartChallenge}
-                  challenges={challenges}
-                  user={user}
-                  productCount={productCount}
-                  isInstalled={isInstalled}
-                  promptInstall={promptInstall}
-                  isDeveloper={isDeveloper}
-                />
+                <DashboardHomeContent quickActions={quickActions} navigate={navigate} isSwahili={isSwahili} dailyChallenge={dailyChallenge} handleCompleteChallenge={handleCompleteChallenge} handleStartChallenge={handleStartChallenge} challenges={challenges} user={user} productCount={productCount} isDeveloper={isDeveloper} />
               </div>
             </TabsContent>
             <TabsContent value="analytics">
-              <div className="pt-2">
-                <DevAnalyticsTab />
-              </div>
+              <div className="pt-2"><DevAnalyticsTab /></div>
             </TabsContent>
           </Tabs>
         ) : (
-          <DashboardHomeContent
-            quickActions={quickActions}
-            navigate={navigate}
-            isSwahili={isSwahili}
-            dailyChallenge={dailyChallenge}
-            handleCompleteChallenge={handleCompleteChallenge}
-            handleStartChallenge={handleStartChallenge}
-            challenges={challenges}
-            user={user}
-            productCount={productCount}
-            isInstalled={isInstalled}
-            promptInstall={promptInstall}
-            isDeveloper={false}
-          />
+          <DashboardHomeContent quickActions={quickActions} navigate={navigate} isSwahili={isSwahili} dailyChallenge={dailyChallenge} handleCompleteChallenge={handleCompleteChallenge} handleStartChallenge={handleStartChallenge} challenges={challenges} user={user} productCount={productCount} isDeveloper={false} />
         )}
 
-        {/* Footer */}
         <div className="text-center text-xs text-muted-foreground pt-4">
           <p>© 2026 EcoSwarm. All rights reserved.</p>
         </div>
       </div>
+
+      {/* AI Assistant - only on dashboard */}
+      <EcoSwarmChatbot />
     </AppLayout>
   );
 }
 
-/* Extracted home content to avoid duplication */
-function DashboardHomeContent({
-  quickActions,
-  navigate,
-  isSwahili,
-  dailyChallenge,
-  handleCompleteChallenge,
-  handleStartChallenge,
-  challenges,
-  user,
-  productCount,
-  isInstalled,
-  promptInstall,
-  isDeveloper,
-}: any) {
+function DashboardHomeContent({ quickActions, navigate, isSwahili, dailyChallenge, handleCompleteChallenge, handleStartChallenge, challenges, user, productCount, isDeveloper }: any) {
   return (
     <>
-      {/* Quick Actions - Icon Grid */}
+      {/* Quick Actions - Expanded Grid */}
       <div>
         <h2 className="font-semibold text-foreground mb-3">{isSwahili ? "Hatua za Haraka" : "Quick Actions"}</h2>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-5 gap-2">
           {quickActions.map((action: any) => (
-            <button
-              key={action.id}
-              onClick={() => navigate(action.path)}
-              className="eco-card p-3 flex flex-col items-center gap-2 hover:shadow-lg transition-all"
-            >
-              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}>
+            <button key={action.id} onClick={() => navigate(action.path)} className="eco-card p-2.5 flex flex-col items-center gap-1.5 hover:shadow-lg transition-all">
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}>
                 <action.icon className="w-5 h-5 text-white" />
               </div>
-              <span className="text-[10px] font-medium text-foreground text-center leading-tight">{action.label}</span>
+              <span className="text-[9px] font-medium text-foreground text-center leading-tight">{action.label}</span>
             </button>
           ))}
         </div>
@@ -438,24 +305,18 @@ function DashboardHomeContent({
         <div className="eco-card p-4 border-l-4 border-l-eco-gold">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-xs text-muted-foreground mb-1">
-                {isSwahili ? "Changamoto ya Leo" : "Daily Challenge"}
-              </p>
+              <p className="text-xs text-muted-foreground mb-1">{isSwahili ? "Changamoto ya Leo" : "Daily Challenge"}</p>
               <h3 className="font-semibold text-foreground">{dailyChallenge.title}</h3>
               <p className="text-sm text-muted-foreground">{dailyChallenge.description}</p>
             </div>
             <EcoPointsBadge points={dailyChallenge.points} size="sm" />
           </div>
-          <button
-            onClick={() => handleStartChallenge(dailyChallenge.id)}
-            className="w-full eco-button-primary py-3 flex items-center justify-center gap-2"
-          >
+          <button onClick={() => handleStartChallenge(dailyChallenge.id)} className="w-full eco-button-primary py-3 flex items-center justify-center gap-2">
             <Trophy className="w-5 h-5" />
             {isSwahili ? "Anza Changamoto" : "Start Challenge"}
           </button>
         </div>
       )}
-
     </>
   );
 }

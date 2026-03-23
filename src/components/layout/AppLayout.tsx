@@ -8,7 +8,6 @@ import { useLayout } from '@/context/LayoutContext';
 import { Sparkles, Shield } from 'lucide-react';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { UpdatePrompt } from '@/components/pwa/UpdatePrompt';
-import { EcoSwarmChatbot } from '@/components/chat/EcoSwarmChatbot';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -28,11 +27,11 @@ export function AppLayout({ children }: AppLayoutProps) {
     </div>
   );
 
-  // Desktop triple-pane (for ALL users including admin)
+  // Desktop triple-pane
   if (layoutMode === 'desktop') {
     return (
       <div className="flex h-screen w-full bg-background">
-        <DesktopSidebar />
+        {!isAdmin && <DesktopSidebar />}
         <main className="flex-1 overflow-y-auto min-w-0">
           {isAdmin && (
             <div className="sticky top-0 z-50 bg-destructive/10 border-b border-destructive/20 px-4 py-1.5 flex items-center justify-center gap-2">
@@ -45,16 +44,15 @@ export function AppLayout({ children }: AppLayoutProps) {
         </main>
         {!isAdmin && <DesktopRightPane />}
         <UpdatePrompt />
-        {!isAdmin && <EcoSwarmChatbot />}
       </div>
     );
   }
 
-  // Tablet landscape – slim sidebar + content (for ALL users including admin)
+  // Tablet landscape
   if (layoutMode === 'tablet' && isTabletLandscape) {
     return (
       <div className="flex h-screen w-full bg-background">
-        <TabletSidebar />
+        {!isAdmin && <TabletSidebar />}
         <main className="flex-1 overflow-y-auto min-w-0">
           {isAdmin && (
             <div className="sticky top-0 z-50 bg-destructive/10 border-b border-destructive/20 px-4 py-1.5 flex items-center justify-center gap-2">
@@ -66,12 +64,11 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="max-w-3xl mx-auto">{children}</div>
         </main>
         <UpdatePrompt />
-        {!isAdmin && <EcoSwarmChatbot />}
       </div>
     );
   }
 
-  // Mobile (and tablet portrait) – original layout
+  // Mobile
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto relative">
       {isAdmin && (
@@ -85,7 +82,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       {!isAdmin && <BottomNav />}
       <InstallPrompt />
       <UpdatePrompt />
-      {!isAdmin && <EcoSwarmChatbot />}
     </div>
   );
 }
