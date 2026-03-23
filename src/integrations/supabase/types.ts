@@ -14,6 +14,88 @@ export type Database = {
   }
   public: {
     Tables: {
+      advocacy_signers: {
+        Row: {
+          advocacy_id: string
+          id: string
+          signed_at: string
+          user_id: string
+        }
+        Insert: {
+          advocacy_id: string
+          id?: string
+          signed_at?: string
+          user_id: string
+        }
+        Update: {
+          advocacy_id?: string
+          id?: string
+          signed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advocacy_signers_advocacy_id_fkey"
+            columns: ["advocacy_id"]
+            isOneToOne: false
+            referencedRelation: "business_advocacy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_advocacy: {
+        Row: {
+          cooldown_until: string | null
+          created_at: string
+          creator_id: string
+          id: string
+          impact_report: string | null
+          min_signers: number
+          problem_statement: string
+          status: string
+          target_recipient_id: string | null
+          the_ask: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cooldown_until?: string | null
+          created_at?: string
+          creator_id: string
+          id?: string
+          impact_report?: string | null
+          min_signers?: number
+          problem_statement: string
+          status?: string
+          target_recipient_id?: string | null
+          the_ask: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cooldown_until?: string | null
+          created_at?: string
+          creator_id?: string
+          id?: string
+          impact_report?: string | null
+          min_signers?: number
+          problem_statement?: string
+          status?: string
+          target_recipient_id?: string | null
+          the_ask?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_advocacy_target_recipient_id_fkey"
+            columns: ["target_recipient_id"]
+            isOneToOne: false
+            referencedRelation: "recipients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challenges: {
         Row: {
           action_type: string | null
@@ -322,6 +404,92 @@ export type Database = {
           is_active?: boolean
           sort_order?: number
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      merch_orders: {
+        Row: {
+          created_at: string
+          id: string
+          merch_id: string
+          phone: string | null
+          points_used: number
+          quantity: number
+          shipping_address: string | null
+          status: string
+          total_price: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          merch_id: string
+          phone?: string | null
+          points_used?: number
+          quantity?: number
+          shipping_address?: string | null
+          status?: string
+          total_price?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          merch_id?: string
+          phone?: string | null
+          points_used?: number
+          quantity?: number
+          shipping_address?: string | null
+          status?: string
+          total_price?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merch_orders_merch_id_fkey"
+            columns: ["merch_id"]
+            isOneToOne: false
+            referencedRelation: "merch_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      merch_products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          price: number
+          stock: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          price?: number
+          stock?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          price?: number
+          stock?: number
           updated_at?: string
         }
         Relationships: []
