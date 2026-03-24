@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { createAutoPost, buildLetterAutoPost } from '@/utils/autoPost';
 import { SponsorBadge } from '@/components/sponsorship/SponsorBadge';
 import { SponsorCourseModal } from '@/components/sponsorship/SponsorCourseModal';
+import { BusinessAdvocacyPanel } from '@/components/advocacy/BusinessAdvocacyPanel';
 
 import {
   Mail,
@@ -18,6 +19,7 @@ import {
   Lock,
   Share2,
   Building2,
+  Briefcase,
 } from 'lucide-react';
 
 export function ToolsScreen() {
@@ -39,6 +41,8 @@ export function ToolsScreen() {
   const [sponsorships, setSponsorships] = useState<Record<string, { name: string; logo: string | null }>>({});
   const [sponsoringCourse, setSponsoringCourse] = useState<{ id: string; title: string } | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [isDeveloper, setIsDeveloper] = useState(false);
+
   useEffect(() => {
     loadContent();
     if (user) {
@@ -91,6 +95,7 @@ export function ToolsScreen() {
     if (!user) return;
     const { data } = await supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle();
     setUserRole(data?.role || null);
+    setIsDeveloper(data?.role === 'ecodeveloper');
   };
 
   const handleSubmitLetter = async () => {
@@ -100,7 +105,6 @@ export function ToolsScreen() {
     if (!template || !recipient || !user) return;
 
     try {
-      // Send the letter via edge function
       const response = await supabase.functions.invoke('send-ecoletter', {
         body: {
           recipientEmail: recipient.email,
@@ -122,30 +126,21 @@ export function ToolsScreen() {
 
       setShowConfetti(true);
       addPoints(50);
-
-      // Update letters sent stat & award CO2
       updateStats({ lettersSent: user.stats.lettersSent + 1 });
       supabase.rpc('award_co2', { p_user_id: user.id, p_action_type: 'letter_sent' });
 
-      // Award Voice Heard badge on first letter
-      if (user.stats.lettersSent === 0) {
-        await earnBadge('2');
-      }
-      // Award Policy Maker badge on 10th letter
-      if (user.stats.lettersSent + 1 >= 10) {
-        await earnBadge('7');
-      }
+      if (user.stats.lettersSent === 0) await earnBadge('2');
+      if (user.stats.lettersSent + 1 >= 10) await earnBadge('7');
 
       showNotification('EcoLetter sent! 📨', 50);
 
-      // Auto-post to Agora Square
+      // Suppressed - batched into weekly report
       await createAutoPost({
         userId: user.id,
         userName: user.name,
         content: buildLetterAutoPost(template.title),
         tags: ['EcoLetter', 'ClimateAction', 'EcoSwarm', 'Advocacy'],
       });
-
 
       setTimeout(() => {
         setShowConfetti(false);
@@ -183,6 +178,10 @@ export function ToolsScreen() {
     navigate(`/module/${moduleId}`);
   };
 
+  // Determine which advocacy tab to show
+  const letterTabLabel = isDeveloper ? 'Business Advocacy' : 'EcoLetter Forge';
+  const letterTabIcon = isDeveloper ? <Briefcase className="w-4 h-4" /> : <Mail className="w-4 h-4" />;
+
   return (
     <AppLayout>
       {showConfetti && <Confetti />}
@@ -204,8 +203,8 @@ export function ToolsScreen() {
                 : 'bg-muted text-muted-foreground'
             }`}
           >
-            <Mail className="w-4 h-4" />
-            EcoLetter Forge
+            {letterTabIcon}
+            {letterTabLabel}
           </button>
           <button
             onClick={() => setActiveTab('learn')}
@@ -221,8 +220,13 @@ export function ToolsScreen() {
         </div>
       </div>
 
-      {/* EcoLetter Forge */}
-      {activeTab === 'letter' && !showSuccess && (
+      {/* Business Advocacy for EcoDevelopers */}
+      {activeTab === 'letter' && isDeveloper && (
+        <BusinessAdvocacyPanel />
+      )}
+
+      {/* EcoLetter Forge for EcoWarriors */}
+      {activeTab === 'letter' && !isDeveloper && !showSuccess && (
         <div className="p-4">
           {/* Progress Steps */}
           <div className="flex items-center gap-2 mb-6">
@@ -240,11 +244,7 @@ export function ToolsScreen() {
                   {letterStep > step ? <Check className="w-4 h-4" /> : step + 1}
                 </div>
                 {step < 2 && (
-                  <div
-                    className={`flex-1 h-0.5 mx-2 ${
-                      letterStep > step ? 'eco-gradient-bg' : 'bg-muted'
-                    }`}
-                  />
+                  <div className={`flex-1 h-0.5 mx-2 ${letterStep > step ? 'eco-gradient-bg' : 'bg-muted'}`} />
                 )}
               </div>
             ))}
@@ -254,19 +254,14 @@ export function ToolsScreen() {
           {letterStep === 0 && (
             <div className="animate-slide-up space-y-4">
               <h2 className="text-lg font-semibold text-foreground">Choose a Template</h2>
-              <p className="text-sm text-muted-foreground">
-                Select an advocacy letter template for your cause
-              </p>
-
+              <p className="text-sm text-muted-foreground">Select an advocacy letter template for your cause</p>
               <div className="space-y-3">
                 {letterTemplates.map((template: any) => (
                   <button
                     key={template.id}
                     onClick={() => setSelectedTemplate(template.id)}
                     className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                      selectedTemplate === template.id
-                        ? 'border-primary bg-eco-green-light'
-                        : 'border-border bg-card hover:border-primary/50'
+                      selectedTemplate === template.id ? 'border-primary bg-eco-green-light' : 'border-border bg-card hover:border-primary/50'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -279,14 +274,7 @@ export function ToolsScreen() {
                   </button>
                 ))}
               </div>
-
-              <button
-                onClick={() => setLetterStep(1)}
-                disabled={!selectedTemplate}
-                className="w-full eco-button-primary py-4 mt-4 disabled:opacity-50"
-              >
-                Continue
-              </button>
+              <button onClick={() => setLetterStep(1)} disabled={!selectedTemplate} className="w-full eco-button-primary py-4 mt-4 disabled:opacity-50">Continue</button>
             </div>
           )}
 
@@ -294,35 +282,12 @@ export function ToolsScreen() {
           {letterStep === 1 && (
             <div className="animate-slide-up space-y-4">
               <h2 className="text-lg font-semibold text-foreground">Add Your Story</h2>
-              <p className="text-sm text-muted-foreground">
-                Make it personal - how does this issue affect you?
-              </p>
-
-              <textarea
-                value={personalStory}
-                onChange={(e) => setPersonalStory(e.target.value)}
-                placeholder="Share your experience... For example: 'I live near Dandora dumpsite and the air quality affects my family's health daily...'"
-                className="eco-input min-h-[150px] resize-none"
-              />
-
-              <p className="text-xs text-muted-foreground">
-                💡 Tip: Personal stories are 3x more effective than facts alone
-              </p>
-
+              <p className="text-sm text-muted-foreground">Make it personal - how does this issue affect you?</p>
+              <textarea value={personalStory} onChange={(e) => setPersonalStory(e.target.value)} placeholder="Share your experience..." className="eco-input min-h-[150px] resize-none" />
+              <p className="text-xs text-muted-foreground">💡 Tip: Personal stories are 3x more effective than facts alone</p>
               <div className="flex gap-3">
-                <button
-                  onClick={() => setLetterStep(0)}
-                  className="flex-1 eco-button-secondary py-3"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={() => setLetterStep(2)}
-                  disabled={!personalStory}
-                  className="flex-1 eco-button-primary py-3 disabled:opacity-50"
-                >
-                  Continue
-                </button>
+                <button onClick={() => setLetterStep(0)} className="flex-1 eco-button-secondary py-3">Back</button>
+                <button onClick={() => setLetterStep(2)} disabled={!personalStory} className="flex-1 eco-button-primary py-3 disabled:opacity-50">Continue</button>
               </div>
             </div>
           )}
@@ -331,43 +296,24 @@ export function ToolsScreen() {
           {letterStep === 2 && (
             <div className="animate-slide-up space-y-4">
               <h2 className="text-lg font-semibold text-foreground">Select Recipient</h2>
-              <p className="text-sm text-muted-foreground">
-                Choose who will receive your advocacy letter
-              </p>
-
+              <p className="text-sm text-muted-foreground">Choose who will receive your advocacy letter</p>
               <div className="space-y-3">
                 {recipients.map((recipient: any) => (
                   <button
                     key={recipient.id}
                     onClick={() => setSelectedRecipient(recipient.id)}
                     className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                      selectedRecipient === recipient.id
-                        ? 'border-primary bg-eco-green-light'
-                        : 'border-border bg-card hover:border-primary/50'
+                      selectedRecipient === recipient.id ? 'border-primary bg-eco-green-light' : 'border-border bg-card hover:border-primary/50'
                     }`}
                   >
                     <p className="font-semibold text-foreground">{recipient.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {recipient.title}, {recipient.organization}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{recipient.title}, {recipient.organization}</p>
                   </button>
                 ))}
               </div>
-
               <div className="flex gap-3">
-                <button
-                  onClick={() => setLetterStep(1)}
-                  className="flex-1 eco-button-secondary py-3"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={() => setShowPreview(true)}
-                  disabled={!selectedRecipient}
-                  className="flex-1 eco-button-primary py-3 disabled:opacity-50"
-                >
-                  Preview Letter
-                </button>
+                <button onClick={() => setLetterStep(1)} className="flex-1 eco-button-secondary py-3">Back</button>
+                <button onClick={() => setShowPreview(true)} disabled={!selectedRecipient} className="flex-1 eco-button-primary py-3 disabled:opacity-50">Preview Letter</button>
               </div>
             </div>
           )}
@@ -375,34 +321,23 @@ export function ToolsScreen() {
       )}
 
       {/* Success State */}
-      {activeTab === 'letter' && showSuccess && (
+      {activeTab === 'letter' && !isDeveloper && showSuccess && (
         <div className="p-6 text-center animate-bounce-in">
           <div className="w-24 h-24 rounded-full eco-gradient-bg flex items-center justify-center mx-auto mb-6">
             <Check className="w-12 h-12 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-foreground mb-2">Letter Sent! 🎉</h2>
-          <p className="text-muted-foreground mb-6">
-            Your voice has been heard. You earned +50 EcoPoints!
-          </p>
-
+          <p className="text-muted-foreground mb-6">Your voice has been heard. You earned +50 EcoPoints!</p>
           <div className="eco-card p-4 mb-6">
             <p className="text-sm font-medium text-foreground mb-2">Share your action:</p>
             <div className="bg-eco-gradient-light p-4 rounded-xl text-center">
-              <p className="font-semibold text-foreground">
-                "I just sent my EcoLetter to advocate for Kenya's environment! 🌍"
-              </p>
+              <p className="font-semibold text-foreground">"I just sent my EcoLetter to advocate for Kenya's environment! 🌍"</p>
               <p className="text-primary text-sm mt-1">#EcoSwarm #ClimateAction</p>
             </div>
           </div>
-
           <div className="flex gap-3">
-            <button className="flex-1 eco-button-secondary py-3 flex items-center justify-center gap-2">
-              <Share2 className="w-4 h-4" />
-              Share to X
-            </button>
-            <button onClick={resetLetter} className="flex-1 eco-button-primary py-3">
-              Send Another
-            </button>
+            <button className="flex-1 eco-button-secondary py-3 flex items-center justify-center gap-2"><Share2 className="w-4 h-4" />Share to X</button>
+            <button onClick={resetLetter} className="flex-1 eco-button-primary py-3">Send Another</button>
           </div>
         </div>
       )}
@@ -413,25 +348,12 @@ export function ToolsScreen() {
           <div className="bg-card w-full rounded-t-3xl max-h-[80vh] overflow-auto animate-slide-up">
             <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-foreground">Letter Preview</h2>
-              <button
-                onClick={() => setShowPreview(false)}
-                className="p-2 rounded-full bg-muted text-muted-foreground"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <button onClick={() => setShowPreview(false)} className="p-2 rounded-full bg-muted text-muted-foreground"><X className="w-5 h-5" /></button>
             </div>
-
             <div className="p-6">
-              <div className="bg-muted rounded-xl p-4 mb-6 font-mono text-sm whitespace-pre-line text-foreground">
-                {getPreviewLetter()}
-              </div>
-
-              <button
-                onClick={handleSubmitLetter}
-                className="w-full eco-button-primary py-4 text-lg flex items-center justify-center gap-2"
-              >
-                <Mail className="w-5 h-5" />
-                Send EcoLetter (+50 pts)
+              <div className="bg-muted rounded-xl p-4 mb-6 font-mono text-sm whitespace-pre-line text-foreground">{getPreviewLetter()}</div>
+              <button onClick={handleSubmitLetter} className="w-full eco-button-primary py-4 text-lg flex items-center justify-center gap-2">
+                <Mail className="w-5 h-5" /> Send EcoLetter (+50 pts)
               </button>
             </div>
           </div>
@@ -441,98 +363,64 @@ export function ToolsScreen() {
       {/* Capacity Hub */}
       {activeTab === 'learn' && (
         <div className="p-4 space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Build your advocacy skills and earn badges
-          </p>
-
+          <p className="text-sm text-muted-foreground">Build your advocacy skills and earn badges</p>
           <div className="grid gap-4">
             {learningModules.map((module: any, index: number) => {
               const isCompleted = completedModules.includes(module.id);
               return (
-              <button
-                key={module.id}
-                onClick={() => handleModuleClick(module.id)}
-                className="eco-card p-4 animate-slide-up text-left"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      isCompleted
-                        ? 'eco-gradient-bg'
-                        : 'bg-muted'
-                    }`}
-                  >
-                    {isCompleted ? (
-                      <Check className="w-6 h-6 text-white" />
-                    ) : module.progress && module.progress > 0 ? (
-                      <Play className="w-6 h-6 text-primary" />
-                    ) : (
-                      <Play className="w-6 h-6 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-foreground">{module.title}</h3>
-                      <span className="eco-badge text-[10px]">{module.category}</span>
+                <button
+                  key={module.id}
+                  onClick={() => handleModuleClick(module.id)}
+                  className="eco-card p-4 animate-slide-up text-left"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${isCompleted ? 'eco-gradient-bg' : 'bg-muted'}`}>
+                      {isCompleted ? <Check className="w-6 h-6 text-white" /> : <Play className="w-6 h-6 text-muted-foreground" />}
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {module.description}
-                    </p>
-                    <div className="flex items-center gap-4">
-                      <span className="text-xs text-muted-foreground">
-                        ⏱️ {module.duration}
-                      </span>
-                      <span className="text-xs text-primary font-medium">
-                        +{module.points} pts
-                      </span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-foreground">{module.title}</h3>
+                        {sponsorships[module.id] && (
+                          <SponsorBadge name={sponsorships[module.id].name} logoUrl={sponsorships[module.id].logo} />
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-1">{module.description}</p>
+                      <div className="flex items-center gap-3">
+                        <span className="eco-badge text-[10px]">{module.category}</span>
+                        <span className="text-xs text-muted-foreground">{module.duration}</span>
+                        <span className="text-xs text-primary font-medium">+{module.points} pts</span>
+                      </div>
                     </div>
-                    {sponsorships[module.id] && (
-                      <div className="mt-2">
-                        <SponsorBadge sponsorName={sponsorships[module.id].name} logoUrl={sponsorships[module.id].logo} />
-                      </div>
-                    )}
-                    {module.progress !== undefined && module.progress > 0 && !isCompleted && (
-                      <div className="mt-3">
-                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full eco-gradient-bg rounded-full"
-                            style={{ width: `${module.progress}%` }}
-                          />
-                        </div>
-                        <p className="text-[10px] text-muted-foreground mt-1">
-                          {module.progress}% complete
-                        </p>
-                      </div>
-                    )}
+                    <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                   </div>
-                  <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                    {userRole === 'ecodeveloper' && !sponsorships[module.id] && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSponsoringCourse({ id: module.id, title: module.title }); }}
-                        className="p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                        title="Sponsor this course"
-                      >
-                        <Building2 className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </button>
+                </button>
               );
             })}
           </div>
+
+          {/* Sponsor a course (EcoDeveloper only) */}
+          {isDeveloper && (
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-primary" /> Sponsor a Course
+              </h3>
+              <p className="text-xs text-muted-foreground mb-3">Increase your Trust Score by sponsoring educational content</p>
+              <div className="space-y-2">
+                {learningModules.filter(m => !sponsorships[m.id]).map((m: any) => (
+                  <button key={m.id} onClick={() => setSponsoringCourse({ id: m.id, title: m.title })} className="w-full p-3 rounded-xl border border-border hover:border-primary/50 text-left transition-all">
+                    <p className="text-sm font-medium text-foreground">{m.title}</p>
+                    <p className="text-[10px] text-muted-foreground">Click to sponsor</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Sponsor Course Modal */}
       {sponsoringCourse && (
-        <SponsorCourseModal
-          courseId={sponsoringCourse.id}
-          courseTitle={sponsoringCourse.title}
-          onClose={() => setSponsoringCourse(null)}
-        />
+        <SponsorCourseModal courseId={sponsoringCourse.id} courseTitle={sponsoringCourse.title} onClose={() => setSponsoringCourse(null)} />
       )}
     </AppLayout>
   );

@@ -182,10 +182,10 @@ export function DashboardScreen() {
     { id: 'agora', icon: MessageSquare, label: "Agora Square", color: "from-primary to-secondary", path: "/agora" },
     { id: 'ecomarket', icon: ShoppingBag, label: "EcoMarket", color: "from-secondary to-eco-blue", path: "/ecomarket" },
     { id: 'capacity', icon: GraduationCap, label: "Capacity Hub", color: "from-eco-blue to-primary", path: "/tools" },
-    { id: 'letter', icon: isDeveloper ? Briefcase : Mail, label: isDeveloper ? "Advocacy" : "EcoLetter Forge", color: "from-eco-gold to-eco-orange", path: "/tools" },
+    { id: 'letter', icon: isDeveloper ? Briefcase : Mail, label: isDeveloper ? "Advocacy" : "EcoLetter", color: "from-eco-gold to-eco-orange", path: "/tools" },
     { id: 'swarms', icon: Users, label: "Swarms", color: "from-primary to-eco-green", path: "/swarms" },
     { id: 'challenges', icon: Trophy, label: "Challenges", color: "from-eco-orange to-eco-gold", path: "/challenges" },
-    { id: 'calendar', icon: CalendarDays, label: "Eco Calendar", color: "from-eco-blue to-secondary", path: "/calendar" },
+    { id: 'calendar', icon: CalendarDays, label: "Calendar", color: "from-eco-blue to-secondary", path: "/calendar" },
     { id: 'leaderboard', icon: Target, label: "Leaderboard", color: "from-primary to-eco-gold", path: "/leaderboard" },
     { id: 'impact', icon: BarChart3, label: "My Impact", color: "from-secondary to-primary", path: "/profile" },
     { id: 'merch', icon: Package, label: "EcoMerch", color: "from-eco-green to-secondary", path: "/merch" },
@@ -270,10 +270,6 @@ export function DashboardScreen() {
         ) : (
           <DashboardHomeContent quickActions={quickActions} navigate={navigate} isSwahili={isSwahili} dailyChallenge={dailyChallenge} handleCompleteChallenge={handleCompleteChallenge} handleStartChallenge={handleStartChallenge} challenges={challenges} user={user} productCount={productCount} isDeveloper={false} />
         )}
-
-        <div className="text-center text-xs text-muted-foreground pt-4">
-          <p>© 2026 EcoSwarm. All rights reserved.</p>
-        </div>
       </div>
 
       {/* AI Assistant - only on dashboard */}

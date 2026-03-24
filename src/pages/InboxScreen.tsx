@@ -29,14 +29,11 @@ export function InboxScreen() {
   } | null>(null);
 
   useEffect(() => {
-    if (user) {
-      checkRoleAndLoad();
-    }
+    if (user) checkRoleAndLoad();
   }, [user]);
 
   const checkRoleAndLoad = async () => {
     if (!user) return;
-    // Check if EcoDeveloper
     const { data: roleData } = await supabase
       .from('user_roles')
       .select('role')
@@ -47,7 +44,6 @@ export function InboxScreen() {
     const isDev = !!roleData;
     setIsDeveloper(isDev);
 
-    // If developer, fetch their product IDs for filtering
     let productIds: string[] = [];
     if (isDev) {
       const { data: products } = await supabase
@@ -73,16 +69,16 @@ export function InboxScreen() {
 
       if (error) throw error;
 
-      // For EcoDevelopers: only show messages tied to their own products
+      // For EcoDevelopers: ONLY show messages tied to their own products
+      // Filter by product_id being in their products list
       const filtered = isDev
         ? (messages || []).filter(msg => msg.product_id && productIds.includes(msg.product_id))
-        : (messages || []);
+        : (messages || []).filter(msg => msg.product_id); // Warriors: only product chats too
 
-      // Group by product + other user
       const convMap = new Map<string, Conversation>();
       for (const msg of filtered) {
         const otherId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
-        const key = `${msg.product_id || 'direct'}-${otherId}`;
+        const key = `${msg.product_id}-${otherId}`;
         if (!convMap.has(key)) {
           convMap.set(key, {
             productId: msg.product_id || '',
@@ -95,12 +91,9 @@ export function InboxScreen() {
           });
         }
         const conv = convMap.get(key)!;
-        if (msg.receiver_id === user.id && !msg.is_read) {
-          conv.unreadCount++;
-        }
+        if (msg.receiver_id === user.id && !msg.is_read) conv.unreadCount++;
       }
 
-      // Fetch product names
       const pIds = [...new Set([...convMap.values()].map(c => c.productId).filter(Boolean))];
       let productMap: Record<string, string> = {};
       if (pIds.length > 0) {
@@ -111,7 +104,6 @@ export function InboxScreen() {
         if (products) products.forEach(p => { productMap[p.id] = p.product_name; });
       }
 
-      // Fetch user names
       const userIds = [...new Set([...convMap.values()].map(c => c.otherUserId))];
       let userMap: Record<string, string> = {};
       if (userIds.length > 0) {
@@ -124,7 +116,7 @@ export function InboxScreen() {
 
       const result = [...convMap.values()].map(c => ({
         ...c,
-        productName: productMap[c.productId] || 'Direct Message',
+        productName: productMap[c.productId] || 'Product Chat',
         otherUserName: userMap[c.otherUserId] || 'User',
       }));
 
