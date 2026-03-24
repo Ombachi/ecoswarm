@@ -382,7 +382,7 @@ export function ToolsScreen() {
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-foreground">{module.title}</h3>
                         {sponsorships[module.id] && (
-                          <SponsorBadge name={sponsorships[module.id].name} logoUrl={sponsorships[module.id].logo} />
+                          <SponsorBadge sponsorName={sponsorships[module.id].name} logoUrl={sponsorships[module.id].logo} />
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-1">{module.description}</p>

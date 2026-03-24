@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 interface Advocacy {
   id: string;
+  creator_id: string;
   title: string;
   problem_statement: string;
   the_ask: string;
