@@ -461,6 +461,9 @@ export function AdminPanel() {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="merch" className="flex-1 gap-1 text-[10px] px-2">
+              <Package className="w-3.5 h-3.5" /> Merch
+            </TabsTrigger>
           </TabsList>
 
           {/* Analytics Tab */}
