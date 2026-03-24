@@ -38,6 +38,7 @@ import { CourseContentEditor } from '@/components/admin/CourseContentEditor';
 import { AdminUsersTab } from '@/components/admin/AdminUsersTab';
 import { AdminAnalyticsTab } from '@/components/admin/AdminAnalyticsTab';
 import { AdminBroadcastTab } from '@/components/admin/AdminBroadcastTab';
+import { AdminMerchTab } from '@/components/admin/AdminMerchTab';
 
 interface Course {
   id: string;
@@ -459,6 +460,9 @@ export function AdminPanel() {
                   {sponsorships.filter(s => s.status === 'pending').length}
                 </span>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="merch" className="flex-1 gap-1 text-[10px] px-2">
+              <Package className="w-3.5 h-3.5" /> Merch
             </TabsTrigger>
           </TabsList>
 
