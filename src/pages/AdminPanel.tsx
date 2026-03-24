@@ -38,6 +38,7 @@ import { CourseContentEditor } from '@/components/admin/CourseContentEditor';
 import { AdminUsersTab } from '@/components/admin/AdminUsersTab';
 import { AdminAnalyticsTab } from '@/components/admin/AdminAnalyticsTab';
 import { AdminBroadcastTab } from '@/components/admin/AdminBroadcastTab';
+import { AdminMerchTab } from '@/components/admin/AdminMerchTab';
 
 interface Course {
   id: string;
