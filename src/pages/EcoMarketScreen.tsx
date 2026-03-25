@@ -107,6 +107,10 @@ export function EcoMarketScreen() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
 
+  // Trust score engine — compute real scores for all product sellers
+  const sellerIds = products.map(p => p.user_id).filter(Boolean);
+  const { scores: trustScores } = useTrustScores(sellerIds);
+
   // ── Real-time unread message count ──
   const fetchUnreadCount = useCallback(async () => {
     if (!user) return;
