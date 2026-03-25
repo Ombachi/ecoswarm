@@ -15,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { createAutoPost } from '@/utils/autoPost';
 import { SellerEarnings } from '@/components/ecomarket/SellerEarnings';
+import { TrustScoreBadge } from '@/components/trust/TrustScoreBadge';
 
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
