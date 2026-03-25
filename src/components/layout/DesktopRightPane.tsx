@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
-import { CalendarDays, Users, Trophy, ChevronRight, Target } from 'lucide-react';
+import { CalendarDays, Users, Trophy, ChevronRight, Target, MapPin } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { KenyaHeatMap } from '@/components/heatmap/KenyaHeatMap';
 
 interface MiniSwarm {
   id: string;
@@ -140,6 +141,9 @@ export function DesktopRightPane() {
           })}
         </div>
       </div>
+
+      {/* Activity Heat Map */}
+      <KenyaHeatMap />
 
       {/* Daily Challenges - EcoWarrior only */}
       {!isDeveloper && (

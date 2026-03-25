@@ -15,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { createAutoPost } from '@/utils/autoPost';
 import { SellerEarnings } from '@/components/ecomarket/SellerEarnings';
+import { TrustScoreBadge } from '@/components/trust/TrustScoreBadge';
 
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -847,8 +848,8 @@ export function EcoMarketScreen() {
         <SellerEarnings onBack={() => setActiveView('browse')} />
       ) : (
         <>
-          {/* Products Grid */}
-          <div className="p-4 space-y-4 pb-24">
+          {/* Products Grid - responsive */}
+          <div className="p-4 pb-24 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredProducts.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingBag className="w-12 h-12 mx-auto text-muted-foreground mb-4" aria-hidden="true" />
@@ -906,10 +907,13 @@ export function EcoMarketScreen() {
                       </div>
                     )}
 
-                    {/* Header: Org + Product Name + Save */}
+                    {/* Header: Org + Product Name + Trust Score + Save */}
                     <div className="flex items-start justify-between mb-2">
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-primary">{product.org_name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs font-semibold text-primary">{product.org_name}</p>
+                          <TrustScoreBadge score={Math.min(Math.floor(50 + (product.badges?.length || 0) * 10), 100)} size="sm" />
+                        </div>
                         <h3 className="text-lg font-bold text-foreground leading-tight">{product.product_name}</h3>
                       </div>
                       <button

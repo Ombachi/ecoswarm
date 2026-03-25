@@ -42,6 +42,7 @@ const InboxScreen = lazy(() => import("@/pages/InboxScreen").then(m => ({ defaul
 const SwarmsScreen = lazy(() => import("@/pages/SwarmsScreen").then(m => ({ default: m.SwarmsScreen })));
 const ChallengesScreen = lazy(() => import("@/pages/ChallengesScreen").then(m => ({ default: m.ChallengesScreen })));
 const CalendarScreen = lazy(() => import("@/pages/CalendarScreen").then(m => ({ default: m.CalendarScreen })));
+const EcoMerchScreen = lazy(() => import("@/pages/EcoMerchScreen").then(m => ({ default: m.EcoMerchScreen })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -116,6 +117,7 @@ function AppRoutes() {
         <Route path="/swarms" element={authedRoute(<SwarmsScreen />)} />
         <Route path="/challenges" element={authedRoute(<ChallengesScreen />)} />
         <Route path="/calendar" element={authedRoute(<CalendarScreen />)} />
+        <Route path="/merch" element={authedRoute(<EcoMerchScreen />)} />
         <Route path="/admin" element={requireAuthed(<AdminPanel />)} />
         <Route path="*" element={<NotFound />} />
       </Routes>
