@@ -181,11 +181,19 @@ export function useTrustScores(sellerIds: string[]) {
 
       // Public profiles
       if (profileRes.data) {
-        for (const p of profileRes.data) {
+        for (const p of profileRes.data as any[]) {
           if (p.user_id && sellerDataMap[p.user_id]) {
-            sellerDataMap[p.user_id].co2Saved = Number(p.co2_saved) || 0;
             sellerDataMap[p.user_id].postsCreated = p.posts_created || 0;
             sellerDataMap[p.user_id].swarmsJoined = p.swarms_joined || 0;
+          }
+        }
+      }
+
+      // CO2 data
+      if (co2Data) {
+        for (const p of co2Data) {
+          if (p.user_id && sellerDataMap[p.user_id]) {
+            sellerDataMap[p.user_id].co2Saved = Number(p.co2_saved) || 0;
           }
         }
       }
