@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { createAutoPost } from '@/utils/autoPost';
 import { SellerEarnings } from '@/components/ecomarket/SellerEarnings';
 import { TrustScoreBadge } from '@/components/trust/TrustScoreBadge';
+import { useTrustScores } from '@/hooks/useTrustScores';
 
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -105,6 +106,10 @@ export function EcoMarketScreen() {
   const [purchaseResult, setPurchaseResult] = useState<{ bonusPoints: number; pointsUsed: number; cashPaid: number; productName: string } | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
+
+  // Trust score engine — compute real scores for all product sellers
+  const sellerIds = products.map(p => p.user_id).filter(Boolean);
+  const { scores: trustScores } = useTrustScores(sellerIds);
 
   // ── Real-time unread message count ──
   const fetchUnreadCount = useCallback(async () => {
@@ -912,7 +917,7 @@ export function EcoMarketScreen() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p className="text-xs font-semibold text-primary">{product.org_name}</p>
-                          <TrustScoreBadge score={Math.min(Math.floor(50 + (product.badges?.length || 0) * 10), 100)} size="sm" />
+                          <TrustScoreBadge score={trustScores[product.user_id]?.total ?? 0} size="sm" />
                         </div>
                         <h3 className="text-lg font-bold text-foreground leading-tight">{product.product_name}</h3>
                       </div>
