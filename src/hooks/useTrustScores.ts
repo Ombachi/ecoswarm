@@ -111,12 +111,18 @@ export function useTrustScores(sellerIds: string[]) {
           .select('user_id')
           .in('user_id', newIds),
         
-        // 5. Public profiles (CO2, posts, swarms)
+        // 5. Public profiles (posts, swarms) — co2 not in view, use separate query
         supabase
           .from('public_profiles')
-          .select('user_id, co2_saved, posts_created, swarms_joined')
+          .select('user_id, posts_created, swarms_joined')
           .in('user_id', newIds),
       ]);
+
+      // Fetch CO2 from profiles table separately (may be limited by RLS)
+      const { data: co2Data } = await supabase
+        .from('profiles')
+        .select('user_id, co2_saved')
+        .in('user_id', newIds) as { data: { user_id: string; co2_saved: number | null }[] | null };
 
       // Aggregate per seller
       const sellerDataMap: Record<string, SellerData> = {};
