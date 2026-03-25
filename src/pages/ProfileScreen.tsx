@@ -227,26 +227,6 @@ export function ProfileScreen() {
           </div>
         </div>
 
-        {/* Leaderboard Link */}
-        <button
-          onClick={() => navigate('/leaderboard')}
-          className="w-full eco-card p-4 flex items-center justify-between hover:shadow-md transition-all"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full eco-gradient-bg flex items-center justify-center">
-              🏆
-            </div>
-            <div>
-              <p className="font-semibold text-foreground">
-                {isSwahili ? 'Ubao wa Viongozi' : 'Leaderboard'}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                See how you rank among EcoWarriors
-              </p>
-            </div>
-          </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </button>
       </div>
     </AppLayout>
   );

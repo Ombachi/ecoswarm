@@ -848,8 +848,8 @@ export function EcoMarketScreen() {
         <SellerEarnings onBack={() => setActiveView('browse')} />
       ) : (
         <>
-          {/* Products Grid */}
-          <div className="p-4 space-y-4 pb-24">
+          {/* Products Grid - responsive */}
+          <div className="p-4 pb-24 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredProducts.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingBag className="w-12 h-12 mx-auto text-muted-foreground mb-4" aria-hidden="true" />

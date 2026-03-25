@@ -117,6 +117,7 @@ function AppRoutes() {
         <Route path="/swarms" element={authedRoute(<SwarmsScreen />)} />
         <Route path="/challenges" element={authedRoute(<ChallengesScreen />)} />
         <Route path="/calendar" element={authedRoute(<CalendarScreen />)} />
+        <Route path="/merch" element={authedRoute(<EcoMerchScreen />)} />
         <Route path="/admin" element={requireAuthed(<AdminPanel />)} />
         <Route path="*" element={<NotFound />} />
       </Routes>

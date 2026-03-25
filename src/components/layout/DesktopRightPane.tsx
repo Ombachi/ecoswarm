@@ -142,6 +142,9 @@ export function DesktopRightPane() {
         </div>
       </div>
 
+      {/* Activity Heat Map */}
+      <KenyaHeatMap />
+
       {/* Daily Challenges - EcoWarrior only */}
       {!isDeveloper && (
         <div>
