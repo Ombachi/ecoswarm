@@ -917,7 +917,7 @@ export function EcoMarketScreen() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p className="text-xs font-semibold text-primary">{product.org_name}</p>
-                          <TrustScoreBadge score={Math.min(Math.floor(50 + (product.badges?.length || 0) * 10), 100)} size="sm" />
+                          <TrustScoreBadge score={trustScores[product.user_id]?.total ?? 0} size="sm" />
                         </div>
                         <h3 className="text-lg font-bold text-foreground leading-tight">{product.product_name}</h3>
                       </div>
