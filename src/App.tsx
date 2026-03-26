@@ -120,6 +120,8 @@ function AppRoutes() {
         <Route path="/challenges" element={authedRoute(<ChallengesScreen />)} />
         <Route path="/calendar" element={authedRoute(<CalendarScreen />)} />
         <Route path="/merch" element={authedRoute(<EcoMerchScreen />)} />
+        <Route path="/purchases" element={authedRoute(<PurchasesScreen />)} />
+        <Route path="/earnings" element={authedRoute(<EarningsScreen />)} />
         <Route path="/admin" element={requireAuthed(<AdminPanel />)} />
         <Route path="*" element={<NotFound />} />
       </Routes>

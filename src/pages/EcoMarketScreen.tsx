@@ -394,6 +394,8 @@ export function EcoMarketScreen() {
     }
   };
   // Sub-views removed — now standalone pages at /inbox, /purchases, /earnings
+
+  if (isLoading) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
@@ -410,22 +412,11 @@ export function EcoMarketScreen() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            {activeView !== 'browse' && (
-              <button onClick={() => setActiveView('browse')} className="p-1 rounded-lg hover:bg-muted transition-colors">
-                <ArrowLeft className="w-5 h-5 text-foreground" />
-              </button>
-            )}
-            <div>
-              <h1 className="text-xl font-bold text-foreground">
-                {activeView === 'browse' ? 'EcoMarket' : activeView === 'inbox' ? 'Product Inbox' : activeView === 'earnings' ? 'Seller Earnings' : 'My Purchases'}
-              </h1>
-              <p className="text-xs text-muted-foreground">
-                {activeView === 'browse' ? 'Eco-friendly products & services' : activeView === 'inbox' ? 'Your product conversations' : activeView === 'earnings' ? 'Revenue & payouts' : 'Track your purchases'}
-              </p>
-            </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">EcoMarket</h1>
+            <p className="text-xs text-muted-foreground">Eco-friendly products & services</p>
           </div>
-          {isDeveloper && activeView === 'browse' && (
+          {isDeveloper && (
             <button
               onClick={() => setShowCreateModal(true)}
               className="eco-button-primary py-2 px-4 text-sm flex items-center gap-1"
@@ -436,110 +427,55 @@ export function EcoMarketScreen() {
           )}
         </div>
 
-        {activeView === 'browse' && (
-          <>
-            {/* EcoPoints balance bar */}
-            {user && (
-              <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10">
-                <Leaf className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">You have <span className="eco-gradient-text">{user.ecoPoints.toLocaleString()}</span> EcoPoints</span>
-              </div>
-            )}
-
-            {/* Quick Action Dashboard Cards */}
-            <div className={`grid ${isDeveloper ? 'grid-cols-3' : 'grid-cols-2'} gap-2 mb-3`}>
-              <button
-                onClick={() => setActiveView('inbox')}
-                className="relative flex items-center gap-2 p-3 rounded-xl bg-primary/10 hover:bg-primary/15 transition-colors text-left"
-              >
-                <div className="w-8 h-8 rounded-full eco-gradient-bg flex items-center justify-center flex-shrink-0">
-                  <Inbox className="w-4 h-4 text-white" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-bold text-foreground">Inbox</p>
-                </div>
-                {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 min-w-[16px] h-[16px] rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center px-0.5">
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={() => setActiveView('purchases')}
-                className="flex items-center gap-2 p-3 rounded-xl bg-accent/50 hover:bg-accent/70 transition-colors text-left"
-              >
-                <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
-                  <ShoppingCart className="w-4 h-4 text-accent-foreground" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-bold text-foreground">Purchases</p>
-                </div>
-              </button>
-              {isDeveloper && (
-                <button
-                  onClick={() => setActiveView('earnings')}
-                  className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/15 transition-colors text-left"
-                >
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                    <Wallet className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold text-foreground">Earnings</p>
-                  </div>
-                </button>
-              )}
-            </div>
-
-            {/* Search */}
-            <div className="relative mb-3">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products, orgs, badges..."
-                className="eco-input pl-10 py-2.5 text-sm"
-                aria-label="Search products"
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-label="Clear search">
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-
-            {/* Category Filters */}
-            <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 pr-4" role="tablist" aria-label="Product categories">
-              {categoryFilters.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setCategoryFilter(cat.id)}
-                  role="tab"
-                  aria-selected={categoryFilter === cat.id}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                    categoryFilter === cat.id
-                      ? 'eco-gradient-bg text-white'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                  }`}
-                >
-                  <span aria-hidden="true">{cat.emoji}</span>
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-          </>
+        {/* EcoPoints balance bar */}
+        {user && (
+          <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10">
+            <Leaf className="w-4 h-4 text-primary" />
+            <span className="text-sm font-semibold text-foreground">You have <span className="eco-gradient-text">{user.ecoPoints.toLocaleString()}</span> EcoPoints</span>
+          </div>
         )}
+
+        {/* Search */}
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search products, orgs, badges..."
+            className="eco-input pl-10 py-2.5 text-sm"
+            aria-label="Search products"
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-label="Clear search">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Category Filters */}
+        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 pr-4" role="tablist" aria-label="Product categories">
+          {categoryFilters.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setCategoryFilter(cat.id)}
+              role="tab"
+              aria-selected={categoryFilter === cat.id}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                categoryFilter === cat.id
+                  ? 'eco-gradient-bg text-white'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              <span aria-hidden="true">{cat.emoji}</span>
+              {cat.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Content based on active view */}
-      {activeView === 'inbox' ? (
-        <InboxView />
-      ) : activeView === 'purchases' ? (
-        <PurchasesView />
-      ) : activeView === 'earnings' ? (
-        <SellerEarnings onBack={() => setActiveView('browse')} />
-      ) : (
-        <>
+      {/* Products Grid */}
+      <>
           {/* Products Grid - responsive */}
           <div className="p-4 pb-24 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredProducts.length === 0 ? (
