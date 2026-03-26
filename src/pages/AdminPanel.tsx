@@ -758,6 +758,11 @@ export function AdminPanel() {
               })
             )}
           </TabsContent>
+
+          {/* Merch Tab */}
+          <TabsContent value="merch">
+            <AdminMerchTab />
+          </TabsContent>
         </Tabs>
         )}
       </div>
