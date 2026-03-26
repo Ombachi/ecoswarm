@@ -1,44 +1,18 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  MessageSquare, ShoppingBag, Mail, GraduationCap, Users, CalendarDays,
-  Trophy, Target, Leaf, Settings, Inbox,
-} from 'lucide-react';
+import { Home, Leaf, Settings, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useApp } from '@/context/AppContext';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
 const navItems = [
-  { icon: MessageSquare, label: 'Agora', path: '/agora' },
-  { icon: ShoppingBag, label: 'Market', path: '/ecomarket' },
-  { icon: GraduationCap, label: 'Learn', path: '/tools' },
-  { icon: Mail, label: 'Letters', path: '/tools' },
-  { icon: Users, label: 'Swarms', path: '/swarms' },
-  { icon: CalendarDays, label: 'Calendar', path: '/calendar' },
-  { icon: Trophy, label: 'Challenges', path: '/challenges' },
-  { icon: Target, label: 'Ranks', path: '/leaderboard' },
-  { icon: Inbox, label: 'Inbox', path: '/inbox' },
+  { icon: Home, label: 'Home', path: '/dashboard' },
   { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: User, label: 'Profile', path: '/profile' },
 ];
 
 export function TabletSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useApp();
-  const [isDeveloper, setIsDeveloper] = useState(false);
 
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'ecodeveloper')
-      .maybeSingle()
-      .then(({ data }) => setIsDeveloper(!!data));
-  }, [user?.id]);
-
-  const filtered = isDeveloper ? navItems.filter(n => n.label !== 'Challenges') : navItems;
+  const filtered = navItems;
 
   return (
     <aside className="w-[80px] h-screen sticky top-0 border-r border-border bg-card flex flex-col items-center py-4 overflow-y-auto hide-scrollbar">

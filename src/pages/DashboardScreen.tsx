@@ -189,6 +189,9 @@ export function DashboardScreen() {
     { id: 'leaderboard', icon: Target, label: "Leaderboard", color: "from-primary to-eco-gold", path: "/leaderboard" },
     { id: 'impact', icon: BarChart3, label: "My Impact", color: "from-secondary to-primary", path: "/profile" },
     { id: 'merch', icon: Package, label: "EcoMerch", color: "from-eco-green to-secondary", path: "/merch" },
+    { id: 'inbox', icon: Mail, label: "Inbox", color: "from-eco-blue to-eco-green", path: "/inbox" },
+    { id: 'purchases', icon: ShoppingBag, label: "Purchases", color: "from-eco-orange to-secondary", path: "/ecomarket" },
+    { id: 'earnings', icon: BarChart3, label: "Earnings", color: "from-eco-gold to-eco-green", path: "/ecomarket" },
   ];
 
   // Hide Challenges for EcoDevelopers
@@ -204,10 +207,8 @@ export function DashboardScreen() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-muted-foreground text-sm">{isSwahili ? "Habari," : "Hello,"} 👋</p>
-            <h1 className="text-2xl font-bold text-foreground">
-              {user.name} <span className="text-muted-foreground font-normal">from {user.location}</span>
-            </h1>
+            <h1 className="text-2xl font-bold text-foreground">{user.name}</h1>
+            <p className="text-sm text-muted-foreground">{user.location}</p>
           </div>
           <div className="flex items-center gap-2">
             <SwahiliToggle />
@@ -284,7 +285,7 @@ function DashboardHomeContent({ quickActions, navigate, isSwahili, dailyChalleng
       {/* Quick Actions - Expanded Grid */}
       <div>
         <h2 className="font-semibold text-foreground mb-3">{isSwahili ? "Hatua za Haraka" : "Quick Actions"}</h2>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2">
           {quickActions.map((action: any) => (
             <button key={action.id} onClick={() => navigate(action.path)} className="eco-card p-2.5 flex flex-col items-center gap-1.5 hover:shadow-lg transition-all">
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}>
