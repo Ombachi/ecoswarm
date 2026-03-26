@@ -788,7 +788,7 @@ export function EcoMarketScreen() {
                 onClick={() => {
                   setShowSuccessScreen(false);
                   setPurchaseResult(null);
-                  setActiveView('purchases');
+                  navigate('/purchases');
                 }}
                 className="flex-1 py-3 rounded-xl eco-gradient-bg text-white font-bold text-sm"
               >
