@@ -10,7 +10,7 @@ import { Confetti } from '@/components/common/Confetti';
 import { toast } from 'sonner';
 import {
   Search, Plus, Phone, Loader2, X, ShoppingBag, ChevronDown, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, MessageCircle,
-  Inbox, ShoppingCart, Package, ArrowLeft, Leaf, Check, Sparkles, Share2, Star, AlertTriangle, Wallet,
+  Inbox, ShoppingCart, Package, ArrowLeft, Leaf, Check, Sparkles, Share2, Star, AlertTriangle, Shield, ShieldCheck, Wallet,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createAutoPost } from '@/utils/autoPost';
