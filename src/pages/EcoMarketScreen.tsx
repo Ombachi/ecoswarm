@@ -657,7 +657,6 @@ export function EcoMarketScreen() {
             </button>
           )}
         </>
-      )}
 
       {/* ── Purchase Confirmation Modal ── */}
       {showConfirmModal && buyProduct && user && (
