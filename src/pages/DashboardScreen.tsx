@@ -285,7 +285,7 @@ function DashboardHomeContent({ quickActions, navigate, isSwahili, dailyChalleng
       {/* Quick Actions - Expanded Grid */}
       <div>
         <h2 className="font-semibold text-foreground mb-3">{isSwahili ? "Hatua za Haraka" : "Quick Actions"}</h2>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2">
           {quickActions.map((action: any) => (
             <button key={action.id} onClick={() => navigate(action.path)} className="eco-card p-2.5 flex flex-col items-center gap-1.5 hover:shadow-lg transition-all">
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}>

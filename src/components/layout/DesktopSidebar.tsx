@@ -55,16 +55,6 @@ export function DesktopSidebar() {
         })}
       </nav>
 
-      {/* Actions row */}
-      <div className="px-4 py-2 flex items-center gap-2">
-        <NotificationBell />
-        <button onClick={toggleDarkMode} className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80">
-          {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-        </button>
-        <button onClick={logout} className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-destructive/20 hover:text-destructive" title="Log Out">
-          <LogOut className="w-4 h-4" />
-        </button>
-      </div>
 
       {/* Mini Profile */}
       {user && (
