@@ -1,42 +1,26 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
-import {
-  Home, MessageSquare, ShoppingBag, Mail, GraduationCap, Users, CalendarDays,
-  Trophy, Target, Leaf, Settings, LogOut, Moon, Sun, Inbox, Briefcase, Package,
-} from 'lucide-react';
+import { Home, Leaf, Settings, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export function DesktopSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isDarkMode, toggleDarkMode, logout } = useApp();
-  const [isDeveloper, setIsDeveloper] = useState(false);
+  const { user } = useApp();
   const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
-    supabase.from('user_roles').select('role').eq('user_id', user.id).eq('role', 'ecodeveloper').maybeSingle()
-      .then(({ data }) => setIsDeveloper(!!data));
     supabase.from('leaderboard').select('rank').eq('user_id', user.id).maybeSingle()
       .then(({ data }) => setLeaderboardRank(data?.rank ?? null));
   }, [user?.id]);
 
   const navItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
-    { icon: MessageSquare, label: 'Agora Square', path: '/agora' },
-    { icon: ShoppingBag, label: 'EcoMarket', path: '/ecomarket' },
-    { icon: GraduationCap, label: 'Capacity Hub', path: '/tools' },
-    { icon: isDeveloper ? Briefcase : Mail, label: isDeveloper ? 'Business Advocacy' : 'EcoLetter Forge', path: '/tools' },
-    { icon: Users, label: 'Swarms', path: '/swarms' },
-    { icon: CalendarDays, label: 'Eco Calendar', path: '/calendar' },
-    ...(isDeveloper ? [] : [{ icon: Trophy, label: 'Challenges', path: '/challenges' }]),
-    { icon: Target, label: 'Leaderboard', path: '/leaderboard' },
-    { icon: Package, label: 'EcoMerch', path: '/merch' },
-    { icon: Inbox, label: 'Inbox', path: '/inbox' },
     { icon: Settings, label: 'Settings', path: '/settings' },
+    { icon: User, label: 'My Profile', path: '/profile' },
   ];
 
   return (
