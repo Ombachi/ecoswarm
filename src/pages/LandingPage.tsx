@@ -395,8 +395,8 @@ export function LandingPage() {
             <p className="text-muted-foreground text-lg leading-relaxed">
               A silent epidemic is gripping millions: <strong className="text-foreground">climate anxiety</strong>.
               Climate Anxiety is a profound emotional response to the escalating environmental crisis, leaving people
-              feeling sad, anxious, angry, or utterly powerless.And while anxiety cuts across all ages, it is often most
-              intense among the young.They are the ones who will inherit the long-term consequences of inaction.
+              feeling sad, anxious, angry, or utterly powerless. And while anxiety cuts across all ages, it is often
+              most intense among the young.They are the ones who will inherit the long-term consequences of inaction.
             </p>
           </motion.div>
 
