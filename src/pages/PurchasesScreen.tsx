@@ -192,7 +192,7 @@ export function PurchasesScreen() {
       )}
 
       {chatProduct && (
-        <ProductChat productId={chatProduct.id} productName={chatProduct.name} sellerId={chatProduct.sellerId} sellerName={chatProduct.sellerName} onClose={() => setChatProduct(null)} />
+        <ProductChat isOpen={true} productId={chatProduct.id} productName={chatProduct.name} sellerId={chatProduct.sellerId} sellerName={chatProduct.sellerName} onClose={() => setChatProduct(null)} />
       )}
     </AppLayout>
   );

@@ -43,6 +43,8 @@ const SwarmsScreen = lazy(() => import("@/pages/SwarmsScreen").then(m => ({ defa
 const ChallengesScreen = lazy(() => import("@/pages/ChallengesScreen").then(m => ({ default: m.ChallengesScreen })));
 const CalendarScreen = lazy(() => import("@/pages/CalendarScreen").then(m => ({ default: m.CalendarScreen })));
 const EcoMerchScreen = lazy(() => import("@/pages/EcoMerchScreen").then(m => ({ default: m.EcoMerchScreen })));
+const PurchasesScreen = lazy(() => import("@/pages/PurchasesScreen").then(m => ({ default: m.PurchasesScreen })));
+const EarningsScreen = lazy(() => import("@/pages/EarningsScreen").then(m => ({ default: m.EarningsScreen })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();

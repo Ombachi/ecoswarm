@@ -190,8 +190,8 @@ export function DashboardScreen() {
     { id: 'impact', icon: BarChart3, label: "My Impact", color: "from-secondary to-primary", path: "/profile" },
     { id: 'merch', icon: Package, label: "EcoMerch", color: "from-eco-green to-secondary", path: "/merch" },
     { id: 'inbox', icon: Mail, label: "Inbox", color: "from-eco-blue to-eco-green", path: "/inbox" },
-    { id: 'purchases', icon: ShoppingBag, label: "Purchases", color: "from-eco-orange to-secondary", path: "/ecomarket" },
-    { id: 'earnings', icon: BarChart3, label: "Earnings", color: "from-eco-gold to-eco-green", path: "/ecomarket" },
+    { id: 'purchases', icon: ShoppingBag, label: "Purchases", color: "from-eco-orange to-secondary", path: "/purchases" },
+    { id: 'earnings', icon: BarChart3, label: "Earnings", color: "from-eco-gold to-eco-green", path: "/earnings" },
   ];
 
   // Hide Challenges for EcoDevelopers
