@@ -910,10 +910,7 @@ export function EcoMarketScreen() {
                     {/* Header: Org + Product Name + Trust Score + Save */}
                     <div className="flex items-start justify-between mb-2">
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs font-semibold text-primary">{product.org_name}</p>
-                          <TrustScoreBadge score={trustScores[product.user_id]?.total ?? 0} size="sm" />
-                        </div>
+                        <p className="text-xs font-semibold text-primary">{product.org_name}</p>
                         <h3 className="text-lg font-bold text-foreground leading-tight">{product.product_name}</h3>
                       </div>
                       <button
