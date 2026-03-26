@@ -796,7 +796,7 @@ export function EcoMarketScreen() {
       {chatProduct && (
         <ProductChat
           isOpen={!!chatProduct}
-          onClose={() => { setChatProduct(null); fetchUnreadCount(); }}
+          onClose={() => { setChatProduct(null); }}
           productId={chatProduct.id}
           productName={chatProduct.name}
           sellerId={chatProduct.sellerId}
