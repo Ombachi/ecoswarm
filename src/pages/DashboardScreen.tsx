@@ -204,10 +204,8 @@ export function DashboardScreen() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-muted-foreground text-sm">{isSwahili ? "Habari," : "Hello,"} 👋</p>
-            <h1 className="text-2xl font-bold text-foreground">
-              {user.name} <span className="text-muted-foreground font-normal">from {user.location}</span>
-            </h1>
+            <h1 className="text-2xl font-bold text-foreground">{user.name}</h1>
+            <p className="text-sm text-muted-foreground">{user.location}</p>
           </div>
           <div className="flex items-center gap-2">
             <SwahiliToggle />
