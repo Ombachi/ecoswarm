@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, X, Save, Loader2, Package } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Save, Loader2, Package, Upload, Image as ImageIcon } from 'lucide-react';
 
 interface MerchProduct {
   id: string;
@@ -23,6 +23,8 @@ export function AdminMerchTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<MerchProduct> | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { load(); }, []);
 
@@ -35,6 +37,30 @@ export function AdminMerchTab() {
 
   const openCreate = () => {
     setEditing({ name: '', description: '', price: 0, image_url: '', category: 'Gear', stock: 50, is_active: true });
+  };
+
+  const handleImageUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const fileName = `merch_${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from('post-media').upload(fileName, file, { cacheControl: '3600', upsert: false });
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from('post-media').getPublicUrl(fileName);
+      setEditing(prev => prev ? { ...prev, image_url: urlData.publicUrl } : prev);
+      toast.success('Image uploaded!');
+    } catch (err) {
+      console.error('Upload error:', err);
+      toast.error('Failed to upload image');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleImageUpload(file);
+    e.target.value = '';
   };
 
   const handleSave = async () => {
@@ -75,6 +101,13 @@ export function AdminMerchTab() {
   return (
     <div className="space-y-3 pt-3">
       <Button onClick={openCreate} className="w-full gap-2"><Plus className="w-4 h-4" /> Add Merch Product</Button>
+
+      {products.length === 0 && (
+        <div className="text-center py-12">
+          <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">No merch products yet. Add your first one!</p>
+        </div>
+      )}
 
       {products.map(p => (
         <div key={p.id} className={`eco-card p-4 ${!p.is_active ? 'opacity-50' : ''}`}>
@@ -135,10 +168,51 @@ export function AdminMerchTab() {
                 <label className="text-sm font-medium text-foreground mb-1 block">Category</label>
                 <Input value={editing.category || ''} onChange={e => setEditing({ ...editing, category: e.target.value })} placeholder="e.g. Gear, Apparel, Accessories" />
               </div>
+
+              {/* Image Upload */}
               <div>
-                <label className="text-sm font-medium text-foreground mb-1 block">Image URL</label>
-                <Input value={editing.image_url || ''} onChange={e => setEditing({ ...editing, image_url: e.target.value })} placeholder="https://..." />
+                <label className="text-sm font-medium text-foreground mb-2 block">Product Image</label>
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                {editing.image_url ? (
+                  <div className="relative">
+                    <img src={editing.image_url} alt="Preview" className="w-full h-48 object-cover rounded-xl border border-border" />
+                    <div className="absolute top-2 right-2 flex gap-1">
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-2 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card shadow-sm"
+                      >
+                        <ImageIcon className="w-4 h-4 text-foreground" />
+                      </button>
+                      <button
+                        onClick={() => setEditing({ ...editing, image_url: null })}
+                        className="p-2 rounded-full bg-card/90 backdrop-blur-sm hover:bg-card shadow-sm"
+                      >
+                        <X className="w-4 h-4 text-destructive" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="w-full h-40 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-2 hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                        <span className="text-sm text-muted-foreground">Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-8 h-8 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Click to upload image</span>
+                        <span className="text-xs text-muted-foreground">JPG, PNG, WebP</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
+
               <div className="flex items-center gap-3">
                 <Switch checked={editing.is_active ?? true} onCheckedChange={val => setEditing({ ...editing, is_active: val })} />
                 <label className="text-sm text-foreground">Active</label>

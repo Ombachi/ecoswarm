@@ -104,28 +104,7 @@ export function EcoMarketScreen() {
   const [phoneNumber, setPhoneNumber] = useState('');
 
 
-  // ── Real-time unread message count ──
-  const fetchUnreadCount = useCallback(async () => {
-    if (!user) return;
-    const { count, error } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true })
-      .eq('receiver_id', user.id)
-      .eq('is_read', false);
-    if (!error && count !== null) setUnreadCount(count);
-  }, [user]);
 
-  useEffect(() => {
-    fetchUnreadCount();
-    if (!user) return;
-    const channel = supabase
-      .channel('inbox-unread')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `receiver_id=eq.${user.id}` }, () => {
-        fetchUnreadCount();
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user, fetchUnreadCount]);
 
   const trackInteraction = async (productId: string, type: 'view' | 'click' | 'save' | 'share') => {
     if (!user) return;
