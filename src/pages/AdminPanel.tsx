@@ -33,6 +33,7 @@ import {
   Send,
   Building2,
   Package,
+  Truck,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CourseContentEditor } from '@/components/admin/CourseContentEditor';
@@ -40,6 +41,7 @@ import { AdminUsersTab } from '@/components/admin/AdminUsersTab';
 import { AdminAnalyticsTab } from '@/components/admin/AdminAnalyticsTab';
 import { AdminBroadcastTab } from '@/components/admin/AdminBroadcastTab';
 import { AdminMerchTab } from '@/components/admin/AdminMerchTab';
+import { AdminOrdersTab } from '@/components/admin/AdminOrdersTab';
 
 interface Course {
   id: string;
@@ -419,20 +421,20 @@ export function AdminPanel() {
           />
         ) : (
         <Tabs defaultValue="analytics">
-          <TabsList className="w-full flex-wrap h-auto gap-1 p-1">
-            <TabsTrigger value="analytics" className="flex-1 gap-1 text-[10px] px-2">
+          <TabsList className="w-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 h-auto gap-1 p-1.5">
+            <TabsTrigger value="analytics" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2">
               <BarChart3 className="w-3.5 h-3.5" /> Analytics
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex-1 gap-1 text-[10px] px-2">
+            <TabsTrigger value="users" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2">
               <Users className="w-3.5 h-3.5" /> Users
             </TabsTrigger>
-            <TabsTrigger value="courses" className="flex-1 gap-1 text-[10px] px-2">
+            <TabsTrigger value="courses" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2">
               <GraduationCap className="w-3.5 h-3.5" /> Courses
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex-1 gap-1 text-[10px] px-2">
+            <TabsTrigger value="templates" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2">
               <Mail className="w-3.5 h-3.5" /> Letters
             </TabsTrigger>
-            <TabsTrigger value="disputes" className="flex-1 gap-1 text-[10px] px-2 relative">
+            <TabsTrigger value="disputes" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2 relative">
               <AlertTriangle className="w-3.5 h-3.5" /> Disputes
               {openDisputeCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 text-[9px] flex items-center justify-center">
@@ -440,7 +442,7 @@ export function AdminPanel() {
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="payouts" className="flex-1 gap-1 text-[10px] px-2 relative">
+            <TabsTrigger value="payouts" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2 relative">
               <Wallet className="w-3.5 h-3.5" /> Payouts
               {pendingPayoutCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-[9px] flex items-center justify-center">
@@ -448,13 +450,13 @@ export function AdminPanel() {
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="transactions" className="flex-1 gap-1 text-[10px] px-2">
+            <TabsTrigger value="transactions" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2">
               <DollarSign className="w-3.5 h-3.5" /> Txns
             </TabsTrigger>
-            <TabsTrigger value="broadcast" className="flex-1 gap-1 text-[10px] px-2">
+            <TabsTrigger value="broadcast" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2">
               <Megaphone className="w-3.5 h-3.5" /> Broadcast
             </TabsTrigger>
-            <TabsTrigger value="sponsors" className="flex-1 gap-1 text-[10px] px-2 relative">
+            <TabsTrigger value="sponsors" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2 relative">
               <Building2 className="w-3.5 h-3.5" /> Sponsors
               {sponsorships.filter(s => s.status === 'pending').length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-[9px] flex items-center justify-center">
@@ -462,8 +464,12 @@ export function AdminPanel() {
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="merch" className="flex-1 gap-1 text-[10px] px-2">
+            <TabsTrigger value="merch" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2">
               <Package className="w-3.5 h-3.5" /> Merch
+            </TabsTrigger>
+            <TabsTrigger value="orders" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2 relative">
+              <Truck className="w-3.5 h-3.5" /> Orders
+              {/* Badge will show dynamically */}
             </TabsTrigger>
           </TabsList>
 
@@ -762,6 +768,11 @@ export function AdminPanel() {
           {/* Merch Tab */}
           <TabsContent value="merch">
             <AdminMerchTab />
+          </TabsContent>
+
+          {/* Orders Tab */}
+          <TabsContent value="orders">
+            <AdminOrdersTab />
           </TabsContent>
         </Tabs>
         )}
