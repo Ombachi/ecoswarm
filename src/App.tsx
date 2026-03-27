@@ -6,6 +6,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider, useApp } from "@/context/AppContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { PointsProvider } from "@/context/PointsContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 import { LayoutProvider } from "@/context/LayoutContext";
 import { Loader2 } from "lucide-react";
 
