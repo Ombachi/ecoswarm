@@ -40,6 +40,7 @@ import { AdminUsersTab } from '@/components/admin/AdminUsersTab';
 import { AdminAnalyticsTab } from '@/components/admin/AdminAnalyticsTab';
 import { AdminBroadcastTab } from '@/components/admin/AdminBroadcastTab';
 import { AdminMerchTab } from '@/components/admin/AdminMerchTab';
+import { AdminOrdersTab } from '@/components/admin/AdminOrdersTab';
 
 interface Course {
   id: string;
