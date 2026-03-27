@@ -1480,6 +1480,18 @@ export type Database = {
         }
         Returns: number
       }
+      count_recent_actions: {
+        Args: {
+          p_table_name: string
+          p_user_id: string
+          p_window_minutes?: number
+        }
+        Returns: number
+      }
+      decrement_merch_stock: {
+        Args: { p_merch_id: string; p_quantity: number }
+        Returns: boolean
+      }
       get_user_likes: { Args: { p_post_ids: string[] }; Returns: string[] }
       has_role: {
         Args: {
