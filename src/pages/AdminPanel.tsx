@@ -33,6 +33,7 @@ import {
   Send,
   Building2,
   Package,
+  Truck,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CourseContentEditor } from '@/components/admin/CourseContentEditor';
