@@ -103,6 +103,7 @@ export function AdminOrdersTab() {
   const updateStatus = async (orderId: string, newStatus: string) => {
     setUpdatingId(orderId);
     try {
+      const order = orders.find(o => o.id === orderId);
       const { error } = await supabase
         .from('merch_orders')
         .update({ status: newStatus } as any)
@@ -110,6 +111,27 @@ export function AdminOrdersTab() {
       if (error) throw error;
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
       toast.success(`Order ${newStatus}`);
+
+      // Notify buyer about status change
+      if (order) {
+        const productName = products[order.merch_id]?.name || 'your item';
+        const statusMessages: Record<string, string> = {
+          confirmed: `Your order for "${productName}" has been confirmed! 🎉`,
+          shipped: `Your order for "${productName}" has been shipped! 📦`,
+          delivered: `Your order for "${productName}" has been delivered! ✅`,
+          cancelled: `Your order for "${productName}" has been cancelled.`,
+        };
+        const message = statusMessages[newStatus];
+        if (message) {
+          await supabase.from('notifications').insert({
+            user_id: order.user_id,
+            type: 'order',
+            title: `Order ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`,
+            message,
+            reference_id: orderId,
+          });
+        }
+      }
     } catch {
       toast.error('Failed to update order');
     } finally {

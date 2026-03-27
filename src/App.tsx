@@ -1,10 +1,14 @@
 import { Suspense, lazy } from "react";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider, useApp } from "@/context/AppContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { PointsProvider } from "@/context/PointsContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 import { LayoutProvider } from "@/context/LayoutContext";
 import { Loader2 } from "lucide-react";
 
@@ -82,64 +86,71 @@ function AppRoutes() {
     return element;
   };
 
-  return (
-    <Suspense fallback={<LoadingScreen />}>
-      <Routes>
-        <Route path="/" element={isAuthenticated ? <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace /> : <LandingPage />} />
-        <Route path="/welcome" element={<SplashScreen />} />
-        <Route path="/role-select" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RoleSelectScreen />} />
-        <Route path="/onboarding" element={<OnboardingScreen />} />
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen />} />
-        <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupScreen />} />
-        <Route path="/forgot-password" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <ForgotPasswordScreen />} />
-        <Route path="/reset-password" element={<ResetPasswordScreen />} />
-        <Route path="/about" element={<AboutScreen />} />
-        <Route path="/terms-of-service" element={<TermsOfServiceScreen />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicyScreen />} />
-        <Route path="/offline" element={<OfflinePage />} />
-        <Route path="/profile/:userId" element={<PublicImpactScreen />} />
-        <Route path="/u/:userName" element={<PublicImpactScreen />} />
-        <Route path="/post/:postId" element={<PostViewScreen />} />
-        <Route path="/share-target" element={requireAuthed(<ShareTargetPage />)} />
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<LoadingScreen />}>
+          <Routes>
+            <Route path="/" element={isAuthenticated ? <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace /> : <LandingPage />} />
+            <Route path="/welcome" element={<SplashScreen />} />
+            <Route path="/role-select" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RoleSelectScreen />} />
+            <Route path="/onboarding" element={<OnboardingScreen />} />
+            <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen />} />
+            <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupScreen />} />
+            <Route path="/forgot-password" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <ForgotPasswordScreen />} />
+            <Route path="/reset-password" element={<ResetPasswordScreen />} />
+            <Route path="/about" element={<AboutScreen />} />
+            <Route path="/terms-of-service" element={<TermsOfServiceScreen />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyScreen />} />
+            <Route path="/offline" element={<OfflinePage />} />
+            <Route path="/profile/:userId" element={<PublicImpactScreen />} />
+            <Route path="/u/:userName" element={<PublicImpactScreen />} />
+            <Route path="/post/:postId" element={<PostViewScreen />} />
+            <Route path="/share-target" element={requireAuthed(<ShareTargetPage />)} />
 
-        <Route path="/dashboard" element={authedRoute(<DashboardScreen />)} />
-        <Route path="/agora" element={authedRoute(<AgoraScreen />)} />
-        <Route path="/agora/tag/:tag" element={authedRoute(<AgoraScreen />)} />
-        <Route path="/ecomarket" element={authedRoute(<EcoMarketScreen />)} />
-        <Route path="/tools" element={authedRoute(<ToolsScreen />)} />
-        <Route path="/profile" element={authedRoute(<ProfileScreen />)} />
-        <Route path="/settings" element={authedRoute(<SettingsScreen />)} />
-        {/* privacy-policy is public - defined above */}
-        <Route path="/feedback" element={authedRoute(<FeedbackScreen />)} />
-        <Route path="/rate-app" element={authedRoute(<RateAppScreen />)} />
-        <Route path="/leaderboard" element={authedRoute(<LeaderboardScreen />)} />
-        <Route path="/edit-profile" element={authedRoute(<EditProfileScreen />)} />
-        <Route path="/module/:moduleId" element={authedRoute(<ModuleScreen />)} />
-        <Route path="/inbox" element={authedRoute(<InboxScreen />)} />
-        <Route path="/swarms" element={authedRoute(<SwarmsScreen />)} />
-        <Route path="/challenges" element={authedRoute(<ChallengesScreen />)} />
-        <Route path="/calendar" element={authedRoute(<CalendarScreen />)} />
-        <Route path="/merch" element={authedRoute(<EcoMerchScreen />)} />
-        <Route path="/purchases" element={authedRoute(<PurchasesScreen />)} />
-        <Route path="/earnings" element={authedRoute(<EarningsScreen />)} />
-        <Route path="/admin" element={requireAuthed(<AdminPanel />)} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
-  );
+            <Route path="/dashboard" element={<ErrorBoundary>{authedRoute(<DashboardScreen />)}</ErrorBoundary>} />
+            <Route path="/agora" element={<ErrorBoundary>{authedRoute(<AgoraScreen />)}</ErrorBoundary>} />
+            <Route path="/agora/tag/:tag" element={<ErrorBoundary>{authedRoute(<AgoraScreen />)}</ErrorBoundary>} />
+            <Route path="/ecomarket" element={<ErrorBoundary>{authedRoute(<EcoMarketScreen />)}</ErrorBoundary>} />
+            <Route path="/tools" element={<ErrorBoundary>{authedRoute(<ToolsScreen />)}</ErrorBoundary>} />
+            <Route path="/profile" element={<ErrorBoundary>{authedRoute(<ProfileScreen />)}</ErrorBoundary>} />
+            <Route path="/settings" element={<ErrorBoundary>{authedRoute(<SettingsScreen />)}</ErrorBoundary>} />
+            <Route path="/feedback" element={authedRoute(<FeedbackScreen />)} />
+            <Route path="/rate-app" element={authedRoute(<RateAppScreen />)} />
+            <Route path="/leaderboard" element={authedRoute(<LeaderboardScreen />)} />
+            <Route path="/edit-profile" element={authedRoute(<EditProfileScreen />)} />
+            <Route path="/module/:moduleId" element={<ErrorBoundary>{authedRoute(<ModuleScreen />)}</ErrorBoundary>} />
+            <Route path="/inbox" element={<ErrorBoundary>{authedRoute(<InboxScreen />)}</ErrorBoundary>} />
+            <Route path="/swarms" element={<ErrorBoundary>{authedRoute(<SwarmsScreen />)}</ErrorBoundary>} />
+            <Route path="/challenges" element={authedRoute(<ChallengesScreen />)} />
+            <Route path="/calendar" element={authedRoute(<CalendarScreen />)} />
+            <Route path="/merch" element={<ErrorBoundary>{authedRoute(<EcoMerchScreen />)}</ErrorBoundary>} />
+            <Route path="/purchases" element={<ErrorBoundary>{authedRoute(<PurchasesScreen />)}</ErrorBoundary>} />
+            <Route path="/earnings" element={<ErrorBoundary>{authedRoute(<EarningsScreen />)}</ErrorBoundary>} />
+            <Route path="/admin" element={<ErrorBoundary>{requireAuthed(<AdminPanel />)}</ErrorBoundary>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
+    );
 }
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AppProvider>
-        <LayoutProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </LayoutProvider>
+        <AuthProvider>
+          <PointsProvider>
+            <NotificationProvider>
+              <LayoutProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <AppRoutes />
+                </BrowserRouter>
+              </LayoutProvider>
+            </NotificationProvider>
+          </PointsProvider>
+        </AuthProvider>
       </AppProvider>
     </TooltipProvider>
   </QueryClientProvider>
