@@ -829,7 +829,7 @@ export function AgoraScreen() {
                 {post.content.includes('<') && (post.content.includes('<b>') || post.content.includes('<i>') || post.content.includes('<h3>') || post.content.includes('<ul>') || post.content.includes('<ol>') || post.content.includes('<blockquote>') || post.content.includes('<br>')) ? (
                   <div
                     className="prose prose-sm max-w-none [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-foreground [&_blockquote]:border-l-3 [&_blockquote]:border-primary [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline"
-                    dangerouslySetInnerHTML={{ __html: post.content.replace(/#\w+/g, '').trim() }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content.replace(/#\w+/g, '').trim()) }}
                   />
                 ) : (
                   <div className="whitespace-pre-line">
