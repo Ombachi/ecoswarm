@@ -45,6 +45,17 @@ export function EcoMerchScreen() {
     }
     setBuyingId(checkoutProduct.id);
     try {
+      // Atomic stock decrement
+      const { data: stockOk, error: stockErr } = await supabase.rpc('decrement_merch_stock', {
+        p_merch_id: checkoutProduct.id,
+        p_quantity: 1,
+      });
+      if (stockErr) throw stockErr;
+      if (!stockOk) {
+        toast.error('Sorry, this item is out of stock');
+        return;
+      }
+
       const pointsToUse = Math.min(user.ecoPoints, checkoutProduct.price);
       const { error } = await supabase.from('merch_orders').insert({
         user_id: user.id,
@@ -63,6 +74,7 @@ export function EcoMerchScreen() {
       setCheckoutProduct(null);
       setPhone('');
       setAddress('');
+      await loadProducts(); // refresh stock
       setTimeout(() => setShowConfetti(false), 3000);
     } catch (err) {
       toast.error('Failed to place order');
