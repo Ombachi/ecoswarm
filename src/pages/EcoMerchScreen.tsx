@@ -20,6 +20,7 @@ interface MerchProduct {
 
 export function EcoMerchScreen() {
   const { user, addPoints, showNotification } = useApp();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<MerchProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [buyingId, setBuyingId] = useState<string | null>(null);
