@@ -158,8 +158,13 @@ export function AgoraScreen() {
   const [showSearch, setShowSearch] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const PAGE_SIZE = 20;
   const pullStartY = useRef(0);
   const feedRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const openLightbox = (url: string, type: 'image' | 'video', event: React.MouseEvent, galleryItems?: { url: string; type: 'image' | 'video' | 'file' }[], index?: number) => {
     const target = event.currentTarget as HTMLElement;
