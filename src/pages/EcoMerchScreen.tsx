@@ -123,7 +123,7 @@ export function EcoMerchScreen() {
         ) : products.map((product) => (
           <div key={product.id} className="eco-card overflow-hidden flex flex-col">
             {product.image_url ? (
-              <img src={product.image_url} alt={product.name} className="w-full h-40 object-cover -mx-4 -mt-4 mb-3" style={{ width: 'calc(100% + 2rem)' }} />
+              <LazyImage src={product.image_url} alt={product.name} className="w-full h-40 -mx-4 -mt-4 mb-3" style={{ width: 'calc(100% + 2rem)' }} />
             ) : (
               <div className="w-full h-40 bg-gradient-to-br from-primary/10 to-secondary/10 -mx-4 -mt-4 mb-3 flex items-center justify-center" style={{ width: 'calc(100% + 2rem)' }}>
                 <Package className="w-12 h-12 text-primary/30" />
