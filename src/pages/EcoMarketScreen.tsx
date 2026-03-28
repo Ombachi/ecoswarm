@@ -94,6 +94,10 @@ export function EcoMarketScreen() {
   } | null>(null);
   const [chatProduct, setChatProduct] = useState<{ id: string; name: string; sellerId: string; sellerName: string } | null>(null);
   const [activeView] = useState<'browse'>('browse');
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [productCursor, setProductCursor] = useState<string | null>(null);
+  const PRODUCT_PAGE_SIZE = 24;
 
   // Buy flow state
   const [buyProduct, setBuyProduct] = useState<Product | null>(null);
