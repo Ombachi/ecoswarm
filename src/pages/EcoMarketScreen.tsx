@@ -198,31 +198,47 @@ export function EcoMarketScreen() {
     }
   }, [categoryFilter, user]);
 
-  const loadProducts = async () => {
-    setIsLoading(true);
+  const loadProducts = async (loadMore = false) => {
+    if (!loadMore) { setIsLoading(true); setProductCursor(null); setHasMore(true); }
+    else { setLoadingMore(true); }
     try {
       let query = supabase
         .from('products')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(PRODUCT_PAGE_SIZE);
 
       if (categoryFilter) {
         query = query.eq('category', categoryFilter);
       }
 
+      if (loadMore && productCursor) {
+        query = query.lt('created_at', productCursor);
+      }
+
       const { data, error } = await query;
       if (error) throw error;
-      const parsed = (data || []).map((p: any) => ({
+      const rows = data || [];
+      if (rows.length < PRODUCT_PAGE_SIZE) setHasMore(false);
+      if (rows.length > 0) setProductCursor(rows[rows.length - 1].created_at);
+
+      const parsed = rows.map((p: any) => ({
         ...p,
         badges: p.badges || [],
         media_urls: Array.isArray(p.media_urls) ? p.media_urls : [],
       })) as Product[];
-      setProducts(parsed);
+
+      if (loadMore) {
+        setProducts(prev => [...prev, ...parsed]);
+      } else {
+        setProducts(parsed);
+      }
     } catch (error) {
       console.error('Error loading products:', (error as Error)?.message || 'An error occurred');
       toast.error('Failed to load products');
     } finally {
       setIsLoading(false);
+      setLoadingMore(false);
     }
   };
 
