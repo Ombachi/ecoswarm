@@ -59,6 +59,19 @@ export function CalendarScreen() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showSwarmModal, setShowSwarmModal] = useState(false);
   const [swarmPrefill, setSwarmPrefill] = useState<{ name: string; description: string; goal: string; category: string } | null>(null);
+  const [activeDeadlines, setActiveDeadlines] = useState<{ id: string; name: string; end_date: string; category: string; participants: number }[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('swarms')
+      .select('id, name, end_date, category, participants')
+      .gt('end_date', new Date().toISOString())
+      .order('end_date', { ascending: true })
+      .limit(5)
+      .then(({ data }) => {
+        if (data) setActiveDeadlines(data as any);
+      });
+  }, []);
 
   const handleLaunchSwarm = (event: ClimateDate & { fullDate: Date }) => {
     // Map climate date to a swarm category
