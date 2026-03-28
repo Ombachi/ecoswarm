@@ -99,11 +99,19 @@ export function EcoMerchScreen() {
   return (
     <AppLayout>
       {showConfetti && <Confetti />}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
-        <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
-          <Package className="w-5 h-5 text-primary" /> EcoMerch
-        </h1>
-        <p className="text-xs text-muted-foreground">Sustainable swag for eco-warriors</p>
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary" /> EcoMerch
+          </h1>
+          <p className="text-xs text-muted-foreground">Sustainable swag for eco-warriors</p>
+        </div>
+        <button
+          onClick={() => navigate('/purchases')}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80"
+        >
+          <ClipboardList className="w-4 h-4" /> My Orders
+        </button>
       </div>
 
       <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-24">
