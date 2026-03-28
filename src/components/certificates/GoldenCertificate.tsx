@@ -21,7 +21,7 @@ export function GoldenCertificate({ userName, courseTitle, completionDate, certI
   const [copied, setCopied] = useState(false);
 
   const dateStr = completionDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  const verifyUrl = `https://ecoswarm.co.ke/cert/${certId}`;
+  const verifyUrl = `${window.location.origin}/verify/${certId}`;
 
   const linkedInCaption = encodeURIComponent(
     `I just leveled up my climate action skills at the EcoSwarm Capacity Hub! 🌍 Check out my '${courseTitle}' badge. From anxiety to action — join the swarm! #EcoSwarm #ClimateAction`
