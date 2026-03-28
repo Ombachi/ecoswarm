@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useNavigate } from 'react-router-dom';
-import { CalendarDays, ChevronRight, Users } from 'lucide-react';
+import { CalendarDays, ChevronRight, Users, Clock, Megaphone } from 'lucide-react';
 import { CreateSwarmModal } from '@/components/swarms/CreateSwarmModal';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
