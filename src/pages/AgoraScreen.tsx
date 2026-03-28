@@ -218,25 +218,34 @@ export function AgoraScreen() {
     loadPosts();
   }, [user, filterTag]);
 
-  const loadPosts = async () => {
-    setIsLoading(true);
+  const loadPosts = async (loadMore = false) => {
+    if (!loadMore) { setIsLoading(true); setCursor(null); setHasMore(true); }
+    else { setLoadingMore(true); }
     try {
       let query = supabase
         .from('posts')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(PAGE_SIZE);
 
-      // Filter by tag if one is selected
       if (filterTag) {
         query = query.contains('tags', [filterTag]);
+      }
+
+      if (loadMore && cursor) {
+        query = query.lt('created_at', cursor);
       }
 
       const { data, error } = await query;
 
       if (error) throw error;
 
+      const rows = data || [];
+      if (rows.length < PAGE_SIZE) setHasMore(false);
+      if (rows.length > 0) setCursor(rows[rows.length - 1].created_at);
+
       // Get user's likes for these posts using secure function
-      const postIds = (data || []).map(p => p.id);
+      const postIds = rows.map(p => p.id);
       let userLikedPostIds: string[] = [];
       
       if (user && postIds.length > 0) {
@@ -246,7 +255,7 @@ export function AgoraScreen() {
       }
 
       // Fetch profile avatars for post authors
-      const uniqueUserIds = [...new Set((data || []).map(p => p.user_id))];
+      const uniqueUserIds = [...new Set(rows.map(p => p.user_id))];
       let avatarMap: Record<string, string | null> = {};
       if (uniqueUserIds.length > 0) {
         const { data: profiles } = await supabase
@@ -258,7 +267,7 @@ export function AgoraScreen() {
         }
       }
 
-      const mappedPosts: Post[] = (data || []).map((p) => {
+      const mappedPosts: Post[] = rows.map((p) => {
         // Parse media_urls JSON array
         let mediaItems: MediaItem[] = [];
         try {
@@ -290,14 +299,35 @@ export function AgoraScreen() {
         };
       });
 
-      setPosts(mappedPosts);
+      if (loadMore) {
+        setPosts(prev => [...prev, ...mappedPosts]);
+      } else {
+        setPosts(mappedPosts);
+      }
     } catch (error) {
       console.error('Error loading posts:', error instanceof Error ? error.message : 'An error occurred');
       toast.error('Failed to load posts');
     } finally {
       setIsLoading(false);
+      setLoadingMore(false);
     }
   };
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasMore && !loadingMore && !isLoading) {
+          loadPosts(true);
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, isLoading, cursor]);
 
   const handleTagClick = (clickedTag: string) => {
     if (filterTag === clickedTag) {
