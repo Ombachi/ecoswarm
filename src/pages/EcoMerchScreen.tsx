@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Package, ShoppingCart, Leaf, Loader2, Check, Sparkles } from 'lucide-react';
+import { Package, ShoppingCart, Loader2, Check, ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
 import { Confetti } from '@/components/common/Confetti';
+import { LazyImage } from '@/components/common/LazyImage';
+import { useNavigate } from 'react-router-dom';
 
 interface MerchProduct {
   id: string;
@@ -18,6 +20,7 @@ interface MerchProduct {
 
 export function EcoMerchScreen() {
   const { user, addPoints, showNotification } = useApp();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<MerchProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [buyingId, setBuyingId] = useState<string | null>(null);
@@ -96,11 +99,19 @@ export function EcoMerchScreen() {
   return (
     <AppLayout>
       {showConfetti && <Confetti />}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
-        <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
-          <Package className="w-5 h-5 text-primary" /> EcoMerch
-        </h1>
-        <p className="text-xs text-muted-foreground">Sustainable swag for eco-warriors</p>
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary" /> EcoMerch
+          </h1>
+          <p className="text-xs text-muted-foreground">Sustainable swag for eco-warriors</p>
+        </div>
+        <button
+          onClick={() => navigate('/purchases')}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80"
+        >
+          <ClipboardList className="w-4 h-4" /> My Orders
+        </button>
       </div>
 
       <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-24">
@@ -112,7 +123,7 @@ export function EcoMerchScreen() {
         ) : products.map((product) => (
           <div key={product.id} className="eco-card overflow-hidden flex flex-col">
             {product.image_url ? (
-              <img src={product.image_url} alt={product.name} className="w-full h-40 object-cover -mx-4 -mt-4 mb-3" style={{ width: 'calc(100% + 2rem)' }} />
+              <LazyImage src={product.image_url} alt={product.name} className="w-full h-40 -mx-4 -mt-4 mb-3" style={{ width: 'calc(100% + 2rem)' }} />
             ) : (
               <div className="w-full h-40 bg-gradient-to-br from-primary/10 to-secondary/10 -mx-4 -mt-4 mb-3 flex items-center justify-center" style={{ width: 'calc(100% + 2rem)' }}>
                 <Package className="w-12 h-12 text-primary/30" />

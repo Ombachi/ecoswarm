@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useNavigate } from 'react-router-dom';
-import { CalendarDays, ChevronRight, Users } from 'lucide-react';
+import { CalendarDays, ChevronRight, Users, Clock, Megaphone } from 'lucide-react';
 import { CreateSwarmModal } from '@/components/swarms/CreateSwarmModal';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,6 +59,19 @@ export function CalendarScreen() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showSwarmModal, setShowSwarmModal] = useState(false);
   const [swarmPrefill, setSwarmPrefill] = useState<{ name: string; description: string; goal: string; category: string } | null>(null);
+  const [activeDeadlines, setActiveDeadlines] = useState<{ id: string; name: string; end_date: string; category: string; participants: number }[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('swarms')
+      .select('id, name, end_date, category, participants')
+      .gt('end_date', new Date().toISOString())
+      .order('end_date', { ascending: true })
+      .limit(5)
+      .then(({ data }) => {
+        if (data) setActiveDeadlines(data as any);
+      });
+  }, []);
 
   const handleLaunchSwarm = (event: ClimateDate & { fullDate: Date }) => {
     // Map climate date to a swarm category
@@ -142,6 +155,45 @@ export function CalendarScreen() {
       </div>
 
       <div className="p-4 pb-24 space-y-3">
+        {/* Active Swarm Deadlines */}
+        {activeDeadlines.length > 0 && (
+          <div className="eco-card p-4 border-l-4 border-l-secondary mb-4">
+            <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
+              <Clock className="w-4 h-4 text-secondary" /> Active Swarm Deadlines
+            </h3>
+            <div className="space-y-2">
+              {activeDeadlines.map(d => {
+                const daysLeft = Math.ceil((new Date(d.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                return (
+                  <button key={d.id} onClick={() => navigate('/swarms')} className="w-full flex items-center justify-between text-left p-2 rounded-lg bg-muted/50 hover:bg-muted">
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">{d.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{d.participants} members · {d.category}</p>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${daysLeft <= 3 ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
+                      {daysLeft}d left
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Advocacy Link */}
+        <button
+          onClick={() => navigate('/tools')}
+          className="w-full eco-card p-4 flex items-center gap-3 text-left border-l-4 border-l-primary mb-2"
+        >
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <Megaphone className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-foreground">Business Advocacy</p>
+            <p className="text-[10px] text-muted-foreground">Launch advocacy campaigns tied to climate events</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </button>
         {upcoming.map((event, index) => {
           const isExpanded = expandedId === event.date;
           const isToday = event.daysUntil === 0;
