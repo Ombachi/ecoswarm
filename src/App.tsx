@@ -106,6 +106,8 @@ function AppRoutes() {
             <Route path="/profile/:userId" element={<PublicImpactScreen />} />
             <Route path="/u/:userName" element={<PublicImpactScreen />} />
             <Route path="/post/:postId" element={<PostViewScreen />} />
+            <Route path="/verify/:certId" element={<CertificateVerifyScreen />} />
+            <Route path="/cert/:certId" element={<CertificateVerifyScreen />} />
             <Route path="/share-target" element={requireAuthed(<ShareTargetPage />)} />
 
             <Route path="/dashboard" element={<ErrorBoundary>{authedRoute(<DashboardScreen />)}</ErrorBoundary>} />
