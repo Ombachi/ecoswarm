@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Package, ShoppingCart, Leaf, Loader2, Check, Sparkles } from 'lucide-react';
+import { Package, ShoppingCart, Loader2, Check, ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
 import { Confetti } from '@/components/common/Confetti';
+import { LazyImage } from '@/components/common/LazyImage';
+import { useNavigate } from 'react-router-dom';
 
 interface MerchProduct {
   id: string;

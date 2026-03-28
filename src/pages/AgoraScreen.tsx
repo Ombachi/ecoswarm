@@ -1079,6 +1079,14 @@ export function AgoraScreen() {
           );
           });
         })()}
+
+        {/* Load More Sentinel */}
+        <div ref={loadMoreRef} className="py-4 flex justify-center">
+          {loadingMore && <Loader2 className="w-5 h-5 animate-spin text-primary" />}
+          {!hasMore && posts.length > 0 && (
+            <p className="text-xs text-muted-foreground">You've seen all posts 🌿</p>
+          )}
+        </div>
       </div>
 
       {/* Create Menu Overlay */}
