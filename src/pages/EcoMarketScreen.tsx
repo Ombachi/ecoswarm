@@ -244,16 +244,46 @@ export function EcoMarketScreen() {
     }
   };
 
-  const filteredProducts = products.filter((p) => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      p.org_name.toLowerCase().includes(q) ||
-      p.product_name.toLowerCase().includes(q) ||
-      p.description.toLowerCase().includes(q) ||
-      p.badges.some((b) => b.toLowerCase().includes(q))
-    );
-  });
+  // Server-side full-text search
+  const [searchResults, setSearchResults] = useState<Product[] | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const tsQuery = searchQuery.trim().split(/\s+/).map(w => `${w}:*`).join(' & ');
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .textSearch('product_name', tsQuery, { type: 'websearch', config: 'english' })
+          .limit(50);
+        
+        if (error) {
+          // Fallback: use ilike if textSearch fails
+          const { data: fallback } = await supabase
+            .from('products')
+            .select('*')
+            .or(`product_name.ilike.%${searchQuery}%,org_name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+            .limit(50);
+          setSearchResults((fallback || []).map((p: any) => ({ ...p, badges: p.badges || [], media_urls: Array.isArray(p.media_urls) ? p.media_urls : [] })) as Product[]);
+        } else {
+          setSearchResults((data || []).map((p: any) => ({ ...p, badges: p.badges || [], media_urls: Array.isArray(p.media_urls) ? p.media_urls : [] })) as Product[]);
+        }
+      } catch {
+        setSearchResults(null);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const filteredProducts = searchResults !== null ? searchResults : products;
 
   const handleProductCreated = async (productData: {
     orgName: string;
