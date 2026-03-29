@@ -75,10 +75,12 @@ export function CreatePostModal({ isOpen, onClose, userName, onPostCreated }: Cr
       const uploaded: MediaItem[] = [];
 
       for (const item of mediaItems) {
-        const fileExt = item.file.name.split('.').pop();
+        // Compress images before upload
+        const processedFile = await compressImage(item.file);
+        const fileExt = processedFile.name.split('.').pop();
         const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
-        const { error: uploadError } = await supabase.storage.from('post-media').upload(fileName, item.file);
+        const { error: uploadError } = await supabase.storage.from('post-media').upload(fileName, processedFile);
         if (uploadError) { console.error('Upload error:', uploadError.message); toast.error('Failed to upload media'); return; }
 
         const { data: { publicUrl } } = supabase.storage.from('post-media').getPublicUrl(fileName);

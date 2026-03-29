@@ -110,7 +110,7 @@ export function CommentsSection({ postId, onCommentCountChange }: CommentsSectio
       if (error) throw error;
 
       setComments(comments.filter(c => c.id !== commentId));
-      onCommentCountChange?.(comments.length - 1);
+      // Comment count is updated atomically by database trigger
       toast.success('Comment deleted');
     } catch (error) {
       console.error('Error deleting comment:', (error as Error)?.message || 'An error occurred');
