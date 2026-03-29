@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Confetti } from '@/components/common/Confetti';
 import { Users, Sparkles } from 'lucide-react';
+import { AvatarFallback } from '@/components/common/AvatarFallback';
 
 interface WelcomePostProps {
   post: {
