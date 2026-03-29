@@ -55,13 +55,7 @@ export function WelcomePost({ post, onSayHi }: WelcomePostProps) {
             onClick={() => navigate(`/profile/${post.userId}`)}
             className="flex-shrink-0 hover:ring-2 hover:ring-primary transition-all rounded-full"
           >
-            {post.userAvatar ? (
-              <img src={post.userAvatar} alt={newUserName} className="w-12 h-12 rounded-full object-cover ring-2 ring-primary" />
-            ) : (
-              <div className="w-12 h-12 rounded-full eco-gradient-bg flex items-center justify-center text-white text-lg font-bold ring-2 ring-primary">
-                {newUserName.charAt(0)}
-              </div>
-            )}
+            <AvatarFallback src={post.userAvatar} name={newUserName} size="lg" className="ring-2 ring-primary" />
           </button>
           <div>
             <button
