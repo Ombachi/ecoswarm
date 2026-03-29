@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
+import { cacheProducts, getCachedProducts, getCachedProductsTimestamp, type CachedProduct } from '@/lib/offlineDb';
 import { CreateProductModal } from '@/components/ecomarket/CreateProductModal';
 import { ProductChat } from '@/components/ecomarket/ProductChat';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
