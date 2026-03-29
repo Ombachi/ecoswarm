@@ -403,6 +403,16 @@ export function AgoraScreen() {
     const { data, error } = await supabase.rpc('toggle_post_like', { p_post_id: postId });
     
     if (error) {
+      // If offline, queue the like for retry
+      if (!isOnline) {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        queueRequest(
+          `${supabaseUrl}/rest/v1/rpc/toggle_post_like`,
+          'POST',
+          { p_post_id: postId },
+        );
+        return; // Keep optimistic update
+      }
       // Revert optimistic update on error
       setPosts(
         posts.map((p) =>
