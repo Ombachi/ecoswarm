@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useApp } from "@/context/AppContext";
