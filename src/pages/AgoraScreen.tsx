@@ -839,11 +839,7 @@ export function AgoraScreen() {
                   onClick={() => navigate(`/profile/${post.userId}`)}
                   className="flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-primary transition-all rounded-full"
                 >
-                  {post.userAvatar ? (
-                    <img src={post.userAvatar} alt={post.userName} className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <div className="eco-avatar">{post.userName.charAt(0)}</div>
-                  )}
+                  <AvatarFallback src={post.userAvatar} name={post.userName} size="md" />
                 </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
