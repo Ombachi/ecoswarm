@@ -14,6 +14,7 @@ import { CommentsSection } from '@/components/posts/CommentsSection';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { MediaGallery, MediaItem } from '@/components/common/MediaGallery';
+import { AvatarFallback } from '@/components/common/AvatarFallback';
 import { LinkifiedText } from '@/components/common/LinkifiedText';
 import { PollVoter } from '@/components/polls/PollVoter';
 import { supabase } from '@/integrations/supabase/client';
