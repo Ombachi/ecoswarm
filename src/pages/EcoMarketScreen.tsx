@@ -235,9 +235,29 @@ export function EcoMarketScreen() {
         setProducts(prev => [...prev, ...parsed]);
       } else {
         setProducts(parsed);
+        // Cache for offline browsing
+        if (!categoryFilter) {
+          cacheProducts(parsed.slice(0, 50).map(p => ({
+            id: p.id, org_name: p.org_name, product_name: p.product_name,
+            category: p.category, description: p.description, price: p.price,
+            media_url: p.media_url, badges: p.badges,
+          })));
+        }
       }
     } catch (error) {
       console.error('Error loading products:', (error as Error)?.message || 'An error occurred');
+      // Try offline cache
+      if (!navigator.onLine) {
+        const ts = await getCachedProductsTimestamp();
+        if (Date.now() - ts < 3600000) {
+          const cached = await getCachedProducts();
+          if (cached.length > 0) {
+            setProducts(cached.map(p => ({ ...p, created_at: '', contact_phone: '', media_urls: [] } as any)));
+            toast.info('Showing cached products (offline)');
+            return;
+          }
+        }
+      }
       toast.error('Failed to load products');
     } finally {
       setIsLoading(false);
