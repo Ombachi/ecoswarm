@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Loader2, Building2, Phone, Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { compressImage } from '@/lib/imageCompression';
 
 const categories = [
   { id: 'Water', label: 'Water', emoji: '💧' },
