@@ -67,3 +67,28 @@ export async function clearCache(): Promise<void> {
   await del('cached-posts', cacheStore);
   await del('cached-posts-timestamp', cacheStore);
 }
+
+// ─── Product Cache (Offline Browsing) ────────────────────────────
+export interface CachedProduct {
+  id: string;
+  org_name: string;
+  product_name: string;
+  category: string;
+  description: string;
+  price: number;
+  media_url?: string;
+  badges?: string[];
+}
+
+export async function cacheProducts(products: CachedProduct[]): Promise<void> {
+  await set('cached-products', products, cacheStore);
+  await set('cached-products-timestamp', Date.now(), cacheStore);
+}
+
+export async function getCachedProducts(): Promise<CachedProduct[]> {
+  return (await get<CachedProduct[]>('cached-products', cacheStore)) || [];
+}
+
+export async function getCachedProductsTimestamp(): Promise<number> {
+  return (await get<number>('cached-products-timestamp', cacheStore)) || 0;
+}
