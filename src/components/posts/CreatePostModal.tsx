@@ -4,6 +4,7 @@ import { RichTextEditor } from './RichTextEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { MediaItem } from '@/components/common/MediaGallery';
+import { compressImage } from '@/lib/imageCompression';
 
 interface CreatePostModalProps {
   isOpen: boolean;
