@@ -4,6 +4,7 @@ import { Home, Leaf, Settings, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { AvatarFallback } from '@/components/common/AvatarFallback';
 
 export function DesktopSidebar() {
   const location = useLocation();
