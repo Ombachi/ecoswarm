@@ -309,9 +309,33 @@ export function AgoraScreen() {
         setPosts(prev => [...prev, ...mappedPosts]);
       } else {
         setPosts(mappedPosts);
+        // Cache posts for offline reading
+        if (!filterTag) {
+          savePostsToCache(rows.map(p => ({
+            id: p.id, user_name: p.user_name, content: p.content,
+            tags: p.tags || [], likes: p.likes || 0, comments: p.comments || 0,
+            created_at: p.created_at || '', media_url: p.media_url || undefined,
+            media_type: p.media_type || undefined,
+          })));
+        }
       }
     } catch (error) {
       console.error('Error loading posts:', error instanceof Error ? error.message : 'An error occurred');
+      // Try loading from offline cache
+      if (!navigator.onLine) {
+        const cached = await loadCachedPosts();
+        if (cached && cached.length > 0) {
+          const offlinePosts: Post[] = cached.map(p => ({
+            id: p.id, userId: '', userName: p.user_name, content: p.content,
+            likes: p.likes || 0, comments: p.comments || 0, shares: 0,
+            tags: p.tags || [], createdAt: new Date(p.created_at || ''), isLiked: false,
+            mediaUrl: p.media_url, mediaType: p.media_type as any,
+          }));
+          setPosts(offlinePosts);
+          toast.info('Showing cached posts (offline)');
+          return;
+        }
+      }
       toast.error('Failed to load posts');
     } finally {
       setIsLoading(false);
