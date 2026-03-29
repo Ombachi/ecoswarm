@@ -4,6 +4,7 @@ import { Home, Leaf, Settings, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { AvatarFallback } from '@/components/common/AvatarFallback';
 
 export function DesktopSidebar() {
   const location = useLocation();
@@ -60,9 +61,7 @@ export function DesktopSidebar() {
       {user && (
         <div onClick={() => navigate('/profile')} className="m-3 p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-border/50 cursor-pointer hover:shadow-md transition-all">
           <div className="flex items-center gap-3">
-            <div className="eco-avatar text-sm">
-              {user.avatar ? <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" /> : user.name.charAt(0).toUpperCase()}
-            </div>
+            <AvatarFallback src={user.avatar} name={user.name} size="md" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
               <p className="text-xs text-muted-foreground">{user.location}</p>

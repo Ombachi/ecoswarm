@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Loader2, Building2, Phone, Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { compressImage } from '@/lib/imageCompression';
 
 const categories = [
   { id: 'Water', label: 'Water', emoji: '💧' },
@@ -110,9 +111,10 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
       const uploadedMedia: { url: string; type: string }[] = [];
 
       for (const item of mediaItems) {
-        const fileExt = item.file.name.split('.').pop();
+        const processedFile = await compressImage(item.file);
+        const fileExt = processedFile.name.split('.').pop();
         const filePath = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from('post-media').upload(filePath, item.file);
+        const { error: uploadError } = await supabase.storage.from('post-media').upload(filePath, processedFile);
         if (uploadError) throw uploadError;
         const { data: urlData } = supabase.storage.from('post-media').getPublicUrl(filePath);
         uploadedMedia.push({ url: urlData.publicUrl, type: item.type });

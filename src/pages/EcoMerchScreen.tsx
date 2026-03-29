@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +22,7 @@ interface MerchProduct {
 export function EcoMerchScreen() {
   const { user, addPoints, showNotification } = useApp();
   const navigate = useNavigate();
+  usePageMeta('EcoMerch', 'Shop sustainable branded merchandise — swarm kits, seed-bomb apparel, and eco gear.');
   const [products, setProducts] = useState<MerchProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [buyingId, setBuyingId] = useState<string | null>(null);

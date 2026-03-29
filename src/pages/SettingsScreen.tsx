@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -24,6 +25,7 @@ import { Switch } from '@/components/ui/switch';
 export function SettingsScreen() {
   const navigate = useNavigate();
   const { user, isDarkMode, toggleDarkMode, isSwahili, toggleLanguage, logout } = useApp();
+  usePageMeta('Settings', 'Manage your EcoSwarm account settings, notifications, and preferences.');
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushNotifications(user?.id);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);

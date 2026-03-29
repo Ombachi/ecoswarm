@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
+import { cacheProducts, getCachedProducts, getCachedProductsTimestamp, type CachedProduct } from '@/lib/offlineDb';
 import { CreateProductModal } from '@/components/ecomarket/CreateProductModal';
 import { ProductChat } from '@/components/ecomarket/ProductChat';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createAutoPost } from '@/utils/autoPost';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -75,6 +77,7 @@ const categoryFilters = [
 export function EcoMarketScreen() {
   const { user, addPoints, showNotification, updateStats } = useApp();
   const navigate = useNavigate();
+  usePageMeta('EcoMarket', 'Browse and buy eco-friendly products and services from verified Kenyan green businesses.');
   const { processPurchase, isProcessing } = usePurchase();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -232,9 +235,29 @@ export function EcoMarketScreen() {
         setProducts(prev => [...prev, ...parsed]);
       } else {
         setProducts(parsed);
+        // Cache for offline browsing
+        if (!categoryFilter) {
+          cacheProducts(parsed.slice(0, 50).map(p => ({
+            id: p.id, org_name: p.org_name, product_name: p.product_name,
+            category: p.category, description: p.description, price: p.price,
+            media_url: p.media_url, badges: p.badges,
+          })));
+        }
       }
     } catch (error) {
       console.error('Error loading products:', (error as Error)?.message || 'An error occurred');
+      // Try offline cache
+      if (!navigator.onLine) {
+        const ts = await getCachedProductsTimestamp();
+        if (Date.now() - ts < 3600000) {
+          const cached = await getCachedProducts();
+          if (cached.length > 0) {
+            setProducts(cached.map(p => ({ ...p, created_at: '', contact_phone: '', media_urls: [] } as any)));
+            toast.info('Showing cached products (offline)');
+            return;
+          }
+        }
+      }
       toast.error('Failed to load products');
     } finally {
       setIsLoading(false);
@@ -242,16 +265,46 @@ export function EcoMarketScreen() {
     }
   };
 
-  const filteredProducts = products.filter((p) => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      p.org_name.toLowerCase().includes(q) ||
-      p.product_name.toLowerCase().includes(q) ||
-      p.description.toLowerCase().includes(q) ||
-      p.badges.some((b) => b.toLowerCase().includes(q))
-    );
-  });
+  // Server-side full-text search
+  const [searchResults, setSearchResults] = useState<Product[] | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const tsQuery = searchQuery.trim().split(/\s+/).map(w => `${w}:*`).join(' & ');
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .textSearch('product_name', tsQuery, { type: 'websearch', config: 'english' })
+          .limit(50);
+        
+        if (error) {
+          // Fallback: use ilike if textSearch fails
+          const { data: fallback } = await supabase
+            .from('products')
+            .select('*')
+            .or(`product_name.ilike.%${searchQuery}%,org_name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+            .limit(50);
+          setSearchResults((fallback || []).map((p: any) => ({ ...p, badges: p.badges || [], media_urls: Array.isArray(p.media_urls) ? p.media_urls : [] })) as Product[]);
+        } else {
+          setSearchResults((data || []).map((p: any) => ({ ...p, badges: p.badges || [], media_urls: Array.isArray(p.media_urls) ? p.media_urls : [] })) as Product[]);
+        }
+      } catch {
+        setSearchResults(null);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const filteredProducts = searchResults !== null ? searchResults : products;
 
   const handleProductCreated = async (productData: {
     orgName: string;

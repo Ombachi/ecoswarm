@@ -3,6 +3,9 @@ import { sanitizeHtml } from '@/lib/sanitize';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
+import { usePageMeta } from '@/hooks/usePageMeta';
+import { useOfflineCache } from '@/hooks/useOfflineCache';
+import { useOfflineQueue } from '@/hooks/useOfflineQueue';
 import { Post } from '@/types/ecoswarm';
 import { CreatePostModal } from '@/components/posts/CreatePostModal';
 import { CreateSwarmModal } from '@/components/swarms/CreateSwarmModal';
@@ -11,6 +14,7 @@ import { CommentsSection } from '@/components/posts/CommentsSection';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { MediaGallery, MediaItem } from '@/components/common/MediaGallery';
+import { AvatarFallback } from '@/components/common/AvatarFallback';
 import { LinkifiedText } from '@/components/common/LinkifiedText';
 import { PollVoter } from '@/components/polls/PollVoter';
 import { supabase } from '@/integrations/supabase/client';
@@ -135,6 +139,9 @@ export function AgoraScreen() {
   const navigate = useNavigate();
   const { tag } = useParams<{ tag?: string }>();
   const { user, addPoints, showNotification, updateStats } = useApp();
+  usePageMeta('Agora Square', 'Share environmental stories, discuss climate issues, and engage with the EcoSwarm community.');
+  const { savePostsToCache, loadCachedPosts } = useOfflineCache();
+  const { isOnline, queueRequest } = useOfflineQueue();
   const [posts, setPosts] = useState<Post[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSwarmModal, setShowSwarmModal] = useState(false);
@@ -303,9 +310,33 @@ export function AgoraScreen() {
         setPosts(prev => [...prev, ...mappedPosts]);
       } else {
         setPosts(mappedPosts);
+        // Cache posts for offline reading
+        if (!filterTag) {
+          savePostsToCache(rows.map(p => ({
+            id: p.id, user_name: p.user_name, content: p.content,
+            tags: p.tags || [], likes: p.likes || 0, comments: p.comments || 0,
+            created_at: p.created_at || '', media_url: p.media_url || undefined,
+            media_type: p.media_type || undefined,
+          })));
+        }
       }
     } catch (error) {
       console.error('Error loading posts:', error instanceof Error ? error.message : 'An error occurred');
+      // Try loading from offline cache
+      if (!navigator.onLine) {
+        const cached = await loadCachedPosts();
+        if (cached && cached.length > 0) {
+          const offlinePosts: Post[] = cached.map(p => ({
+            id: p.id, userId: '', userName: p.user_name, content: p.content,
+            likes: p.likes || 0, comments: p.comments || 0, shares: 0,
+            tags: p.tags || [], createdAt: new Date(p.created_at || ''), isLiked: false,
+            mediaUrl: p.media_url, mediaType: p.media_type as any,
+          }));
+          setPosts(offlinePosts);
+          toast.info('Showing cached posts (offline)');
+          return;
+        }
+      }
       toast.error('Failed to load posts');
     } finally {
       setIsLoading(false);
@@ -372,6 +403,16 @@ export function AgoraScreen() {
     const { data, error } = await supabase.rpc('toggle_post_like', { p_post_id: postId });
     
     if (error) {
+      // If offline, queue the like for retry
+      if (!isOnline) {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        queueRequest(
+          `${supabaseUrl}/rest/v1/rpc/toggle_post_like`,
+          'POST',
+          { p_post_id: postId },
+        );
+        return; // Keep optimistic update
+      }
       // Revert optimistic update on error
       setPosts(
         posts.map((p) =>
@@ -809,11 +850,7 @@ export function AgoraScreen() {
                   onClick={() => navigate(`/profile/${post.userId}`)}
                   className="flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-primary transition-all rounded-full"
                 >
-                  {post.userAvatar ? (
-                    <img src={post.userAvatar} alt={post.userName} className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <div className="eco-avatar">{post.userName.charAt(0)}</div>
-                  )}
+                  <AvatarFallback src={post.userAvatar} name={post.userName} size="md" />
                 </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">

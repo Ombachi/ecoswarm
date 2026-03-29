@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
@@ -22,6 +23,7 @@ import {
 export function ProfileScreen() {
   const navigate = useNavigate();
   const { user, isSwahili } = useApp();
+  usePageMeta('Profile', 'View your EcoSwarm profile, badges, stats, and environmental impact.');
   const [productCount, setProductCount] = useState(0);
   const [isDeveloper, setIsDeveloper] = useState(false);
 

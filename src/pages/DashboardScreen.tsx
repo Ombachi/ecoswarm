@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useApp } from "@/context/AppContext";
@@ -32,6 +33,7 @@ interface Challenge {
 export function DashboardScreen() {
   const navigate = useNavigate();
   const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, refreshUser, logout, authUserId } = useApp();
+  usePageMeta('Dashboard', 'Your EcoSwarm dashboard — track eco-points, streaks, challenges, and your environmental impact.');
   const { isInstallable, isInstalled, promptInstall } = usePWAInstall();
 
   const [challenges, setChallenges] = useState<Challenge[]>([]);

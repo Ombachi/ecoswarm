@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProductChat } from '@/components/ecomarket/ProductChat';
 import { useApp } from '@/context/AppContext';
@@ -17,6 +18,7 @@ interface Conversation {
 
 export function InboxScreen() {
   const { user } = useApp();
+  usePageMeta('Inbox', 'Manage your EcoSwarm messages and product inquiries.');
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeveloper, setIsDeveloper] = useState(false);

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useApp } from "@/context/AppContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +31,7 @@ const categoryIcons: Record<string, any> = {
 
 export function SwarmsScreen() {
   const { user, addPoints, showNotification, updateStats, earnBadge } = useApp();
+  usePageMeta('Swarms', 'Join or create environmental campaigns, sign petitions, and drive collective action.');
   const [swarms, setSwarms] = useState<Swarm[]>([]);
   const [selectedSwarm, setSelectedSwarm] = useState<Swarm | null>(null);
   const [voteValue, setVoteValue] = useState(1);

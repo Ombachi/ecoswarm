@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -24,6 +25,7 @@ interface LeaderboardEntry {
 export function LeaderboardScreen() {
   const navigate = useNavigate();
   const { user, isSwahili } = useApp();
+  usePageMeta('Leaderboard', 'See top EcoWarriors and EcoDevelopers ranked by eco-points and streaks.');
   const [warriors, setWarriors] = useState<LeaderboardEntry[]>([]);
   const [developers, setDevelopers] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
