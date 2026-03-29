@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProductChat } from '@/components/ecomarket/ProductChat';
 import { useApp } from '@/context/AppContext';
