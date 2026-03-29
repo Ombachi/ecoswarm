@@ -141,7 +141,6 @@ export function AgoraScreen() {
   usePageMeta('Agora Square', 'Share environmental stories, discuss climate issues, and engage with the EcoSwarm community.');
   const { savePostsToCache, loadCachedPosts } = useOfflineCache();
   const { isOnline, queueRequest } = useOfflineQueue();
-  const { user, addPoints, showNotification, updateStats } = useApp();
   const [posts, setPosts] = useState<Post[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSwarmModal, setShowSwarmModal] = useState(false);
