@@ -22,6 +22,7 @@ interface MerchProduct {
 export function EcoMerchScreen() {
   const { user, addPoints, showNotification } = useApp();
   const navigate = useNavigate();
+  usePageMeta('EcoMerch', 'Shop sustainable branded merchandise — swarm kits, seed-bomb apparel, and eco gear.');
   const [products, setProducts] = useState<MerchProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [buyingId, setBuyingId] = useState<string | null>(null);

@@ -56,6 +56,7 @@ function getUpcoming(dates: ClimateDate[]): (ClimateDate & { fullDate: Date; day
 export function CalendarScreen() {
   const navigate = useNavigate();
   const { user, addPoints, showNotification, updateStats } = useApp();
+  usePageMeta('Eco Calendar', 'Environmental events, swarm deadlines, and key dates for climate action in Kenya.');
   const upcoming = getUpcoming(climateDates);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showSwarmModal, setShowSwarmModal] = useState(false);

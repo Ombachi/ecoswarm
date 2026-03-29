@@ -23,6 +23,7 @@ import {
 export function ProfileScreen() {
   const navigate = useNavigate();
   const { user, isSwahili } = useApp();
+  usePageMeta('Profile', 'View your EcoSwarm profile, badges, stats, and environmental impact.');
   const [productCount, setProductCount] = useState(0);
   const [isDeveloper, setIsDeveloper] = useState(false);
 

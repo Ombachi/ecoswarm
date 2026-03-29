@@ -25,6 +25,7 @@ import { Switch } from '@/components/ui/switch';
 export function SettingsScreen() {
   const navigate = useNavigate();
   const { user, isDarkMode, toggleDarkMode, isSwahili, toggleLanguage, logout } = useApp();
+  usePageMeta('Settings', 'Manage your EcoSwarm account settings, notifications, and preferences.');
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushNotifications(user?.id);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);

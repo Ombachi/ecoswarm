@@ -33,6 +33,7 @@ interface Challenge {
 export function DashboardScreen() {
   const navigate = useNavigate();
   const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, refreshUser, logout, authUserId } = useApp();
+  usePageMeta('Dashboard', 'Your EcoSwarm dashboard — track eco-points, streaks, challenges, and your environmental impact.');
   const { isInstallable, isInstalled, promptInstall } = usePWAInstall();
 
   const [challenges, setChallenges] = useState<Challenge[]>([]);

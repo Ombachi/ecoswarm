@@ -31,7 +31,7 @@ const categoryIcons: Record<string, any> = {
 
 export function SwarmsScreen() {
   const { user, addPoints, showNotification, updateStats, earnBadge } = useApp();
-  const [swarms, setSwarms] = useState<Swarm[]>([]);
+  usePageMeta('Swarms', 'Join or create environmental campaigns, sign petitions, and drive collective action.');
   const [selectedSwarm, setSelectedSwarm] = useState<Swarm | null>(null);
   const [voteValue, setVoteValue] = useState(1);
   const [showCreateModal, setShowCreateModal] = useState(false);

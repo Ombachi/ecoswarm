@@ -18,6 +18,7 @@ interface Conversation {
 
 export function InboxScreen() {
   const { user } = useApp();
+  usePageMeta('Inbox', 'Manage your EcoSwarm messages and product inquiries.');
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeveloper, setIsDeveloper] = useState(false);
