@@ -75,6 +75,7 @@ const categoryFilters = [
 export function EcoMarketScreen() {
   const { user, addPoints, showNotification, updateStats } = useApp();
   const navigate = useNavigate();
+  usePageMeta('EcoMarket', 'Browse and buy eco-friendly products and services from verified Kenyan green businesses.');
   const { processPurchase, isProcessing } = usePurchase();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
