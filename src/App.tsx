@@ -95,6 +95,7 @@ function AppRoutes() {
 
     return (
       <ErrorBoundary>
+        <AnalyticsTracker />
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
             <Route path="/" element={isAuthenticated ? <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace /> : <LandingPage />} />
