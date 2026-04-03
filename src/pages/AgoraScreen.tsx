@@ -280,6 +280,12 @@ export function AgoraScreen() {
         query = query.contains('tags', [filterTag]);
       }
 
+      // Server-side full-text search
+      if (searchDebounce.trim()) {
+        const terms = searchDebounce.trim().split(/\s+/).join(' & ');
+        query = query.textSearch('content', terms, { type: 'websearch', config: 'english' });
+      }
+
       if (loadMore && cursor) {
         query = query.lt('created_at', cursor);
       }
