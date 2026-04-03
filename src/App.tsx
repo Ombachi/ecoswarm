@@ -67,8 +67,6 @@ function LoadingScreen() {
 }
 
 function AnalyticsTracker() {
-  // This component just activates the analytics tracker
-  const { useAnalyticsTracker } = require('@/hooks/useAnalyticsTracker');
   useAnalyticsTracker();
   return null;
 }
