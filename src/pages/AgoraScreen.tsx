@@ -234,6 +234,9 @@ export function AgoraScreen() {
   }, [searchQuery]);
 
   useEffect(() => {
+    if (searchDebounce.trim()) {
+      trackEvent('search', { query: searchDebounce, section: 'agora' });
+    }
     loadPosts();
   }, [user, filterTag, searchDebounce]);
 
