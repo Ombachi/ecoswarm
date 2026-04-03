@@ -11,6 +11,7 @@ import { PointsProvider } from "@/context/PointsContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import { LayoutProvider } from "@/context/LayoutContext";
 import { Loader2 } from "lucide-react";
+import { useAnalyticsTracker } from "@/hooks/useAnalyticsTracker";
 
 // Critical path - loaded immediately
 import { SplashScreen } from "@/pages/SplashScreen";
@@ -65,6 +66,11 @@ function LoadingScreen() {
   );
 }
 
+function AnalyticsTracker() {
+  useAnalyticsTracker();
+  return null;
+}
+
 function AppRoutes() {
   const { isOnboarded, user, isLoading, authUserId, isAdmin } = useApp();
 
@@ -89,6 +95,7 @@ function AppRoutes() {
 
     return (
       <ErrorBoundary>
+        <AnalyticsTracker />
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
             <Route path="/" element={isAuthenticated ? <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace /> : <LandingPage />} />

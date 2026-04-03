@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { sanitizeHtml } from '@/lib/sanitize';
+import { trackEvent } from '@/hooks/useAnalyticsTracker';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
@@ -161,14 +162,16 @@ export function AgoraScreen() {
     galleryItems?: { url: string; type: 'image' | 'video' | 'file' }[];
     initialIndex?: number;
   } | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
-  const [pullDistance, setPullDistance] = useState(0);
-  const [isPulling, setIsPulling] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const PAGE_SIZE = 20;
+   const [searchQuery, setSearchQuery] = useState('');
+   const [showSearch, setShowSearch] = useState(false);
+   const [searchDebounce, setSearchDebounce] = useState('');
+   const [pullDistance, setPullDistance] = useState(0);
+   const [isPulling, setIsPulling] = useState(false);
+   const [hasMore, setHasMore] = useState(true);
+   const [loadingMore, setLoadingMore] = useState(false);
+   const [cursor, setCursor] = useState<string | null>(null);
+   const PAGE_SIZE = 20;
+   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pullStartY = useRef(0);
   const feedRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -221,9 +224,51 @@ export function AgoraScreen() {
     setFilterTag(tag || null);
   }, [tag]);
 
+  // Debounce search
   useEffect(() => {
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      setSearchDebounce(searchQuery);
+    }, 400);
+    return () => { if (searchTimer.current) clearTimeout(searchTimer.current); };
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (searchDebounce.trim()) {
+      trackEvent('search', { query: searchDebounce, section: 'agora' });
+    }
     loadPosts();
-  }, [user, filterTag]);
+  }, [user, filterTag, searchDebounce]);
+
+  // Realtime subscription for new posts
+  useEffect(() => {
+    const channel = supabase
+      .channel('agora-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, (payload) => {
+        const p = payload.new as any;
+        // Don't add if it's our own post (already added optimistically)
+        if (user && p.user_id === user.id) return;
+        let mediaItems: MediaItem[] = [];
+        try {
+          if (Array.isArray(p.media_urls) && p.media_urls.length > 0) {
+            mediaItems = p.media_urls.map((m: any) => ({ url: m.url, type: m.type || 'image', fileName: m.fileName }));
+          }
+        } catch {}
+        if (mediaItems.length === 0 && p.media_url) {
+          mediaItems = [{ url: p.media_url, type: p.media_type || 'image' }];
+        }
+        const newPost: Post = {
+          id: p.id, userId: p.user_id, userName: p.user_name,
+          content: p.content, mediaUrl: p.media_url || undefined,
+          mediaType: p.media_type as any, mediaItems,
+          likes: 0, comments: 0, shares: 0,
+          tags: p.tags || [], createdAt: new Date(p.created_at), isLiked: false,
+        };
+        setPosts(prev => [newPost, ...prev]);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
 
   const loadPosts = async (loadMore = false) => {
     if (!loadMore) { setIsLoading(true); setCursor(null); setHasMore(true); }
@@ -237,6 +282,12 @@ export function AgoraScreen() {
 
       if (filterTag) {
         query = query.contains('tags', [filterTag]);
+      }
+
+      // Server-side full-text search
+      if (searchDebounce.trim()) {
+        const terms = searchDebounce.trim().split(/\s+/).join(' & ');
+        query = query.textSearch('content', terms, { type: 'websearch', config: 'english' });
       }
 
       if (loadMore && cursor) {
@@ -758,10 +809,7 @@ export function AgoraScreen() {
         onTouchEnd={handleTouchEnd}
       >
         {(() => {
-          const query = searchQuery.toLowerCase().trim();
-          const filteredPosts = query
-            ? posts.filter(p => p.userName.toLowerCase().includes(query) || p.content.toLowerCase().includes(query) || p.tags.some(t => t.toLowerCase().includes(query)))
-            : posts;
+          const filteredPosts = posts;
           
           if (isLoading) return (
             <div className="flex items-center justify-center py-12">
