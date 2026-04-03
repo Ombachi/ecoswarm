@@ -65,6 +65,13 @@ function LoadingScreen() {
   );
 }
 
+function AnalyticsTracker() {
+  // This component just activates the analytics tracker
+  const { useAnalyticsTracker } = require('@/hooks/useAnalyticsTracker');
+  useAnalyticsTracker();
+  return null;
+}
+
 function AppRoutes() {
   const { isOnboarded, user, isLoading, authUserId, isAdmin } = useApp();
 
