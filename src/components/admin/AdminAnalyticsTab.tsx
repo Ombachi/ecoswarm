@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Users, TrendingUp, Leaf, Mail, TreePine, ShoppingBag, GraduationCap, BookOpen, DollarSign, Eye, Search as SearchIcon, MousePointer, Activity } from 'lucide-react';
+import { Loader2, Users, TrendingUp, Leaf, Mail, TreePine, ShoppingBag, GraduationCap, BookOpen, DollarSign, Eye, Search as SearchIcon, MousePointer } from 'lucide-react';
 
 interface Stats {
   totalUsers: number;
