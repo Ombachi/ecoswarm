@@ -50,7 +50,10 @@ export function AdminAnalyticsTab() {
     setIsLoading(true);
     const periodFilter = period === 'all' ? undefined : new Date(Date.now() - (period === '7d' ? 7 : 30) * 86400000).toISOString();
 
-    const queries: Promise<any>[] = [
+    let analyticsQuery = supabase.from('platform_analytics' as any).select('event_type, event_data, page');
+    if (periodFilter) analyticsQuery = analyticsQuery.gte('created_at', periodFilter);
+
+    const [profilesRes, productsRes, txRes, swarmsRes, completionsRes, coursesRes, allCompletionsRes, commissionsRes, analyticsRes] = await Promise.all([
       supabase.from('profiles').select('eco_points, letters_sent, co2_saved'),
       supabase.from('products').select('id', { count: 'exact', head: true }),
       supabase.from('transactions').select('total_price, status'),
@@ -59,14 +62,8 @@ export function AdminAnalyticsTab() {
       supabase.from('courses').select('id, title', { count: 'exact' }),
       supabase.from('course_completions').select('module_id'),
       supabase.from('platform_commissions' as any).select('commission_amount'),
-    ];
-
-    // Platform analytics queries
-    let analyticsQuery = supabase.from('platform_analytics' as any).select('event_type, event_data, page');
-    if (periodFilter) analyticsQuery = analyticsQuery.gte('created_at', periodFilter);
-    queries.push(analyticsQuery);
-
-    const [profilesRes, productsRes, txRes, swarmsRes, completionsRes, coursesRes, allCompletionsRes, commissionsRes, analyticsRes] = await Promise.all(queries);
+      analyticsQuery,
+    ]);
 
     const profiles = profilesRes.data || [];
     const completedTx = (txRes.data || []).filter((t: any) => t.status === 'completed');
