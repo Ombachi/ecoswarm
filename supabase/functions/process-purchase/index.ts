@@ -236,6 +236,8 @@ serve(async (req) => {
         bonusPoints,
         pointsUsed: actualPointsUsed,
         cashPaid: cashRemaining,
+        commissionAmount,
+        sellerPayout,
         verificationStatus,
         isPending: status === "pending_payment",
       }),
