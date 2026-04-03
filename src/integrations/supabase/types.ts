@@ -616,6 +616,66 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_analytics: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          page: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          page?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          page?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      platform_commissions: {
+        Row: {
+          buyer_id: string
+          commission_amount: number
+          commission_rate: number
+          created_at: string
+          id: string
+          sale_amount: number
+          seller_id: string
+          transaction_id: string
+        }
+        Insert: {
+          buyer_id: string
+          commission_amount?: number
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          sale_amount?: number
+          seller_id: string
+          transaction_id: string
+        }
+        Update: {
+          buyer_id?: string
+          commission_amount?: number
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          sale_amount?: number
+          seller_id?: string
+          transaction_id?: string
+        }
+        Relationships: []
+      }
       poll_responses: {
         Row: {
           created_at: string
