@@ -159,6 +159,11 @@ serve(async (req) => {
       }
     }
 
+    // ── 10% Platform Commission ──
+    const COMMISSION_RATE = 0.10;
+    const commissionAmount = Math.round(totalPrice * COMMISSION_RATE * 100) / 100;
+    const sellerPayout = totalPrice - commissionAmount;
+
     // Deduct EcoPoints from buyer
     const newPoints = availablePoints - actualPointsUsed;
     const bonusPoints = 50;
