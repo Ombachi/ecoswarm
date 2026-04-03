@@ -197,12 +197,22 @@ serve(async (req) => {
 
     if (txErr) throw txErr;
 
-    // Notify seller
+    // ── Record Platform Commission ──
+    await supabase.from("platform_commissions").insert({
+      transaction_id: transaction.id,
+      seller_id: product.user_id,
+      buyer_id: user.id,
+      sale_amount: totalPrice,
+      commission_amount: commissionAmount,
+      commission_rate: COMMISSION_RATE,
+    });
+
+    // Notify seller (show net payout after commission)
     await supabase.from("notifications").insert({
       user_id: product.user_id,
       type: "sale",
       title: "🎉 New Sale!",
-      message: `${buyerProfile.name} purchased "${product.product_name}" for ${actualPointsUsed > 0 ? `${actualPointsUsed} EcoPoints` : ""}${cashRemaining > 0 ? `${actualPointsUsed > 0 ? " + " : ""}KSh ${cashRemaining}` : ""}`,
+      message: `${buyerProfile.name} purchased "${product.product_name}" for ${actualPointsUsed > 0 ? `${actualPointsUsed} EcoPoints` : ""}${cashRemaining > 0 ? `${actualPointsUsed > 0 ? " + " : ""}KSh ${cashRemaining}` : ""} (You earn KSh ${sellerPayout.toLocaleString()})`,
       reference_id: transaction.id,
     });
 
