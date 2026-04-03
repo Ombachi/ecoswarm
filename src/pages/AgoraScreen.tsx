@@ -805,10 +805,7 @@ export function AgoraScreen() {
         onTouchEnd={handleTouchEnd}
       >
         {(() => {
-          const query = searchQuery.toLowerCase().trim();
-          const filteredPosts = query
-            ? posts.filter(p => p.userName.toLowerCase().includes(query) || p.content.toLowerCase().includes(query) || p.tags.some(t => t.toLowerCase().includes(query)))
-            : posts;
+          const filteredPosts = posts;
           
           if (isLoading) return (
             <div className="flex items-center justify-center py-12">
