@@ -223,9 +223,48 @@ export function AgoraScreen() {
     setFilterTag(tag || null);
   }, [tag]);
 
+  // Debounce search
+  useEffect(() => {
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      setSearchDebounce(searchQuery);
+    }, 400);
+    return () => { if (searchTimer.current) clearTimeout(searchTimer.current); };
+  }, [searchQuery]);
+
   useEffect(() => {
     loadPosts();
-  }, [user, filterTag]);
+  }, [user, filterTag, searchDebounce]);
+
+  // Realtime subscription for new posts
+  useEffect(() => {
+    const channel = supabase
+      .channel('agora-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, (payload) => {
+        const p = payload.new as any;
+        // Don't add if it's our own post (already added optimistically)
+        if (user && p.user_id === user.id) return;
+        let mediaItems: MediaItem[] = [];
+        try {
+          if (Array.isArray(p.media_urls) && p.media_urls.length > 0) {
+            mediaItems = p.media_urls.map((m: any) => ({ url: m.url, type: m.type || 'image', fileName: m.fileName }));
+          }
+        } catch {}
+        if (mediaItems.length === 0 && p.media_url) {
+          mediaItems = [{ url: p.media_url, type: p.media_type || 'image' }];
+        }
+        const newPost: Post = {
+          id: p.id, userId: p.user_id, userName: p.user_name,
+          content: p.content, mediaUrl: p.media_url || undefined,
+          mediaType: p.media_type as any, mediaItems,
+          likes: 0, comments: 0, shares: 0,
+          tags: p.tags || [], createdAt: new Date(p.created_at), isLiked: false,
+        };
+        setPosts(prev => [newPost, ...prev]);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
 
   const loadPosts = async (loadMore = false) => {
     if (!loadMore) { setIsLoading(true); setCursor(null); setHasMore(true); }
