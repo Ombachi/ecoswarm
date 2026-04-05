@@ -100,6 +100,7 @@ export function EcoMarketScreen() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [productCursor, setProductCursor] = useState<string | null>(null);
+  const [premiumSellers, setPremiumSellers] = useState<Set<string>>(new Set());
   const PRODUCT_PAGE_SIZE = 24;
 
   // Buy flow state
@@ -175,6 +176,19 @@ export function EcoMarketScreen() {
     const rect = target.getBoundingClientRect();
     setLightboxMedia({ url, type, rect });
   };
+
+  // Fetch premium sellers for priority listing
+  useEffect(() => {
+    supabase
+      .from('subscriptions')
+      .select('user_id')
+      .eq('plan', 'premium')
+      .eq('status', 'active')
+      .gt('expires_at', new Date().toISOString())
+      .then(({ data }) => {
+        if (data) setPremiumSellers(new Set(data.map(s => s.user_id)));
+      });
+  }, []);
 
   useEffect(() => {
     loadProducts();
@@ -304,7 +318,14 @@ export function EcoMarketScreen() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const filteredProducts = searchResults !== null ? searchResults : products;
+  // Sort: premium sellers first, then by date
+  const sortedProducts = searchResults !== null ? searchResults : [...products].sort((a, b) => {
+    const aP = premiumSellers.has(a.user_id) ? 1 : 0;
+    const bP = premiumSellers.has(b.user_id) ? 1 : 0;
+    if (bP !== aP) return bP - aP;
+    return 0; // keep original order (by created_at)
+  });
+  const filteredProducts = sortedProducts;
 
   const handleProductCreated = async (productData: {
     orgName: string;
