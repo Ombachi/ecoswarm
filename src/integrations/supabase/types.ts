@@ -1131,6 +1131,51 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          expires_at: string
+          id: string
+          mpesa_phone: string | null
+          mpesa_receipt: string | null
+          payment_method: string | null
+          plan: string
+          starts_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          expires_at?: string
+          id?: string
+          mpesa_phone?: string | null
+          mpesa_receipt?: string | null
+          payment_method?: string | null
+          plan?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          expires_at?: string
+          id?: string
+          mpesa_phone?: string | null
+          mpesa_receipt?: string | null
+          payment_method?: string | null
+          plan?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       swarm_memberships: {
         Row: {
           id: string
@@ -1560,6 +1605,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_premium: { Args: { p_user_id: string }; Returns: boolean }
       join_swarm: {
         Args: { p_swarm_id: string; p_votes?: number }
         Returns: Json
