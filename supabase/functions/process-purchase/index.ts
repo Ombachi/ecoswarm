@@ -159,8 +159,17 @@ serve(async (req) => {
       }
     }
 
-    // ── 10% Platform Commission ──
-    const COMMISSION_RATE = 0.10;
+    // ── Platform Commission (5% for Premium sellers, 10% for standard) ──
+    const { data: premiumCheck } = await supabase
+      .from("subscriptions")
+      .select("id")
+      .eq("user_id", product.user_id)
+      .eq("plan", "premium")
+      .eq("status", "active")
+      .gt("expires_at", new Date().toISOString())
+      .maybeSingle();
+
+    const COMMISSION_RATE = premiumCheck ? 0.05 : 0.10;
     const commissionAmount = Math.round(totalPrice * COMMISSION_RATE * 100) / 100;
     const sellerPayout = totalPrice - commissionAmount;
 
