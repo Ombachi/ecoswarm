@@ -100,6 +100,7 @@ export function EcoMarketScreen() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [productCursor, setProductCursor] = useState<string | null>(null);
+  const [premiumSellers, setPremiumSellers] = useState<Set<string>>(new Set());
   const PRODUCT_PAGE_SIZE = 24;
 
   // Buy flow state
@@ -175,6 +176,19 @@ export function EcoMarketScreen() {
     const rect = target.getBoundingClientRect();
     setLightboxMedia({ url, type, rect });
   };
+
+  // Fetch premium sellers for priority listing
+  useEffect(() => {
+    supabase
+      .from('subscriptions')
+      .select('user_id')
+      .eq('plan', 'premium')
+      .eq('status', 'active')
+      .gt('expires_at', new Date().toISOString())
+      .then(({ data }) => {
+        if (data) setPremiumSellers(new Set(data.map(s => s.user_id)));
+      });
+  }, []);
 
   useEffect(() => {
     loadProducts();
@@ -304,7 +318,14 @@ export function EcoMarketScreen() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const filteredProducts = searchResults !== null ? searchResults : products;
+  // Sort: premium sellers first, then by date
+  const sortedProducts = searchResults !== null ? searchResults : [...products].sort((a, b) => {
+    const aP = premiumSellers.has(a.user_id) ? 1 : 0;
+    const bP = premiumSellers.has(b.user_id) ? 1 : 0;
+    if (bP !== aP) return bP - aP;
+    return 0; // keep original order (by created_at)
+  });
+  const filteredProducts = sortedProducts;
 
   const handleProductCreated = async (productData: {
     orgName: string;
@@ -588,7 +609,14 @@ export function EcoMarketScreen() {
                     {/* Header: Org + Product Name + Trust Score + Save */}
                     <div className="flex items-start justify-between mb-2">
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-primary">{product.org_name}</p>
+                        <p className="text-xs font-semibold text-primary flex items-center gap-1">
+                          {product.org_name}
+                          {premiumSellers.has(product.user_id) && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold">
+                              <ShieldCheck className="w-3 h-3" /> Verified
+                            </span>
+                          )}
+                        </p>
                         <h3 className="text-lg font-bold text-foreground leading-tight">{product.product_name}</h3>
                       </div>
                       <button
