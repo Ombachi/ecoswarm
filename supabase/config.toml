@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.process-payout]
 verify_jwt = false
+
+[functions.subscription-reminders]
+verify_jwt = false
