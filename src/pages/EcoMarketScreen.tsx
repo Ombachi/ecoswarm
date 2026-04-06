@@ -418,13 +418,21 @@ export function EcoMarketScreen() {
         .eq('user_id', user.id);
 
       if (productCount === 1) {
-        supabase.functions.invoke('send-seller-onboarding', {
-          body: {
-            sellerName: user.name,
-            productName: productData.productName,
-            sellerEmail: user.email,
-          },
-        }).catch((err) => console.warn('Onboarding email failed:', err));
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (profile?.email) {
+          supabase.functions.invoke('send-seller-onboarding', {
+            body: {
+              sellerName: user.name,
+              productName: productData.productName,
+              sellerEmail: profile.email,
+            },
+          }).catch((err) => console.warn('Onboarding email failed:', err));
+        }
       }
 
       addPoints(50);
