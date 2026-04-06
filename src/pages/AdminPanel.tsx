@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import {
   GraduationCap, Mail, Users, Shield, AlertTriangle, Wallet, DollarSign,
-  BarChart3, LogOut, Megaphone, Building2, Package, Truck, Loader2,
+  BarChart3, LogOut, Megaphone, Building2, Package, Truck, Loader2, Crown, FlaskConical,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -23,6 +23,8 @@ import { AdminDisputesTab } from '@/components/admin/AdminDisputesTab';
 import { AdminPayoutsTab } from '@/components/admin/AdminPayoutsTab';
 import { AdminTransactionsTab } from '@/components/admin/AdminTransactionsTab';
 import { AdminSponsorsTab } from '@/components/admin/AdminSponsorsTab';
+import { AdminSubscriptionsTab } from '@/components/admin/AdminSubscriptionsTab';
+import { AdminExperimentsTab } from '@/components/admin/AdminExperimentsTab';
 
 export function AdminPanel() {
   const navigate = useNavigate();
@@ -99,7 +101,7 @@ export function AdminPanel() {
 
       <div className="p-4">
         <Tabs defaultValue="analytics">
-          <TabsList className="w-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 h-auto gap-1 p-1.5">
+          <TabsList className="w-full flex flex-wrap h-auto gap-1 p-1.5">
             <TabsTrigger value="analytics" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><BarChart3 className="w-3.5 h-3.5" /> Analytics</TabsTrigger>
             <TabsTrigger value="users" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><Users className="w-3.5 h-3.5" /> Users</TabsTrigger>
             <TabsTrigger value="courses" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><GraduationCap className="w-3.5 h-3.5" /> Courses</TabsTrigger>
@@ -109,8 +111,10 @@ export function AdminPanel() {
             <TabsTrigger value="transactions" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><DollarSign className="w-3.5 h-3.5" /> Txns</TabsTrigger>
             <TabsTrigger value="broadcast" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><Megaphone className="w-3.5 h-3.5" /> Broadcast</TabsTrigger>
             <TabsTrigger value="sponsors" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2 relative"><Building2 className="w-3.5 h-3.5" /> Sponsors<CountBadge count={badgeCounts.sponsors} /></TabsTrigger>
+            <TabsTrigger value="subscriptions" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><Crown className="w-3.5 h-3.5" /> Premium</TabsTrigger>
             <TabsTrigger value="merch" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><Package className="w-3.5 h-3.5" /> Merch</TabsTrigger>
             <TabsTrigger value="orders" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><Truck className="w-3.5 h-3.5" /> Orders</TabsTrigger>
+            <TabsTrigger value="experiments" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><FlaskConical className="w-3.5 h-3.5" /> A/B Tests</TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics"><AdminAnalyticsTab /></TabsContent>
@@ -122,8 +126,10 @@ export function AdminPanel() {
           <TabsContent value="transactions"><AdminTransactionsTab /></TabsContent>
           <TabsContent value="broadcast"><AdminBroadcastTab /></TabsContent>
           <TabsContent value="sponsors"><AdminSponsorsTab /></TabsContent>
+          <TabsContent value="subscriptions"><AdminSubscriptionsTab /></TabsContent>
           <TabsContent value="merch"><AdminMerchTab /></TabsContent>
           <TabsContent value="orders"><AdminOrdersTab /></TabsContent>
+          <TabsContent value="experiments"><AdminExperimentsTab /></TabsContent>
         </Tabs>
       </div>
     </AppLayout>
