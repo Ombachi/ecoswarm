@@ -382,7 +382,7 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
-    "@lovable.dev/cloud-auth-js": ["@lovable.dev/cloud-auth-js@1.0.1", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@lovable.dev/cloud-auth-js/-/cloud-auth-js-1.0.1.tgz", {}, "sha512-0IDAudiTtHpwCzq4a57LvYRSQr92xMW9S+4Q8PmsZfSAkPThBYnOTWtQTAPTM4qarQhDa04HWogy1z0aKGcmrg=="],
+    "@lovable.dev/cloud-auth-js": ["@lovable.dev/cloud-auth-js@1.0.1", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@lovable.dev/cloud-auth-js/-/cloud-auth-js-1.0.1.tgz", {}, "sha512-0IDAudiTtHpwCzq4a57LvYRSQr92xMW9S+4Q8PmsZfSAkPThBYnOTWtQTAPTM4qarQhDa04HWogy1z0aKGcmrg=="],
 
     "@napi-rs/canvas": ["@napi-rs/canvas@0.1.94", "", { "optionalDependencies": { "@napi-rs/canvas-android-arm64": "0.1.94", "@napi-rs/canvas-darwin-arm64": "0.1.94", "@napi-rs/canvas-darwin-x64": "0.1.94", "@napi-rs/canvas-linux-arm-gnueabihf": "0.1.94", "@napi-rs/canvas-linux-arm64-gnu": "0.1.94", "@napi-rs/canvas-linux-arm64-musl": "0.1.94", "@napi-rs/canvas-linux-riscv64-gnu": "0.1.94", "@napi-rs/canvas-linux-x64-gnu": "0.1.94", "@napi-rs/canvas-linux-x64-musl": "0.1.94", "@napi-rs/canvas-win32-arm64-msvc": "0.1.94", "@napi-rs/canvas-win32-x64-msvc": "0.1.94" } }, "sha512-8jBkvqynXNdQPNZjLJxB/Rp9PdnnMSHFBLzPmMc615nlt/O6w0ergBbkEDEOr8EbjL8nRQDpEklPx4pzD7zrbg=="],
 
@@ -646,7 +646,7 @@
 
     "@types/deep-eql": ["@types/deep-eql@4.0.2", "", {}, "sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw=="],
 
-    "@types/dompurify": ["@types/dompurify@3.2.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@types/dompurify/-/dompurify-3.2.0.tgz", { "dependencies": { "dompurify": "*" } }, "sha512-Fgg31wv9QbLDA0SpTOXO3MaxySc4DKGLi8sna4/Utjo4r3ZRPdCt4UQee8BWr+Q5z21yifghREPJGYaEOEIACg=="],
+    "@types/dompurify": ["@types/dompurify@3.2.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@types/dompurify/-/dompurify-3.2.0.tgz", { "dependencies": { "dompurify": "*" } }, "sha512-Fgg31wv9QbLDA0SpTOXO3MaxySc4DKGLi8sna4/Utjo4r3ZRPdCt4UQee8BWr+Q5z21yifghREPJGYaEOEIACg=="],
 
     "@types/estree": ["@types/estree@1.0.6", "", {}, "sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw=="],
 
@@ -910,7 +910,7 @@
 
     "domexception": ["domexception@4.0.0", "", { "dependencies": { "webidl-conversions": "^7.0.0" } }, "sha512-A2is4PLG+eeSfoTMA95/s4pvAoSo2mKtiM5jlHkAVewmiO8ISFTFKZjH7UAM1Atli/OT/7JHOrJRJiMKUZKYBw=="],
 
-    "dompurify": ["dompurify@3.3.3", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/dompurify/-/dompurify-3.3.3.tgz", { "optionalDependencies": { "@types/trusted-types": "^2.0.7" } }, "sha512-Oj6pzI2+RqBfFG+qOaOLbFXLQ90ARpcGG6UePL82bJLtdsa6CYJD7nmiU8MW9nQNOtCHV3lZ/Bzq1X0QYbBZCA=="],
+    "dompurify": ["dompurify@3.3.3", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/dompurify/-/dompurify-3.3.3.tgz", { "optionalDependencies": { "@types/trusted-types": "^2.0.7" } }, "sha512-Oj6pzI2+RqBfFG+qOaOLbFXLQ90ARpcGG6UePL82bJLtdsa6CYJD7nmiU8MW9nQNOtCHV3lZ/Bzq1X0QYbBZCA=="],
 
     "dunder-proto": ["dunder-proto@1.0.1", "", { "dependencies": { "call-bind-apply-helpers": "^1.0.1", "es-errors": "^1.3.0", "gopd": "^1.2.0" } }, "sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A=="],
 
