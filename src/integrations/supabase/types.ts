@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      ab_assignments: {
+        Row: {
+          converted: boolean
+          created_at: string
+          experiment_id: string
+          id: string
+          user_id: string
+          variant: string
+        }
+        Insert: {
+          converted?: boolean
+          created_at?: string
+          experiment_id: string
+          id?: string
+          user_id: string
+          variant: string
+        }
+        Update: {
+          converted?: boolean
+          created_at?: string
+          experiment_id?: string
+          id?: string
+          user_id?: string
+          variant?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ab_assignments_experiment_id_fkey"
+            columns: ["experiment_id"]
+            isOneToOne: false
+            referencedRelation: "ab_experiments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ab_experiments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          name: string
+          starts_at: string | null
+          target_pages: string[] | null
+          updated_at: string
+          variants: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          starts_at?: string | null
+          target_pages?: string[] | null
+          updated_at?: string
+          variants?: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          starts_at?: string | null
+          target_pages?: string[] | null
+          updated_at?: string
+          variants?: Json
+        }
+        Relationships: []
+      }
       advocacy_signers: {
         Row: {
           advocacy_id: string
