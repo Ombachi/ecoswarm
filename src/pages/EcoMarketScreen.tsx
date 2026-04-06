@@ -411,6 +411,22 @@ export function EcoMarketScreen() {
         }
       }
 
+      // Send seller onboarding email on first product listing
+      const { count: productCount } = await supabase
+        .from('products')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      if (productCount === 1) {
+        supabase.functions.invoke('send-seller-onboarding', {
+          body: {
+            sellerName: user.name,
+            productName: productData.productName,
+            sellerEmail: user.email,
+          },
+        }).catch((err) => console.warn('Onboarding email failed:', err));
+      }
+
       addPoints(50);
       updateStats({ postsCreated: user.stats.postsCreated + 1 });
       showNotification('Product listed & posted to Agora! 🛒', 50);
