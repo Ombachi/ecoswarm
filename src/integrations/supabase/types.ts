@@ -91,6 +91,47 @@ export type Database = {
         }
         Relationships: []
       }
+      advocacy_responses: {
+        Row: {
+          advocacy_id: string
+          created_at: string
+          evidence_url: string | null
+          id: string
+          response_status: string
+          summary: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          advocacy_id: string
+          created_at?: string
+          evidence_url?: string | null
+          id?: string
+          response_status?: string
+          summary: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          advocacy_id?: string
+          created_at?: string
+          evidence_url?: string | null
+          id?: string
+          response_status?: string
+          summary?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advocacy_responses_advocacy_id_fkey"
+            columns: ["advocacy_id"]
+            isOneToOne: false
+            referencedRelation: "business_advocacy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advocacy_signers: {
         Row: {
           advocacy_id: string
@@ -125,10 +166,13 @@ export type Database = {
           cooldown_until: string | null
           created_at: string
           creator_id: string
+          days_since_sent: number | null
           id: string
           impact_report: string | null
           min_signers: number
           problem_statement: string
+          response_date: string | null
+          response_status: string | null
           status: string
           target_recipient_id: string | null
           the_ask: string
@@ -139,10 +183,13 @@ export type Database = {
           cooldown_until?: string | null
           created_at?: string
           creator_id: string
+          days_since_sent?: number | null
           id?: string
           impact_report?: string | null
           min_signers?: number
           problem_statement: string
+          response_date?: string | null
+          response_status?: string | null
           status?: string
           target_recipient_id?: string | null
           the_ask: string
@@ -153,10 +200,13 @@ export type Database = {
           cooldown_until?: string | null
           created_at?: string
           creator_id?: string
+          days_since_sent?: number | null
           id?: string
           impact_report?: string | null
           min_signers?: number
           problem_statement?: string
+          response_date?: string | null
+          response_status?: string | null
           status?: string
           target_recipient_id?: string | null
           the_ask?: string
