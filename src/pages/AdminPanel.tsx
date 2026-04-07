@@ -110,8 +110,7 @@ export function AdminPanel() {
 
       <div className="p-4">
         <Tabs defaultValue="analytics">
-          {/* Admin nav as a responsive grid instead of a single row */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2 mb-4">
+          <TabsList className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2 mb-4 h-auto bg-transparent p-0">
             {[
               { value: 'analytics', icon: BarChart3, label: 'Analytics', badge: 0 },
               { value: 'users', icon: Users, label: 'Users', badge: 0 },
@@ -130,7 +129,7 @@ export function AdminPanel() {
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="relative flex flex-col items-center gap-1 p-3 rounded-xl border border-border/50 data-[state=active]:bg-primary/10 data-[state=active]:border-primary/30 data-[state=active]:text-primary transition-all h-auto"
+                className="relative flex flex-col items-center gap-1 p-3 rounded-xl border border-border/50 bg-card data-[state=active]:bg-primary/10 data-[state=active]:border-primary/30 data-[state=active]:text-primary transition-all h-auto"
               >
                 <tab.icon className="w-4 h-4" />
                 <span className="text-[10px] font-medium">{tab.label}</span>
@@ -139,22 +138,6 @@ export function AdminPanel() {
                 )}
               </TabsTrigger>
             ))}
-          </div>
-
-          <TabsList className="hidden">
-            <TabsTrigger value="analytics" />
-            <TabsTrigger value="users" />
-            <TabsTrigger value="courses" />
-            <TabsTrigger value="templates" />
-            <TabsTrigger value="disputes" />
-            <TabsTrigger value="payouts" />
-            <TabsTrigger value="transactions" />
-            <TabsTrigger value="broadcast" />
-            <TabsTrigger value="sponsors" />
-            <TabsTrigger value="subscriptions" />
-            <TabsTrigger value="merch" />
-            <TabsTrigger value="orders" />
-            <TabsTrigger value="experiments" />
           </TabsList>
 
           <TabsContent value="analytics"><AdminAnalyticsTab /></TabsContent>
