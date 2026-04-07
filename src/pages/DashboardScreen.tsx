@@ -196,10 +196,10 @@ export function DashboardScreen() {
     { id: 'earnings', icon: BarChart3, label: "Earnings", color: "from-eco-gold to-eco-green", path: "/earnings" },
   ];
 
-  // Hide Challenges for EcoDevelopers
+  // Role-aware filtering: hide Challenges for devs, hide Earnings for warriors
   const quickActions = isDeveloper
     ? allQuickActions.filter(a => a.id !== 'challenges')
-    : allQuickActions;
+    : allQuickActions.filter(a => a.id !== 'earnings');
 
   return (
     <AppLayout>

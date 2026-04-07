@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Package, ShoppingCart, Loader2, Check, ClipboardList } from 'lucide-react';
+import { calculateSmartBuy, ECOPOINTS_PER_KES, pointsToKes } from '@/lib/ecoPointsConversion';
 import { toast } from 'sonner';
 import { Confetti } from '@/components/common/Confetti';
 import { LazyImage } from '@/components/common/LazyImage';
@@ -61,7 +62,8 @@ export function EcoMerchScreen() {
         return;
       }
 
-      const pointsToUse = Math.min(user.ecoPoints, checkoutProduct.price);
+      const breakdown = calculateSmartBuy(checkoutProduct.price, user.ecoPoints);
+      const pointsToUse = breakdown.pointsUsed;
       const { error } = await supabase.from('merch_orders').insert({
         user_id: user.id,
         merch_id: checkoutProduct.id,
@@ -160,12 +162,25 @@ export function EcoMerchScreen() {
               <h3 className="text-lg font-bold text-foreground">{checkoutProduct.name}</h3>
               <p className="text-sm text-muted-foreground">KSh {checkoutProduct.price.toLocaleString()}</p>
             </div>
-            {user && (
-              <div className="bg-muted/50 rounded-xl p-3 text-sm space-y-1">
-                <div className="flex justify-between"><span className="text-muted-foreground">EcoPoints available</span><span className="font-semibold text-primary">{user.ecoPoints}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Points to use</span><span className="font-semibold">{Math.min(user.ecoPoints, checkoutProduct.price)}</span></div>
-              </div>
-            )}
+            {user && (() => {
+              const breakdown = calculateSmartBuy(checkoutProduct.price, user.ecoPoints);
+              return (
+                <div className="bg-muted/50 rounded-xl p-3 text-sm space-y-1">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Your EcoPoints</span><span className="font-semibold text-primary">{user.ecoPoints.toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Worth in KES</span><span className="font-semibold">KSh {pointsToKes(user.ecoPoints).toLocaleString()}</span></div>
+                  <div className="border-t border-border my-1" />
+                  <div className="flex justify-between"><span className="text-muted-foreground">Points to redeem</span><span className="font-semibold text-primary">{breakdown.pointsUsed.toLocaleString()} pts</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Points value</span><span className="font-semibold">- KSh {breakdown.pointsKesValue.toLocaleString()}</span></div>
+                  {breakdown.cashRemaining > 0 && (
+                    <div className="flex justify-between text-foreground font-bold"><span>Cash to pay</span><span>KSh {breakdown.cashRemaining.toLocaleString()}</span></div>
+                  )}
+                  {breakdown.canFullRedeem && (
+                    <p className="text-[10px] text-primary font-medium mt-1">✨ You can fully redeem with EcoPoints!</p>
+                  )}
+                  <p className="text-[9px] text-muted-foreground mt-1">Rate: {ECOPOINTS_PER_KES} EcoPoints = KSh 1</p>
+                </div>
+              );
+            })()}
             <div>
               <label className="text-sm font-medium text-foreground mb-1 block">Phone (M-Pesa)</label>
               <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0712345678" className="eco-input py-2.5 text-sm" />

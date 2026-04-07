@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import {
   GraduationCap, Mail, Users, Shield, AlertTriangle, Wallet, DollarSign,
-  BarChart3, LogOut, Megaphone, Building2, Package, Truck, Loader2, Crown, FlaskConical,
+  BarChart3, LogOut, Megaphone, Building2, Package, Truck, Loader2, Crown, FlaskConical, Home,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -81,17 +81,23 @@ export function AdminPanel() {
     );
   }
 
-  const CountBadge = ({ count }: { count: number }) => count > 0 ? (
-    <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 text-[9px] flex items-center justify-center">{count}</span>
-  ) : null;
 
   return (
     <AppLayout>
       <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
-            <p className="text-xs text-muted-foreground">EcoSwarm Control Panel</p>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/')}
+              className="p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              title="Home"
+            >
+              <Home className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
+              <p className="text-xs text-muted-foreground">EcoSwarm Control Panel</p>
+            </div>
           </div>
           <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={async () => { await logout(); toast.success('Logged out'); navigate('/'); }}>
             <LogOut className="w-3.5 h-3.5" /> Logout
@@ -101,20 +107,34 @@ export function AdminPanel() {
 
       <div className="p-4">
         <Tabs defaultValue="analytics">
-          <TabsList className="w-full flex flex-wrap h-auto gap-1 p-1.5">
-            <TabsTrigger value="analytics" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><BarChart3 className="w-3.5 h-3.5" /> Analytics</TabsTrigger>
-            <TabsTrigger value="users" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><Users className="w-3.5 h-3.5" /> Users</TabsTrigger>
-            <TabsTrigger value="courses" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><GraduationCap className="w-3.5 h-3.5" /> Courses</TabsTrigger>
-            <TabsTrigger value="templates" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><Mail className="w-3.5 h-3.5" /> Letters</TabsTrigger>
-            <TabsTrigger value="disputes" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2 relative"><AlertTriangle className="w-3.5 h-3.5" /> Disputes<CountBadge count={badgeCounts.disputes} /></TabsTrigger>
-            <TabsTrigger value="payouts" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2 relative"><Wallet className="w-3.5 h-3.5" /> Payouts<CountBadge count={badgeCounts.payouts} /></TabsTrigger>
-            <TabsTrigger value="transactions" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><DollarSign className="w-3.5 h-3.5" /> Txns</TabsTrigger>
-            <TabsTrigger value="broadcast" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><Megaphone className="w-3.5 h-3.5" /> Broadcast</TabsTrigger>
-            <TabsTrigger value="sponsors" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2 relative"><Building2 className="w-3.5 h-3.5" /> Sponsors<CountBadge count={badgeCounts.sponsors} /></TabsTrigger>
-            <TabsTrigger value="subscriptions" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><Crown className="w-3.5 h-3.5" /> Premium</TabsTrigger>
-            <TabsTrigger value="merch" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><Package className="w-3.5 h-3.5" /> Merch</TabsTrigger>
-            <TabsTrigger value="orders" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><Truck className="w-3.5 h-3.5" /> Orders</TabsTrigger>
-            <TabsTrigger value="experiments" className="gap-1.5 text-[10px] sm:text-xs px-2 py-2"><FlaskConical className="w-3.5 h-3.5" /> A/B Tests</TabsTrigger>
+          <TabsList className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2 mb-4 h-auto bg-transparent p-0">
+            {[
+              { value: 'analytics', icon: BarChart3, label: 'Analytics', badge: 0 },
+              { value: 'users', icon: Users, label: 'Users', badge: 0 },
+              { value: 'courses', icon: GraduationCap, label: 'Courses', badge: 0 },
+              { value: 'templates', icon: Mail, label: 'Letters', badge: 0 },
+              { value: 'disputes', icon: AlertTriangle, label: 'Disputes', badge: badgeCounts.disputes },
+              { value: 'payouts', icon: Wallet, label: 'Payouts', badge: badgeCounts.payouts },
+              { value: 'transactions', icon: DollarSign, label: 'Txns', badge: 0 },
+              { value: 'broadcast', icon: Megaphone, label: 'Broadcast', badge: 0 },
+              { value: 'sponsors', icon: Building2, label: 'Sponsors', badge: badgeCounts.sponsors },
+              { value: 'subscriptions', icon: Crown, label: 'Premium', badge: 0 },
+              { value: 'merch', icon: Package, label: 'Merch', badge: 0 },
+              { value: 'orders', icon: Truck, label: 'Orders', badge: 0 },
+              { value: 'experiments', icon: FlaskConical, label: 'A/B Tests', badge: 0 },
+            ].map(tab => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="relative flex flex-col items-center gap-1 p-3 rounded-xl border border-border/50 bg-card data-[state=active]:bg-primary/10 data-[state=active]:border-primary/30 data-[state=active]:text-primary transition-all h-auto"
+              >
+                <tab.icon className="w-4 h-4" />
+                <span className="text-[10px] font-medium">{tab.label}</span>
+                {tab.badge > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 text-[9px] flex items-center justify-center">{tab.badge}</span>
+                )}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent value="analytics"><AdminAnalyticsTab /></TabsContent>
