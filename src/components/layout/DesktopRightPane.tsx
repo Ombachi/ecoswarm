@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { CalendarDays, Users, Trophy, ChevronRight, Target, MapPin } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { KenyaHeatMap } from '@/components/heatmap/KenyaHeatMap';
+import { AccountabilityWidget } from '@/components/accountability/AccountabilityWidget';
 
 interface MiniSwarm {
   id: string;
@@ -144,6 +145,9 @@ export function DesktopRightPane() {
 
       {/* Activity Heat Map */}
       <KenyaHeatMap />
+
+      {/* Wall of Accountability */}
+      <AccountabilityWidget />
 
       {/* Daily Challenges - EcoWarrior only */}
       {!isDeveloper && (
