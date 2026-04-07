@@ -81,9 +81,6 @@ export function AdminPanel() {
     );
   }
 
-  const CountBadge = ({ count }: { count: number }) => count > 0 ? (
-    <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 text-[9px] flex items-center justify-center">{count}</span>
-  ) : null;
 
   return (
     <AppLayout>
