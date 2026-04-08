@@ -78,10 +78,14 @@ serve(async (req) => {
       throw new Error("Duplicate purchase detected. Please wait before buying this item again.");
     }
 
+    // ── EcoPoints conversion: 10 EcoPoints = 1 KES ──
+    const ECOPOINTS_PER_KES = 10;
     const totalPrice = Number(product.price);
     const availablePoints = buyerProfile.eco_points || 0;
-    const actualPointsUsed = Math.min(pointsToUse, availablePoints, totalPrice);
-    const cashRemaining = totalPrice - actualPointsUsed;
+    const maxPointsKesValue = Math.floor(availablePoints / ECOPOINTS_PER_KES);
+    const pointsKesUsed = Math.min(maxPointsKesValue, totalPrice);
+    const actualPointsUsed = pointsKesUsed * ECOPOINTS_PER_KES;
+    const cashRemaining = totalPrice - pointsKesUsed;
 
     let paymentMethod = "ecopoints";
     let mpesaReceipt: string | null = null;
