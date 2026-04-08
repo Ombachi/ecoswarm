@@ -5,11 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Megaphone, Send, Loader2, Plus, X, BarChart3,
   MessageSquare, ThermometerSun, Star, Trash2, Eye,
+  Bell, Users, MapPin, Trophy, Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { kenyanCounties } from '@/data/kenyanCounties';
 
 type PollType = 'poll' | 'feedback' | 'campaign';
 
@@ -29,6 +33,16 @@ interface Poll {
   created_at: string;
 }
 
+type SegmentType = 'all' | 'dormant' | 'top_earners' | 'county' | 'role';
+
+interface CampaignLog {
+  id: string;
+  title: string;
+  segment: string;
+  sent_count: number;
+  created_at: string;
+}
+
 export function AdminBroadcastTab() {
   const { user } = useApp();
 
@@ -36,6 +50,20 @@ export function AdminBroadcastTab() {
   const [broadcastTitle, setBroadcastTitle] = useState('');
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
+
+  // Push campaign state
+  const [pushTitle, setPushTitle] = useState('');
+  const [pushBody, setPushBody] = useState('');
+  const [segment, setSegment] = useState<SegmentType>('all');
+  const [selectedCounty, setSelectedCounty] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'ecowarrior' | 'ecodeveloper'>('ecowarrior');
+  const [dormantDays, setDormantDays] = useState(7);
+  const [topN, setTopN] = useState(50);
+  const [isSendingPush, setIsSendingPush] = useState(false);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [previewCount, setPreviewCount] = useState<number | null>(null);
+  const [alsoNotify, setAlsoNotify] = useState(true);
+  const [campaignLogs, setCampaignLogs] = useState<CampaignLog[]>([]);
 
   // Polls state
   const [polls, setPolls] = useState<Poll[]>([]);
@@ -53,7 +81,153 @@ export function AdminBroadcastTab() {
 
   useEffect(() => {
     loadPolls();
+    loadCampaignLogs();
   }, []);
+
+  // Preview segment count whenever filters change
+  useEffect(() => {
+    previewSegment();
+  }, [segment, selectedCounty, selectedRole, dormantDays, topN]);
+
+  const buildSegmentQuery = async (): Promise<string[]> => {
+    let userIds: string[] = [];
+
+    if (segment === 'all') {
+      const { data } = await supabase.from('profiles').select('user_id');
+      userIds = (data || []).map(p => p.user_id);
+    } else if (segment === 'dormant') {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - dormantDays);
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .lt('last_active_at', cutoff.toISOString());
+      userIds = (data || []).map(p => p.user_id);
+    } else if (segment === 'top_earners') {
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .order('eco_points', { ascending: false })
+        .limit(topN);
+      userIds = (data || []).map(p => p.user_id);
+    } else if (segment === 'county') {
+      if (!selectedCounty) return [];
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('county', selectedCounty);
+      userIds = (data || []).map(p => p.user_id);
+    } else if (segment === 'role') {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', selectedRole);
+      userIds = (data || []).map(p => p.user_id);
+    }
+
+    return userIds;
+  };
+
+  const previewSegment = async () => {
+    setIsLoadingPreview(true);
+    try {
+      const ids = await buildSegmentQuery();
+      setPreviewCount(ids.length);
+    } catch {
+      setPreviewCount(null);
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  };
+
+  const segmentLabel = (): string => {
+    switch (segment) {
+      case 'all': return 'All Users';
+      case 'dormant': return `Dormant (${dormantDays}+ days)`;
+      case 'top_earners': return `Top ${topN} Earners`;
+      case 'county': return selectedCounty || 'County';
+      case 'role': return selectedRole === 'ecodeveloper' ? 'EcoDevelopers' : 'EcoWarriors';
+      default: return 'All';
+    }
+  };
+
+  const handleSendPushCampaign = async () => {
+    if (!pushTitle.trim() || !pushBody.trim()) return;
+    setIsSendingPush(true);
+    try {
+      const targetUserIds = await buildSegmentQuery();
+      if (targetUserIds.length === 0) {
+        toast.error('No users match this segment');
+        return;
+      }
+
+      // Send push notifications via edge function
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+
+      if (token) {
+        // Send in batches of 100 user IDs
+        for (let i = 0; i < targetUserIds.length; i += 100) {
+          const batch = targetUserIds.slice(i, i + 100);
+          await supabase.functions.invoke('send-push', {
+            body: { title: pushTitle.trim(), body: pushBody.trim(), userIds: batch },
+          });
+        }
+      }
+
+      // Also create in-app notifications if checked
+      if (alsoNotify) {
+        const notifications = targetUserIds.map(uid => ({
+          user_id: uid,
+          type: 'push_campaign',
+          title: pushTitle.trim(),
+          message: pushBody.trim(),
+        }));
+        for (let i = 0; i < notifications.length; i += 500) {
+          await supabase.from('notifications').insert(notifications.slice(i, i + 500));
+        }
+      }
+
+      // Log campaign
+      await supabase.from('platform_analytics').insert({
+        event_type: 'push_campaign_sent',
+        user_id: user?.id,
+        page: 'admin',
+        event_data: {
+          title: pushTitle.trim(),
+          segment: segmentLabel(),
+          sent_count: targetUserIds.length,
+        },
+      });
+
+      toast.success(`Push sent to ${targetUserIds.length} users!`);
+      setPushTitle('');
+      setPushBody('');
+      loadCampaignLogs();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send push campaign');
+    } finally {
+      setIsSendingPush(false);
+    }
+  };
+
+  const loadCampaignLogs = async () => {
+    const { data } = await supabase
+      .from('platform_analytics')
+      .select('id, event_data, created_at')
+      .eq('event_type', 'push_campaign_sent')
+      .order('created_at', { ascending: false })
+      .limit(10);
+    setCampaignLogs(
+      (data || []).map(d => ({
+        id: d.id,
+        title: (d.event_data as any)?.title || 'Untitled',
+        segment: (d.event_data as any)?.segment || 'All',
+        sent_count: (d.event_data as any)?.sent_count || 0,
+        created_at: d.created_at,
+      }))
+    );
+  };
 
   const loadPolls = async () => {
     setIsLoadingPolls(true);
@@ -130,7 +304,6 @@ export function AdminBroadcastTab() {
 
       const createdPollId = newPollData?.id;
 
-      // Notify all users about the new poll
       const { data: profiles } = await supabase.from('profiles').select('user_id');
       if (profiles && profiles.length > 0) {
         const typeLabel = newPollType === 'feedback' ? '📝 Feedback Survey' : newPollType === 'campaign' ? '🌍 Campaign' : '📊 New Poll';
@@ -146,7 +319,6 @@ export function AdminBroadcastTab() {
         }
       }
 
-      // Auto-post poll/campaign to Agora Square with poll ID tag
       if (user) {
         const emoji = newPollType === 'feedback' ? '📝' : newPollType === 'campaign' ? '🌍' : '📊';
         const label = newPollType === 'feedback' ? 'Feedback Survey' : newPollType === 'campaign' ? 'Campaign' : 'New Poll';
@@ -193,38 +365,23 @@ export function AdminBroadcastTab() {
     const responses = data || [];
     setPollResponses(responses);
     
-    // Also update the poll's cached vote counts from actual responses
     if (responses.length > 0) {
       const updatedOptions = poll.options.map((opt, i) => ({
         ...opt,
         votes: responses.filter(r => r.selected_option === i).length,
       }));
-      // Update local state
       setPolls(prev => prev.map(p => p.id === poll.id ? { ...p, options: updatedOptions } : p));
-      // Sync to DB
       await supabase.from('polls').update({ options: updatedOptions as any }).eq('id', poll.id);
     }
   };
 
   const pollTypeConfig: Record<PollType, { label: string; icon: any; color: string; presets: string[] }> = {
-    poll: {
-      label: 'Poll',
-      icon: BarChart3,
-      color: 'text-primary',
-      presets: [],
-    },
+    poll: { label: 'Poll', icon: BarChart3, color: 'text-primary', presets: [] },
     feedback: {
-      label: 'Feedback',
-      icon: MessageSquare,
-      color: 'text-amber-600',
+      label: 'Feedback', icon: MessageSquare, color: 'text-amber-600',
       presets: ['Climate Anxiety Survey', 'User Experience Feedback', 'App Utility Rating'],
     },
-    campaign: {
-      label: 'Campaign',
-      icon: ThermometerSun,
-      color: 'text-emerald-600',
-      presets: [],
-    },
+    campaign: { label: 'Campaign', icon: ThermometerSun, color: 'text-emerald-600', presets: [] },
   };
 
   const applyPreset = (preset: string) => {
@@ -240,6 +397,14 @@ export function AdminBroadcastTab() {
       setNewPollOptions(['Agora (Social)', 'EcoMarket', 'Capacity Hub', 'EcoLetter', 'Swarms']);
     }
   };
+
+  const segmentOptions: { value: SegmentType; label: string; icon: any; desc: string }[] = [
+    { value: 'all', label: 'All Users', icon: Users, desc: 'Send to everyone' },
+    { value: 'dormant', label: 'Dormant Users', icon: Clock, desc: 'Inactive for X days' },
+    { value: 'top_earners', label: 'Top Earners', icon: Trophy, desc: 'Highest EcoPoints' },
+    { value: 'county', label: 'By County', icon: MapPin, desc: 'Target specific county' },
+    { value: 'role', label: 'By Role', icon: Users, desc: 'EcoWarriors or EcoDevelopers' },
+  ];
 
   return (
     <div className="space-y-6 pt-3">
@@ -261,6 +426,178 @@ export function AdminBroadcastTab() {
           {isBroadcasting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           {isBroadcasting ? 'Sending...' : 'Send to All Users'}
         </Button>
+      </div>
+
+      {/* Push Notification Campaign Section */}
+      <div className="eco-card p-4 space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Bell className="w-5 h-5 text-primary" />
+          <h3 className="font-semibold text-foreground">Push Notification Campaign</h3>
+        </div>
+
+        {/* Segment Selector */}
+        <div>
+          <label className="text-sm font-medium text-foreground mb-2 block">Target Segment</label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {segmentOptions.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setSegment(opt.value)}
+                className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-center transition-all ${
+                  segment === opt.value
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border bg-card text-muted-foreground hover:border-primary/30'
+                }`}
+              >
+                <opt.icon className="w-4 h-4" />
+                <span className="text-xs font-medium">{opt.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Segment-specific controls */}
+        {segment === 'dormant' && (
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1 block">Inactive for at least</label>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min={1}
+                max={365}
+                value={dormantDays}
+                onChange={e => setDormantDays(Number(e.target.value) || 7)}
+                className="w-24"
+              />
+              <span className="text-sm text-muted-foreground">days</span>
+            </div>
+          </div>
+        )}
+
+        {segment === 'top_earners' && (
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1 block">Top N users by EcoPoints</label>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min={5}
+                max={500}
+                value={topN}
+                onChange={e => setTopN(Number(e.target.value) || 50)}
+                className="w-24"
+              />
+              <span className="text-sm text-muted-foreground">users</span>
+            </div>
+          </div>
+        )}
+
+        {segment === 'county' && (
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1 block">Select County</label>
+            <Select value={selectedCounty} onValueChange={setSelectedCounty}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose county..." />
+              </SelectTrigger>
+              <SelectContent className="max-h-60">
+                {kenyanCounties.map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {segment === 'role' && (
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1 block">Select Role</label>
+            <div className="flex gap-2">
+              {(['ecowarrior', 'ecodeveloper'] as const).map(r => (
+                <button
+                  key={r}
+                  onClick={() => setSelectedRole(r)}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    selectedRole === r ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {r === 'ecowarrior' ? '🌍 EcoWarrior' : '🏢 EcoDeveloper'}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Preview count */}
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/50 border border-border">
+          <Users className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm text-foreground">
+            {isLoadingPreview ? (
+              <Loader2 className="w-3 h-3 animate-spin inline" />
+            ) : (
+              <><strong>{previewCount ?? '—'}</strong> users will receive this push</>
+            )}
+          </span>
+        </div>
+
+        {/* Message */}
+        <div>
+          <label className="text-sm font-medium text-foreground mb-1 block">Push Title</label>
+          <Input
+            placeholder="e.g. 🌱 We miss you!"
+            value={pushTitle}
+            onChange={e => setPushTitle(e.target.value)}
+            maxLength={100}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-foreground mb-1 block">Push Body</label>
+          <Textarea
+            placeholder="e.g. Come back and check out new marketplace listings..."
+            value={pushBody}
+            onChange={e => setPushBody(e.target.value)}
+            className="min-h-[60px]"
+            maxLength={500}
+          />
+        </div>
+
+        {/* Also send in-app */}
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="also-notify"
+            checked={alsoNotify}
+            onCheckedChange={v => setAlsoNotify(!!v)}
+          />
+          <label htmlFor="also-notify" className="text-sm text-foreground cursor-pointer">
+            Also create in-app notifications
+          </label>
+        </div>
+
+        <Button
+          onClick={handleSendPushCampaign}
+          disabled={isSendingPush || !pushTitle.trim() || !pushBody.trim() || (previewCount === 0)}
+          className="w-full gap-2"
+        >
+          {isSendingPush ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
+          {isSendingPush ? 'Sending...' : `Send Push to ${previewCount ?? 0} Users`}
+        </Button>
+
+        {/* Campaign History */}
+        {campaignLogs.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-medium text-foreground mb-2">Recent Campaigns</h4>
+            <div className="space-y-2">
+              {campaignLogs.map(log => (
+                <div key={log.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 text-sm">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground truncate">{log.title}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {log.segment} • {log.sent_count} users • {new Date(log.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Polls & Campaigns Section */}
@@ -326,7 +663,6 @@ export function AdminBroadcastTab() {
               </button>
             </div>
             <div className="p-4 space-y-4">
-              {/* Type Selector */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Type</label>
                 <div className="flex gap-2">
@@ -347,7 +683,6 @@ export function AdminBroadcastTab() {
                 </div>
               </div>
 
-              {/* Presets for feedback */}
               {pollTypeConfig[newPollType].presets.length > 0 && (
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Quick Presets</label>
@@ -374,7 +709,6 @@ export function AdminBroadcastTab() {
                 <Textarea value={newPollDesc} onChange={(e) => setNewPollDesc(e.target.value)} placeholder="Add context..." className="min-h-[60px]" />
               </div>
 
-              {/* Options */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Options</label>
                 {newPollOptions.map((opt, i) => (
@@ -429,7 +763,6 @@ export function AdminBroadcastTab() {
               <h3 className="font-semibold text-foreground">{viewingPoll.title}</h3>
               <p className="text-xs text-muted-foreground">{pollResponses.length} total responses</p>
 
-              {/* Option breakdown */}
               <div className="space-y-2">
                 {viewingPoll.options.map((opt, i) => {
                   const count = pollResponses.filter((r) => r.selected_option === i).length;
@@ -448,7 +781,6 @@ export function AdminBroadcastTab() {
                 })}
               </div>
 
-              {/* Feedback text responses */}
               {pollResponses.some((r) => r.feedback_text) && (
                 <div>
                   <h4 className="text-sm font-medium text-foreground mb-2">Written Feedback</h4>
