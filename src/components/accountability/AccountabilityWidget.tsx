@@ -37,7 +37,7 @@ export function AccountabilityWidget() {
     const { data: advocacies } = await supabase
       .from('business_advocacy')
       .select('id, title, response_status, created_at, target_recipient_id')
-      .eq('status', 'sent')
+      .in('status', ['sent', 'collecting'])
       .order('created_at', { ascending: false })
       .limit(4);
 
