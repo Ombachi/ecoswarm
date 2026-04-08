@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import {
   GraduationCap, Mail, Users, Shield, AlertTriangle, Wallet, DollarSign,
-  BarChart3, LogOut, Megaphone, Building2, Package, Truck, Loader2, Crown, FlaskConical, Home,
+  BarChart3, LogOut, Megaphone, Building2, Package, Truck, Loader2, Crown, FlaskConical, Home, Scale,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -25,6 +25,7 @@ import { AdminTransactionsTab } from '@/components/admin/AdminTransactionsTab';
 import { AdminSponsorsTab } from '@/components/admin/AdminSponsorsTab';
 import { AdminSubscriptionsTab } from '@/components/admin/AdminSubscriptionsTab';
 import { AdminExperimentsTab } from '@/components/admin/AdminExperimentsTab';
+import { AdminAdvocacyTab } from '@/components/admin/AdminAdvocacyTab';
 
 export function AdminPanel() {
   const navigate = useNavigate();
@@ -122,6 +123,7 @@ export function AdminPanel() {
               { value: 'merch', icon: Package, label: 'Merch', badge: 0 },
               { value: 'orders', icon: Truck, label: 'Orders', badge: 0 },
               { value: 'experiments', icon: FlaskConical, label: 'A/B Tests', badge: 0 },
+              { value: 'advocacy', icon: Scale, label: 'Advocacy', badge: 0 },
             ].map(tab => (
               <TabsTrigger
                 key={tab.value}
@@ -150,6 +152,7 @@ export function AdminPanel() {
           <TabsContent value="merch"><AdminMerchTab /></TabsContent>
           <TabsContent value="orders"><AdminOrdersTab /></TabsContent>
           <TabsContent value="experiments"><AdminExperimentsTab /></TabsContent>
+          <TabsContent value="advocacy"><AdminAdvocacyTab /></TabsContent>
         </Tabs>
       </div>
     </AppLayout>

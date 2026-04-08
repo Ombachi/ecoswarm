@@ -16,6 +16,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { createAutoPost } from '@/utils/autoPost';
 import { usePageMeta } from '@/hooks/usePageMeta';
+import { calculateSmartBuy, formatPointsWithKes } from '@/lib/ecoPointsConversion';
 
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -457,8 +458,9 @@ export function EcoMarketScreen() {
   // ── Buy flow helpers ──
   const getBuyButtonState = (price: number) => {
     const points = user?.ecoPoints || 0;
-    if (points >= price) return { type: 'full' as const, label: `Redeem ${price} EcoPoints`, color: 'eco-gradient-bg text-white' };
-    if (points > 0) return { type: 'partial' as const, label: `Redeem ${points} EcoPoints + Pay KSh ${(price - points).toLocaleString()}`, color: 'bg-amber-500 text-white' };
+    const smartBuy = calculateSmartBuy(price, points);
+    if (smartBuy.canFullRedeem) return { type: 'full' as const, label: `Redeem ${smartBuy.pointsUsed.toLocaleString()} pts (KSh ${price.toLocaleString()})`, color: 'eco-gradient-bg text-white' };
+    if (smartBuy.pointsUsed > 0) return { type: 'partial' as const, label: `${smartBuy.pointsUsed.toLocaleString()} pts + KSh ${smartBuy.cashRemaining.toLocaleString()}`, color: 'bg-amber-500 text-white' };
     return { type: 'cash' as const, label: `Pay KSh ${price.toLocaleString()}`, color: 'eco-gradient-bg text-white' };
   };
 
@@ -470,16 +472,14 @@ export function EcoMarketScreen() {
 
   const handleConfirmPurchase = async () => {
     if (!buyProduct || !user) return;
-    const points = user.ecoPoints || 0;
-    const pointsToUse = Math.min(points, buyProduct.price);
-    const cashRemaining = buyProduct.price - pointsToUse;
+    const smartBuy = calculateSmartBuy(buyProduct.price, user.ecoPoints || 0);
 
-    if (cashRemaining > 0 && !phoneNumber.trim()) {
+    if (smartBuy.cashRemaining > 0 && !phoneNumber.trim()) {
       toast.error('Please enter your M-Pesa phone number');
       return;
     }
 
-    const result = await processPurchase(buyProduct.id, pointsToUse, phoneNumber || undefined);
+    const result = await processPurchase(buyProduct.id, smartBuy.pointsUsed, phoneNumber || undefined);
     if (result) {
       setShowConfirmModal(false);
       setPurchaseResult({ ...result, productName: buyProduct.product_name });
@@ -526,7 +526,9 @@ export function EcoMarketScreen() {
         {user && (
           <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10">
             <Leaf className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">You have <span className="eco-gradient-text">{user.ecoPoints.toLocaleString()}</span> EcoPoints</span>
+            <span className="text-sm font-semibold text-foreground">
+              <span className="eco-gradient-text">{formatPointsWithKes(user.ecoPoints)}</span>
+            </span>
           </div>
         )}
 
@@ -782,27 +784,25 @@ export function EcoMarketScreen() {
                 <span className="font-semibold text-foreground">KSh {buyProduct.price.toLocaleString()}</span>
               </div>
               {(() => {
-                const points = user.ecoPoints || 0;
-                const pointsToUse = Math.min(points, buyProduct.price);
-                const cashRemaining = buyProduct.price - pointsToUse;
+                const smartBuy = calculateSmartBuy(buyProduct.price, user.ecoPoints || 0);
 
                 return (
                   <>
-                    {pointsToUse > 0 && (
+                    {smartBuy.pointsUsed > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-primary flex items-center gap-1"><Leaf className="w-3.5 h-3.5" /> EcoPoints</span>
-                        <span className="font-semibold text-primary">-{pointsToUse} pts</span>
+                        <span className="font-semibold text-primary">-{smartBuy.pointsUsed.toLocaleString()} pts (≈ KSh {smartBuy.pointsKesValue.toLocaleString()})</span>
                       </div>
                     )}
-                    {cashRemaining > 0 && (
+                    {smartBuy.cashRemaining > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Remaining (M-Pesa)</span>
-                        <span className="font-semibold text-foreground">KSh {cashRemaining.toLocaleString()}</span>
+                        <span className="font-semibold text-foreground">KSh {smartBuy.cashRemaining.toLocaleString()}</span>
                       </div>
                     )}
                     <div className="border-t border-border pt-2 flex justify-between text-sm">
                       <span className="text-muted-foreground">Points after</span>
-                      <span className="font-semibold text-foreground">{(points - pointsToUse)} + 50 bonus 🎁</span>
+                      <span className="font-semibold text-foreground">{((user.ecoPoints || 0) - smartBuy.pointsUsed).toLocaleString()} + 50 bonus 🎁</span>
                     </div>
                   </>
                 );
@@ -811,8 +811,8 @@ export function EcoMarketScreen() {
 
             {/* M-Pesa phone input if cash needed */}
             {(() => {
-              const cashRemaining = buyProduct.price - Math.min(user.ecoPoints || 0, buyProduct.price);
-              if (cashRemaining <= 0) return null;
+              const smartBuy = calculateSmartBuy(buyProduct.price, user.ecoPoints || 0);
+              if (smartBuy.cashRemaining <= 0) return null;
               return (
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1.5 block">M-Pesa Phone Number</label>
@@ -842,7 +842,7 @@ export function EcoMarketScreen() {
                 className="flex-1 py-3 rounded-xl eco-gradient-bg text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-60"
               >
                 {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                {user.ecoPoints >= buyProduct.price ? 'Confirm Redemption' : 'Confirm & Pay'}
+                {calculateSmartBuy(buyProduct.price, user.ecoPoints || 0).canFullRedeem ? 'Confirm Redemption' : 'Confirm & Pay'}
               </button>
             </div>
           </div>
