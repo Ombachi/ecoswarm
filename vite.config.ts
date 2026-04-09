@@ -110,6 +110,7 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackAllowlist: [/^(?!\/__).*/],
         navigateFallbackDenylist: [/^\/~oauth/],
         cleanupOutdatedCaches: true,
+        importScripts: ["/sw-periodic-sync.js"],
       runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/auth\/.*/i,
