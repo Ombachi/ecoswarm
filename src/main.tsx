@@ -4,12 +4,18 @@ import "./index.css";
 
 createRoot(document.getElementById("root")!).render(<App />);
 
-// Register service worker after initial render (non-blocking)
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js', { scope: '/' })
-      .catch(() => {
-        // SW registration failed, but app still works
-      });
+// Guard: unregister SWs in iframe/preview contexts to prevent stale content
+const isInIframe = (() => {
+  try { return window.self !== window.top; } catch { return true; }
+})();
+const isPreviewHost =
+  window.location.hostname.includes("id-preview--") ||
+  window.location.hostname.includes("lovableproject.com");
+
+if (isPreviewHost || isInIframe) {
+  navigator.serviceWorker?.getRegistrations().then((regs) => {
+    regs.forEach((r) => r.unregister());
   });
 }
+// SW registration is handled by vite-plugin-pwa (registerType: "prompt")
+// No manual /sw.js registration needed
