@@ -16,6 +16,29 @@ if (isPreviewHost || isInIframe) {
   navigator.serviceWorker?.getRegistrations().then((regs) => {
     regs.forEach((r) => r.unregister());
   });
+} else if ('serviceWorker' in navigator) {
+  // Register periodicSync to keep cached posts/products fresh in the background
+  navigator.serviceWorker.ready.then(async (registration) => {
+    if ('periodicSync' in registration) {
+      try {
+        const status = await navigator.permissions.query({
+          // @ts-ignore — periodicSync not yet in default TS lib
+          name: 'periodic-background-sync',
+        });
+        if (status.state === 'granted') {
+          // Sync feed content every 12 hours
+          await (registration as any).periodicSync.register('sync-feed', {
+            minInterval: 12 * 60 * 60 * 1000,
+          });
+          // Sync marketplace products every 6 hours
+          await (registration as any).periodicSync.register('sync-products', {
+            minInterval: 6 * 60 * 60 * 1000,
+          });
+        }
+      } catch {
+        // periodicSync not supported or permission denied — silent fallback
+      }
+    }
+  });
 }
 // SW registration is handled by vite-plugin-pwa (registerType: "prompt")
-// No manual /sw.js registration needed
