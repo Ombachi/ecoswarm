@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Award, CheckCircle, XCircle, Loader2, ExternalLink } from 'lucide-react';
+import { Award, CheckCircle, XCircle, Loader2, ExternalLink, Download } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 interface CertData {
   user_id: string;
@@ -16,6 +17,8 @@ export function CertificateVerifyScreen() {
   const [cert, setCert] = useState<CertData | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const certRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!certId) { setNotFound(true); setLoading(false); return; }
@@ -57,6 +60,26 @@ export function CertificateVerifyScreen() {
     })();
   }, [certId]);
 
+  const handleDownload = async () => {
+    if (!certRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(certRef.current, {
+        scale: 2,
+        backgroundColor: null,
+        useCORS: true,
+      });
+      const link = document.createElement('a');
+      link.download = `EcoSwarm-Certificate-${certId?.slice(0, 8)}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) {
+      console.error('Download failed:', e);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -93,38 +116,43 @@ export function CertificateVerifyScreen() {
           <p className="text-muted-foreground text-sm mt-1">This is a legitimate EcoSwarm Capacity Hub certificate.</p>
         </div>
 
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-lg space-y-4">
-          <div className="flex items-center gap-3 pb-4 border-b border-border">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
-              <Award className="w-7 h-7 text-white" />
+        <div ref={certRef} className="bg-card border border-border rounded-2xl overflow-hidden shadow-lg">
+          <div className="bg-gradient-to-r from-amber-400 to-amber-600 p-5 text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Award className="w-6 h-6 text-white" />
+              <span className="text-white font-bold text-lg">EcoSwarm</span>
             </div>
-            <div>
-              <h2 className="font-bold text-lg text-foreground">Golden Certificate</h2>
-              <p className="text-xs text-muted-foreground">EcoSwarm Capacity Hub</p>
+            <p className="text-white/80 text-xs uppercase tracking-widest">Certificate of Completion</p>
+          </div>
+
+          <div className="p-6 space-y-3 text-center">
+            <p className="text-xs text-muted-foreground">This certifies that</p>
+            <h2 className="text-xl font-black text-foreground">{cert?.userName}</h2>
+            <p className="text-xs text-muted-foreground">has successfully completed</p>
+            <h3 className="text-lg font-bold text-primary">{cert?.courseTitle}</h3>
+            <p className="text-xs text-muted-foreground">{dateStr}</p>
+            <div className="pt-3 border-t border-border/50">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted text-xs text-muted-foreground">
+                <ExternalLink className="w-3 h-3" />
+                ID: {certId?.slice(0, 8).toUpperCase()}
+              </span>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div>
-              <p className="text-xs text-muted-foreground">Awarded To</p>
-              <p className="font-semibold text-foreground">{cert?.userName}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Course Completed</p>
-              <p className="font-semibold text-foreground">{cert?.courseTitle}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Date of Completion</p>
-              <p className="font-semibold text-foreground">{dateStr}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Certificate ID</p>
-              <p className="font-mono text-xs text-muted-foreground break-all">{certId}</p>
-            </div>
+          <div className="bg-primary p-3 text-center">
+            <p className="text-primary-foreground text-xs font-medium">Capacity Hub • ecoswarm.co.ke</p>
           </div>
         </div>
 
-        <div className="text-center mt-6">
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
+          >
+            <Download className="w-4 h-4" />
+            {downloading ? 'Downloading…' : 'Download'}
+          </button>
           <Link to="/" className="inline-flex items-center gap-2 text-primary text-sm font-medium hover:underline">
             <ExternalLink className="w-4 h-4" /> Visit EcoSwarm
           </Link>

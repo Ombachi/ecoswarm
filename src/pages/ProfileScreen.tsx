@@ -6,14 +6,12 @@ import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ProgressRing } from '@/components/common/ProgressRing';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
-import { allBadges } from '@/data/mockData';
+import { MyCertificates } from '@/components/certificates/MyCertificates';
 import {
   Settings,
-  ChevronRight,
   Mail,
   ShoppingBag,
   MessageSquare,
-  Trophy,
   Share2,
   Sparkles,
   BookOpen,
@@ -182,37 +180,8 @@ export function ProfileScreen() {
           </div>
         </div>
 
-        {/* Badges Gallery */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-foreground flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-eco-gold" />
-              {isSwahili ? 'Beji Zangu' : 'My Badges'}
-            </h3>
-            <span className="text-sm text-muted-foreground">
-              {user.badges.length}/{allBadges.length}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-4 gap-3">
-            {allBadges.map((badge) => {
-              const isEarned = user.badges.some((b) => b.id === badge.id);
-              return (
-                <div
-                  key={badge.id}
-                  className={`eco-card p-3 flex flex-col items-center gap-1 ${
-                    !isEarned && 'opacity-40 grayscale'
-                  }`}
-                >
-                  <span className="text-2xl">{badge.icon}</span>
-                  <span className="text-[9px] text-center text-muted-foreground font-medium">
-                    {badge.name}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        {/* My Certificates */}
+        <MyCertificates userId={user.id} userName={user.name} isSwahili={isSwahili} />
 
         {/* Share Profile */}
         <div>
