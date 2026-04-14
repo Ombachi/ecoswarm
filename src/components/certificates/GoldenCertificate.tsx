@@ -1,9 +1,7 @@
 import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Award, Download, Share2, ExternalLink, X, Linkedin, Check } from 'lucide-react';
 import { Confetti } from '@/components/common/Confetti';
-import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import html2canvas from 'html2canvas';
 
 interface GoldenCertificateProps {
@@ -16,9 +14,8 @@ interface GoldenCertificateProps {
 }
 
 export function GoldenCertificate({ userName, courseTitle, completionDate, certId, onClose }: GoldenCertificateProps) {
-  const navigate = useNavigate();
   const certRef = useRef<HTMLDivElement>(null);
-  const [showConfetti, setShowConfetti] = useState(true);
+  const [showConfetti] = useState(true);
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
