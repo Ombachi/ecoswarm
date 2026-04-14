@@ -4,21 +4,23 @@ import { motion } from 'framer-motion';
 import { Award, Download, Share2, ExternalLink, X, Linkedin, Check } from 'lucide-react';
 import { Confetti } from '@/components/common/Confetti';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
+import html2canvas from 'html2canvas';
 
 interface GoldenCertificateProps {
   userName: string;
   courseTitle: string;
   completionDate: Date;
   certId: string;
-  points: number;
+  points?: number;
   onClose: () => void;
 }
 
-export function GoldenCertificate({ userName, courseTitle, completionDate, certId, points, onClose }: GoldenCertificateProps) {
+export function GoldenCertificate({ userName, courseTitle, completionDate, certId, onClose }: GoldenCertificateProps) {
   const navigate = useNavigate();
   const certRef = useRef<HTMLDivElement>(null);
   const [showConfetti, setShowConfetti] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const dateStr = completionDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const verifyUrl = `${window.location.origin}/verify/${certId}`;
@@ -46,6 +48,26 @@ export function GoldenCertificate({ userName, courseTitle, completionDate, certI
           url: verifyUrl,
         });
       } catch {}
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!certRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(certRef.current, {
+        scale: 2,
+        backgroundColor: null,
+        useCORS: true,
+      });
+      const link = document.createElement('a');
+      link.download = `EcoSwarm-Certificate-${courseTitle.replace(/\s+/g, '-')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) {
+      console.error('Download failed:', e);
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -95,9 +117,6 @@ export function GoldenCertificate({ userName, courseTitle, completionDate, certI
             <h2 className="text-2xl font-black text-foreground">{userName}</h2>
             <p className="text-sm text-muted-foreground">has successfully completed</p>
             <h3 className="text-xl font-bold eco-gradient-text">{courseTitle}</h3>
-            <div className="flex items-center justify-center gap-2">
-              <span className="eco-points-badge text-sm">+{points} EcoPoints</span>
-            </div>
             <p className="text-xs text-muted-foreground">{dateStr}</p>
 
             {/* QR-style verification */}
@@ -122,11 +141,20 @@ export function GoldenCertificate({ userName, courseTitle, completionDate, certI
           transition={{ delay: 0.5 }}
           className="w-full max-w-md space-y-3"
         >
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="w-full eco-button-primary py-4 flex items-center justify-center gap-2"
+          >
+            <Download className="w-5 h-5" />
+            {downloading ? 'Downloading…' : 'Download Certificate'}
+          </button>
+
           <a
             href={linkedInUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full eco-button-primary py-4 flex items-center justify-center gap-2 no-underline"
+            className="w-full eco-button-secondary py-4 flex items-center justify-center gap-2 no-underline"
           >
             <Linkedin className="w-5 h-5" />
             Add to LinkedIn Profile
