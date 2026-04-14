@@ -6,14 +6,12 @@ import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ProgressRing } from '@/components/common/ProgressRing';
 import { SocialShareButtons } from '@/components/common/SocialShareButtons';
-import { allBadges } from '@/data/mockData';
+import { MyCertificates } from '@/components/certificates/MyCertificates';
 import {
   Settings,
-  ChevronRight,
   Mail,
   ShoppingBag,
   MessageSquare,
-  Trophy,
   Share2,
   Sparkles,
   BookOpen,
