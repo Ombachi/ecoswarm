@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Award, CheckCircle, XCircle, Loader2, ExternalLink, Download } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { Award, CheckCircle, XCircle, Loader2, ExternalLink } from 'lucide-react';
 
 interface CertData {
   user_id: string;
