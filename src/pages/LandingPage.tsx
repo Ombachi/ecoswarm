@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -26,7 +26,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import heroImage from "@/assets/landing-hero.jpg";
+import heroPlanting from "@/assets/hero-planting.jpg";
+import heroRally from "@/assets/hero-rally.jpg";
+import heroRenewable from "@/assets/hero-renewable.jpg";
 import agoraImage from "@/assets/agora-history.jpg";
+
+const heroImages = [heroImage, heroPlanting, heroRally, heroRenewable];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
