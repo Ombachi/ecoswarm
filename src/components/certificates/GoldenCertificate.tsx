@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Award, Download, Share2, ExternalLink, X, Linkedin, Check } from 'lucide-react';
 import { Confetti } from '@/components/common/Confetti';
-import html2canvas from 'html2canvas';
+import { generateCertificatePdf } from '@/lib/certificatePdf';
 
 interface GoldenCertificateProps {
   userName: string;
@@ -14,7 +14,6 @@ interface GoldenCertificateProps {
 }
 
 export function GoldenCertificate({ userName, courseTitle, completionDate, certId, onClose }: GoldenCertificateProps) {
-  const certRef = useRef<HTMLDivElement>(null);
   const [showConfetti] = useState(true);
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -48,24 +47,15 @@ export function GoldenCertificate({ userName, courseTitle, completionDate, certI
     }
   };
 
-  const handleDownload = async () => {
-    if (!certRef.current) return;
+  const handleDownload = () => {
     setDownloading(true);
-    try {
-      const canvas = await html2canvas(certRef.current, {
-        scale: 2,
-        backgroundColor: null,
-        useCORS: true,
-      });
-      const link = document.createElement('a');
-      link.download = `EcoSwarm-Certificate-${courseTitle.replace(/\s+/g, '-')}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch (e) {
-      console.error('Download failed:', e);
-    } finally {
-      setDownloading(false);
-    }
+    generateCertificatePdf({
+      userName,
+      courseTitle,
+      completionDate: dateStr,
+      certId,
+    });
+    setTimeout(() => setDownloading(false), 500);
   };
 
   return (
@@ -93,7 +83,6 @@ export function GoldenCertificate({ userName, courseTitle, completionDate, certI
 
         {/* Certificate Card */}
         <motion.div
-          ref={certRef}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
