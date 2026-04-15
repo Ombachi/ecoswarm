@@ -16,8 +16,6 @@ export function CertificateVerifyScreen() {
   const [cert, setCert] = useState<CertData | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [downloading, setDownloading] = useState(false);
-  const certRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!certId) { setNotFound(true); setLoading(false); return; }
@@ -59,26 +57,6 @@ export function CertificateVerifyScreen() {
     })();
   }, [certId]);
 
-  const handleDownload = async () => {
-    if (!certRef.current) return;
-    setDownloading(true);
-    try {
-      const canvas = await html2canvas(certRef.current, {
-        scale: 2,
-        backgroundColor: null,
-        useCORS: true,
-      });
-      const link = document.createElement('a');
-      link.download = `EcoSwarm-Certificate-${certId?.slice(0, 8)}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch (e) {
-      console.error('Download failed:', e);
-    } finally {
-      setDownloading(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -115,7 +93,7 @@ export function CertificateVerifyScreen() {
           <p className="text-muted-foreground text-sm mt-1">This is a legitimate EcoSwarm Capacity Hub certificate.</p>
         </div>
 
-        <div ref={certRef} className="bg-card border border-border rounded-2xl overflow-hidden shadow-lg">
+        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-lg">
           <div className="bg-gradient-to-r from-amber-400 to-amber-600 p-5 text-center">
             <div className="flex items-center justify-center gap-2 mb-1">
               <Award className="w-6 h-6 text-white" />
@@ -143,16 +121,8 @@ export function CertificateVerifyScreen() {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-4 mt-6">
-          <button
-            onClick={handleDownload}
-            disabled={downloading}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
-          >
-            <Download className="w-4 h-4" />
-            {downloading ? 'Downloading…' : 'Download'}
-          </button>
-          <Link to="/" className="inline-flex items-center gap-2 text-primary text-sm font-medium hover:underline">
+        <div className="flex items-center justify-center mt-6">
+          <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm">
             <ExternalLink className="w-4 h-4" /> Visit EcoSwarm
           </Link>
         </div>
