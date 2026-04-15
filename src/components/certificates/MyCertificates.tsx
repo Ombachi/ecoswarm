@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Award, ChevronRight, Download, Share2, ExternalLink, Linkedin, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import html2canvas from 'html2canvas';
+import { generateCertificatePdf } from '@/lib/certificatePdf';
 
 interface CertRecord {
   id: string;
@@ -23,7 +23,6 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
-  const certRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     (async () => {
@@ -60,19 +59,18 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
     } catch {}
   };
 
-  const handleDownload = async (certId: string) => {
-    const el = certRefs.current[certId];
-    if (!el) return;
-    setDownloading(certId);
-    try {
-      const canvas = await html2canvas(el, { scale: 2, backgroundColor: null, useCORS: true });
-      const link = document.createElement('a');
-      link.download = `EcoSwarm-Certificate-${certId.slice(0, 8)}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch {} finally {
-      setDownloading(null);
-    }
+  const handleDownload = (cert: CertRecord) => {
+    setDownloading(cert.id);
+    const dateStr = new Date(cert.completed_at).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric',
+    });
+    generateCertificatePdf({
+      userName,
+      courseTitle: cert.courseTitle,
+      completionDate: dateStr,
+      certId: cert.id,
+    });
+    setTimeout(() => setDownloading(null), 500);
   };
 
   const handleShare = async (cert: CertRecord) => {
@@ -131,7 +129,6 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
 
             return (
               <div key={cert.id} className="eco-card overflow-hidden">
-                {/* Collapsed row */}
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : cert.id)}
                   className="w-full flex items-center gap-3 p-4 text-left"
@@ -146,7 +143,6 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
                   <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                 </button>
 
-                {/* Expanded certificate */}
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div
@@ -157,11 +153,8 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
                       className="overflow-hidden"
                     >
                       <div className="px-4 pb-4 space-y-3">
-                        {/* Mini certificate card */}
-                        <div
-                          ref={el => { certRefs.current[cert.id] = el; }}
-                          className="rounded-2xl overflow-hidden border border-[hsl(var(--eco-gold))]/30"
-                        >
+                        {/* Mini certificate preview */}
+                        <div className="rounded-2xl overflow-hidden border border-[hsl(var(--eco-gold))]/30">
                           <div className="bg-gradient-to-r from-amber-400 to-amber-600 p-4 text-center">
                             <div className="flex items-center justify-center gap-2 mb-1">
                               <Award className="w-4 h-4 text-white" />
@@ -190,12 +183,12 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
                         {/* Action buttons */}
                         <div className="grid grid-cols-2 gap-2">
                           <button
-                            onClick={() => handleDownload(cert.id)}
+                            onClick={() => handleDownload(cert)}
                             disabled={downloading === cert.id}
                             className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-medium"
                           >
                             <Download className="w-3.5 h-3.5" />
-                            {downloading === cert.id ? 'Saving…' : 'Download'}
+                            {downloading === cert.id ? 'Saving…' : 'Download PDF'}
                           </button>
                           <button
                             onClick={() => handleShare(cert)}
