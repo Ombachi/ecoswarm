@@ -188,6 +188,13 @@ function StatCard({ stat, index }: { stat: (typeof globalStats)[0]; index: numbe
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const [heroIdx, setHeroIdx] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setHeroIdx(i => (i + 1) % heroImages.length), 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
@@ -238,7 +245,14 @@ export function LandingPage() {
       {/* ── Hero ── */}
       <section id="hero" className="relative min-h-screen flex items-center pt-16">
         <div className="absolute inset-0">
-          <img src={heroImage} alt="Community planting trees" className="w-full h-full object-cover" />
+          {heroImages.map((src, i) => (
+            <img
+              key={i}
+              src={src}
+              alt="EcoSwarm community action"
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === heroIdx ? 'opacity-100' : 'opacity-0'}`}
+            />
+          ))}
           <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-4 py-20 md:py-32 w-full">
