@@ -57,6 +57,54 @@ export function CertificateVerifyScreen() {
     })();
   }, [certId]);
 
+  // Dynamic OG meta tags for JS-executing crawlers
+  useEffect(() => {
+    if (!cert) return;
+    const tags: HTMLMetaElement[] = [];
+
+    const setMeta = (property: string, content: string) => {
+      let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute('property', property);
+        document.head.appendChild(el);
+        tags.push(el);
+      }
+      el.content = content;
+    };
+
+    const setNameMeta = (name: string, content: string) => {
+      let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement('meta');
+        el.name = name;
+        document.head.appendChild(el);
+        tags.push(el);
+      }
+      el.content = content;
+    };
+
+    const title = `${cert.userName} completed "${cert.courseTitle}" — EcoSwarm Certificate`;
+    const desc = `Verified EcoSwarm Capacity Hub certificate for completing "${cert.courseTitle}". View and verify this achievement.`;
+    const url = `${window.location.origin}/verify/${certId}`;
+
+    document.title = title;
+    setMeta('og:title', title);
+    setMeta('og:description', desc);
+    setMeta('og:url', url);
+    setMeta('og:type', 'article');
+    setMeta('og:site_name', 'EcoSwarm Capacity Hub');
+    setMeta('og:image', `${window.location.origin}/og-image.png`);
+    setNameMeta('twitter:card', 'summary_large_image');
+    setNameMeta('twitter:title', title);
+    setNameMeta('twitter:description', desc);
+
+    return () => {
+      tags.forEach(el => el.remove());
+      document.title = 'EcoSwarm - Your Digital Agora';
+    };
+  }, [cert, certId]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
