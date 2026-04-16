@@ -94,7 +94,7 @@ export function CertificateVerifyScreen() {
     setMeta('og:url', url);
     setMeta('og:type', 'article');
     setMeta('og:site_name', 'EcoSwarm Capacity Hub');
-    setMeta('og:image', `${window.location.origin}/og-image.png`);
+    setMeta('og:image', `${window.location.origin}/og-certificate.png`);
     setNameMeta('twitter:card', 'summary_large_image');
     setNameMeta('twitter:title', title);
     setNameMeta('twitter:description', desc);
