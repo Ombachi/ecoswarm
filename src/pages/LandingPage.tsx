@@ -253,7 +253,7 @@ export function LandingPage() {
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === heroIdx ? 'opacity-100' : 'opacity-0'}`}
             />
           ))}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background/90" />
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-4 py-20 md:py-32 w-full">
           <motion.div initial="hidden" animate="visible" className="max-w-2xl">
