@@ -35,10 +35,16 @@ async function refreshCache(urlSubstring) {
   }
 }
 
+// Add jitter so 10K clients don't stampede the API at the same minute.
+function jitter(maxMs) {
+  return new Promise((r) => setTimeout(r, Math.floor(Math.random() * maxMs)));
+}
+
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'sync-feed') {
-    event.waitUntil(refreshCache('posts'));
+    // Up to 10 minutes of jitter — spreads load over a window instead of a spike.
+    event.waitUntil(jitter(10 * 60 * 1000).then(() => refreshCache('posts')));
   } else if (event.tag === 'sync-products') {
-    event.waitUntil(refreshCache('products'));
+    event.waitUntil(jitter(10 * 60 * 1000).then(() => refreshCache('products')));
   }
 });
