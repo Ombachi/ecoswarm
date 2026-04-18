@@ -42,14 +42,15 @@ export const DevAnalyticsTab = React.forwardRef<HTMLDivElement, Record<string, n
   useEffect(() => {
     if (!user || products.length === 0) return;
     const productIds = products.map(p => p.id);
-    const channel = supabase
-      .channel('product-interactions-realtime')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'product_interactions' },
-        (payload) => {
-          const newInteraction = payload.new as Interaction;
-          if (productIds.includes(newInteraction.product_id)) {
+    // Subscribe per-product so the server only pushes events this seller cares about.
+    const channels = productIds.map((pid) =>
+      supabase
+        .channel(`product-interactions-${pid}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'product_interactions', filter: `product_id=eq.${pid}` },
+          (payload) => {
+            const newInteraction = payload.new as Interaction;
             setInteractions(prev => [newInteraction, ...prev]);
             const product = products.find(p => p.id === newInteraction.product_id);
             const labels: Record<string, string> = { view: '👀 View', click: '👆 Click', save: '🔖 Save', share: '📤 Share' };
@@ -61,10 +62,10 @@ export const DevAnalyticsTab = React.forwardRef<HTMLDivElement, Record<string, n
               toast.success(`🎉 ${totalViews} Views Reached on "${product?.product_name}"!`, { duration: 5000 });
             }
           }
-        }
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+        )
+        .subscribe()
+    );
+    return () => { channels.forEach((c) => supabase.removeChannel(c)); };
   }, [user, products]);
 
   const loadData = async () => {
