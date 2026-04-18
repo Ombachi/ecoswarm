@@ -659,6 +659,42 @@ export type Database = {
           },
         ]
       }
+      notification_fanout_queue: {
+        Row: {
+          enqueued_at: string
+          exclude_user_id: string | null
+          id: number
+          message: string
+          processed_at: string | null
+          recipients_count: number | null
+          reference_id: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          enqueued_at?: string
+          exclude_user_id?: string | null
+          id?: number
+          message: string
+          processed_at?: string | null
+          recipients_count?: number | null
+          reference_id?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          enqueued_at?: string
+          exclude_user_id?: string | null
+          id?: number
+          message?: string
+          processed_at?: string | null
+          recipients_count?: number | null
+          reference_id?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -1148,6 +1184,33 @@ export type Database = {
         }
         Relationships: []
       }
+      rank_check_queue: {
+        Row: {
+          enqueued_at: string
+          id: number
+          new_points: number
+          old_points: number
+          processed_at: string | null
+          user_id: string
+        }
+        Insert: {
+          enqueued_at?: string
+          id?: number
+          new_points: number
+          old_points: number
+          processed_at?: string | null
+          user_id: string
+        }
+        Update: {
+          enqueued_at?: string
+          id?: number
+          new_points?: number
+          old_points?: number
+          processed_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       recipients: {
         Row: {
           created_at: string
@@ -1603,6 +1666,32 @@ export type Database = {
         }
         Relationships: []
       }
+      leaderboard_fast: {
+        Row: {
+          avatar_url: string | null
+          eco_points: number | null
+          id: string | null
+          name: string | null
+          rank: number | null
+          role: string | null
+          streak: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      leaderboard_mv: {
+        Row: {
+          avatar_url: string | null
+          eco_points: number | null
+          id: string | null
+          name: string | null
+          rank: number | null
+          role: string | null
+          streak: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
@@ -1737,6 +1826,7 @@ export type Database = {
         Args: { p_swarm_id: string; p_votes?: number }
         Returns: Json
       }
+      refresh_leaderboard_mv: { Args: never; Returns: undefined }
       toggle_post_like: { Args: { p_post_id: string }; Returns: Json }
     }
     Enums: {

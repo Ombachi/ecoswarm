@@ -133,25 +133,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         tags: ['welcome_post', roleTag, `welcome_user_${userName}`],
       });
 
-      // Notify all existing users
-      const { data: allProfiles } = await supabase
-        .from('public_profiles')
-        .select('user_id')
-        .neq('user_id', userId);
-
-      if (allProfiles && allProfiles.length > 0) {
-        const notifications = allProfiles
-          .filter((p) => p.user_id)
-          .map((p) => ({
-            user_id: p.user_id!,
-            type: 'welcome',
-            title: '🎉 A new member just joined the Swarm!',
-            message: `Welcome @${userName} — our newest ${roleName}! Say hi in the Agora!`,
-          }));
-        if (notifications.length > 0) {
-          await supabase.from('notifications').insert(notifications);
-        }
-      }
+      // Enqueue fan-out — a background worker will batch-insert notifications.
+      // This avoids blocking signup with thousands of synchronous inserts.
+      await supabase.from('notification_fanout_queue').insert({
+        type: 'welcome',
+        title: '🎉 A new member just joined the Swarm!',
+        message: `Welcome @${userName} — our newest ${roleName}! Say hi in the Agora!`,
+        exclude_user_id: userId,
+      });
     } catch (e) {
       // If it failed, allow retry
       welcomePostCreatedRef.current.delete(userId);

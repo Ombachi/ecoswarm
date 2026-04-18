@@ -14,8 +14,8 @@ export function DesktopSidebar() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from('leaderboard').select('rank').eq('user_id', user.id).maybeSingle()
-      .then(({ data }) => setLeaderboardRank(data?.rank ?? null));
+    supabase.from('leaderboard_fast' as any).select('rank').eq('user_id', user.id).maybeSingle()
+      .then(({ data }: any) => setLeaderboardRank(data?.rank ?? null));
   }, [user?.id]);
 
   const navItems = [
