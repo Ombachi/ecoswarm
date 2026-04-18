@@ -50,7 +50,7 @@ export function LeaderboardScreen() {
   const fetchLeaderboard = async () => {
     try {
       const { data, error } = await supabase
-        .from('leaderboard')
+        .from('leaderboard_fast' as any)
         .select('id, user_id, name, eco_points, streak, avatar_url, role, rank')
         .order('rank', { ascending: true })
         .limit(200);
