@@ -1666,6 +1666,19 @@ export type Database = {
         }
         Relationships: []
       }
+      leaderboard_fast: {
+        Row: {
+          avatar_url: string | null
+          eco_points: number | null
+          id: string | null
+          name: string | null
+          rank: number | null
+          role: string | null
+          streak: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       leaderboard_mv: {
         Row: {
           avatar_url: string | null
