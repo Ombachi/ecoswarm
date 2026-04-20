@@ -32,7 +32,7 @@ import heroRenewable from "@/assets/hero-renewable.jpg";
 import agoraImage from "@/assets/agora-history.jpg";
 import founderPhoto from "@/assets/founder-ombachi-enock.jpg";
 import bevisioneersLogo from "@/assets/partner-bevisioneers.png";
-import lituLogo from "@/assets/partner-litu-diagnostics.png";
+import lituLogo from "@/assets/partner-litu-diagnostics.jpg";
 
 const heroImages = [heroImage, heroPlanting, heroRally, heroRenewable];
 
@@ -168,7 +168,7 @@ const partners = [
     subtitle: "Medical & Telehealth Partner",
     desc: "Bringing health and sustainability together through innovative diagnostics and telehealth solutions.",
     logo: lituLogo,
-    url: "https://litudiagnostics.co.ke",
+    url: "https://litudiagnostics.com",
   },
 ];
 
