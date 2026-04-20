@@ -275,9 +275,6 @@ export function LandingPage() {
             >
               Uniting Voices for <span className="eco-gradient-text">Planet-Positive</span> Change
             </motion.h1>
-            <motion.p custom={2} variants={fadeUp} className="text-lg md:text-xl text-foreground max-w-lg mb-8 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
-              EcoSwarm empowers you to organise, learn, and act on the environmental issues that matter most.
-            </motion.p>
           </motion.div>
         </div>
         <button
