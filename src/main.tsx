@@ -13,9 +13,16 @@ const isPreviewHost =
   window.location.hostname.includes("lovableproject.com");
 
 if (isPreviewHost || isInIframe) {
+  // Unregister any active SWs AND purge their caches so the preview
+  // never serves stale HTML/JS from a previous session.
   navigator.serviceWorker?.getRegistrations().then((regs) => {
     regs.forEach((r) => r.unregister());
   });
+  if ('caches' in window) {
+    caches.keys().then((keys) => {
+      keys.forEach((k) => caches.delete(k));
+    });
+  }
 } else if ('serviceWorker' in navigator) {
   // Register periodicSync to keep cached posts/products fresh in the background
   navigator.serviceWorker.ready.then(async (registration) => {

@@ -12,6 +12,17 @@ export function useServiceWorkerUpdate() {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
 
+    // Skip the update poller entirely in preview/iframe contexts —
+    // there's no production SW to update and reloads here are disruptive.
+    const isInIframe = (() => {
+      try { return window.self !== window.top; } catch { return true; }
+    })();
+    const isPreviewHost =
+      window.location.hostname.includes('id-preview--') ||
+      window.location.hostname.includes('lovableproject.com') ||
+      window.location.hostname.includes('lovable.app');
+    if (isPreviewHost || isInIframe) return;
+
     let refreshing = false;
 
     const checkForWaiting = (reg: ServiceWorkerRegistration) => {
