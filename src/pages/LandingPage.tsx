@@ -30,6 +30,9 @@ import heroPlanting from "@/assets/hero-planting.jpg";
 import heroRally from "@/assets/hero-rally.jpg";
 import heroRenewable from "@/assets/hero-renewable.jpg";
 import agoraImage from "@/assets/agora-history.jpg";
+import founderPhoto from "@/assets/founder-ombachi-enock.jpg";
+import bevisioneersLogo from "@/assets/partner-bevisioneers.png";
+import lituLogo from "@/assets/partner-litu-diagnostics.png";
 
 const heroImages = [heroImage, heroPlanting, heroRally, heroRenewable];
 
@@ -148,7 +151,7 @@ const team = [
     name: "Ombachi Enock",
     role: "Founder & Visionary",
     bio: "Passionate about transforming climate anxiety into collective action. Building EcoSwarm to give every voice a megaphone for the planet.",
-    avatar: "🌱",
+    photo: founderPhoto,
   },
 ];
 
@@ -157,13 +160,15 @@ const partners = [
     name: "BeVisioneers",
     subtitle: "Mercedes-Benz Fellowship",
     desc: "Strategic partner in youth eco-innovation, empowering the next generation of environmental leaders.",
-    icon: "🚀",
+    logo: bevisioneersLogo,
+    url: "https://bevisioneers.world",
   },
   {
     name: "Litu Diagnostics",
     subtitle: "Medical & Telehealth Partner",
     desc: "Bringing health and sustainability together through innovative diagnostics and telehealth solutions.",
-    icon: "🏥",
+    logo: lituLogo,
+    url: "https://litudiagnostics.co.ke",
   },
 ];
 
@@ -626,8 +631,15 @@ export function LandingPage() {
                 transition={{ delay: i * 0.1 }}
                 className="eco-card-elevated p-8 text-center"
               >
-                <div className="w-24 h-24 rounded-full eco-gradient-bg flex items-center justify-center mx-auto mb-4 text-4xl">
-                  {member.avatar}
+                <div className="w-28 h-28 rounded-full overflow-hidden mx-auto mb-4 ring-4 ring-primary/20 shadow-lg">
+                  <img
+                    src={member.photo}
+                    alt={`${member.name}, ${member.role} of EcoSwarm`}
+                    loading="lazy"
+                    width={112}
+                    height={112}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <h3 className="text-xl font-bold text-foreground">{member.name}</h3>
                 <p className="text-sm text-primary font-semibold mb-3">{member.role}</p>
@@ -637,23 +649,38 @@ export function LandingPage() {
           </div>
           <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {partners.map((partner, i) => (
-              <motion.div
+              <motion.a
                 key={partner.name}
+                href={partner.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Visit ${partner.name} website (opens in new tab)`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="eco-card-elevated p-6 flex gap-4"
+                whileHover={{ y: -4 }}
+                className="eco-card-elevated p-6 flex gap-4 group transition-shadow hover:shadow-xl cursor-pointer"
               >
-                <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center text-3xl flex-shrink-0">
-                  {partner.icon}
+                <div className="w-16 h-16 rounded-xl bg-card border border-border flex items-center justify-center flex-shrink-0 overflow-hidden p-2">
+                  <img
+                    src={partner.logo}
+                    alt={`${partner.name} logo`}
+                    loading="lazy"
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
-                <div>
-                  <h3 className="font-bold text-foreground">{partner.name}</h3>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">{partner.name}</h3>
+                    <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
                   <p className="text-xs text-primary font-semibold mb-2">{partner.subtitle}</p>
                   <p className="text-sm text-muted-foreground">{partner.desc}</p>
                 </div>
-              </motion.div>
+              </motion.a>
             ))}
           </div>
         </div>
