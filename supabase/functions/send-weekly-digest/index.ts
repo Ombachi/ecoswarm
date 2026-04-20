@@ -160,7 +160,7 @@ serve(async (req) => {
     ` : ""}
 
     <div style="text-align:center;margin-top:24px;">
-      <a href="https://ecoswarm.lovable.app/dashboard" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#16a34a,#059669);color:white;text-decoration:none;border-radius:12px;font-weight:bold;font-size:16px;">
+      <a href="https://ecoswarm.co.ke/dashboard" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#16a34a,#059669);color:white;text-decoration:none;border-radius:12px;font-weight:bold;font-size:16px;">
         Open EcoSwarm 🌍
       </a>
     </div>

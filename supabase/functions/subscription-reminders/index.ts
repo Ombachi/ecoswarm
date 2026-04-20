@@ -98,7 +98,7 @@ serve(async (req) => {
                   <li>✅ Verified seller badge</li>
                   <li>📊 Advanced sales analytics</li>
                 </ul>
-                <p><a href="https://ecoswarm.lovable.app/premium" style="display:inline-block;background:#16a34a;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">Renew Now — KSh 500/month</a></p>
+                <p><a href="https://ecoswarm.co.ke/premium" style="display:inline-block;background:#16a34a;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">Renew Now — KSh 500/month</a></p>
                 <p style="color:#666;font-size:12px;margin-top:20px;">— The EcoSwarm Team</p>
               </div>
             `,
