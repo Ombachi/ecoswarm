@@ -107,7 +107,7 @@ serve(async (req: Request) => {
 
             <!-- CTA -->
             <div style="text-align: center; margin-top: 24px;">
-              <a href="https://ecoswarm.lovable.app/ecomarket" style="background: linear-gradient(135deg, #228B22, #32CD32); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px; display: inline-block;">
+              <a href="https://ecoswarm.co.ke/ecomarket" style="background: linear-gradient(135deg, #228B22, #32CD32); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px; display: inline-block;">
                 View Your Listing →
               </a>
             </div>
