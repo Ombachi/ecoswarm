@@ -243,17 +243,23 @@ export function LandingPage() {
       </nav>
 
       {/* ── Hero ── */}
-      <section id="hero" className="relative min-h-screen flex items-center pt-16">
+      <section id="hero" className="relative min-h-[100svh] flex items-center pt-16 overflow-hidden">
         <div className="absolute inset-0">
           {heroImages.map((src, i) => (
             <img
               key={i}
               src={src}
               alt="EcoSwarm community action"
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === heroIdx ? 'opacity-100' : 'opacity-0'}`}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchPriority={i === 0 ? 'high' : 'low'}
+              decoding="async"
+              sizes="100vw"
+              className={`absolute inset-0 w-full h-full object-cover object-[center_30%] sm:object-[center_25%] md:object-center transition-opacity duration-1000 ${i === heroIdx ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
+              style={{ transitionProperty: 'opacity, transform' }}
             />
           ))}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-background/90" />
+          {/* Stronger gradient on mobile (more text overlap), softer on desktop */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/40 to-background/95 md:from-background/50 md:via-background/20 md:to-background/90" />
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-4 py-20 md:py-32 w-full">
           <motion.div initial="hidden" animate="visible" className="max-w-2xl">
