@@ -11,10 +11,7 @@ const corsHeaders = {
 };
 
 interface EcoLetterRequest {
-  recipientEmail: string;
-  recipientName: string;
-  recipientTitle: string;
-  recipientOrganization: string;
+  recipientId: string;
   senderName: string;
   senderEmail?: string;
   senderLocation: string;
@@ -64,18 +61,9 @@ const handler = async (req: Request): Promise<Response> => {
     const body: EcoLetterRequest = await req.json();
 
     // Basic input validation
-    if (!body.recipientEmail || !body.letterContent || !body.senderName) {
+    if (!body.recipientId || !body.letterContent || !body.senderName) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: recipientEmail, letterContent, senderName" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(body.recipientEmail)) {
-      return new Response(
-        JSON.stringify({ error: "Invalid recipient email format" }),
+        JSON.stringify({ error: "Missing required fields: recipientId, letterContent, senderName" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -87,18 +75,43 @@ const handler = async (req: Request): Promise<Response> => {
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
-    if (body.senderName.length > 100 || (body.recipientName && body.recipientName.length > 200)) {
+    if (body.senderName.length > 100) {
       return new Response(
         JSON.stringify({ error: "Name fields are too long" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
+    // ===== LOOK UP RECIPIENT EMAIL SERVER-SIDE =====
+    // Email is no longer sent from the client; we fetch it via service role to keep
+    // the recipient email directory private from regular authenticated users.
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+    const { data: recipient, error: recipErr } = await supabaseAdmin
+      .from("recipients")
+      .select("email, name, title, organization, is_active")
+      .eq("id", body.recipientId)
+      .maybeSingle();
+
+    if (recipErr || !recipient || !recipient.is_active) {
+      console.error("Recipient lookup failed:", recipErr?.message || "not found / inactive");
+      return new Response(
+        JSON.stringify({ error: "Recipient not found" }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const recipientEmail = recipient.email;
+    const recipientName = recipient.name;
+    const recipientTitle = recipient.title;
+    const recipientOrganization = recipient.organization;
+
     console.log("EcoLetter submission received:", {
       userId,
-      to: `${body.recipientTitle} ${body.recipientName}`,
-      email: body.recipientEmail,
-      org: body.recipientOrganization,
+      to: `${recipientTitle} ${recipientName}`,
+      org: recipientOrganization,
       from: body.senderName,
       location: body.senderLocation,
       template: body.templateTitle,
@@ -107,7 +120,7 @@ const handler = async (req: Request): Promise<Response> => {
     // ===== SEND EMAIL VIA RESEND =====
     const emailResponse = await resend.emails.send({
       from: "EcoSwarm <hello@ecoswarm.co.ke>",
-      to: [body.recipientEmail],
+      to: [recipientEmail],
       reply_to: body.senderEmail,
       subject: `EcoLetter: ${body.templateTitle} - From ${body.senderName}, ${body.senderLocation}`,
       headers: {
@@ -124,8 +137,8 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
           
           <div style="background: #f8fdf8; padding: 24px; border: 1px solid #e0e0e0; border-top: none;">
-            <p style="color: #333; margin: 0 0 8px 0;"><strong>To:</strong> ${body.recipientTitle} ${body.recipientName}</p>
-            <p style="color: #666; margin: 0 0 16px 0; font-size: 14px;">${body.recipientOrganization}</p>
+            <p style="color: #333; margin: 0 0 8px 0;"><strong>To:</strong> ${recipientTitle} ${recipientName}</p>
+            <p style="color: #666; margin: 0 0 16px 0; font-size: 14px;">${recipientOrganization}</p>
             
             <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e8e8e8; white-space: pre-line; line-height: 1.6; color: #333;">
 ${body.letterContent}
