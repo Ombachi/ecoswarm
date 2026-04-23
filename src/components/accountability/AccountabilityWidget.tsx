@@ -45,7 +45,7 @@ export function AccountabilityWidget() {
 
     const recipientIds = advocacies.map(a => a.target_recipient_id).filter(Boolean);
     const { data: recipients } = recipientIds.length > 0
-      ? await supabase.from('recipients').select('id, name').in('id', recipientIds as string[])
+      ? await supabase.from('public_recipients').select('id, name').in('id', recipientIds as string[])
       : { data: [] };
 
     const recipientMap = Object.fromEntries((recipients || []).map(r => [r.id, r.name]));
