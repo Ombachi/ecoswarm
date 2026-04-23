@@ -57,7 +57,7 @@ export function ToolsScreen() {
     try {
       const [templatesRes, recipientsRes, coursesRes] = await Promise.all([
         supabase.from('letter_templates').select('*').order('sort_order'),
-        supabase.from('recipients').select('*').order('sort_order'),
+        supabase.from('public_recipients').select('*').order('sort_order'),
         supabase.from('courses').select('*').order('sort_order'),
       ]);
       setLetterTemplates(templatesRes.data || []);
@@ -107,10 +107,7 @@ export function ToolsScreen() {
     try {
       const response = await supabase.functions.invoke('send-ecoletter', {
         body: {
-          recipientEmail: recipient.email,
-          recipientName: recipient.name,
-          recipientTitle: recipient.title,
-          recipientOrganization: recipient.organization,
+          recipientId: recipient.id,
           senderName: user.name,
           senderLocation: user.location,
           letterContent: getPreviewLetter(),
