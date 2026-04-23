@@ -218,6 +218,13 @@ export type Database = {
             foreignKeyName: "business_advocacy_target_recipient_id_fkey"
             columns: ["target_recipient_id"]
             isOneToOne: false
+            referencedRelation: "public_recipients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_advocacy_target_recipient_id_fkey"
+            columns: ["target_recipient_id"]
+            isOneToOne: false
             referencedRelation: "recipients"
             referencedColumns: ["id"]
           },
@@ -1737,6 +1744,39 @@ export type Database = {
           swarms_joined?: number | null
           top_concern?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      public_recipients: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          is_active: boolean | null
+          name: string | null
+          organization: string | null
+          sort_order: number | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          organization?: string | null
+          sort_order?: number | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          organization?: string | null
+          sort_order?: number | null
+          title?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
