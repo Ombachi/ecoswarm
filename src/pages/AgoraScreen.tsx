@@ -17,6 +17,7 @@ import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { MediaGallery, MediaItem } from '@/components/common/MediaGallery';
 import { AvatarFallback } from '@/components/common/AvatarFallback';
 import { LinkifiedText } from '@/components/common/LinkifiedText';
+import { PostContent } from '@/components/common/PostContent';
 import { PollVoter } from '@/components/polls/PollVoter';
 import { supabase } from '@/integrations/supabase/client';
 import { useVisibilityRefetch } from '@/hooks/useVisibilityRefetch';
