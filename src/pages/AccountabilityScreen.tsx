@@ -51,7 +51,7 @@ export function AccountabilityScreen() {
       const recipientIds = advocacies.map(a => a.target_recipient_id).filter(Boolean);
       const [{ data: recipients }, { data: signers }, { data: responses }] = await Promise.all([
         recipientIds.length > 0
-          ? supabase.from('recipients').select('id, name, organization').in('id', recipientIds as string[])
+          ? supabase.from('public_recipients').select('id, name, organization').in('id', recipientIds as string[])
           : { data: [] },
         supabase.from('advocacy_signers').select('advocacy_id'),
         supabase.from('advocacy_responses').select('advocacy_id, evidence_url, summary, created_at').order('created_at', { ascending: false }),
