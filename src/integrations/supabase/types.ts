@@ -1699,6 +1699,50 @@ export type Database = {
         }
         Relationships: []
       }
+      my_course_sponsorships: {
+        Row: {
+          course_id: string | null
+          created_at: string | null
+          id: string | null
+          message: string | null
+          sponsor_logo_url: string | null
+          sponsor_name: string | null
+          sponsor_user_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          message?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name?: string | null
+          sponsor_user_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          message?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name?: string | null
+          sponsor_user_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_sponsorships_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
