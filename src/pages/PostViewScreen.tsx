@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SocialShareButtons } from "@/components/common/SocialShareButtons";
 import { MediaGallery, MediaItem } from "@/components/common/MediaGallery";
 import { AdvancedMediaViewer } from "@/components/common/AdvancedMediaViewer";
+import { PostContent } from "@/components/common/PostContent";
 import {
   Heart,
   MessageSquare,
@@ -154,11 +155,11 @@ export function PostViewScreen() {
           </button>
 
           {/* Content — strip hashtags from body */}
-          <div className="text-foreground leading-relaxed mb-4 whitespace-pre-line">
-            {post.content.replace(/#\w+/g, '').trim().split('\n').filter(l => l.trim().length > 0).map((line, i) => (
-              <span key={i}>{line}{'\n'}</span>
-            ))}
-          </div>
+          <PostContent
+            content={post.content}
+            className="mb-4 leading-relaxed"
+            stripBadgeLine={post.tags?.includes('EcoProduct')}
+          />
 
           {/* Media — support media_urls array */}
           {(() => {

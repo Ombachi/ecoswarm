@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { sanitizeHtml } from '@/lib/sanitize';
 import { trackEvent } from '@/hooks/useAnalyticsTracker';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -16,7 +15,7 @@ import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { MediaGallery, MediaItem } from '@/components/common/MediaGallery';
 import { AvatarFallback } from '@/components/common/AvatarFallback';
-import { LinkifiedText } from '@/components/common/LinkifiedText';
+import { PostContent } from '@/components/common/PostContent';
 import { PollVoter } from '@/components/polls/PollVoter';
 import { supabase } from '@/integrations/supabase/client';
 import { useVisibilityRefetch } from '@/hooks/useVisibilityRefetch';
@@ -945,32 +944,12 @@ export function AgoraScreen() {
                 />
               ) : (
               <>
-              <div className="text-foreground mb-3 leading-relaxed">
-                {/<[a-z][\s\S]*>/i.test(post.content) ? (
-                  <div
-                    className="prose prose-sm max-w-none [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-foreground [&_blockquote]:border-l-3 [&_blockquote]:border-primary [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-primary [&_a]:underline"
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content.replace(/#\w+/g, '').trim()) }}
-                  />
-                ) : (
-                  <div className="whitespace-pre-line">
-                    {post.content.replace(/#\w+/g, '').trim().split('\n')
-                      .filter(line => !line.startsWith('🏷️'))
-                      .filter(line => line.trim().length > 0)
-                      .map((line, i) => {
-                        const phoneMatch = line.match(/📞\s*([\d\s+()-]+)/);
-                        if (phoneMatch) {
-                          const phone = phoneMatch[1].trim();
-                          return (
-                            <span key={i}>
-                              📞 <a href={`tel:${phone}`} className="text-primary font-semibold underline">{phone}</a>
-                              {'\n'}
-                            </span>
-                          );
-                        }
-                        return <span key={i}><LinkifiedText text={line} />{'\n'}</span>;
-                      })}
-                  </div>
-                )}
+              <div className="mb-3">
+                <PostContent
+                  content={post.content}
+                  stripBadgeLine={post.tags.includes('EcoProduct')}
+                  className="leading-relaxed"
+                />
               </div>
 
               {/* Colored Eco-Proof Badges for product posts */}
