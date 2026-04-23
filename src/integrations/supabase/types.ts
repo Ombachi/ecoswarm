@@ -1910,6 +1910,7 @@ export type Database = {
         Args: { p_swarm_id: string; p_votes?: number }
         Returns: Json
       }
+      normalize_rich_text: { Args: { p_input: string }; Returns: string }
       refresh_leaderboard_mv: { Args: never; Returns: undefined }
       toggle_post_like: { Args: { p_post_id: string }; Returns: Json }
     }
