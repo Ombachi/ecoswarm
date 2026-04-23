@@ -218,6 +218,13 @@ export type Database = {
             foreignKeyName: "business_advocacy_target_recipient_id_fkey"
             columns: ["target_recipient_id"]
             isOneToOne: false
+            referencedRelation: "public_recipients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_advocacy_target_recipient_id_fkey"
+            columns: ["target_recipient_id"]
+            isOneToOne: false
             referencedRelation: "recipients"
             referencedColumns: ["id"]
           },
@@ -1692,6 +1699,50 @@ export type Database = {
         }
         Relationships: []
       }
+      my_course_sponsorships: {
+        Row: {
+          course_id: string | null
+          created_at: string | null
+          id: string | null
+          message: string | null
+          sponsor_logo_url: string | null
+          sponsor_name: string | null
+          sponsor_user_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          message?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name?: string | null
+          sponsor_user_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          message?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name?: string | null
+          sponsor_user_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_sponsorships_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
@@ -1737,6 +1788,39 @@ export type Database = {
           swarms_joined?: number | null
           top_concern?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      public_recipients: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          is_active: boolean | null
+          name: string | null
+          organization: string | null
+          sort_order: number | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          organization?: string | null
+          sort_order?: number | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          organization?: string | null
+          sort_order?: number | null
+          title?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }

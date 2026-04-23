@@ -94,7 +94,7 @@ export function BusinessAdvocacyPanel() {
   };
 
   const loadRecipients = async () => {
-    const { data } = await supabase.from('recipients').select('*').eq('is_active', true).order('sort_order');
+    const { data } = await supabase.from('public_recipients').select('*').eq('is_active', true).order('sort_order');
     setRecipients(data || []);
   };
 
