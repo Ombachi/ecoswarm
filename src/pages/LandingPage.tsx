@@ -27,12 +27,23 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import heroDigitalEcosystem from "@/assets/hero-digital-ecosystem.jpg";
 import heroSustainableProducts from "@/assets/hero-sustainable-products.jpg";
+import heroCommunityRestoration from "@/assets/hero-community-restoration.jpg";
+import heroClimateLearningHub from "@/assets/hero-climate-learning-hub.jpg";
+import heroLivingClimateNetwork from "@/assets/hero-living-climate-network.jpg";
+import heroClimateActionCircle from "@/assets/hero-climate-action-circle.jpg";
 import agoraImage from "@/assets/agora-history.jpg";
 import founderPhoto from "@/assets/founder-ombachi-enock.jpg";
 import bevisioneersLogo from "@/assets/partner-bevisioneers.png";
 import lituLogo from "@/assets/partner-litu-diagnostics.jpg";
 
-const heroImages = [heroDigitalEcosystem, heroSustainableProducts];
+const heroImages = [
+  heroDigitalEcosystem,
+  heroSustainableProducts,
+  heroCommunityRestoration,
+  heroClimateLearningHub,
+  heroLivingClimateNetwork,
+  heroClimateActionCircle,
+];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
