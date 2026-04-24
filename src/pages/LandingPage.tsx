@@ -26,6 +26,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import heroImage from "@/assets/landing-hero.jpg";
+import heroDigitalEcosystem from "@/assets/hero-digital-ecosystem.jpg";
+import heroSustainableProducts from "@/assets/hero-sustainable-products.jpg";
 import heroPlanting from "@/assets/hero-planting.jpg";
 import heroRally from "@/assets/hero-rally.jpg";
 import heroRenewable from "@/assets/hero-renewable.jpg";
@@ -34,7 +36,7 @@ import founderPhoto from "@/assets/founder-ombachi-enock.jpg";
 import bevisioneersLogo from "@/assets/partner-bevisioneers.png";
 import lituLogo from "@/assets/partner-litu-diagnostics.jpg";
 
-const heroImages = [heroImage, heroPlanting, heroRally, heroRenewable];
+const heroImages = [heroDigitalEcosystem, heroSustainableProducts, heroImage, heroPlanting, heroRally, heroRenewable];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -271,7 +273,9 @@ export function LandingPage() {
               variants={fadeUp}
               className="text-4xl sm:text-5xl md:text-6xl font-black leading-tight tracking-tight mb-6 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
             >
-              Uniting Voices for <span className="eco-gradient-text">Planet-Positive</span> Change
+              <span className="text-primary-foreground">Uniting Voices for</span>{" "}
+              <span className="text-[hsl(var(--eco-gold))]">Planet-Positive</span>{" "}
+              <span className="text-primary-foreground">Change</span>
             </motion.h1>
           </motion.div>
         </div>
