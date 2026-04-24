@@ -25,18 +25,14 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import heroImage from "@/assets/landing-hero.jpg";
 import heroDigitalEcosystem from "@/assets/hero-digital-ecosystem.jpg";
 import heroSustainableProducts from "@/assets/hero-sustainable-products.jpg";
-import heroPlanting from "@/assets/hero-planting.jpg";
-import heroRally from "@/assets/hero-rally.jpg";
-import heroRenewable from "@/assets/hero-renewable.jpg";
 import agoraImage from "@/assets/agora-history.jpg";
 import founderPhoto from "@/assets/founder-ombachi-enock.jpg";
 import bevisioneersLogo from "@/assets/partner-bevisioneers.png";
 import lituLogo from "@/assets/partner-litu-diagnostics.jpg";
 
-const heroImages = [heroDigitalEcosystem, heroSustainableProducts, heroImage, heroPlanting, heroRally, heroRenewable];
+const heroImages = [heroDigitalEcosystem, heroSustainableProducts];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
