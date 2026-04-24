@@ -263,8 +263,6 @@ export function LandingPage() {
               style={{ transitionProperty: 'opacity, transform' }}
             />
           ))}
-          {/* Stronger gradient on mobile (more text overlap), softer on desktop */}
-          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/40 to-background/95 md:from-background/50 md:via-background/20 md:to-background/90" />
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-4 py-20 md:py-32 w-full">
           <motion.div initial="hidden" animate="visible" className="max-w-2xl">
