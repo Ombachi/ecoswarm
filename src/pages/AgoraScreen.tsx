@@ -42,6 +42,21 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Auto-post / system-post tags that should be hidden from the Agora feed.
+// Welcome posts, course completions, EcoLetter sends, and purchase shares
+// are batched into the weekly digest instead of cluttering the timeline.
+const HIDDEN_AUTOPOST_TAGS = new Set<string>([
+  'welcome_post',
+  'CapacityHub',
+  'EcoLetter',
+  'GreenShopping',
+]);
+
+function isHiddenAutoPost(tags: string[] | null | undefined): boolean {
+  if (!tags || tags.length === 0) return false;
+  return tags.some((t) => HIDDEN_AUTOPOST_TAGS.has(t));
+}
+
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
   'Plastic Free': 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
