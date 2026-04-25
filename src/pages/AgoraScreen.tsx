@@ -262,6 +262,8 @@ export function AgoraScreen() {
         const p = payload.new as any;
         // Don't add if it's our own post (already added optimistically)
         if (user && p.user_id === user.id) return;
+        // Suppress auto-posts (welcome / course / letter / purchase) from feed
+        if (isHiddenAutoPost(p.tags)) return;
         let mediaItems: MediaItem[] = [];
         try {
           if (Array.isArray(p.media_urls) && p.media_urls.length > 0) {
