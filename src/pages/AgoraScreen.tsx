@@ -42,6 +42,21 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Auto-post / system-post tags that should be hidden from the Agora feed.
+// Welcome posts, course completions, EcoLetter sends, and purchase shares
+// are batched into the weekly digest instead of cluttering the timeline.
+const HIDDEN_AUTOPOST_TAGS = new Set<string>([
+  'welcome_post',
+  'CapacityHub',
+  'EcoLetter',
+  'GreenShopping',
+]);
+
+function isHiddenAutoPost(tags: string[] | null | undefined): boolean {
+  if (!tags || tags.length === 0) return false;
+  return tags.some((t) => HIDDEN_AUTOPOST_TAGS.has(t));
+}
+
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
   'Plastic Free': 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
@@ -247,6 +262,8 @@ export function AgoraScreen() {
         const p = payload.new as any;
         // Don't add if it's our own post (already added optimistically)
         if (user && p.user_id === user.id) return;
+        // Suppress auto-posts (welcome / course / letter / purchase) from feed
+        if (isHiddenAutoPost(p.tags)) return;
         let mediaItems: MediaItem[] = [];
         try {
           if (Array.isArray(p.media_urls) && p.media_urls.length > 0) {
@@ -297,9 +314,13 @@ export function AgoraScreen() {
 
       if (error) throw error;
 
-      const rows = data || [];
+      const rawRows = data || [];
+      // Hide auto-generated system posts (welcome, course completion, EcoLetter, purchase)
+      const rows = rawRows.filter((p: any) => !isHiddenAutoPost(p.tags));
       if (rows.length < PAGE_SIZE) setHasMore(false);
-      if (rows.length > 0) setCursor(rows[rows.length - 1].created_at);
+      // Use the last raw row for pagination cursor so we don't get stuck when
+      // an entire page is filtered out.
+      if (rawRows.length > 0) setCursor(rawRows[rawRows.length - 1].created_at);
 
       // Get user's likes for these posts using secure function
       const postIds = rows.map(p => p.id);
