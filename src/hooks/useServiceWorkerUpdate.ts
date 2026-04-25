@@ -51,12 +51,21 @@ export function useServiceWorkerUpdate() {
         registrationRef.current = reg;
         checkForWaiting(reg);
         listenForInstalling(reg);
+        // Immediate update check on load so a freshly-published SW is
+        // detected within seconds instead of waiting for the 60s poll.
+        reg.update().catch(() => {});
       } catch {
         // SW not available
       }
     };
 
     init();
+
+    // Extra safety net: check again shortly after load in case the SW
+    // wasn't fully ready on the first call (e.g. cold start).
+    const initialKickTimeout = setTimeout(() => {
+      registrationRef.current?.update().catch(() => {});
+    }, 1500);
 
     // Auto-reload when new SW takes over
     navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -84,6 +93,7 @@ export function useServiceWorkerUpdate() {
     return () => {
       clearInterval(intervalId);
       document.removeEventListener('visibilitychange', onVisChange);
+      clearTimeout(initialKickTimeout);
     };
   }, []);
 
