@@ -258,42 +258,10 @@ export function LandingPage() {
       </nav>
 
       {/* ── Hero ── */}
-      <section id="hero" className="relative min-h-[100svh] flex items-center pt-16 overflow-hidden">
-        <div className="absolute inset-0">
-          {heroImages.map((src, i) => (
-            <img
-              key={i}
-              src={src}
-              alt="EcoSwarm community action"
-              loading={i === 0 ? 'eager' : 'lazy'}
-              fetchPriority={i === 0 ? 'high' : 'low'}
-              decoding="async"
-              sizes="100vw"
-              className={`absolute inset-0 w-full h-full object-cover object-[center_30%] sm:object-[center_25%] md:object-center transition-opacity duration-1000 ${i === heroIdx ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
-              style={{ transitionProperty: 'opacity, transform' }}
-            />
-          ))}
-        </div>
-        <div className="relative z-10 max-w-6xl mx-auto px-4 py-20 md:py-32 w-full">
-          <motion.div initial="hidden" animate="visible" className="max-w-2xl">
-            <motion.h1
-              custom={1}
-              variants={fadeUp}
-              className="text-4xl sm:text-5xl md:text-6xl font-black leading-tight tracking-tight mb-6 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
-            >
-              <span className="text-primary-foreground">Uniting Voices for</span>{" "}
-              <span className="text-[hsl(var(--eco-gold))]">Planet-Positive</span>{" "}
-              <span className="text-primary-foreground">Change</span>
-            </motion.h1>
-          </motion.div>
-        </div>
-        <button
-          onClick={() => scrollTo("about")}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce text-muted-foreground"
-        >
-          <ChevronDown className="w-7 h-7" />
-        </button>
-      </section>
+      <PremiumHero
+        onPrimary={() => navigate("/role-select")}
+        onSecondary={() => scrollTo("about")}
+      />
 
       {/* ── About: Agora Story ── */}
       <section id="about" className="py-20 md:py-28">
