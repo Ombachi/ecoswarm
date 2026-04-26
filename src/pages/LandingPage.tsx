@@ -35,6 +35,7 @@ import agoraImage from "@/assets/agora-history.jpg";
 import founderPhoto from "@/assets/founder-ombachi-enock.jpg";
 import bevisioneersLogo from "@/assets/partner-bevisioneers.png";
 import lituLogo from "@/assets/partner-litu-diagnostics.jpg";
+import { PremiumHero } from "@/components/landing/PremiumHero";
 
 const heroImages = [
   heroDigitalEcosystem,
