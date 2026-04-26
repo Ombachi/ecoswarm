@@ -144,16 +144,16 @@ serve(async (req) => {
     });
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+    const { data: userData, error: userError } = await authClient.auth.getUser(token);
 
-    if (claimsError || !claimsData?.claims?.sub) {
+    if (userError || !userData?.user?.id) {
       return new Response(
         JSON.stringify({ error: "Invalid or expired token" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = userData.user.id;
     console.log("Authenticated push sender:", userId);
 
     // ===== INPUT VALIDATION =====
