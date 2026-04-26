@@ -94,8 +94,31 @@ export function BusinessAdvocacyPanel() {
   };
 
   const loadRecipients = async () => {
-    const { data } = await supabase.from('public_recipients').select('*').eq('is_active', true).order('sort_order');
-    setRecipients(data || []);
+    const { data, error } = await supabase
+      .from('public_recipients')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order');
+
+    if (error) {
+      console.warn('loadRecipients: public_recipients query failed', error.message);
+    }
+
+    if (data && data.length > 0) {
+      setRecipients(data);
+      return;
+    }
+
+    // Fallback: a curated default list so EcoDevelopers always have at least
+    // one decision-maker to address. Used when the public_recipients view is
+    // empty or unreadable for the current role.
+    setRecipients([
+      { id: 'fallback-cs-environment', name: 'Hon. Aden Duale', title: 'Cabinet Secretary', organization: 'Ministry of Environment, Climate Change & Forestry' },
+      { id: 'fallback-cs-trade', name: 'Hon. Salim Mvurya', title: 'Cabinet Secretary', organization: 'Ministry of Investments, Trade & Industry' },
+      { id: 'fallback-cs-energy', name: 'Hon. Opiyo Wandayi', title: 'Cabinet Secretary', organization: 'Ministry of Energy & Petroleum' },
+      { id: 'fallback-nema', name: 'Director General', title: 'NEMA', organization: 'National Environment Management Authority' },
+      { id: 'fallback-kepsa', name: 'CEO', title: 'KEPSA', organization: 'Kenya Private Sector Alliance' },
+    ]);
   };
 
   const handleCreate = async () => {

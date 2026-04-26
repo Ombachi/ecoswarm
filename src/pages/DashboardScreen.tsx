@@ -86,7 +86,16 @@ export function DashboardScreen() {
       const userRole = isDeveloper ? 'ecodeveloper' : 'ecowarrior';
       const challengesWithStatus = (challengesData || [])
         .filter((c: any) => { const t = c.target_role || 'all'; return t === 'all' || t === userRole; })
-        .map((c) => ({ ...c, completed: completedIds.includes(c.id) }));
+        .map((c) => ({ ...c, completed: completedIds.includes(c.id) }))
+        // Hide the "Share Your Story" prompt until the user has created their
+        // first post — new EcoWarriors shouldn't be pressured before they're
+        // settled in.
+        .filter((c: any) => {
+          const isShareStory = (c.action_type === 'post') ||
+            /share.*your.*story/i.test(c.title || '');
+          if (isShareStory && (user.stats?.postsCreated ?? 0) === 0) return false;
+          return true;
+        });
       setChallenges(challengesWithStatus);
     } catch (error) {
       console.error("Error loading challenges:", (error as Error)?.message);

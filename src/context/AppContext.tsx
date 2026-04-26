@@ -377,7 +377,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setAuthUserId(session?.user?.id ?? null);
 
         if (session?.user) {
-          // Do not block initial render on profile fetch.
+          // Resolve the admin role BEFORE clearing isLoading so we don't
+          // briefly redirect admins to the EcoWarrior dashboard.
+          try {
+            const { data: adminRole } = await withTimeout(
+              supabase
+                .from('user_roles')
+                .select('id')
+                .eq('user_id', session.user.id)
+                .eq('role', 'admin')
+                .maybeSingle() as unknown as PromiseLike<any>,
+              4000,
+              'check_admin_role'
+            );
+            if (isMounted) setIsAdmin(!!adminRole);
+          } catch (e) {
+            console.warn('initializeAuth: admin role check failed', e);
+          }
+
+          // Hydrate the rest of the profile in the background.
           void hydrateUserInBackground({ id: session.user.id, email: session.user.email, user_metadata: session.user.user_metadata }, 'INITIAL_SESSION');
         } else {
           setUser(null);
