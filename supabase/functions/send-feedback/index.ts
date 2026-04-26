@@ -46,16 +46,16 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
 
-    if (claimsError || !claimsData?.claims?.sub) {
+    if (userError || !userData?.user?.id) {
       return new Response(
         JSON.stringify({ error: "Invalid or expired token" }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = userData.user.id;
     console.log("Authenticated feedback sender:", userId);
 
     const body: FeedbackRequest = await req.json();

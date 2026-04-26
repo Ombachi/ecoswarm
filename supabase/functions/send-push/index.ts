@@ -16,37 +16,13 @@ function base64UrlToBase64(b64url: string): string {
   return s;
 }
 
-// Import VAPID private key for signing
-async function importVapidPrivateKey(base64urlKey: string): Promise<CryptoKey> {
-  const rawKey = base64Decode(base64UrlToBase64(base64urlKey));
-
-  // Convert raw 32-byte private key to PKCS8 format for P-256
-  const pkcs8Header = new Uint8Array([
-    0x30, 0x81, 0x87, 0x02, 0x01, 0x00, 0x30, 0x13,
-    0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02,
-    0x01, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d,
-    0x03, 0x01, 0x07, 0x04, 0x6d, 0x30, 0x6b, 0x02,
-    0x01, 0x01, 0x04, 0x20,
-  ]);
-  const pkcs8Footer = new Uint8Array([
-    0xa1, 0x44, 0x03, 0x42, 0x00,
-  ]);
-
-  // We need the public key for the PKCS8 format, but for signing we only need private
-  // Use JWK import instead
-  return await crypto.subtle.importKey(
-    "raw",
-    rawKey,
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
+// Helper: Uint8Array -> ArrayBuffer (sliced to exact length, ensures plain ArrayBuffer)
+function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
+  return u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength) as ArrayBuffer;
 }
 
 // Create VAPID JWT
 async function createVapidJwt(audience: string, subject: string, privateKeyBase64url: string, publicKeyBase64url: string): Promise<string> {
-  const rawKey = base64Decode(base64UrlToBase64(privateKeyBase64url));
-  
   // Import as JWK for ECDSA P-256
   const jwk = {
     kty: "EC",
@@ -60,8 +36,8 @@ async function createVapidJwt(audience: string, subject: string, privateKeyBase6
   const pubKeyBytes = base64Decode(base64UrlToBase64(publicKeyBase64url));
   const xBytes = pubKeyBytes.slice(1, 33);
   const yBytes = pubKeyBytes.slice(33, 65);
-  jwk.x = base64url(xBytes);
-  jwk.y = base64url(yBytes);
+  jwk.x = base64url(toArrayBuffer(xBytes));
+  jwk.y = base64url(toArrayBuffer(yBytes));
 
   const key = await crypto.subtle.importKey(
     "jwk",
@@ -79,8 +55,8 @@ async function createVapidJwt(audience: string, subject: string, privateKeyBase6
     sub: subject,
   };
 
-  const encodedHeader = base64url(new TextEncoder().encode(JSON.stringify(header)));
-  const encodedPayload = base64url(new TextEncoder().encode(JSON.stringify(payload)));
+  const encodedHeader = base64url(toArrayBuffer(new TextEncoder().encode(JSON.stringify(header))));
+  const encodedPayload = base64url(toArrayBuffer(new TextEncoder().encode(JSON.stringify(payload))));
   const unsignedToken = `${encodedHeader}.${encodedPayload}`;
 
   const signature = await crypto.subtle.sign(
@@ -116,7 +92,7 @@ async function createVapidJwt(audience: string, subject: string, privateKeyBase6
     rawSig.set(s, 32);
   }
 
-  const encodedSignature = base64url(rawSig);
+  const encodedSignature = base64url(toArrayBuffer(rawSig));
   return `${unsignedToken}.${encodedSignature}`;
 }
 
@@ -144,16 +120,16 @@ serve(async (req) => {
     });
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+    const { data: userData, error: userError } = await authClient.auth.getUser(token);
 
-    if (claimsError || !claimsData?.claims?.sub) {
+    if (userError || !userData?.user?.id) {
       return new Response(
         JSON.stringify({ error: "Invalid or expired token" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = userData.user.id;
     console.log("Authenticated push sender:", userId);
 
     // ===== INPUT VALIDATION =====

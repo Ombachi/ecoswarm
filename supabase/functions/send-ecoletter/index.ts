@@ -42,19 +42,19 @@ const handler = async (req: Request): Promise<Response> => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    // Validate the JWT and get user claims
+    // Validate the JWT and get user
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
 
-    if (claimsError || !claimsData?.claims?.sub) {
-      console.error("Auth error:", claimsError?.message || "Invalid token");
+    if (userError || !userData?.user?.id) {
+      console.error("Auth error:", userError?.message || "Invalid token");
       return new Response(
         JSON.stringify({ error: "Invalid or expired token" }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = userData.user.id;
     console.log("Authenticated user:", userId);
 
     // ===== PARSE REQUEST BODY =====
