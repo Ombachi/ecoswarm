@@ -37,7 +37,7 @@ export function PremiumHero({ onPrimary, onSecondary }: PremiumHeroProps) {
   return (
     <section
       id="hero"
-      className="relative pt-20 pb-12 md:pt-24 md:pb-20 overflow-hidden bg-gradient-to-b from-background via-background to-[hsl(var(--eco-green-light)/0.25)]"
+      className="relative pt-16 pb-8 md:pt-24 md:pb-20 overflow-hidden bg-gradient-to-b from-background via-background to-[hsl(var(--eco-green-light)/0.25)]"
     >
       {/* Ambient eco glow */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
@@ -46,10 +46,10 @@ export function PremiumHero({ onPrimary, onSecondary }: PremiumHeroProps) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-stretch">
+        <div className="grid lg:grid-cols-2 gap-5 lg:gap-10 items-stretch">
           {/* ── LEFT: Bold statements + CTAs ── */}
-          <div className="order-2 lg:order-1 text-center lg:text-left flex flex-col justify-center">
-            <div className="space-y-3 sm:space-y-4 mb-8">
+          <div className="order-1 lg:order-1 text-left flex flex-col justify-center">
+            <div className="space-y-2 sm:space-y-4 mb-5 sm:mb-8">
               {statements.map((line, i) => (
                 <motion.h2
                   key={line}
@@ -62,7 +62,7 @@ export function PremiumHero({ onPrimary, onSecondary }: PremiumHeroProps) {
                     stiffness: 220,
                     damping: 14,
                   }}
-                  className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.02] tracking-tight"
+                  className="text-[2rem] xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight"
                 >
                   <span
                     className={
@@ -83,7 +83,7 @@ export function PremiumHero({ onPrimary, onSecondary }: PremiumHeroProps) {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.0 }}
-              className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start"
+              className="flex flex-col sm:flex-row gap-3 justify-start"
             >
               <Button
                 size="lg"
@@ -110,7 +110,7 @@ export function PremiumHero({ onPrimary, onSecondary }: PremiumHeroProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
-            className="order-1 lg:order-2 h-full min-h-[420px] lg:min-h-[560px]"
+            className="order-2 lg:order-2 h-full min-h-0 lg:min-h-[560px] mt-2 lg:mt-0"
           >
             <RotatingImageStack />
           </motion.div>
@@ -151,7 +151,7 @@ function RotatingImageStack() {
       />
 
       <div
-        className="relative w-full flex-1 min-h-[420px] lg:min-h-[560px] aspect-[4/3] lg:aspect-auto rounded-3xl overflow-hidden shadow-lg ring-1 ring-border/40 bg-gradient-to-br from-[hsl(var(--eco-green-light))] via-background to-[hsl(var(--eco-blue-light))]"
+        className="relative w-full flex-1 aspect-[4/5] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[560px] rounded-3xl overflow-hidden shadow-lg ring-1 ring-border/40 bg-gradient-to-br from-[hsl(var(--eco-green-light))] via-background to-[hsl(var(--eco-blue-light))]"
         style={{ transformStyle: "preserve-3d" }}
       >
         <AnimatePresence mode="wait">
