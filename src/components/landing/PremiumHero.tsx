@@ -40,18 +40,44 @@ const statements = ["Shop sustainably", "Learn boldly", "Amplify your voice"];
  * - Mobile: text first, then the rotating image stack.
  */
 export function PremiumHero({ onPrimary, onSecondary }: PremiumHeroProps) {
+  const [bleedIndex, setBleedIndex] = useState(0);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setBleedIndex((i) => (i + 1) % rotatingImages.length);
+    }, 3500);
+    return () => window.clearInterval(id);
+  }, []);
+
   return (
     <section
       id="hero"
       className="relative pt-16 pb-8 md:pt-24 md:pb-20 overflow-hidden bg-gradient-to-b from-background via-background to-[hsl(var(--eco-green-light)/0.25)]"
     >
-      {/* Ambient eco glow */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+      {/* Color-bleed backdrop derived from the current hero image.
+          A massively blurred, oversized copy fills the entire section so any
+          gaps left by varying image aspect ratios are filled with on-brand
+          color rather than empty whitespace. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <AnimatePresence mode="sync">
+          <motion.img
+            key={`bleed-${bleedIndex}`}
+            src={rotatingImages[bleedIndex].src}
+            alt=""
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.55 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.4, ease: "easeInOut" }}
+            className="absolute inset-0 w-full h-full object-cover scale-150 blur-3xl"
+          />
+        </AnimatePresence>
+        {/* Wash to keep text legible and unify with the page palette */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/70 to-background/90" />
         <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] rounded-full bg-primary/15 blur-3xl" />
         <div className="absolute top-1/3 -right-40 w-[32rem] h-[32rem] rounded-full bg-[hsl(var(--eco-blue)/0.18)] blur-3xl" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-5 lg:gap-10 items-stretch">
           {/* ── LEFT: Bold statements + CTAs ── */}
           <div className="order-1 lg:order-1 text-left flex flex-col justify-center">
