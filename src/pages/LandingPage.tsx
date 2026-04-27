@@ -28,6 +28,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import heroDigitalEcosystem from "@/assets/hero-digital-ecosystem.jpg";
 import heroSustainableProducts from "@/assets/hero-sustainable-products.jpg";
 import heroCommunityRestoration from "@/assets/hero-community-restoration.jpg";
+import whyDistress from "@/assets/why-distress.avif";
 import heroClimateLearningHub from "@/assets/hero-climate-learning-hub.jpg";
 import heroLivingClimateNetwork from "@/assets/hero-living-climate-network.jpg";
 import heroClimateActionCircle from "@/assets/hero-climate-action-circle.jpg";
