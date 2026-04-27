@@ -219,7 +219,7 @@ export function LandingPage() {
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* ── Sticky Nav ── */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-16">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
           <button onClick={() => scrollTo("hero")} className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl eco-gradient-bg flex items-center justify-center">
               <Leaf className="w-5 h-5 text-primary-foreground" />
