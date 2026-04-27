@@ -386,25 +386,56 @@ export function LandingPage() {
       <section id="why" className="py-16 md:py-24 relative overflow-hidden">
         <div className="absolute inset-0 eco-gradient-bg opacity-[0.04]" />
         <div className="max-w-6xl mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto text-center mb-12"
-          >
-            <span className="eco-badge mb-4 inline-flex">
-              <Heart className="w-3.5 h-3.5" /> Our Why
-            </span>
-            <h2 className="text-3xl md:text-4xl font-black mb-4">
-              From Powerlessness to <span className="eco-gradient-text">Purpose</span>
-            </h2>
-            <p className="text-muted-foreground text-lg leading-relaxed">
-              A silent epidemic is gripping millions: <strong className="text-foreground">climate anxiety</strong>.
-              Climate Anxiety is a profound emotional response to the escalating environmental crisis, leaving people
-              feeling sad, anxious, angry, or utterly powerless. And while anxiety cuts across all ages, it is often
-              most intense among the young.They are the ones who will inherit the long-term consequences of inaction.
-            </p>
-          </motion.div>
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center mb-12">
+            {/* Left: text */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-left max-w-[640px]"
+            >
+              <span className="eco-badge mb-4 inline-flex">
+                <Heart className="w-3.5 h-3.5" /> Our Why
+              </span>
+              <h2 className="text-3xl md:text-4xl font-black mb-4">
+                From Powerlessness to <span className="eco-gradient-text">Purpose</span>
+              </h2>
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                A silent epidemic is gripping millions:{" "}
+                <strong className="text-foreground">climate anxiety</strong>. Climate Anxiety is a profound emotional
+                response to the escalating environmental crisis, leaving people feeling sad, anxious, angry, or utterly
+                powerless. And while anxiety cuts across all ages, it is often most intense among the young. They are
+                the ones who will inherit the long-term consequences of inaction.
+              </p>
+            </motion.div>
+
+            {/* Right: supporting image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="relative w-full h-full min-h-[320px] lg:min-h-[420px] rounded-3xl overflow-hidden shadow-lg ring-1 ring-border/40"
+            >
+              <img
+                src={whyDistress}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-40"
+              />
+              <img
+                src={whyDistress}
+                alt="A young person grappling with climate anxiety"
+                loading="lazy"
+                decoding="async"
+                className="relative w-full h-full object-cover object-center"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-background/30 via-transparent to-transparent"
+              />
+            </motion.div>
+          </div>
 
           {/* Global Stats */}
           <div className="mb-12">
