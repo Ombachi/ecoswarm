@@ -3,12 +3,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroMain from "@/assets/hero-main.avif";
-import heroCard1 from "@/assets/hero-card-1.avif";
-import heroCard2 from "@/assets/hero-card-2.avif";
-import heroCard3 from "@/assets/hero-card-3.avif";
-import heroExtra1 from "@/assets/hero-extra-1.avif";
-import heroExtra2 from "@/assets/hero-extra-2.avif";
-import heroExtra3 from "@/assets/hero-extra-3.avif";
+import heroShop1 from "@/assets/hero-shop-1.avif";
+import heroShop2 from "@/assets/hero-shop-2.avif";
+import heroShop3 from "@/assets/hero-shop-3.avif";
+import heroLearn1 from "@/assets/hero-learn-1.avif";
+import heroLearn2 from "@/assets/hero-learn-2.avif";
+import heroLearn3 from "@/assets/hero-learn-3.avif";
+import heroAmplify1 from "@/assets/hero-amplify-1.avif";
+import heroAmplify2 from "@/assets/hero-amplify-2.avif";
+import heroAmplify3 from "@/assets/hero-amplify-3.avif";
 
 interface PremiumHeroProps {
   onPrimary: () => void;
@@ -17,12 +20,15 @@ interface PremiumHeroProps {
 
 const rotatingImages = [
   { src: heroMain, alt: "EcoSwarm community in action" },
-  { src: heroCard1, alt: "Sustainable products marketplace" },
-  { src: heroCard2, alt: "Community climate action" },
-  { src: heroCard3, alt: "EcoWarriors planting trees" },
-  { src: heroExtra1, alt: "Climate learning hub" },
-  { src: heroExtra2, alt: "Renewable energy initiatives" },
-  { src: heroExtra3, alt: "Living climate network" },
+  { src: heroShop1, alt: "Shop sustainably — eco marketplace" },
+  { src: heroLearn1, alt: "Learn boldly — climate education" },
+  { src: heroAmplify1, alt: "Amplify your voice — advocacy in action" },
+  { src: heroShop2, alt: "Sustainable products from local makers" },
+  { src: heroLearn2, alt: "Bold learners shaping climate futures" },
+  { src: heroAmplify2, alt: "Community advocacy and storytelling" },
+  { src: heroShop3, alt: "Conscious consumption marketplace" },
+  { src: heroLearn3, alt: "Hands-on climate learning" },
+  { src: heroAmplify3, alt: "EcoWarriors raising their voices" },
 ];
 
 const statements = ["Shop sustainably", "Learn boldly", "Amplify your voice"];
