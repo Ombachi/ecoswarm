@@ -25,7 +25,7 @@ const rotatingImages = [
   { src: heroExtra3, alt: "Living climate network" },
 ];
 
-const statements = ["Shop sustainably.", "Learn boldly.", "Amplify your voice."];
+const statements = ["Shop sustainably", "Learn boldly", "Amplify your voice"];
 
 /**
  * Premium split-layout hero for EcoSwarm.
@@ -37,7 +37,7 @@ export function PremiumHero({ onPrimary, onSecondary }: PremiumHeroProps) {
   return (
     <section
       id="hero"
-      className="relative pt-24 pb-16 md:pt-28 md:pb-24 overflow-hidden bg-gradient-to-b from-background via-background to-[hsl(var(--eco-green-light)/0.25)]"
+      className="relative pt-20 pb-12 md:pt-24 md:pb-20 overflow-hidden bg-gradient-to-b from-background via-background to-[hsl(var(--eco-green-light)/0.25)]"
     >
       {/* Ambient eco glow */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
@@ -46,9 +46,9 @@ export function PremiumHero({ onPrimary, onSecondary }: PremiumHeroProps) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-stretch">
           {/* ── LEFT: Bold statements + CTAs ── */}
-          <div className="lg:col-span-6 order-2 lg:order-1 text-center lg:text-left">
+          <div className="order-2 lg:order-1 text-center lg:text-left flex flex-col justify-center">
             <div className="space-y-3 sm:space-y-4 mb-8">
               {statements.map((line, i) => (
                 <motion.h2
@@ -110,7 +110,7 @@ export function PremiumHero({ onPrimary, onSecondary }: PremiumHeroProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
-            className="lg:col-span-6 order-1 lg:order-2"
+            className="order-1 lg:order-2 h-full min-h-[420px] lg:min-h-[560px]"
           >
             <RotatingImageStack />
           </motion.div>
@@ -139,7 +139,7 @@ function RotatingImageStack() {
   const current = rotatingImages[index];
 
   return (
-    <div className="relative w-full" style={{ perspective: "1400px" }}>
+    <div className="relative w-full h-full flex flex-col" style={{ perspective: "1400px" }}>
       {/* Decorative floating accent cards behind main */}
       <div
         aria-hidden
@@ -151,7 +151,7 @@ function RotatingImageStack() {
       />
 
       <div
-        className="relative w-full aspect-[4/3] sm:aspect-[16/11] lg:aspect-[5/4] xl:aspect-[6/5] rounded-3xl overflow-hidden shadow-eco-lg ring-1 ring-border/40 bg-gradient-to-br from-[hsl(var(--eco-green-light))] via-background to-[hsl(var(--eco-blue-light))]"
+        className="relative w-full flex-1 min-h-[420px] lg:min-h-[560px] aspect-[4/3] lg:aspect-auto rounded-3xl overflow-hidden shadow-lg ring-1 ring-border/40 bg-gradient-to-br from-[hsl(var(--eco-green-light))] via-background to-[hsl(var(--eco-blue-light))]"
         style={{ transformStyle: "preserve-3d" }}
       >
         <AnimatePresence mode="wait">
