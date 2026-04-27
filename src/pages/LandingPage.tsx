@@ -266,7 +266,7 @@ export function LandingPage() {
 
       {/* ── About: Agora Story ── */}
       <section id="about" className="py-20 md:py-28">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -310,7 +310,7 @@ export function LandingPage() {
       {/* ── Mission ── */}
       <section id="mission" className="py-16 md:py-24 relative overflow-hidden">
         <div className="absolute inset-0 eco-gradient-bg opacity-[0.04]" />
-        <div className="max-w-6xl mx-auto px-4 relative z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid md:grid-cols-2 gap-8">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -354,7 +354,7 @@ export function LandingPage() {
 
       {/* ── Values ── */}
       <section className="py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -385,7 +385,7 @@ export function LandingPage() {
       {/* ── Our Why ── */}
       <section id="why" className="py-16 md:py-24 relative overflow-hidden">
         <div className="absolute inset-0 eco-gradient-bg opacity-[0.04]" />
-        <div className="max-w-6xl mx-auto px-4 relative z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center mb-12">
             {/* Left: text */}
             <motion.div
@@ -557,7 +557,7 @@ export function LandingPage() {
 
       {/* ── What You Can Do (after Enter EcoSwarm) ── */}
       <section id="features" className="py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -596,7 +596,7 @@ export function LandingPage() {
 
       {/* ── Stats Bar (user statistics) ── */}
       <section id="stats" className="py-12 md:py-16 border-y border-border/50">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((s, i) => (
             <motion.div
               key={s.label}
@@ -616,7 +616,7 @@ export function LandingPage() {
 
       {/* ── Team & Partners (right below stats) ── */}
       <section id="team" className="py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -695,7 +695,7 @@ export function LandingPage() {
 
       {/* ── CTA Banner ── */}
       <section className="py-16 md:py-20">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -729,7 +729,7 @@ export function LandingPage() {
 
       {/* ── Footer ── */}
       <footer className="border-t border-border/50 py-12 md:py-16 bg-muted/30">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-10 mb-10">
             <div>
               <div className="flex items-center gap-2 mb-3">
