@@ -1,10 +1,10 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
 import { MessageCircle, ShoppingBag, Mail, Sparkles, type LucideIcon } from "lucide-react";
-import heroShop from "@/assets/hero-shop-1.avif";
-import heroLearn from "@/assets/hero-learn-1.avif";
-import heroAmplify from "@/assets/hero-amplify-1.avif";
-import heroMain from "@/assets/hero-main.avif";
+import featureAgora from "@/assets/feature-agora.webp";
+import featureMarket from "@/assets/feature-market.webp";
+import featureLearn from "@/assets/feature-learn.webp";
+import featureAdvocate from "@/assets/feature-advocate.webp";
 
 type Feature = {
   icon: LucideIcon;
@@ -22,7 +22,7 @@ const items: Feature[] = [
     desc: "Share. Spark. Mobilize.",
     longDesc:
       "Post your stories, organize swarms and rally a community that turns conversation into climate action.",
-    image: heroMain,
+    image: featureAgora,
     gradient: "from-primary/20 via-secondary/10 to-transparent",
   },
   {
@@ -31,7 +31,7 @@ const items: Feature[] = [
     desc: "Shop sustainably",
     longDesc:
       "Discover and list eco-friendly products and services from local organizations — and earn EcoPoints with every action.",
-    image: heroShop,
+    image: featureMarket,
     gradient: "from-secondary/20 via-[hsl(var(--eco-blue))]/15 to-transparent",
   },
   {
@@ -40,7 +40,7 @@ const items: Feature[] = [
     desc: "Learn boldly",
     longDesc:
       "Take bite-sized climate courses, earn certificates and grow the skills that turn passion into real-world impact.",
-    image: heroLearn,
+    image: featureLearn,
     gradient: "from-[hsl(var(--eco-orange))]/25 via-destructive/10 to-transparent",
   },
   {
@@ -49,7 +49,7 @@ const items: Feature[] = [
     desc: "Amplify your voice",
     longDesc:
       "Generate sharp, well-cited advocacy letters to decision-makers in seconds — no writer's block required.",
-    image: heroAmplify,
+    image: featureAdvocate,
     gradient: "from-[hsl(var(--eco-gold))]/25 via-[hsl(var(--eco-orange))]/15 to-transparent",
   },
 ];
@@ -87,8 +87,9 @@ function StackedCard({
         style={{ scale, opacity }}
         className="relative overflow-hidden rounded-3xl border border-border/60 bg-card shadow-eco-lg"
       >
+        {/* Full-bleed gradient background spans the entire card width */}
         <div
-          className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${feature.gradient}`}
+          className={`pointer-events-none absolute inset-0 w-full h-full bg-gradient-to-br ${feature.gradient}`}
           aria-hidden
         />
         <div className="relative grid md:grid-cols-2 gap-6 md:gap-10 p-6 md:p-10 lg:p-14 items-center">
@@ -115,6 +116,9 @@ function StackedCard({
                 src={feature.image}
                 alt={feature.title}
                 loading="lazy"
+                decoding="async"
+                width={1024}
+                height={768}
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
@@ -133,7 +137,7 @@ export function StackedFeatures() {
   });
 
   return (
-    <section id="features" className="py-16 md:py-24">
+    <section id="features" className="py-10 md:py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -155,8 +159,9 @@ export function StackedFeatures() {
         <div
           ref={containerRef}
           className="relative"
-          // Give the section enough scroll length so each card gets its own slice.
-          style={{ height: `${items.length * 100}vh` }}
+          // Each card gets ~80vh of scroll length — tighter than 100vh
+          // so sections flow closer together without large gaps.
+          style={{ height: `${items.length * 80}vh` }}
         >
           <div className="flex flex-col gap-6 md:gap-10">
             {items.map((f, i) => (
