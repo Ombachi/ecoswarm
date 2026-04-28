@@ -266,7 +266,7 @@ export function LandingPage() {
       />
 
       {/* ── About: Agora Story ── */}
-      <section id="about" className="py-20 md:py-28">
+      <section id="about" className="py-12 md:py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -309,7 +309,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Mission ── */}
-      <section id="mission" className="py-16 md:py-24 relative overflow-hidden">
+      <section id="mission" className="py-10 md:py-16 relative overflow-hidden">
         <div className="absolute inset-0 eco-gradient-bg opacity-[0.04]" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid md:grid-cols-2 gap-8">
@@ -354,7 +354,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Values ── */}
-      <section className="py-16 md:py-24">
+      <section className="py-10 md:py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -384,7 +384,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Our Why ── */}
-      <section id="why" className="py-16 md:py-24 relative overflow-hidden">
+      <section id="why" className="py-10 md:py-16 relative overflow-hidden">
         <div className="absolute inset-0 eco-gradient-bg opacity-[0.04]" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center mb-12">
@@ -560,7 +560,7 @@ export function LandingPage() {
       <StackedFeatures />
 
       {/* ── Stats Bar (user statistics) ── */}
-      <section id="stats" className="py-12 md:py-16 border-y border-border/50">
+      <section id="stats" className="py-8 md:py-10 border-y border-border/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((s, i) => (
             <motion.div
@@ -580,7 +580,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Team & Partners (right below stats) ── */}
-      <section id="team" className="py-16 md:py-24">
+      <section id="team" className="py-12 md:py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
