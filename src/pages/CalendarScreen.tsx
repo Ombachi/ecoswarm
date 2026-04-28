@@ -62,6 +62,7 @@ export function CalendarScreen() {
   const [showSwarmModal, setShowSwarmModal] = useState(false);
   const [swarmPrefill, setSwarmPrefill] = useState<{ name: string; description: string; goal: string; category: string } | null>(null);
   const [activeDeadlines, setActiveDeadlines] = useState<{ id: string; name: string; end_date: string; category: string; participants: number }[]>([]);
+  const [isDeveloper, setIsDeveloper] = useState(false);
 
   useEffect(() => {
     supabase
@@ -74,6 +75,17 @@ export function CalendarScreen() {
         if (data) setActiveDeadlines(data as any);
       });
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'ecodeveloper')
+      .maybeSingle()
+      .then(({ data }) => setIsDeveloper(!!data));
+  }, [user?.id]);
 
   const handleLaunchSwarm = (event: ClimateDate & { fullDate: Date }) => {
     // Map climate date to a swarm category
@@ -182,7 +194,7 @@ export function CalendarScreen() {
           </div>
         )}
 
-        {/* Advocacy Link */}
+        {/* Advocacy / Letter Link — role aware */}
         <button
           onClick={() => navigate('/tools')}
           className="w-full eco-card p-4 flex items-center gap-3 text-left border-l-4 border-l-primary mb-2"
@@ -191,8 +203,14 @@ export function CalendarScreen() {
             <Megaphone className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground">Business Advocacy</p>
-            <p className="text-[10px] text-muted-foreground">Launch advocacy campaigns tied to climate events</p>
+            <p className="text-sm font-semibold text-foreground">
+              {isDeveloper ? 'Business Advocacy' : 'EcoLetter Forge'}
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              {isDeveloper
+                ? 'Launch advocacy campaigns tied to climate events'
+                : 'Draft and send EcoLetters tied to climate events'}
+            </p>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </button>

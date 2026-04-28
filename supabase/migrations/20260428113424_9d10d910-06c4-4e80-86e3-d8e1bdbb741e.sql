@@ -1,0 +1,1 @@
+GRANT SELECT ON public.leaderboard_mv TO authenticated, anon;
