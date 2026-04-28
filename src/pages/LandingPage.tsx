@@ -37,6 +37,7 @@ import founderPhoto from "@/assets/founder-ombachi-enock.jpg";
 import bevisioneersLogo from "@/assets/partner-bevisioneers.png";
 import lituLogo from "@/assets/partner-litu-diagnostics.jpg";
 import { PremiumHero } from "@/components/landing/PremiumHero";
+import { StackedFeatures } from "@/components/landing/StackedFeatures";
 
 const heroImages = [
   heroDigitalEcosystem,
@@ -556,43 +557,7 @@ export function LandingPage() {
       </section>
 
       {/* ── What You Can Do (after Enter EcoSwarm) ── */}
-      <section id="features" className="py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center max-w-2xl mx-auto mb-12"
-          >
-            <span className="eco-badge mb-4 inline-flex">
-              <Sparkles className="w-3.5 h-3.5" /> Platform
-            </span>
-            <h2 className="text-3xl md:text-4xl font-black">What You Can Do</h2>
-          </motion.div>
-          <div className="grid sm:grid-cols-2 gap-6">
-            {features.map((f, i) => (
-              <motion.div
-                key={f.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="eco-card-elevated flex gap-4 p-6"
-              >
-                <div
-                  className={`w-14 h-14 rounded-xl bg-gradient-to-br ${f.color} flex-shrink-0 flex items-center justify-center`}
-                >
-                  <f.icon className="w-7 h-7 text-primary-foreground" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg mb-1">{f.title}</h3>
-                  <p className="text-muted-foreground text-sm">{f.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <StackedFeatures />
 
       {/* ── Stats Bar (user statistics) ── */}
       <section id="stats" className="py-12 md:py-16 border-y border-border/50">
