@@ -36,12 +36,19 @@ const CLIMATE_DATES: ClimateDate[] = [
   { date: '12-11', title: 'International Mountain Day', description: 'Sustainable development of mountains.', emoji: '⛰️' },
 ];
 
-function todayMMDD(): string {
-  // Use Africa/Nairobi (EAT) — fixed offset +03:00
-  const now = new Date(Date.now() + 3 * 60 * 60 * 1000);
-  const m = String(now.getUTCMonth() + 1).padStart(2, '0');
-  const d = String(now.getUTCDate()).padStart(2, '0');
-  return `${m}-${d}`;
+// Resolve "today" in the configured schedule timezone (defaults to Africa/Nairobi).
+// Using Intl avoids fragile epoch math at day boundaries / DST.
+function nowInTz(tz: string): { mmdd: string; year: number } {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: tz,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const get = (t: string) => parts.find(p => p.type === t)?.value ?? '';
+  const year = Number(get('year'));
+  const mmdd = `${get('month')}-${get('day')}`;
+  return { mmdd, year };
 }
 
 function buildHtml(event: ClimateDate, name: string, isDeveloper: boolean): string {
@@ -83,10 +90,11 @@ serve(async (req: Request) => {
   );
 
   try {
-    const today = todayMMDD();
+    const tz = Deno.env.get('SCHEDULE_TIMEZONE') || 'Africa/Nairobi';
+    const { mmdd: today, year: eventYear } = nowInTz(tz);
     const event = CLIMATE_DATES.find(d => d.date === today);
     if (!event) {
-      return new Response(JSON.stringify({ skipped: true, today }), {
+      return new Response(JSON.stringify({ skipped: true, today, tz }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -105,10 +113,34 @@ serve(async (req: Request) => {
 
     let sent = 0;
     let failed = 0;
+    let skipped = 0;
 
     for (const p of profiles || []) {
       if (!p.email) continue;
       const isDev = devSet.has(p.user_id);
+
+      // ── Idempotency: claim the (user, event, year) slot atomically ──
+      // Insert into the log first; if a row already exists the unique
+      // constraint rejects it and we skip the send entirely.
+      const { error: claimError } = await supabase
+        .from('climate_reminder_log')
+        .insert({
+          user_id: p.user_id,
+          event_date: event.date,
+          event_year: eventYear,
+        });
+
+      if (claimError) {
+        // 23505 = unique_violation → already sent for this user/event/year
+        if ((claimError as any).code === '23505') {
+          skipped++;
+          continue;
+        }
+        console.error('claim failed', p.email, claimError.message);
+        failed++;
+        continue;
+      }
+
       try {
         await resend.emails.send({
           from: 'EcoSwarm <hello@ecoswarm.co.ke>',
@@ -122,16 +154,23 @@ serve(async (req: Request) => {
           type: 'climate_date',
           title: `${event.emoji} ${event.title}`,
           message: `Today's the day. Open the Eco Calendar to see how you can act.`,
-          reference_id: event.date,
+          reference_id: `climate:${eventYear}-${event.date}`,
         });
         sent++;
       } catch (e) {
         console.error('send failed', p.email, e instanceof Error ? e.message : e);
         failed++;
+        // Roll back the claim so a future retry can re-attempt this user.
+        await supabase
+          .from('climate_reminder_log')
+          .delete()
+          .eq('user_id', p.user_id)
+          .eq('event_date', event.date)
+          .eq('event_year', eventYear);
       }
     }
 
-    return new Response(JSON.stringify({ event: event.title, sent, failed }), {
+    return new Response(JSON.stringify({ event: event.title, year: eventYear, tz, sent, failed, skipped }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
