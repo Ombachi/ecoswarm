@@ -266,6 +266,30 @@ export type Database = {
         }
         Relationships: []
       }
+      climate_reminder_log: {
+        Row: {
+          event_date: string
+          event_year: number
+          id: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          event_date: string
+          event_year: number
+          id?: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          event_date?: string
+          event_year?: number
+          id?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       co2_matrix: {
         Row: {
           action_type: string
