@@ -862,7 +862,7 @@ export function AgoraScreen() {
                 <div key={post.id}>
                   <WelcomePost
                     post={post}
-                    onSayHi={(userName) => {
+                    onSayHi={() => {
                       setExpandedComments(post.id);
                     }}
                   />
