@@ -38,7 +38,7 @@ export function DashboardScreen() {
 
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [isLoadingChallenges, setIsLoadingChallenges] = useState(true);
+  const [, setIsLoadingChallenges] = useState(true);
   const [productCount, setProductCount] = useState(0);
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [roleChecked, setRoleChecked] = useState(false);
