@@ -151,12 +151,6 @@ function StatCard({ stat, index }: { stat: (typeof globalStats)[0]; index: numbe
 
 export function LandingPage() {
   const navigate = useNavigate();
-  const [heroIdx, setHeroIdx] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => setHeroIdx(i => (i + 1) % heroImages.length), 5000);
-    return () => clearInterval(timer);
-  }, []);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
