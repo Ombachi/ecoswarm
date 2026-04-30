@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
-import { cacheProducts, getCachedProducts, getCachedProductsTimestamp, type CachedProduct } from '@/lib/offlineDb';
+import { cacheProducts, getCachedProducts, getCachedProductsTimestamp } from '@/lib/offlineDb';
 import { CreateProductModal } from '@/components/ecomarket/CreateProductModal';
 import { ProductChat } from '@/components/ecomarket/ProductChat';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
@@ -11,7 +11,7 @@ import { Confetti } from '@/components/common/Confetti';
 import { toast } from 'sonner';
 import {
   Search, Plus, Phone, Loader2, X, ShoppingBag, ChevronDown, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, MessageCircle,
-  ShoppingCart, Package, Leaf, Check, Sparkles, Share2, Star, AlertTriangle, Shield, ShieldCheck,
+  Leaf, Check, Sparkles, Share2, ShieldCheck,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createAutoPost } from '@/utils/autoPost';
@@ -46,21 +46,6 @@ interface Product {
   contact_phone: string;
   location?: string;
   created_at: string;
-}
-
-interface Transaction {
-  id: string;
-  product_id: string;
-  product_name: string;
-  points_used: number;
-  cash_paid: number;
-  total_price: number;
-  bonus_points: number;
-  status: string;
-  created_at: string;
-  seller_id: string;
-  verification_status?: string;
-  mpesa_receipt?: string;
 }
 
 const categoryFilters = [
