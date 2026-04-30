@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Briefcase, Send, Users, Clock, Plus, ChevronRight, Check, Loader2, Shield, X, FileText, ChevronDown } from 'lucide-react';
+import { Briefcase, Send, Users, Plus, Check, Loader2, Shield, X, FileText, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';

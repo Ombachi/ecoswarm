@@ -13,11 +13,9 @@ import {
   ChevronLeft,
   BookOpen,
   HelpCircle,
-  GripVertical,
   Video,
   Link as LinkIcon,
   FileText,
-  Upload,
   Image as ImageIcon,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -336,7 +334,7 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
                     label="Upload Video"
                     icon={<Video className="w-3.5 h-3.5" />}
                     accept="video/*"
-                    onUploaded={(url, name) => {
+                    onUploaded={(url) => {
                       setEditingSection({
                         ...editingSection,
                         content: editingSection.content + `\n\n[video](${url})\n`,
@@ -358,7 +356,7 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
                     label="Upload Image"
                     icon={<ImageIcon className="w-3.5 h-3.5" />}
                     accept="image/*"
-                    onUploaded={(url, name) => {
+                    onUploaded={(url) => {
                       setEditingSection({
                         ...editingSection,
                         content: editingSection.content + `\n\n[image](${url})\n`,
