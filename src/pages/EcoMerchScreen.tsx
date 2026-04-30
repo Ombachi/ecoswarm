@@ -28,7 +28,6 @@ export function EcoMerchScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [buyingId, setBuyingId] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [cart, setCart] = useState<Record<string, number>>({});
   const [checkoutProduct, setCheckoutProduct] = useState<MerchProduct | null>(null);
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');

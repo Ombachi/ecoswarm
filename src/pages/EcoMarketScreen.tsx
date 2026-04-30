@@ -82,9 +82,8 @@ export function EcoMarketScreen() {
     rect: DOMRect | null;
   } | null>(null);
   const [chatProduct, setChatProduct] = useState<{ id: string; name: string; sellerId: string; sellerName: string } | null>(null);
-  const [activeView] = useState<'browse'>('browse');
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [, setHasMore] = useState(true);
+  const [, setLoadingMore] = useState(false);
   const [productCursor, setProductCursor] = useState<string | null>(null);
   const [premiumSellers, setPremiumSellers] = useState<Set<string>>(new Set());
   const PRODUCT_PAGE_SIZE = 24;
@@ -267,7 +266,7 @@ export function EcoMarketScreen() {
 
   // Server-side full-text search
   const [searchResults, setSearchResults] = useState<Product[] | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
+  const [, setIsSearching] = useState(false);
 
   useEffect(() => {
     if (!searchQuery.trim()) {

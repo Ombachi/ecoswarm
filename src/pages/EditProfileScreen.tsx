@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 export function EditProfileScreen() {
   const navigate = useNavigate();
-  const { user, setUser, refreshUser } = useApp();
+  const { user, setUser } = useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
