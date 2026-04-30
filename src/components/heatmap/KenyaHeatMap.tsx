@@ -176,7 +176,7 @@ export function KenyaHeatMap() {
                     stroke="hsl(var(--background))"
                     strokeWidth="0.3"
                     className="cursor-pointer transition-all duration-200"
-                    onMouseEnter={(e) => {
+                    onMouseEnter={() => {
                       setHoveredCounty(county.name);
                       const svgX = county.cx;
                       const svgY = county.cy;

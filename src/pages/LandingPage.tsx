@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import {
   Leaf,
   Users,
-  MessageCircle,
   Globe,
   ArrowRight,
   Heart,
@@ -13,8 +12,6 @@ import {
   Mail,
   Target,
   Eye,
-  Sparkles,
-  ShoppingBag,
   Zap,
   ExternalLink,
   Award,
