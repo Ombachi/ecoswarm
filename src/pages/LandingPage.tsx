@@ -36,18 +36,6 @@ const stats = [
   { icon: Megaphone, label: "Ecoletters Forged", value: "50+" },
   { icon: BookOpen, label: "Courses Completed", value: "100+" },
 ];
-    icon: Mail,
-    title: "EcoLetter Forge",
-    desc: "Generate powerful advocacy letters to decision-makers.",
-    color: "from-[hsl(var(--eco-gold))] to-[hsl(var(--eco-orange))]",
-  },
-  {
-    icon: Sparkles,
-    title: "Capacity Hub",
-    desc: "Learn, grow, and earn points while building your activism skills.",
-    color: "from-[hsl(var(--eco-orange))] to-destructive",
-  },
-];
 
 const values = [
   { emoji: "🌍", title: "Global Mindset", desc: "Think globally, act locally" },
