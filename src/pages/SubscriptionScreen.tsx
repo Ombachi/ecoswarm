@@ -6,7 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import {
-  ChevronLeft, Crown, ShieldCheck, TrendingDown, Sparkles,
+  ChevronLeft, Crown, ShieldCheck, TrendingDown,
   Phone, Loader2, Check, Star, BarChart3, Zap,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';

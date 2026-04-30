@@ -16,7 +16,6 @@ import {
   X,
   Check,
   Play,
-  Lock,
   Share2,
   Building2,
   Briefcase,
@@ -37,10 +36,10 @@ export function ToolsScreen() {
   const [letterTemplates, setLetterTemplates] = useState<any[]>([]);
   const [recipients, setRecipients] = useState<any[]>([]);
   const [learningModules, setLearningModules] = useState<any[]>([]);
-  const [isLoadingContent, setIsLoadingContent] = useState(true);
+  const [, setIsLoadingContent] = useState(true);
   const [sponsorships, setSponsorships] = useState<Record<string, { name: string; logo: string | null }>>({});
   const [sponsoringCourse, setSponsoringCourse] = useState<{ id: string; title: string } | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [, setUserRole] = useState<string | null>(null);
   const [isDeveloper, setIsDeveloper] = useState(false);
 
   useEffect(() => {
