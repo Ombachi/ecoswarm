@@ -37,7 +37,6 @@ import {
   Pencil,
   Search,
   Users,
-  Target,
   FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -70,7 +69,7 @@ const ecoBadgeColors: Record<string, string> = {
   'Water Efficient': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
 };
 
-function EditPostOverlay({ post, editContent, setEditContent, onCancel, onSave, editMediaItems, setEditMediaItems }: {
+function EditPostOverlay({ editContent, setEditContent, onCancel, onSave, editMediaItems, setEditMediaItems }: {
   post: Post;
   editContent: string;
   setEditContent: (s: string) => void;
