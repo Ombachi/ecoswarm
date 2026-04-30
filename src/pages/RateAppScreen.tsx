@@ -8,7 +8,7 @@ import { Confetti } from "@/components/common/Confetti";
 
 export function RateAppScreen() {
   const navigate = useNavigate();
-  const { user, addPoints, showNotification } = useApp();
+  const { addPoints, showNotification } = useApp();
 
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
