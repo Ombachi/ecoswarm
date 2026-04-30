@@ -10,11 +10,6 @@ export function pointsToKes(points: number): number {
   return Math.floor(points / ECOPOINTS_PER_KES);
 }
 
-/** Convert KES to EcoPoints */
-export function kesToPoints(kes: number): number {
-  return kes * ECOPOINTS_PER_KES;
-}
-
 /** Calculate smart buy breakdown: how many points to use, how much cash remains */
 export function calculateSmartBuy(priceKes: number, userPoints: number) {
   const maxPointsValue = pointsToKes(userPoints); // max KES user can cover with points
