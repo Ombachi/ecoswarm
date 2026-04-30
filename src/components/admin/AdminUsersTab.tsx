@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Search, Loader2, Shield, User, Ban } from 'lucide-react';
-import { toast } from 'sonner';
+import { Search, Loader2 } from 'lucide-react';
 
 interface UserProfile {
   user_id: string;

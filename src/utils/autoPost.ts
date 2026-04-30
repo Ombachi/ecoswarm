@@ -1,5 +1,3 @@
-import { supabase } from '@/integrations/supabase/client';
-
 interface AutoPostOptions {
   userId: string;
   userName: string;
@@ -15,10 +13,10 @@ interface AutoPostOptions {
  * 
  * Only used for truly special one-off events (e.g. product listings).
  */
-export async function createAutoPost({ userId, userName, content, tags }: AutoPostOptions) {
+export async function createAutoPost(_options: AutoPostOptions) {
   // Suppress individual auto-posts — these are now aggregated into weekly reports
   // Only allow explicit product listing posts (handled directly in EcoMarketScreen)
-  console.log('[AutoPost] Suppressed individual auto-post (batched into weekly report):', content.substring(0, 50));
+  console.log('[AutoPost] Suppressed individual auto-post (batched into weekly report):', _options.content.substring(0, 50));
 }
 
 /**

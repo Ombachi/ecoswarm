@@ -38,7 +38,7 @@ export function DashboardScreen() {
 
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [isLoadingChallenges, setIsLoadingChallenges] = useState(true);
+  const [, setIsLoadingChallenges] = useState(true);
   const [productCount, setProductCount] = useState(0);
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [roleChecked, setRoleChecked] = useState(false);
@@ -290,7 +290,7 @@ export function DashboardScreen() {
   );
 }
 
-function DashboardHomeContent({ quickActions, navigate, isSwahili, dailyChallenge, handleCompleteChallenge, handleStartChallenge, challenges, user, productCount, isDeveloper }: any) {
+function DashboardHomeContent({ quickActions, navigate, isSwahili, dailyChallenge, handleStartChallenge, isDeveloper }: any) {
   return (
     <>
       {/* Quick Actions - Expanded Grid */}

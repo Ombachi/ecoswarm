@@ -63,11 +63,6 @@ export async function getCacheTimestamp(): Promise<number> {
   return (await get<number>('cached-posts-timestamp', cacheStore)) || 0;
 }
 
-export async function clearCache(): Promise<void> {
-  await del('cached-posts', cacheStore);
-  await del('cached-posts-timestamp', cacheStore);
-}
-
 // ─── Product Cache (Offline Browsing) ────────────────────────────
 export interface CachedProduct {
   id: string;

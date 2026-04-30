@@ -8,7 +8,6 @@ import { Confetti } from '@/components/common/Confetti';
 import { SponsorBadge } from '@/components/sponsorship/SponsorBadge';
 import {
   ChevronLeft,
-  CheckCircle,
   ChevronRight,
   Award,
   BookOpen,
@@ -16,7 +15,6 @@ import {
   FileText,
   ExternalLink,
 } from 'lucide-react';
-import { toast } from 'sonner';
 import { createAutoPost, buildCourseAutoPost } from '@/utils/autoPost';
 
 interface Section {

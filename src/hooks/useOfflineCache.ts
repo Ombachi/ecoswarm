@@ -1,7 +1,7 @@
 /**
  * Persistent offline data: Caches recent posts in IndexedDB for offline reading.
  */
-import { useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { cachePosts, getCachedPosts, getCacheTimestamp, type CachedPost } from '@/lib/offlineDb';
 
 const CACHE_MAX_AGE_MS = 1000 * 60 * 60; // 1 hour

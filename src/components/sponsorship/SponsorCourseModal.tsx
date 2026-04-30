@@ -4,7 +4,7 @@ import { useApp } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { X, Upload, Loader2, Send, Building2 } from 'lucide-react';
+import { X, Upload, Loader2, Send } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SponsorCourseModalProps {

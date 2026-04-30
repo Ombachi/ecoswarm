@@ -21,7 +21,7 @@ interface PayoutRequest {
   processed_at: string | null;
 }
 
-export function SellerEarnings({ onBack }: SellerEarningsProps) {
+export function SellerEarnings(_: SellerEarningsProps) {
   const { user } = useApp();
   const [isLoading, setIsLoading] = useState(true);
   const [totalRevenue, setTotalRevenue] = useState(0);

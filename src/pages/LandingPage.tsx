@@ -1,37 +1,24 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Leaf,
   Users,
-  MessageCircle,
   Globe,
   ArrowRight,
   Heart,
   TreePine,
   Megaphone,
   BookOpen,
-  Shield,
   Mail,
-  ChevronDown,
   Target,
   Eye,
-  Sparkles,
-  ShoppingBag,
   Zap,
   ExternalLink,
-  X,
   Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import heroDigitalEcosystem from "@/assets/hero-digital-ecosystem.jpg";
-import heroSustainableProducts from "@/assets/hero-sustainable-products.jpg";
-import heroCommunityRestoration from "@/assets/hero-community-restoration.jpg";
 import whyDistress from "@/assets/why-distress.avif";
-import heroClimateLearningHub from "@/assets/hero-climate-learning-hub.jpg";
-import heroLivingClimateNetwork from "@/assets/hero-living-climate-network.jpg";
-import heroClimateActionCircle from "@/assets/hero-climate-action-circle.jpg";
 import agoraImage from "@/assets/agora-history.jpg";
 import founderPhoto from "@/assets/founder-ombachi-enock.jpg";
 import bevisioneersLogo from "@/assets/partner-bevisioneers.png";
@@ -39,56 +26,11 @@ import lituLogo from "@/assets/partner-litu-diagnostics.jpg";
 import { PremiumHero } from "@/components/landing/PremiumHero";
 import { StackedFeatures } from "@/components/landing/StackedFeatures";
 
-const heroImages = [
-  heroDigitalEcosystem,
-  heroSustainableProducts,
-  heroCommunityRestoration,
-  heroClimateLearningHub,
-  heroLivingClimateNetwork,
-  heroClimateActionCircle,
-];
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.12, duration: 0.5, ease: "easeOut" as const },
-  }),
-};
-
 const stats = [
   { icon: Users, label: "Active Eco-Warriors", value: "100+" },
   { icon: TreePine, label: "Ecoproducts Listed", value: "10+" },
   { icon: Megaphone, label: "Ecoletters Forged", value: "50+" },
   { icon: BookOpen, label: "Courses Completed", value: "100+" },
-];
-
-const features = [
-  {
-    icon: MessageCircle,
-    title: "Agora Square",
-    desc: "Share your stories, ideas, and experiences with a community that cares.",
-    color: "from-primary to-secondary",
-  },
-  {
-    icon: ShoppingBag,
-    title: "EcoMarket",
-    desc: "Discover and list eco-friendly products and services from local organizations.",
-    color: "from-secondary to-[hsl(var(--eco-blue))]",
-  },
-  {
-    icon: Mail,
-    title: "EcoLetter Forge",
-    desc: "Generate powerful advocacy letters to decision-makers.",
-    color: "from-[hsl(var(--eco-gold))] to-[hsl(var(--eco-orange))]",
-  },
-  {
-    icon: Sparkles,
-    title: "Capacity Hub",
-    desc: "Learn, grow, and earn points while building your activism skills.",
-    color: "from-[hsl(var(--eco-orange))] to-destructive",
-  },
 ];
 
 const values = [
@@ -205,12 +147,6 @@ function StatCard({ stat, index }: { stat: (typeof globalStats)[0]; index: numbe
 
 export function LandingPage() {
   const navigate = useNavigate();
-  const [heroIdx, setHeroIdx] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => setHeroIdx(i => (i + 1) % heroImages.length), 5000);
-    return () => clearInterval(timer);
-  }, []);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });

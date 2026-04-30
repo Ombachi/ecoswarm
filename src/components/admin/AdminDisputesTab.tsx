@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, CheckCircle, Clock, XCircle, Loader2, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Dispute {

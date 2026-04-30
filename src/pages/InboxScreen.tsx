@@ -22,7 +22,7 @@ export function InboxScreen() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeveloper, setIsDeveloper] = useState(false);
-  const [myProductIds, setMyProductIds] = useState<string[]>([]);
+  const [, setMyProductIds] = useState<string[]>([]);
   const [activeChat, setActiveChat] = useState<{
     productId: string;
     productName: string;

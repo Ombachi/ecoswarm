@@ -5,7 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 
-export interface GalleryItem {
+interface GalleryItem {
   url: string;
   type: 'image' | 'video' | 'file';
 }
@@ -24,7 +24,7 @@ interface AdvancedMediaViewerProps {
 }
 
 export function AdvancedMediaViewer({ 
-  isOpen, onClose, mediaUrl, mediaType, alt, initialRect,
+  isOpen, onClose, mediaUrl, mediaType, alt,
   galleryItems, initialIndex = 0,
 }: AdvancedMediaViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);

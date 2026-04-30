@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ChevronLeft, ChevronRight, User, MapPin, Heart, Phone, Mail,
-  Building2, Globe, FileUp, Briefcase, Info, Eye, EyeOff, Check, X,
+  Building2, Globe, FileUp, Briefcase, Eye, EyeOff, Check, X,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";

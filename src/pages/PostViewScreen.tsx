@@ -179,7 +179,7 @@ export function PostViewScreen() {
                 <div className="mb-4">
                   <MediaGallery
                     items={mediaItems}
-                    onMediaClick={(item, index, event) => {
+                    onMediaClick={(item, index) => {
                       if (item.type === 'image' || item.type === 'video') {
                         setLightboxMedia({ url: item.url, type: item.type, galleryItems: mediaItems, initialIndex: index });
                       }

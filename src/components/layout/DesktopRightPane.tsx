@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
-import { CalendarDays, Users, Trophy, ChevronRight, Target, MapPin } from 'lucide-react';
+import { CalendarDays, Users, Trophy, ChevronRight, Target } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { KenyaHeatMap } from '@/components/heatmap/KenyaHeatMap';
 import { AccountabilityWidget } from '@/components/accountability/AccountabilityWidget';

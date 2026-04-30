@@ -21,10 +21,10 @@ interface Challenge {
 
 export function ChallengesScreen() {
   const navigate = useNavigate();
-  const { user, addPoints, showNotification } = useApp();
+  const { user } = useApp();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [showConfetti] = useState(false);
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [roleChecked, setRoleChecked] = useState(false);
 

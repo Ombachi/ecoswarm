@@ -74,7 +74,7 @@ function AnalyticsTracker() {
 }
 
 function AppRoutes() {
-  const { isOnboarded, user, isLoading, authUserId, isAdmin } = useApp();
+  const { isLoading, authUserId, isAdmin } = useApp();
 
   if (isLoading) {
     return <LoadingScreen />;

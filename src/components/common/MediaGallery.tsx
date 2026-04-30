@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Image as ImageIcon, Video, FileText } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Image as ImageIcon, Video } from 'lucide-react';
 import { DocumentCarousel } from './DocumentCarousel';
 
 export interface MediaItem {
