@@ -290,7 +290,7 @@ export function DashboardScreen() {
   );
 }
 
-function DashboardHomeContent({ quickActions, navigate, isSwahili, dailyChallenge, handleCompleteChallenge, handleStartChallenge, challenges, user, productCount, isDeveloper }: any) {
+function DashboardHomeContent({ quickActions, navigate, isSwahili, dailyChallenge, handleStartChallenge, isDeveloper }: any) {
   return (
     <>
       {/* Quick Actions - Expanded Grid */}
