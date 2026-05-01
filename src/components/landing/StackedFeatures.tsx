@@ -159,9 +159,10 @@ export function StackedFeatures() {
         <div
           ref={containerRef}
           className="relative"
-          // Each card gets ~80vh of scroll length — tighter than 100vh
-          // so sections flow closer together without large gaps.
-          style={{ height: `${items.length * 80}vh` }}
+          // Each card gets ~50vh on mobile / 70vh on desktop of scroll length.
+          // Keeps the sticky stack tight and avoids a large empty gap before
+          // the next section on small screens.
+          style={{ height: `clamp(${items.length * 50}vh, ${items.length * 60}vh, ${items.length * 70}vh)` }}
         >
           <div className="flex flex-col gap-6 md:gap-10">
             {items.map((f, i) => (
