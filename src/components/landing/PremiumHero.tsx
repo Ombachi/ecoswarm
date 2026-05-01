@@ -66,14 +66,15 @@ export function PremiumHero(_props: PremiumHeroProps) {
         )}
 
         {/* Cinematic legibility overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/70" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+        {/* Subtle, even darken for text contrast — no heavy bottom band */}
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/10 to-transparent" />
       </div>
 
       {/* ── Foreground content ── */}
-      <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
-        <div className="max-w-2xl text-left text-white">
-          <div className="space-y-2 sm:space-y-4">
+      <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
+        <div className="max-w-[min(92vw,46rem)] text-left text-white">
+          <div className="space-y-1.5 sm:space-y-3">
             {statements.map((line, i) => (
               <motion.h2
                 key={line}
@@ -86,7 +87,7 @@ export function PremiumHero(_props: PremiumHeroProps) {
                   stiffness: 220,
                   damping: 14,
                 }}
-                className="text-[2.25rem] xs:text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-black leading-[1.02] tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)]"
+                className="text-[clamp(1.75rem,7vw,4.25rem)] font-black leading-[1.05] tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)]"
               >
                 <span
                   className={
@@ -105,10 +106,10 @@ export function PremiumHero(_props: PremiumHeroProps) {
         </div>
       </div>
 
-      {/* Subtle bottom fade into the next section */}
+      {/* Very subtle bottom fade into the next section */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-transparent to-background"
       />
     </section>
   );
