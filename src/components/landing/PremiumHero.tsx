@@ -11,10 +11,7 @@ import heroAmplify1 from "@/assets/hero-amplify-1.avif";
 import heroAmplify2 from "@/assets/hero-amplify-2.avif";
 import heroAmplify3 from "@/assets/hero-amplify-3.avif";
 
-interface PremiumHeroProps {
-  onPrimary: () => void;
-  onSecondary: () => void;
-}
+type PremiumHeroProps = Record<string, never>;
 
 const rotatingImages = [
   { src: heroMain, alt: "EcoSwarm community in action" },
@@ -37,7 +34,7 @@ const statements = ["Shop sustainably", "Learn boldly", "Amplify your voice"];
  * - RIGHT: rotating/flipping image stack (3D card flip).
  * - Mobile: text first, then the rotating image stack.
  */
-export function PremiumHero({ onPrimary, onSecondary }: PremiumHeroProps) {
+export function PremiumHero(_props: PremiumHeroProps) {
   const [bleedIndex, setBleedIndex] = useState(0);
 
   useEffect(() => {
