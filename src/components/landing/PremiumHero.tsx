@@ -37,10 +37,10 @@ export function PremiumHero(_props: PremiumHeroProps) {
   return (
     <section
       id="hero"
-      className="relative w-full h-[100svh] min-h-[560px] overflow-hidden bg-black"
+      className="relative w-full h-[100svh] min-h-[560px] overflow-hidden bg-black isolate"
     >
       {/* ── Background video (full-bleed, object-cover) ── */}
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 z-0">
         {/* Poster acts as the instant background while the video loads */}
         <img
           src={heroPoster}
@@ -71,7 +71,7 @@ export function PremiumHero(_props: PremiumHeroProps) {
       </div>
 
       {/* ── Foreground content ── */}
-      <div className="relative h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
+      <div className="relative z-10 h-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
         <div className="max-w-2xl text-left text-white">
           <div className="space-y-2 sm:space-y-4">
             {statements.map((line, i) => (
