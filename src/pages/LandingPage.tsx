@@ -196,10 +196,7 @@ export function LandingPage() {
       </nav>
 
       {/* ── Hero ── */}
-      <PremiumHero
-        onPrimary={() => navigate("/role-select")}
-        onSecondary={() => scrollTo("about")}
-      />
+      <PremiumHero />
 
       {/* ── About: Agora Story ── */}
       <section id="about" className="py-12 md:py-20">
