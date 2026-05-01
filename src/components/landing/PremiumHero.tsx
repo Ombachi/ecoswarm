@@ -59,7 +59,6 @@ export function PremiumHero(_props: PremiumHeroProps) {
             loop
             playsInline
             preload="metadata"
-            // @ts-expect-error - non-standard but widely supported
             disablePictureInPicture
             disableRemotePlayback
             aria-hidden
