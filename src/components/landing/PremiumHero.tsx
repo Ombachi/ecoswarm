@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import heroPoster from "/ecoswarm-hero-poster.jpg?url";
+
+const heroPoster = "/ecoswarm-hero-poster.jpg";
+const heroVideo = "/ecoswarm-hero.mp4";
 
 type PremiumHeroProps = Record<string, never>;
 
@@ -50,7 +52,7 @@ export function PremiumHero(_props: PremiumHeroProps) {
           <video
             ref={videoRef}
             className="absolute inset-0 w-full h-full object-cover object-center"
-            src="/ecoswarm-hero.mp4"
+            src={heroVideo}
             poster={heroPoster}
             autoPlay
             muted
