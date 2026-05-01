@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Leaf } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import heroMain from "@/assets/hero-main.avif";
 import heroShop1 from "@/assets/hero-shop-1.avif";
 import heroShop2 from "@/assets/hero-shop-2.avif";
@@ -111,30 +109,6 @@ export function PremiumHero({ onPrimary, onSecondary }: PremiumHeroProps) {
               ))}
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1.0 }}
-              className="flex flex-col sm:flex-row gap-3 justify-start"
-            >
-              <Button
-                size="lg"
-                onClick={onPrimary}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-eco-md hover:shadow-eco-glow transition-all h-12 px-7 text-base font-semibold group"
-              >
-                Join the Movement
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={onSecondary}
-                className="h-12 px-7 text-base font-semibold border-primary/30 hover:bg-primary/5"
-              >
-                <Leaf className="w-4 h-4 text-primary" />
-                Explore EcoSwarm
-              </Button>
-            </motion.div>
           </div>
 
           {/* ── RIGHT: Rotating / flipping image stack ── */}
