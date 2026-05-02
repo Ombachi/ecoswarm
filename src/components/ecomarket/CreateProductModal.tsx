@@ -155,9 +155,9 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:justify-center" role="dialog" aria-modal="true" aria-label="List a product">
-      <div className="bg-card w-full sm:max-w-lg sm:rounded-2xl rounded-t-3xl max-h-[85vh] overflow-auto animate-slide-up">
+      <div className="bg-card w-full sm:max-w-lg sm:rounded-2xl rounded-t-3xl h-[92vh] sm:h-auto sm:max-h-[85vh] flex flex-col animate-slide-up overflow-hidden">
         {/* Header */}
-        <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between z-10">
+        <div className="bg-card border-b border-border p-4 flex items-center justify-between z-10 flex-shrink-0">
           <div>
             <h2 className="text-lg font-bold text-foreground">List a Product</h2>
             <p className="text-xs text-muted-foreground">Step {step} of {totalSteps}</p>
@@ -168,7 +168,7 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
         </div>
 
         {/* Progress */}
-        <div className="px-4 pt-3">
+        <div className="px-4 pt-3 flex-shrink-0">
           <div className="flex gap-1" role="progressbar" aria-valuenow={step} aria-valuemax={totalSteps}>
             {Array.from({ length: totalSteps }).map((_, i) => (
               <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i < step ? 'eco-gradient-bg' : 'bg-muted'}`} />
@@ -176,7 +176,7 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
           </div>
         </div>
 
-        <div className="p-6 space-y-5 pb-20">
+        <div className="p-6 space-y-5 flex-1 overflow-y-auto">
           {/* Step 1: Identity */}
           {step === 1 && (
             <>
@@ -308,7 +308,7 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
         </div>
 
         {/* Footer Nav */}
-        <div className="sticky bottom-0 bg-card border-t border-border p-4 flex gap-3">
+        <div className="bg-card border-t border-border p-4 flex gap-3 flex-shrink-0 pb-[max(1rem,env(safe-area-inset-bottom))]">
           {step > 1 && (
             <button onClick={() => setStep(step - 1)} className="eco-button-secondary flex-1 py-3">Back</button>
           )}
