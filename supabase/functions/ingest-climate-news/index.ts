@@ -16,7 +16,7 @@ const SYSTEM_USER_NAME = "EcoSwarm Climate Pulse 🌍";
 const SOURCES: { name: string; rss: string; emoji: string }[] = [
   { name: "IPCC", rss: "https://www.ipcc.ch/feed/", emoji: "🌐" },
   { name: "NASA Climate", rss: "https://climate.nasa.gov/news/rss.xml", emoji: "🛰️" },
-  { name: "NOAA Climate.gov", rss: "https://www.climate.gov/feeds/all/news/feed", emoji: "🌊" },
+  { name: "NOAA Climate.gov", rss: "https://www.climate.gov/rss.xml", emoji: "🌊" },
 ];
 
 // ─── tiny RSS parser (no external deps) ──────────────────────────
