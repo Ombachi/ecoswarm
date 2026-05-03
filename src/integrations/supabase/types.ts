@@ -266,6 +266,30 @@ export type Database = {
         }
         Relationships: []
       }
+      climate_news_seen: {
+        Row: {
+          created_at: string
+          post_id: string | null
+          source: string
+          source_url: string
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          post_id?: string | null
+          source: string
+          source_url: string
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          post_id?: string | null
+          source?: string
+          source_url?: string
+          title?: string | null
+        }
+        Relationships: []
+      }
       climate_reminder_log: {
         Row: {
           event_date: string
