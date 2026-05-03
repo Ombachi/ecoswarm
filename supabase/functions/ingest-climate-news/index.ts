@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 // Stable "system" author for climate news posts.
-const SYSTEM_USER_ID = "00000000-0000-0000-0000-00000c11ma7e";
+const SYSTEM_USER_ID = "00000000-0000-0000-0000-0000c11a7e00";
 const SYSTEM_USER_NAME = "EcoSwarm Climate Pulse 🌍";
 
 const SOURCES: { name: string; rss: string; emoji: string }[] = [
