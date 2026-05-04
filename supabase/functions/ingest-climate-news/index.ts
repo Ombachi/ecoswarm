@@ -16,7 +16,7 @@ const SYSTEM_USER_NAME = "EcoSwarm Climate Pulse 🌍";
 // Kenyan environment, climate & biodiversity sources.
 // `rss` may be a real RSS/Atom feed OR a public listing page we scrape for
 // article links (when an official feed is not published).
-type SourceMode = "rss" | "scrape";
+type SourceMode = "rss" | "scrape" | "wp";
 interface KenyaSource {
   name: string;
   url: string;
@@ -28,17 +28,15 @@ interface KenyaSource {
 }
 
 const SOURCES: KenyaSource[] = [
-  { name: "NEMA Kenya", url: "https://www.nema.go.ke/index.php?option=com_content&view=category&id=10&Itemid=476", emoji: "🏛️", mode: "scrape",
-    linkPattern: /<a[^>]+href="(\/index\.php\?option=com_content[^"]*?id=\d+[^"]*)"[^>]*>([^<]{15,200})<\/a>/gi,
-    baseUrl: "https://www.nema.go.ke" },
+  { name: "NEMA Kenya", url: "https://nema.go.ke/wp-json/wp/v2/posts?per_page=5&_fields=link,title,excerpt,date", emoji: "🏛️", mode: "wp" },
   { name: "Kenya Meteorological Department", url: "https://meteo.go.ke/news", emoji: "🌦️", mode: "scrape",
     linkPattern: /<a[^>]+href="([^"]*\/news\/[^"#]+)"[^>]*>\s*([^<]{15,200})\s*<\/a>/gi,
     baseUrl: "https://meteo.go.ke" },
   { name: "Kenya Wildlife Service", url: "https://www.kws.go.ke/latest-news", emoji: "🦁", mode: "scrape",
-    linkPattern: /<a[^>]+href="(\/article\/[^"]+)"[^>]*>\s*([^<]{15,200})\s*<\/a>/gi,
+    linkPattern: /class="post-title"[^>]*>\s*<a[^>]+href="(\/article\/[^"]+)"[^>]*>\s*(?:<span[^>]*>)?\s*([^<]{15,200})/gi,
     baseUrl: "https://www.kws.go.ke" },
-  { name: "Nature Kenya", url: "https://naturekenya.org/feed/", emoji: "🦜", mode: "rss" },
-  { name: "National Museums of Kenya", url: "https://museums.or.ke/feed/", emoji: "🏺", mode: "rss" },
+  { name: "Nature Kenya", url: "https://naturekenya.org/wp-json/wp/v2/posts?per_page=5&_fields=link,title,excerpt,date", emoji: "🦜", mode: "wp" },
+  { name: "National Museums of Kenya", url: "https://museums.or.ke/wp-json/wp/v2/posts?per_page=5&_fields=link,title,excerpt,date", emoji: "🏺", mode: "wp" },
   { name: "NETFUND", url: "https://netfund.go.ke/feed/", emoji: "💚", mode: "rss" },
 ];
 
@@ -88,6 +86,22 @@ function parseScrape(html: string, src: KenyaSource) {
     seen.add(link);
     items.push({ title, link, description: title, author: "", pubDate: "" });
   }
+  return items;
+}
+
+function parseWp(jsonText: string) {
+  const items: { title: string; link: string; description: string; author: string; pubDate: string }[] = [];
+  try {
+    const arr = JSON.parse(jsonText);
+    if (!Array.isArray(arr)) return items;
+    for (const p of arr.slice(0, 5)) {
+      const title = String(p?.title?.rendered || "").replace(/<[^>]+>/g, "").replace(/&#?\w+;/g, " ").trim();
+      const link = String(p?.link || "").trim();
+      const description = String(p?.excerpt?.rendered || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+      const pubDate = String(p?.date || "");
+      if (title && link) items.push({ title, link, description, author: "", pubDate });
+    }
+  } catch { /* ignore */ }
   return items;
 }
 
@@ -161,7 +175,11 @@ Deno.serve(async (req) => {
         continue;
       }
       const body = await r.text();
-      const items = src.mode === "rss" ? parseRss(body) : parseScrape(body, src);
+      const items = src.mode === "rss"
+        ? parseRss(body)
+        : src.mode === "wp"
+        ? parseWp(body)
+        : parseScrape(body, src);
 
       for (const item of items.slice(0, 3)) {
         // Dedupe by URL
