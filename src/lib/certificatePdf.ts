@@ -110,7 +110,7 @@ export function generateCertificatePdf(data: CertificateData): void {
   y += 20;
   doc.setFontSize(8);
   doc.setTextColor(100, 100, 100);
-  doc.text(`Verify at: ecoswarm.lovable.app/verify/${data.certId}`, W / 2, y, { align: 'center' });
+  doc.text(`Verify at: ecoswarm.co.ke/verify/${data.certId}`, W / 2, y, { align: 'center' });
 
   // ── Green footer band ──
   doc.setFillColor(34, 139, 34);
