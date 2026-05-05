@@ -181,7 +181,9 @@ Deno.serve(async (req) => {
         ? parseWp(body)
         : parseScrape(body, src);
 
-      for (const item of items.slice(0, 3)) {
+      // Cap to 1 new post per source per run so the daily cron never floods
+      // Agora and drowns out user posts.
+      for (const item of items.slice(0, 1)) {
         // Dedupe by URL
         const { data: seen } = await supabase
           .from("climate_news_seen")
