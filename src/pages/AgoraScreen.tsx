@@ -377,9 +377,9 @@ export function AgoraScreen() {
       });
 
       if (loadMore) {
-        setPosts(prev => [...prev, ...mappedPosts]);
+        setPosts(prev => interleaveFeed([...prev, ...mappedPosts]));
       } else {
-        setPosts(mappedPosts);
+        setPosts(interleaveFeed(mappedPosts));
         // Cache posts for offline reading
         if (!filterTag) {
           savePostsToCache(rows.map(p => ({
