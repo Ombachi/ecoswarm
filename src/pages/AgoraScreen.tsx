@@ -56,6 +56,35 @@ function isHiddenAutoPost(tags: string[] | null | undefined): boolean {
   return tags.some((t) => HIDDEN_AUTOPOST_TAGS.has(t));
 }
 
+// Climate Pulse posts are valuable but auto-generated. To keep Agora a
+// community-first feed, we always lead with the freshest user posts and
+// sprinkle Climate Pulse items in between (1 per CLIMATE_INTERVAL user posts)
+// so they never drown out community voices. Order within each group stays
+// newest-first to preserve recency.
+const CLIMATE_INTERVAL = 4;
+function isClimatePulse(tags: string[] | null | undefined): boolean {
+  return !!tags && tags.includes('ClimatePulse');
+}
+function interleaveFeed(posts: Post[]): Post[] {
+  const userPosts: Post[] = [];
+  const climatePosts: Post[] = [];
+  for (const p of posts) {
+    (isClimatePulse(p.tags) ? climatePosts : userPosts).push(p);
+  }
+  if (climatePosts.length === 0 || userPosts.length === 0) return posts;
+  const out: Post[] = [];
+  let ci = 0;
+  userPosts.forEach((p, i) => {
+    out.push(p);
+    if ((i + 1) % CLIMATE_INTERVAL === 0 && ci < climatePosts.length) {
+      out.push(climatePosts[ci++]);
+    }
+  });
+  // Append any leftover climate posts at the end
+  while (ci < climatePosts.length) out.push(climatePosts[ci++]);
+  return out;
+}
+
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
   'Plastic Free': 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
