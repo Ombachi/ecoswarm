@@ -308,7 +308,7 @@ export function AgoraScreen() {
           likes: 0, comments: 0, shares: 0,
           tags: p.tags || [], createdAt: new Date(p.created_at), isLiked: false,
         };
-        setPosts(prev => [newPost, ...prev]);
+        setPosts(prev => interleaveFeed([newPost, ...prev]));
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
