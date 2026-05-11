@@ -81,7 +81,7 @@ function StackedCard({
   return (
     <div
       className="sticky"
-      style={{ top: topOffset, zIndex: 10 + index }}
+      style={{ top: topOffset, zIndex: 30 + index }}
     >
       <motion.article
         style={{ scale, opacity }}
@@ -137,7 +137,7 @@ export function StackedFeatures() {
   });
 
   return (
-    <section id="features" className="py-10 md:py-16 relative overflow-hidden">
+    <section id="features" className="relative z-20 isolate overflow-visible bg-background pt-10 pb-28 md:pt-16 md:pb-40">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -162,7 +162,7 @@ export function StackedFeatures() {
           // Each card gets ~50vh on mobile / 70vh on desktop of scroll length.
           // Keeps the sticky stack tight and avoids a large empty gap before
           // the next section on small screens.
-          style={{ height: `clamp(${items.length * 50}vh, ${items.length * 60}vh, ${items.length * 70}vh)` }}
+          style={{ height: `calc(clamp(${items.length * 50}vh, ${items.length * 60}vh, ${items.length * 70}vh) + 12rem)` }}
         >
           <div className="flex flex-col gap-6 md:gap-10">
             {items.map((f, i) => (
