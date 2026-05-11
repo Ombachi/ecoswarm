@@ -15,6 +15,7 @@ import {
   Zap,
   ExternalLink,
   Award,
+  Phone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -495,7 +496,7 @@ export function LandingPage() {
       {/* ── Stats Bar (user statistics) ── */}
       <section
         id="stats"
-        className="relative z-20 bg-background py-10 md:py-14 border-y border-border/50"
+        className="relative bg-background py-10 md:py-14 border-y border-border/50"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((s, i) => (
@@ -689,6 +690,12 @@ export function LandingPage() {
                   <Mail className="w-4 h-4" />
                   <a href="mailto:hello@ecoswarm.co.ke" className="hover:text-foreground transition-colors">
                     hello@ecoswarm.co.ke
+                  </a>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Phone className="w-4 h-4" />
+                  <a href="tel:+254729304337" className="hover:text-foreground transition-colors">
+                    +254 729 304 337
                   </a>
                 </li>
                 <li className="flex items-center gap-2">
