@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
       registerType: "prompt",
       injectRegister: null,
       devOptions: { enabled: false },
-      includeAssets: ["favicon.ico", "pwa-icon-192.png", "pwa-icon-512.png", "og-image.png", "robots.txt"],
+      includeAssets: ["pwa-icon-192.png", "pwa-icon-512.png", "og-image.png", "robots.txt"],
       manifest: {
         name: "EcoSwarm - Your Digital Agora",
         short_name: "EcoSwarm",
