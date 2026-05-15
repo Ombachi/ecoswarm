@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import {
   Leaf,
   Users,
