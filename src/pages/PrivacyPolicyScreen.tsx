@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ChevronLeft, Shield, Lock, Eye, Database, UserCheck, Mail } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export function PrivacyPolicyScreen() {
   const navigate = useNavigate();
