@@ -8,6 +8,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { kenyanCounties } from "@/data/kenyanCounties";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { Textarea } from "@/components/ui/textarea";
 
 const companyTypes = [
