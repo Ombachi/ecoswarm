@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import {
   Leaf,
   Users,
@@ -148,6 +149,11 @@ function StatCard({ stat, index }: { stat: (typeof globalStats)[0]; index: numbe
 
 export function LandingPage() {
   const navigate = useNavigate();
+
+  usePageMeta(
+    'Digital Agora for Climate Action',
+    "EcoSwarm is Kenya's digital agora for climate action. Discover sustainable products, learn environmental skills, and join community swarms.",
+  );
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });

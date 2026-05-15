@@ -4,10 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { Leaf, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 export function LoginScreen() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  usePageMeta('Sign In', 'Sign in to EcoSwarm to track eco-points, join swarms, and continue your climate action journey.');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

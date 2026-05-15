@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ChevronLeft, Leaf, Target, Eye, Sparkles, ShoppingBag, Users, MessageSquare, Mail, Heart, Globe, Zap } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export function AboutScreen() {
   const navigate = useNavigate();
+  usePageMeta('About', "Learn about EcoSwarm — Kenya's digital agora uniting Gen Z for climate action through community, commerce, and capacity building.");
 
   const features = [
     {

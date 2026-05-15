@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Leaf, FileText } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export function TermsOfServiceScreen() {
   const navigate = useNavigate();
+  usePageMeta('Terms of Service', 'Read the EcoSwarm Terms of Service governing your use of our climate action platform, marketplace, and community features.');
 
   return (
     <div className="min-h-screen bg-background">
