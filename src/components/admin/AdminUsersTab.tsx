@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, ShieldCheck, Ban, Trash2, UserCheck, MoreVertical, ShieldOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 interface UserProfile {
   user_id: string;
@@ -12,12 +22,16 @@ interface UserProfile {
   created_at: string;
   location: string | null;
   role?: string;
+  email_confirmed?: boolean;
+  is_suspended?: boolean;
 }
 
 export function AdminUsersTab() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<{ user: UserProfile; action: 'delete' | 'suspend' | 'unsuspend' | 'activate'; role?: string } | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -43,6 +57,32 @@ export function AdminUsersTab() {
       setUsers(profiles.map(p => ({ ...p, role: roleMap[p.user_id] || 'ecowarrior' })));
     }
     setIsLoading(false);
+  };
+
+  const runAction = async (user: UserProfile, action: string, role?: string) => {
+    setBusyId(user.user_id);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-user-actions', {
+        body: { action, target_user_id: user.user_id, role },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+
+      const labels: Record<string, string> = {
+        activate: 'Account activated',
+        suspend: 'Account suspended',
+        unsuspend: 'Account reinstated',
+        delete: 'Account deleted',
+        set_role: `Role set to ${role}`,
+      };
+      toast.success(labels[action] ?? 'Done');
+      await loadUsers();
+    } catch (e: any) {
+      toast.error(e?.message ?? 'Action failed');
+    } finally {
+      setBusyId(null);
+      setConfirm(null);
+    }
   };
 
   const filtered = users.filter(u => {
@@ -91,9 +131,71 @@ export function AdminUsersTab() {
                 <span>{new Date(u.created_at).toLocaleDateString('en-KE', { day: 'numeric', month: 'short' })}</span>
               </div>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" disabled={busyId === u.user_id}>
+                  {busyId === u.user_id ? <Loader2 className="w-4 h-4 animate-spin" /> : <MoreVertical className="w-4 h-4" />}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52 bg-popover z-50">
+                <DropdownMenuLabel className="text-xs">Manage user</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => setConfirm({ user: u, action: 'activate' })}>
+                  <UserCheck className="w-4 h-4 mr-2" /> Activate account
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-xs text-muted-foreground">Assign role</DropdownMenuLabel>
+                <DropdownMenuItem disabled={u.role === 'ecowarrior'} onClick={() => runAction(u, 'set_role', 'ecowarrior')}>
+                  EcoWarrior
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled={u.role === 'ecodeveloper'} onClick={() => runAction(u, 'set_role', 'ecodeveloper')}>
+                  EcoDeveloper
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled={u.role === 'admin'} onClick={() => runAction(u, 'set_role', 'admin')}>
+                  <ShieldCheck className="w-4 h-4 mr-2" /> Admin
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setConfirm({ user: u, action: 'suspend' })}>
+                  <Ban className="w-4 h-4 mr-2" /> Suspend account
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setConfirm({ user: u, action: 'unsuspend' })}>
+                  <ShieldOff className="w-4 h-4 mr-2" /> Reinstate account
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => setConfirm({ user: u, action: 'delete' })}>
+                  <Trash2 className="w-4 h-4 mr-2" /> Delete account
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       ))}
+
+      <AlertDialog open={!!confirm} onOpenChange={(open) => !open && setConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirm?.action === 'delete' && 'Delete this account?'}
+              {confirm?.action === 'suspend' && 'Suspend this account?'}
+              {confirm?.action === 'unsuspend' && 'Reinstate this account?'}
+              {confirm?.action === 'activate' && 'Activate this account?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirm?.action === 'delete' && `This permanently removes ${confirm.user.name}'s auth account. Profile data may remain. This cannot be undone.`}
+              {confirm?.action === 'suspend' && `${confirm.user.name} will be blocked from signing in until reinstated.`}
+              {confirm?.action === 'unsuspend' && `${confirm.user.name} will regain access to their account.`}
+              {confirm?.action === 'activate' && `Manually verify ${confirm.user.name}'s email so they can sign in without confirming.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className={confirm?.action === 'delete' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
+              onClick={() => confirm && runAction(confirm.user, confirm.action)}
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
