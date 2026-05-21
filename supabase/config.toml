@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.ingest-climate-news]
 verify_jwt = false
+
+[functions.admin-user-actions]
+verify_jwt = false
