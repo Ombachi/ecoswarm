@@ -17,6 +17,13 @@ import {
   Link as LinkIcon,
   FileText,
   Image as ImageIcon,
+  Bold,
+  Italic,
+  Heading2,
+  Heading3,
+  List,
+  Quote,
+  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -53,6 +60,8 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
   // Edit state
   const [editingSection, setEditingSection] = useState<Section | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [aiBusy, setAiBusy] = useState(false);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     loadContent();
@@ -165,6 +174,101 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
     else { toast.success('Question deleted'); await loadContent(); }
   };
 
+  // --- Rich text helpers: wrap/insert at cursor in the section textarea ---
+  const applyToContent = (transform: (sel: string) => { insert: string; offset?: number }) => {
+    if (!editingSection) return;
+    const ta = contentRef.current;
+    const value = editingSection.content;
+    const start = ta?.selectionStart ?? value.length;
+    const end = ta?.selectionEnd ?? value.length;
+    const selected = value.slice(start, end);
+    const { insert } = transform(selected);
+    const next = value.slice(0, start) + insert + value.slice(end);
+    setEditingSection({ ...editingSection, content: next });
+    requestAnimationFrame(() => {
+      if (!ta) return;
+      const caret = start + insert.length;
+      ta.focus();
+      ta.setSelectionRange(caret, caret);
+    });
+  };
+  const wrapInline = (token: string) => applyToContent((sel) => ({ insert: `${token}${sel || 'text'}${token}` }));
+  const prefixLine = (prefix: string) => applyToContent((sel) => ({
+    insert: (sel ? sel.split('\n').map((l) => `${prefix}${l}`).join('\n') : `${prefix}text`),
+  }));
+
+  // --- AI generators ---
+  const aiGenerateSection = async () => {
+    if (!editingSection) return;
+    const topic = window.prompt(
+      'What topic should the AI write about for this section?',
+      editingSection.title || ''
+    );
+    if (!topic) return;
+    setAiBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-course-content', {
+        body: { mode: 'section', courseTitle, topic },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const generated = (data as any)?.content ?? '';
+      setEditingSection({
+        ...editingSection,
+        title: editingSection.title || topic,
+        content: editingSection.content
+          ? editingSection.content + '\n\n' + generated
+          : generated,
+      });
+      toast.success('AI draft inserted!');
+    } catch (e: any) {
+      toast.error(e?.message || 'AI generation failed');
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
+  const aiGenerateQuestions = async () => {
+    if (sections.length === 0) {
+      toast.error('Add at least one section first so the AI has material to work from.');
+      return;
+    }
+    const countStr = window.prompt('How many quiz questions should the AI generate? (1-10)', '5');
+    if (!countStr) return;
+    const count = Math.min(Math.max(parseInt(countStr) || 5, 1), 10);
+    setAiBusy(true);
+    try {
+      const material = sections
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .map((s) => `# ${s.title}\n${s.content}`)
+        .join('\n\n');
+      const { data, error } = await supabase.functions.invoke('generate-course-content', {
+        body: { mode: 'questions', courseTitle, existingContent: material, count },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const generated: Array<{ question: string; options: string[]; correct_index: number }> =
+        (data as any)?.questions ?? [];
+      if (generated.length === 0) throw new Error('AI returned no questions');
+      const baseOrder = questions.length;
+      const payload = generated.map((q, idx) => ({
+        course_id: courseId,
+        question: q.question,
+        options: q.options,
+        correct_index: q.correct_index,
+        sort_order: baseOrder + idx + 1,
+      }));
+      const { error: insErr } = await supabase.from('course_questions').insert(payload);
+      if (insErr) throw insErr;
+      toast.success(`Added ${generated.length} AI questions!`);
+      await loadContent();
+    } catch (e: any) {
+      toast.error(e?.message || 'AI generation failed');
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -242,9 +346,15 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
       {/* Questions List */}
       {activeTab === 'questions' && (
         <div className="space-y-3">
-          <Button onClick={openCreateQuestion} className="w-full gap-2">
-            <Plus className="w-4 h-4" /> Add Question
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button onClick={openCreateQuestion} className="gap-2">
+              <Plus className="w-4 h-4" /> Add Question
+            </Button>
+            <Button onClick={aiGenerateQuestions} disabled={aiBusy} variant="secondary" className="gap-2">
+              {aiBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              AI Generate
+            </Button>
+          </div>
           {questions.map((q) => (
             <div key={q.id} className="eco-card p-4">
               <div className="flex items-start justify-between gap-2">
@@ -296,7 +406,27 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
                 <Input value={editingSection.title} onChange={(e) => setEditingSection({ ...editingSection, title: e.target.value })} />
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground mb-1 block">Content</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-sm font-medium text-foreground">Content</label>
+                  <button
+                    type="button"
+                    onClick={aiGenerateSection}
+                    disabled={aiBusy}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors disabled:opacity-50"
+                  >
+                    {aiBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                    AI Draft
+                  </button>
+                </div>
+                {/* Rich text formatting toolbar */}
+                <div className="flex gap-1 mb-2 flex-wrap border-b border-border pb-2">
+                  <ToolbarBtn onClick={() => wrapInline('**')} title="Bold"><Bold className="w-3.5 h-3.5" /></ToolbarBtn>
+                  <ToolbarBtn onClick={() => wrapInline('*')} title="Italic"><Italic className="w-3.5 h-3.5" /></ToolbarBtn>
+                  <ToolbarBtn onClick={() => prefixLine('## ')} title="Heading"><Heading2 className="w-3.5 h-3.5" /></ToolbarBtn>
+                  <ToolbarBtn onClick={() => prefixLine('### ')} title="Subheading"><Heading3 className="w-3.5 h-3.5" /></ToolbarBtn>
+                  <ToolbarBtn onClick={() => prefixLine('- ')} title="Bullet list"><List className="w-3.5 h-3.5" /></ToolbarBtn>
+                  <ToolbarBtn onClick={() => prefixLine('> ')} title="Quote"><Quote className="w-3.5 h-3.5" /></ToolbarBtn>
+                </div>
                 {/* Media Embed Toolbar */}
                 <div className="flex gap-1.5 mb-2 flex-wrap">
                   <button
@@ -365,9 +495,9 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
                   />
                 </div>
                 <p className="text-[10px] text-muted-foreground mb-1">
-                  Use [video](url), [image](url), [label](url) for links, [file:name](url) for files
+                  Markdown: **bold**, *italic*, ## heading, - bullet, &gt; quote. Media: [video](url), [image](url), [label](url), [file:name](url).
                 </p>
-                <Textarea className="min-h-[200px] font-mono text-xs" value={editingSection.content} onChange={(e) => setEditingSection({ ...editingSection, content: e.target.value })} />
+                <Textarea ref={contentRef} className="min-h-[220px] font-mono text-xs" value={editingSection.content} onChange={(e) => setEditingSection({ ...editingSection, content: e.target.value })} />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Sort Order</label>
@@ -443,6 +573,19 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
         </div>
       )}
     </div>
+  );
+}
+
+function ToolbarBtn({ onClick, title, children }: { onClick: () => void; title: string; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+    >
+      {children}
+    </button>
   );
 }
 
