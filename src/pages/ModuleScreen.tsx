@@ -37,8 +37,70 @@ function RenderCourseContent({ content }: { content: string }) {
   const lines = content.split('\n');
   const elements: React.ReactNode[] = [];
 
+  const renderInline = (text: string, keyPrefix: string): React.ReactNode[] => {
+    // Handle **bold** and *italic* (bold first)
+    const out: React.ReactNode[] = [];
+    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
+    let lastIndex = 0;
+    let m: RegExpExecArray | null;
+    let idx = 0;
+    while ((m = regex.exec(text)) !== null) {
+      if (m.index > lastIndex) out.push(text.slice(lastIndex, m.index));
+      const tok = m[0];
+      if (tok.startsWith('**')) {
+        out.push(<strong key={`${keyPrefix}-b-${idx++}`}>{tok.slice(2, -2)}</strong>);
+      } else {
+        out.push(<em key={`${keyPrefix}-i-${idx++}`}>{tok.slice(1, -1)}</em>);
+      }
+      lastIndex = m.index + tok.length;
+    }
+    if (lastIndex < text.length) out.push(text.slice(lastIndex));
+    return out;
+  };
+
+  // Group consecutive "- " lines into a single <ul>
+  let bulletBuffer: string[] = [];
+  const flushBullets = (key: string) => {
+    if (bulletBuffer.length === 0) return;
+    const items = bulletBuffer.slice();
+    bulletBuffer = [];
+    elements.push(
+      <ul key={`ul-${key}`} className="list-disc pl-5 my-2 space-y-1 text-sm leading-relaxed">
+        {items.map((it, j) => <li key={j}>{renderInline(it, `ul-${key}-${j}`)}</li>)}
+      </ul>
+    );
+  };
+
   lines.forEach((line, i) => {
     const trimmed = line.trim();
+
+    // Bullet list
+    if (/^- +/.test(trimmed)) {
+      bulletBuffer.push(trimmed.replace(/^- +/, ''));
+      return;
+    } else {
+      flushBullets(String(i));
+    }
+
+    // Headings
+    if (/^### +/.test(trimmed)) {
+      elements.push(<h4 key={i} className="text-base font-bold text-foreground mt-3 mb-1">{renderInline(trimmed.replace(/^### +/, ''), `h4-${i}`)}</h4>);
+      return;
+    }
+    if (/^## +/.test(trimmed)) {
+      elements.push(<h3 key={i} className="text-lg font-bold text-foreground mt-4 mb-2">{renderInline(trimmed.replace(/^## +/, ''), `h3-${i}`)}</h3>);
+      return;
+    }
+
+    // Quote
+    if (/^> +/.test(trimmed)) {
+      elements.push(
+        <blockquote key={i} className="border-l-4 border-primary pl-3 my-2 italic text-sm text-muted-foreground">
+          {renderInline(trimmed.replace(/^> +/, ''), `q-${i}`)}
+        </blockquote>
+      );
+      return;
+    }
 
     // [video](url)
     const videoMatch = trimmed.match(/^\[video\]\((.+)\)$/);
@@ -97,9 +159,10 @@ function RenderCourseContent({ content }: { content: string }) {
     if (trimmed === '') {
       elements.push(<br key={i} />);
     } else {
-      elements.push(<p key={i} className="text-sm leading-relaxed">{line}</p>);
+      elements.push(<p key={i} className="text-sm leading-relaxed">{renderInline(line, `p-${i}`)}</p>);
     }
   });
+  flushBullets('end');
 
   return <>{elements}</>;
 }
