@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,19 +13,10 @@ import {
   ChevronLeft,
   BookOpen,
   HelpCircle,
-  Video,
-  Link as LinkIcon,
-  FileText,
-  Image as ImageIcon,
-  Bold,
-  Italic,
-  Heading2,
-  Heading3,
-  List,
-  Quote,
   Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { RichCourseEditor } from './RichCourseEditor';
 
 interface Section {
   id?: string;
@@ -61,7 +52,6 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
   const [editingSection, setEditingSection] = useState<Section | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
-  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     loadContent();
@@ -173,29 +163,6 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
     if (error) toast.error('Failed to delete');
     else { toast.success('Question deleted'); await loadContent(); }
   };
-
-  // --- Rich text helpers: wrap/insert at cursor in the section textarea ---
-  const applyToContent = (transform: (sel: string) => { insert: string; offset?: number }) => {
-    if (!editingSection) return;
-    const ta = contentRef.current;
-    const value = editingSection.content;
-    const start = ta?.selectionStart ?? value.length;
-    const end = ta?.selectionEnd ?? value.length;
-    const selected = value.slice(start, end);
-    const { insert } = transform(selected);
-    const next = value.slice(0, start) + insert + value.slice(end);
-    setEditingSection({ ...editingSection, content: next });
-    requestAnimationFrame(() => {
-      if (!ta) return;
-      const caret = start + insert.length;
-      ta.focus();
-      ta.setSelectionRange(caret, caret);
-    });
-  };
-  const wrapInline = (token: string) => applyToContent((sel) => ({ insert: `${token}${sel || 'text'}${token}` }));
-  const prefixLine = (prefix: string) => applyToContent((sel) => ({
-    insert: (sel ? sel.split('\n').map((l) => `${prefix}${l}`).join('\n') : `${prefix}text`),
-  }));
 
   // --- AI generators ---
   const aiGenerateSection = async () => {
