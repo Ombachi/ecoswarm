@@ -15,11 +15,12 @@ Deno.serve(async (req) => {
     }
 
     const formatRules = `OUTPUT FORMAT RULES (strict):
-- Use "## Heading" for major headings, "### Subheading" for sub headings.
-- Use "- " for bullet items, "> " for quotes.
-- Use **bold** and *italic* for emphasis.
-- For media use one of these on its own line: [video](url), [image](url), [label](url).
-- Keep paragraphs short. No HTML. No code fences.`;
+- Output clean HTML only. NEVER use markdown (no **, *, #, -, >, or backticks).
+- Use <h3> for major headings and <h4> for sub-headings.
+- Wrap paragraphs in <p>. Use <ul><li>…</li></ul> for bullets and <blockquote> for quotes.
+- Use <strong> for bold and <em> for italics. Use <a href="…" target="_blank" rel="noopener noreferrer">…</a> for links.
+- Do NOT wrap the output in <html>, <body>, or code fences. Return raw HTML fragments only.
+- Keep paragraphs short and scannable.`;
 
     let messages: any[] = [];
     let tools: any[] | undefined;
@@ -28,7 +29,7 @@ Deno.serve(async (req) => {
     if (mode === 'section') {
       messages = [
         { role: 'system', content: `You are an expert climate-action educator writing for the EcoSwarm Capacity Hub. Write engaging, accurate, beginner-friendly study material for Kenyan EcoWarriors and EcoDevelopers. ${formatRules}` },
-        { role: 'user', content: `Course: "${courseTitle}".\nWrite a study section on: "${topic}".\nLength: 250-400 words. Start with a "## ${topic}" heading. Include 1-2 bullet lists and at least one short quote or key takeaway.` },
+        { role: 'user', content: `Course: "${courseTitle}".\nWrite a study section on: "${topic}".\nLength: 250-400 words. Start with an <h3>${topic}</h3> heading. Include 1-2 bullet lists and at least one short <blockquote> key takeaway. Output HTML only.` },
       ];
 
       const resp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -40,7 +41,15 @@ Deno.serve(async (req) => {
       if (resp.status === 402) return new Response(JSON.stringify({ error: 'AI credits exhausted. Add funds in Settings > Workspace > Usage.' }), { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       if (!resp.ok) throw new Error(`AI error ${resp.status}`);
       const data = await resp.json();
-      const content = data.choices?.[0]?.message?.content ?? '';
+      let content: string = data.choices?.[0]?.message?.content ?? '';
+      // Defensive: strip code fences and any markdown leftovers the model may emit.
+      content = content
+        .replace(/^```html\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/```\s*$/i, '')
+        .replace(/\*+/g, '')
+        .replace(/(^|\n)#+\s*/g, '$1')
+        .trim();
       return new Response(JSON.stringify({ content }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
