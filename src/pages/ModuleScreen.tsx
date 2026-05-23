@@ -12,8 +12,6 @@ import {
   Award,
   BookOpen,
   HelpCircle,
-  FileText,
-  ExternalLink,
 } from 'lucide-react';
 import { createAutoPost, buildCourseAutoPost } from '@/utils/autoPost';
 import { sanitizeCourseHtml } from '@/lib/sanitize';
