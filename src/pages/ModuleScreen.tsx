@@ -16,6 +16,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { createAutoPost, buildCourseAutoPost } from '@/utils/autoPost';
+import { sanitizeCourseHtml } from '@/lib/sanitize';
 
 interface Section {
   id: string;
@@ -32,139 +33,79 @@ interface Question {
   sort_order: number;
 }
 
-/** Renders course content with embedded media support */
+/**
+ * Render course content as HTML. New content is authored as HTML by the WYSIWYG editor.
+ * Legacy markdown-style content is converted on the fly (no asterisks or hashtags rendered).
+ */
 function RenderCourseContent({ content }: { content: string }) {
-  const lines = content.split('\n');
-  const elements: React.ReactNode[] = [];
-
-  const renderInline = (text: string, keyPrefix: string): React.ReactNode[] => {
-    // Handle **bold** and *italic* (bold first)
-    const out: React.ReactNode[] = [];
-    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
-    let lastIndex = 0;
-    let m: RegExpExecArray | null;
-    let idx = 0;
-    while ((m = regex.exec(text)) !== null) {
-      if (m.index > lastIndex) out.push(text.slice(lastIndex, m.index));
-      const tok = m[0];
-      if (tok.startsWith('**')) {
-        out.push(<strong key={`${keyPrefix}-b-${idx++}`}>{tok.slice(2, -2)}</strong>);
-      } else {
-        out.push(<em key={`${keyPrefix}-i-${idx++}`}>{tok.slice(1, -1)}</em>);
+  const html = toHtml(content || '');
+  return (
+    <div
+      className={
+        'prose prose-sm max-w-none text-foreground ' +
+        '[&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mt-4 [&_h2]:mb-2 ' +
+        '[&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-foreground [&_h3]:mt-3 [&_h3]:mb-2 ' +
+        '[&_h4]:text-base [&_h4]:font-bold [&_h4]:text-foreground [&_h4]:mt-2 [&_h4]:mb-1 ' +
+        '[&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_blockquote]:my-2 ' +
+        '[&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 ' +
+        '[&_a]:text-primary [&_a]:underline [&_a]:break-all hover:[&_a]:opacity-80 ' +
+        '[&_b]:font-bold [&_strong]:font-bold [&_i]:italic [&_em]:italic [&_u]:underline ' +
+        '[&_p]:my-1 [&_p]:text-sm [&_p]:leading-relaxed ' +
+        '[&_img]:w-full [&_img]:rounded-xl [&_img]:my-3 [&_img]:max-h-[400px] [&_img]:object-contain ' +
+        '[&_video]:w-full [&_video]:rounded-xl [&_video]:my-3 ' +
+        '[&_iframe]:w-full [&_iframe]:h-full'
       }
-      lastIndex = m.index + tok.length;
-    }
-    if (lastIndex < text.length) out.push(text.slice(lastIndex));
-    return out;
-  };
+      dangerouslySetInnerHTML={{ __html: sanitizeCourseHtml(html) }}
+    />
+  );
+}
 
-  // Group consecutive "- " lines into a single <ul>
-  let bulletBuffer: string[] = [];
-  const flushBullets = (key: string) => {
-    if (bulletBuffer.length === 0) return;
-    const items = bulletBuffer.slice();
-    bulletBuffer = [];
-    elements.push(
-      <ul key={`ul-${key}`} className="list-disc pl-5 my-2 space-y-1 text-sm leading-relaxed">
-        {items.map((it, j) => <li key={j}>{renderInline(it, `ul-${key}-${j}`)}</li>)}
-      </ul>
-    );
-  };
+function toHtml(content: string): string {
+  const hasHtml = /<\/?[a-z][\s\S]*?>/i.test(content);
+  if (hasHtml) return content;
 
-  lines.forEach((line, i) => {
-    const trimmed = line.trim();
-
-    // Bullet list
-    if (/^- +/.test(trimmed)) {
-      bulletBuffer.push(trimmed.replace(/^- +/, ''));
-      return;
-    } else {
-      flushBullets(String(i));
-    }
-
-    // Headings
-    if (/^### +/.test(trimmed)) {
-      elements.push(<h4 key={i} className="text-base font-bold text-foreground mt-3 mb-1">{renderInline(trimmed.replace(/^### +/, ''), `h4-${i}`)}</h4>);
-      return;
-    }
-    if (/^## +/.test(trimmed)) {
-      elements.push(<h3 key={i} className="text-lg font-bold text-foreground mt-4 mb-2">{renderInline(trimmed.replace(/^## +/, ''), `h3-${i}`)}</h3>);
-      return;
-    }
-
-    // Quote
-    if (/^> +/.test(trimmed)) {
-      elements.push(
-        <blockquote key={i} className="border-l-4 border-primary pl-3 my-2 italic text-sm text-muted-foreground">
-          {renderInline(trimmed.replace(/^> +/, ''), `q-${i}`)}
-        </blockquote>
-      );
-      return;
-    }
-
-    // [video](url)
-    const videoMatch = trimmed.match(/^\[video\]\((.+)\)$/);
-    if (videoMatch) {
-      const url = videoMatch[1];
-      // YouTube embed
-      const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-      if (ytMatch) {
-        elements.push(
-          <div key={i} className="my-3 rounded-xl overflow-hidden aspect-video">
-            <iframe src={`https://www.youtube.com/embed/${ytMatch[1]}`} className="w-full h-full" allowFullScreen title="Video" />
-          </div>
-        );
-      } else {
-        elements.push(
-          <video key={i} src={url} controls className="w-full rounded-xl my-3 max-h-[300px]" />
-        );
-      }
-      return;
-    }
-
-    // [image](url)
-    const imgMatch = trimmed.match(/^\[image\]\((.+)\)$/);
-    if (imgMatch) {
-      elements.push(<img key={i} src={imgMatch[1]} alt="" className="w-full rounded-xl my-3 max-h-[400px] object-contain" />);
-      return;
-    }
-
-    // [file:name](url)
-    const fileMatch = trimmed.match(/^\[file:(.+?)\]\((.+)\)$/);
-    if (fileMatch) {
-      elements.push(
-        <a key={i} href={fileMatch[2]} target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-2 p-3 my-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors">
-          <FileText className="w-5 h-5 text-primary" />
-          <span className="text-sm font-medium text-foreground flex-1">{fileMatch[1]}</span>
-          <ExternalLink className="w-4 h-4 text-muted-foreground" />
-        </a>
-      );
-      return;
-    }
-
-    // [label](url) - regular link
-    const linkMatch = trimmed.match(/^\[(.+?)\]\((.+)\)$/);
-    if (linkMatch && !trimmed.startsWith('[video]') && !trimmed.startsWith('[image]') && !trimmed.startsWith('[file:')) {
-      elements.push(
-        <a key={i} href={linkMatch[2]} target="_blank" rel="noopener noreferrer"
-          className="text-primary underline text-sm hover:opacity-80 block my-1">
-          {linkMatch[1]}
-        </a>
-      );
-      return;
-    }
-
-    // Regular text
-    if (trimmed === '') {
-      elements.push(<br key={i} />);
-    } else {
-      elements.push(<p key={i} className="text-sm leading-relaxed">{renderInline(line, `p-${i}`)}</p>);
-    }
+  // Legacy markdown path: convert known patterns, then strip any leftover * and # markers.
+  let s = content;
+  // Media tags (must run before generic link)
+  s = s.replace(/\[video\]\(([^)]+)\)/g, (_, u) => {
+    const m = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    return m
+      ? `<div class="my-3 aspect-video rounded-xl overflow-hidden"><iframe src="https://www.youtube.com/embed/${m[1]}" class="w-full h-full" allowfullscreen frameborder="0" title="Video"></iframe></div>`
+      : `<video src="${u}" controls></video>`;
   });
-  flushBullets('end');
+  s = s.replace(/\[image\]\(([^)]+)\)/g, '<img src="$1" alt="" />');
+  s = s.replace(/\[file:([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">📎 $1</a>');
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
-  return <>{elements}</>;
+  // Inline formatting
+  s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+
+  // Headings & quotes (line-based)
+  const lines = s.split(/\r?\n/);
+  const out: string[] = [];
+  let inList = false;
+  const closeList = () => { if (inList) { out.push('</ul>'); inList = false; } };
+  for (const raw of lines) {
+    const l = raw;
+    if (/^### +/.test(l)) { closeList(); out.push(`<h4>${l.replace(/^### +/, '')}</h4>`); continue; }
+    if (/^## +/.test(l))  { closeList(); out.push(`<h3>${l.replace(/^## +/, '')}</h3>`); continue; }
+    if (/^# +/.test(l))   { closeList(); out.push(`<h2>${l.replace(/^# +/, '')}</h2>`); continue; }
+    if (/^> +/.test(l))   { closeList(); out.push(`<blockquote>${l.replace(/^> +/, '')}</blockquote>`); continue; }
+    if (/^- +/.test(l))   {
+      if (!inList) { out.push('<ul>'); inList = true; }
+      out.push(`<li>${l.replace(/^- +/, '')}</li>`);
+      continue;
+    }
+    closeList();
+    if (l.trim() === '') { out.push('<br/>'); continue; }
+    out.push(`<p>${l}</p>`);
+  }
+  closeList();
+  let html = out.join('\n');
+  // Strip any residual stray * or leading # characters (user request: no markdown chars in content)
+  html = html.replace(/\*+/g, '').replace(/(^|>)\s*#+\s*/g, '$1');
+  return html;
 }
 
 export function ModuleScreen() {
