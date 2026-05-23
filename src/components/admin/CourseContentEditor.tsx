@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,19 +13,10 @@ import {
   ChevronLeft,
   BookOpen,
   HelpCircle,
-  Video,
-  Link as LinkIcon,
-  FileText,
-  Image as ImageIcon,
-  Bold,
-  Italic,
-  Heading2,
-  Heading3,
-  List,
-  Quote,
   Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { RichCourseEditor } from './RichCourseEditor';
 
 interface Section {
   id?: string;
@@ -61,7 +52,6 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
   const [editingSection, setEditingSection] = useState<Section | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
-  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     loadContent();
@@ -173,29 +163,6 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
     if (error) toast.error('Failed to delete');
     else { toast.success('Question deleted'); await loadContent(); }
   };
-
-  // --- Rich text helpers: wrap/insert at cursor in the section textarea ---
-  const applyToContent = (transform: (sel: string) => { insert: string; offset?: number }) => {
-    if (!editingSection) return;
-    const ta = contentRef.current;
-    const value = editingSection.content;
-    const start = ta?.selectionStart ?? value.length;
-    const end = ta?.selectionEnd ?? value.length;
-    const selected = value.slice(start, end);
-    const { insert } = transform(selected);
-    const next = value.slice(0, start) + insert + value.slice(end);
-    setEditingSection({ ...editingSection, content: next });
-    requestAnimationFrame(() => {
-      if (!ta) return;
-      const caret = start + insert.length;
-      ta.focus();
-      ta.setSelectionRange(caret, caret);
-    });
-  };
-  const wrapInline = (token: string) => applyToContent((sel) => ({ insert: `${token}${sel || 'text'}${token}` }));
-  const prefixLine = (prefix: string) => applyToContent((sel) => ({
-    insert: (sel ? sel.split('\n').map((l) => `${prefix}${l}`).join('\n') : `${prefix}text`),
-  }));
 
   // --- AI generators ---
   const aiGenerateSection = async () => {
@@ -418,86 +385,14 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
                     AI Draft
                   </button>
                 </div>
-                {/* Rich text formatting toolbar */}
-                <div className="flex gap-1 mb-2 flex-wrap border-b border-border pb-2">
-                  <ToolbarBtn onClick={() => wrapInline('**')} title="Bold"><Bold className="w-3.5 h-3.5" /></ToolbarBtn>
-                  <ToolbarBtn onClick={() => wrapInline('*')} title="Italic"><Italic className="w-3.5 h-3.5" /></ToolbarBtn>
-                  <ToolbarBtn onClick={() => prefixLine('## ')} title="Heading"><Heading2 className="w-3.5 h-3.5" /></ToolbarBtn>
-                  <ToolbarBtn onClick={() => prefixLine('### ')} title="Subheading"><Heading3 className="w-3.5 h-3.5" /></ToolbarBtn>
-                  <ToolbarBtn onClick={() => prefixLine('- ')} title="Bullet list"><List className="w-3.5 h-3.5" /></ToolbarBtn>
-                  <ToolbarBtn onClick={() => prefixLine('> ')} title="Quote"><Quote className="w-3.5 h-3.5" /></ToolbarBtn>
-                </div>
-                {/* Media Embed Toolbar */}
-                <div className="flex gap-1.5 mb-2 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const url = prompt('Enter YouTube or video URL:');
-                      if (url) {
-                        setEditingSection({
-                          ...editingSection,
-                          content: editingSection.content + `\n\n[video](${url})\n`,
-                        });
-                      }
-                    }}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors"
-                  >
-                    <Video className="w-3.5 h-3.5" /> Video URL
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const url = prompt('Enter link URL:');
-                      const label = prompt('Link label (optional):') || url;
-                      if (url) {
-                        setEditingSection({
-                          ...editingSection,
-                          content: editingSection.content + `\n\n[${label}](${url})\n`,
-                        });
-                      }
-                    }}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors"
-                  >
-                    <LinkIcon className="w-3.5 h-3.5" /> Link
-                  </button>
-                  <UploadMediaButton
-                    label="Upload Video"
-                    icon={<Video className="w-3.5 h-3.5" />}
-                    accept="video/*"
-                    onUploaded={(url) => {
-                      setEditingSection({
-                        ...editingSection,
-                        content: editingSection.content + `\n\n[video](${url})\n`,
-                      });
-                    }}
-                  />
-                  <UploadMediaButton
-                    label="Upload File"
-                    icon={<FileText className="w-3.5 h-3.5" />}
-                    accept="*/*"
-                    onUploaded={(url, name) => {
-                      setEditingSection({
-                        ...editingSection,
-                        content: editingSection.content + `\n\n[file:${name}](${url})\n`,
-                      });
-                    }}
-                  />
-                  <UploadMediaButton
-                    label="Upload Image"
-                    icon={<ImageIcon className="w-3.5 h-3.5" />}
-                    accept="image/*"
-                    onUploaded={(url) => {
-                      setEditingSection({
-                        ...editingSection,
-                        content: editingSection.content + `\n\n[image](${url})\n`,
-                      });
-                    }}
-                  />
-                </div>
-                <p className="text-[10px] text-muted-foreground mb-1">
-                  Markdown: **bold**, *italic*, ## heading, - bullet, &gt; quote. Media: [video](url), [image](url), [label](url), [file:name](url).
+                <RichCourseEditor
+                  value={editingSection.content}
+                  onChange={(html) => setEditingSection({ ...editingSection, content: html })}
+                  placeholder="Write the section content. Format inline, paste links, drop in images, embed YouTube videos…"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Tip: paste a YouTube URL to auto-embed it. Use the toolbar to add images, videos, links and formatting.
                 </p>
-                <Textarea ref={contentRef} className="min-h-[220px] font-mono text-xs" value={editingSection.content} onChange={(e) => setEditingSection({ ...editingSection, content: e.target.value })} />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Sort Order</label>
@@ -576,61 +471,3 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
   );
 }
 
-function ToolbarBtn({ onClick, title, children }: { onClick: () => void; title: string; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title}
-      className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-    >
-      {children}
-    </button>
-  );
-}
-
-// Reusable upload button component
-function UploadMediaButton({ label, icon, accept, onUploaded }: {
-  label: string;
-  icon: React.ReactNode;
-  accept: string;
-  onUploaded: (url: string, name: string) => void;
-}) {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const ext = file.name.split('.').pop();
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from('course-media').upload(path, file);
-      if (error) throw error;
-      const { data: { publicUrl } } = supabase.storage.from('course-media').getPublicUrl(path);
-      onUploaded(publicUrl, file.name);
-      toast.success(`${file.name} uploaded!`);
-    } catch {
-      toast.error('Upload failed');
-    } finally {
-      setUploading(false);
-      e.target.value = '';
-    }
-  };
-
-  return (
-    <>
-      <input ref={fileRef} type="file" accept={accept} onChange={handleUpload} className="hidden" />
-      <button
-        type="button"
-        onClick={() => fileRef.current?.click()}
-        disabled={uploading}
-        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors disabled:opacity-50"
-      >
-        {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : icon}
-        {uploading ? 'Uploading...' : label}
-      </button>
-    </>
-  );
-}
