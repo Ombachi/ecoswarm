@@ -4,6 +4,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
+function escHtml(s: string | undefined | null): string {
+  if (s == null) return "";
+  return String(s).replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string)
+  );
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -55,9 +62,9 @@ serve(async (req: Request) => {
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0;">
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #228B22 0%, #32CD32 100%); padding: 28px 24px; border-radius: 12px 12px 0 0; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">🎉 Congratulations, ${sellerName}!</h1>
+            <h1 style="color: white; margin: 0; font-size: 24px;">🎉 Congratulations, ${escHtml(sellerName)}!</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 15px;">
-              Your first product "<strong>${productName}</strong>" is now live on EcoMarket
+              Your first product "<strong>${escHtml(productName)}</strong>" is now live on EcoMarket
             </p>
           </div>
 
