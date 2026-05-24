@@ -158,6 +158,20 @@ async function summarize(title: string, description: string, source: string): Pr
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const authHeader = req.headers.get("Authorization")?.replace("Bearer ", "");
+  const providedSecret =
+    new URL(req.url).searchParams.get("secret") || req.headers.get("x-cron-secret");
+  const isAuthed =
+    (cronSecret && providedSecret === cronSecret) ||
+    (serviceKey && authHeader === serviceKey);
+  if (!isAuthed) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
