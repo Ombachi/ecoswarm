@@ -1,9 +1,42 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { createClient } from 'npm:@supabase/supabase-js@2';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
+    // ===== AUTH + ADMIN CHECK =====
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !userData?.user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const admin = createClient(supabaseUrl, serviceKey);
+    const { data: roleRow } = await admin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userData.user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+    if (!roleRow) {
+      return new Response(JSON.stringify({ error: 'Admin only' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { mode, courseTitle, topic, existingContent, count } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
