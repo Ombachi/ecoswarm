@@ -4,6 +4,13 @@ import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
+function escHtml(s: string | undefined | null): string {
+  if (s == null) return "";
+  return String(s).replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string)
+  );
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -104,13 +111,13 @@ const handler = async (req: Request): Promise<Response> => {
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #228B22 0%, #32CD32 100%); padding: 20px; border-radius: 12px 12px 0 0;">
             <h1 style="color: white; margin: 0; font-size: 24px;">📬 User Feedback</h1>
-            <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px;">${typeLabel}</p>
+            <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px;">${escHtml(typeLabel)}</p>
           </div>
           <div style="background: #f8fdf8; padding: 24px; border: 1px solid #e0e0e0; border-top: none;">
-            <p><strong>From:</strong> ${body.userName} (${body.userEmail || "No email"})</p>
-            <p><strong>Subject:</strong> ${body.subject}</p>
+            <p><strong>From:</strong> ${escHtml(body.userName)} (${escHtml(body.userEmail || "No email")})</p>
+            <p><strong>Subject:</strong> ${escHtml(body.subject)}</p>
             <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 16px 0;" />
-            <div style="white-space: pre-line; line-height: 1.6; color: #333;">${body.message}</div>
+            <div style="white-space: pre-line; line-height: 1.6; color: #333;">${escHtml(body.message)}</div>
           </div>
           <div style="background: #f0f0f0; padding: 16px; border-radius: 0 0 12px 12px; text-align: center;">
             <p style="color: #666; margin: 0; font-size: 12px;">Sent via <strong>EcoSwarm</strong> feedback system</p>

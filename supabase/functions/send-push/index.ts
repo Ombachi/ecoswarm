@@ -132,6 +132,21 @@ serve(async (req) => {
     const userId = userData.user.id;
     console.log("Authenticated push sender:", userId);
 
+    // ===== ADMIN ROLE CHECK =====
+    const adminCheckClient = createClient(supabaseUrl, serviceRoleKey);
+    const { data: adminRole } = await adminCheckClient
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (!adminRole) {
+      return new Response(
+        JSON.stringify({ error: "Admin only" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // ===== INPUT VALIDATION =====
     const { title, body, userIds } = await req.json();
 

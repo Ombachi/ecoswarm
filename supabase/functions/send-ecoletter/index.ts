@@ -4,6 +4,13 @@ import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
+function escHtml(s: string | undefined | null): string {
+  if (s == null) return "";
+  return String(s).replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string)
+  );
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -137,11 +144,11 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
           
           <div style="background: #f8fdf8; padding: 24px; border: 1px solid #e0e0e0; border-top: none;">
-            <p style="color: #333; margin: 0 0 8px 0;"><strong>To:</strong> ${recipientTitle} ${recipientName}</p>
-            <p style="color: #666; margin: 0 0 16px 0; font-size: 14px;">${recipientOrganization}</p>
+            <p style="color: #333; margin: 0 0 8px 0;"><strong>To:</strong> ${escHtml(recipientTitle)} ${escHtml(recipientName)}</p>
+            <p style="color: #666; margin: 0 0 16px 0; font-size: 14px;">${escHtml(recipientOrganization)}</p>
             
             <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e8e8e8; white-space: pre-line; line-height: 1.6; color: #333;">
-${body.letterContent}
+${escHtml(body.letterContent)}
             </div>
           </div>
           

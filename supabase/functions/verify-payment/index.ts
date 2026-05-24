@@ -107,6 +107,23 @@ serve(async (req) => {
     }
 
     // ── M-Pesa Callback Processing ──
+    // Verify the callback came from our Safaricom integration via a shared secret token
+    // appended to the registered CallBackURL (e.g. ...?token=<MPESA_CALLBACK_TOKEN>).
+    const expectedToken = Deno.env.get("MPESA_CALLBACK_TOKEN");
+    if (expectedToken) {
+      const url = new URL(req.url);
+      const provided = url.searchParams.get("token") || req.headers.get("x-mpesa-callback-token");
+      if (provided !== expectedToken) {
+        console.error("Rejected unauthenticated M-Pesa callback");
+        // Return success-shaped response so Safaricom doesn't retry indefinitely
+        return new Response(JSON.stringify({ ResultCode: 0, ResultDesc: "Accepted" }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      console.warn("MPESA_CALLBACK_TOKEN not set — callback authenticity cannot be verified");
+    }
+
     const checkoutRequestId = callback.CheckoutRequestID;
     const resultCode = callback.ResultCode;
 
@@ -119,6 +136,13 @@ serve(async (req) => {
 
     if (!tx) {
       console.error("Transaction not found for checkout:", checkoutRequestId);
+      return new Response(JSON.stringify({ ResultCode: 0, ResultDesc: "Accepted" }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Only process callbacks for transactions that haven't already been verified
+    if (tx.verification_status === "verified" || tx.status === "completed") {
       return new Response(JSON.stringify({ ResultCode: 0, ResultDesc: "Accepted" }), {
         headers: { "Content-Type": "application/json" },
       });
