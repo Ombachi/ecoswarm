@@ -56,6 +56,17 @@ export function AdminCoursesTab() {
         : await supabase.from('courses').update(payload).eq('id', editing.id);
       if (error) throw error;
       toast.success(isNew ? 'Course created!' : 'Course updated!');
+      if (isNew && payload.is_active !== false) {
+        // Fire-and-forget: notify subscribed users by email.
+        supabase.functions.invoke('notify-new-content', {
+          body: {
+            type: 'course',
+            title: payload.title,
+            description: payload.description,
+            link_path: '/tools',
+          },
+        }).catch((e) => console.error('notify-new-content failed:', e?.message));
+      }
       setEditing(null);
       await load();
     } catch { toast.error('Failed to save'); }

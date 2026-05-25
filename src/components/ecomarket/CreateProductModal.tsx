@@ -3,6 +3,7 @@ import { X, Loader2, Building2, Phone, Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { compressImage } from '@/lib/imageCompression';
+import { isFileSizeOk } from '@/lib/videoLimits';
 
 const categories = [
   { id: 'Water', label: 'Water', emoji: '💧' },
@@ -70,6 +71,7 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
     const newItems: MediaItem[] = [];
     Array.from(files).forEach(file => {
       if (mediaItems.length + newItems.length >= 5) return;
+      if (!isFileSizeOk(file)) return;
       const type = file.type.startsWith('video/') ? 'video' : 'image';
       newItems.push({ file, preview: URL.createObjectURL(file), type });
     });

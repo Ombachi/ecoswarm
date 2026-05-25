@@ -1,5 +1,5 @@
 import { useRef, useCallback, useEffect } from 'react';
-import { Bold, Italic, List, ListOrdered, Quote, Heading2 } from 'lucide-react';
+import { Bold, Italic, List, ListOrdered, Quote, Heading2, Undo2, Redo2 } from 'lucide-react';
 import { EmojiPicker } from './EmojiPicker';
 import { cn } from '@/lib/utils';
 
@@ -67,6 +67,8 @@ export function RichTextEditor({ value, onChange, placeholder, className, autoFo
   };
 
   const toolbarButtons = [
+    { command: 'undo', icon: Undo2, label: 'Undo (⌘/Ctrl+Z)' },
+    { command: 'redo', icon: Redo2, label: 'Redo (⌘/Ctrl+Shift+Z)' },
     { command: 'bold', icon: Bold, label: 'Bold' },
     { command: 'italic', icon: Italic, label: 'Italic' },
     { command: 'insertUnorderedList', icon: List, label: 'Bullet list' },

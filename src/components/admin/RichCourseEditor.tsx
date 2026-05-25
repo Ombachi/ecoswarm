@@ -3,10 +3,12 @@ import {
   Bold, Italic, Underline, Heading2, Heading3,
   List, ListOrdered, Quote, Link as LinkIcon,
   Image as ImageIcon, Video, FileText, Loader2,
+  Undo2, Redo2,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { isFileSizeOk } from '@/lib/videoLimits';
 
 interface RichCourseEditorProps {
   value: string;
@@ -108,6 +110,7 @@ export function RichCourseEditor({ value, onChange, placeholder, className }: Ri
     input.onchange = async () => {
       const f = input.files?.[0];
       if (!f) return;
+      if (!isFileSizeOk(f)) return;
       setBusy(true);
       try {
         const url = await uploadCourseMedia(f);
@@ -147,6 +150,8 @@ export function RichCourseEditor({ value, onChange, placeholder, className }: Ri
   };
 
   const buttons: Array<{ icon: any; title: string; run: () => void }> = [
+    { icon: Undo2, title: 'Undo (⌘/Ctrl+Z)', run: () => cmd('undo') },
+    { icon: Redo2, title: 'Redo (⌘/Ctrl+Shift+Z)', run: () => cmd('redo') },
     { icon: Bold, title: 'Bold', run: () => cmd('bold') },
     { icon: Italic, title: 'Italic', run: () => cmd('italic') },
     { icon: Underline, title: 'Underline', run: () => cmd('underline') },

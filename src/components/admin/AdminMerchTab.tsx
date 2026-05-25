@@ -82,6 +82,17 @@ export function AdminMerchTab() {
       } else {
         const { error } = await supabase.from('merch_products').insert(payload);
         if (error) throw error;
+        if (payload.is_active !== false) {
+          supabase.functions.invoke('notify-new-content', {
+            body: {
+              type: 'merch',
+              title: payload.name,
+              description: payload.description,
+              image_url: payload.image_url,
+              link_path: '/merch',
+            },
+          }).catch((e) => console.error('notify-new-content failed:', e?.message));
+        }
       }
       toast.success(editing.id ? 'Updated!' : 'Created!');
       setEditing(null);
