@@ -8,6 +8,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { isFileSizeOk } from '@/lib/videoLimits';
 
 interface RichCourseEditorProps {
   value: string;
@@ -109,6 +110,7 @@ export function RichCourseEditor({ value, onChange, placeholder, className }: Ri
     input.onchange = async () => {
       const f = input.files?.[0];
       if (!f) return;
+      if (!isFileSizeOk(f)) return;
       setBusy(true);
       try {
         const url = await uploadCourseMedia(f);
