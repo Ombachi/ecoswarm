@@ -352,6 +352,18 @@ export function EcoMarketScreen() {
 
       setProducts([{ ...newProduct, badges: newProduct.badges || [], media_urls: Array.isArray(newProduct.media_urls) ? newProduct.media_urls as any : [] } as Product, ...products]);
 
+      // Email subscribed users about the new EcoMarket listing (fire-and-forget).
+      supabase.functions.invoke('notify-new-content', {
+        body: {
+          type: 'product',
+          title: productData.productName,
+          description: `${productData.orgName} — ${productData.description}`.slice(0, 400),
+          image_url: productData.mediaUrl,
+          link_path: '/ecomarket',
+          reference_id: (newProduct as any).id,
+        },
+      }).catch((e) => console.error('notify-new-content failed:', e?.message));
+
       const badgeText = productData.badges.length > 0 ? productData.badges.join(' • ') : '';
       const postContent = [
         `🛒 New on EcoMarket!`,
