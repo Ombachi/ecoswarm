@@ -1150,6 +1150,7 @@ export type Database = {
           letters_sent: number | null
           location: string | null
           name: string
+          notify_new_content: boolean
           phone: string | null
           posts_created: number | null
           sex: string | null
@@ -1175,6 +1176,7 @@ export type Database = {
           letters_sent?: number | null
           location?: string | null
           name: string
+          notify_new_content?: boolean
           phone?: string | null
           posts_created?: number | null
           sex?: string | null
@@ -1200,6 +1202,7 @@ export type Database = {
           letters_sent?: number | null
           location?: string | null
           name?: string
+          notify_new_content?: boolean
           phone?: string | null
           posts_created?: number | null
           sex?: string | null
