@@ -29,13 +29,29 @@ export function SettingsScreen() {
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushNotifications(user?.id);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [emailNewContent, setEmailNewContent] = useState(true);
 
   useEffect(() => {
     if (user) {
       supabase.from('user_roles').select('role').eq('user_id', user.id).eq('role', 'admin').maybeSingle()
         .then(({ data }) => setIsAdmin(!!data));
+      supabase.from('profiles').select('notify_new_content').eq('user_id', user.id).maybeSingle()
+        .then(({ data }) => { if (data) setEmailNewContent((data as any).notify_new_content !== false); });
     }
   }, [user]);
+
+  const toggleEmailNewContent = async () => {
+    if (!user) return;
+    const next = !emailNewContent;
+    setEmailNewContent(next);
+    const { error } = await supabase.from('profiles').update({ notify_new_content: next }).eq('user_id', user.id);
+    if (error) {
+      setEmailNewContent(!next);
+      toast.error('Failed to update preference');
+    } else {
+      toast.success(next ? 'You\'ll get emails about new content' : 'Unsubscribed from new-content emails');
+    }
+  };
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -102,6 +118,14 @@ export function SettingsScreen() {
           description: pushSupported ? 'Get notified about new activity' : 'Not supported on this device',
           value: pushSubscribed,
           action: () => pushSubscribed ? pushUnsubscribe() : pushSubscribe(),
+          type: 'toggle' as const,
+        },
+        {
+          icon: Bell,
+          label: 'Email me about new content',
+          description: 'Courses, EcoMarket listings, and EcoMerch drops',
+          value: emailNewContent,
+          action: toggleEmailNewContent,
           type: 'toggle' as const,
         },
       ],
