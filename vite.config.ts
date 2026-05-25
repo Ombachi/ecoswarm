@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => ({
         display: "standalone",
         orientation: "portrait",
         scope: "/",
-        start_url: "/",
+        start_url: "/login",
         categories: ["social", "news", "lifestyle"],
         lang: "en",
         dir: "ltr",
