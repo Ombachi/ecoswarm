@@ -1,0 +1,1 @@
+DELETE FROM public.posts WHERE content IN ('__grant_verify__', 'End-to-end grant verification works ✅');
