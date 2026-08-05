@@ -1,10 +1,9 @@
-import { Home, MessageSquare, ShoppingBag, Wrench, User } from 'lucide-react';
+import { Home, ShoppingBag, Wrench, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/dashboard' },
-  { icon: MessageSquare, label: 'Agora', path: '/agora' },
   { icon: ShoppingBag, label: 'EcoMarket', path: '/ecomarket' },
   { icon: Wrench, label: 'Tools', path: '/tools' },
   { icon: User, label: 'Profile', path: '/profile' },

@@ -13,7 +13,6 @@ import {
   BookOpen,
   HelpCircle,
 } from 'lucide-react';
-import { createAutoPost, buildCourseAutoPost } from '@/utils/autoPost';
 import { sanitizeCourseHtml } from '@/lib/sanitize';
 
 interface Section {
@@ -253,16 +252,6 @@ export function ModuleScreen() {
         // Generate cert ID
         const newCertId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         setCertId(newCertId);
-
-        if (user) {
-          await createAutoPost({
-            userId: user.id,
-            userName: user.name,
-            content: buildCourseAutoPost(module.title, module.points),
-            tags: ['CapacityHub', 'Learning', 'EcoSwarm', 'ClimateEducation'],
-          });
-          updateStats({ postsCreated: user.stats.postsCreated + 1 });
-        }
 
         setTimeout(() => {
           setShowConfetti(false);

@@ -2,11 +2,8 @@ import { useState, useEffect } from 'react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useNavigate } from 'react-router-dom';
-import { CalendarDays, ChevronRight, Users, Clock, Megaphone } from 'lucide-react';
-import { CreateSwarmModal } from '@/components/swarms/CreateSwarmModal';
+import { CalendarDays, ChevronRight } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 interface ClimateDate {
   date: string; // MM-DD
@@ -55,102 +52,10 @@ function getUpcoming(dates: ClimateDate[]): (ClimateDate & { fullDate: Date; day
 
 export function CalendarScreen() {
   const navigate = useNavigate();
-  const { user, addPoints, showNotification, updateStats } = useApp();
-  usePageMeta('Eco Calendar', 'Environmental events, swarm deadlines, and key dates for climate action in Kenya.');
+  useApp();
+  usePageMeta('Eco Calendar', 'Environmental events and key dates for climate action in Kenya.');
   const upcoming = getUpcoming(climateDates);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [showSwarmModal, setShowSwarmModal] = useState(false);
-  const [swarmPrefill, setSwarmPrefill] = useState<{ name: string; description: string; goal: string; category: string } | null>(null);
-  const [activeDeadlines, setActiveDeadlines] = useState<{ id: string; name: string; end_date: string; category: string; participants: number }[]>([]);
-  const [isDeveloper, setIsDeveloper] = useState(false);
-
-  useEffect(() => {
-    supabase
-      .from('swarms')
-      .select('id, name, end_date, category, participants')
-      .gt('end_date', new Date().toISOString())
-      .order('end_date', { ascending: true })
-      .limit(5)
-      .then(({ data }) => {
-        if (data) setActiveDeadlines(data as any);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'ecodeveloper')
-      .maybeSingle()
-      .then(({ data }) => setIsDeveloper(!!data));
-  }, [user?.id]);
-
-  const handleLaunchSwarm = (event: ClimateDate & { fullDate: Date }) => {
-    // Map climate date to a swarm category
-    const catMap: Record<string, string> = {
-      '💧': 'Water', '🌊': 'Water', '🐋': 'Water',
-      '🌳': 'Reforestation', '🌿': 'Reforestation', '🪴': 'Reforestation',
-      '🦁': 'Wildlife', '🦋': 'Wildlife', '🐾': 'Wildlife',
-      '⚡': 'Energy', '🚫': 'Energy',
-      '💨': 'Air Quality', '🏜️': 'Air Quality', '🔥': 'Air Quality',
-      '♻️': 'Waste',
-    };
-    const category = catMap[event.emoji] || 'Reforestation';
-
-    setSwarmPrefill({
-      name: `${event.title} Campaign ${event.fullDate.getFullYear()}`,
-      description: `${event.description} Join this swarm to take collective action on ${event.title}.`,
-      goal: event.suggestedActions[0] || 'Take collective action',
-      category,
-    });
-    setShowSwarmModal(true);
-  };
-
-  const handleSwarmCreated = async (swarmData: any) => {
-    if (!user) return;
-    try {
-      const { data: newSwarm, error } = await supabase
-        .from('swarms')
-        .insert({
-          name: swarmData.name,
-          description: swarmData.description,
-          goal: swarmData.goal,
-          category: swarmData.category,
-          target_signatures: swarmData.targetSignatures,
-          current_signatures: 1,
-          participants: 1,
-          created_by: user.id,
-          org_name: swarmData.orgName || null,
-          social_links: swarmData.socialLinks || null,
-          phone: swarmData.phone || null,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      await supabase.from('swarm_memberships').insert({
-        swarm_id: newSwarm.id,
-        user_id: user.id,
-        votes: 1,
-      });
-
-      await supabase.from('posts').insert({
-        user_id: user.id,
-        user_name: user.name,
-        content: `🐝 New Swarm Launched: "${swarmData.name}"!\n\n${swarmData.description}\n\n🎯 Goal: ${swarmData.goal}\n\nJoin the campaign!`,
-        tags: [swarmData.category.replace(/\s+/g, ''), 'EcoSwarm', 'JoinTheSwarm', `swarm_${newSwarm.id}`],
-      });
-
-      addPoints(50);
-      updateStats({ postsCreated: user.stats.postsCreated + 1 });
-      showNotification('Swarm created from Calendar! 🐝', 50);
-    } catch {
-      toast.error('Failed to create swarm');
-    }
-  };
 
   return (
     <AppLayout>
@@ -169,51 +74,6 @@ export function CalendarScreen() {
       </div>
 
       <div className="p-4 pb-24 space-y-3">
-        {/* Active Swarm Deadlines */}
-        {activeDeadlines.length > 0 && (
-          <div className="eco-card p-4 border-l-4 border-l-secondary mb-4">
-            <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-3">
-              <Clock className="w-4 h-4 text-secondary" /> Active Swarm Deadlines
-            </h3>
-            <div className="space-y-2">
-              {activeDeadlines.map(d => {
-                const daysLeft = Math.ceil((new Date(d.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-                return (
-                  <button key={d.id} onClick={() => navigate('/swarms')} className="w-full flex items-center justify-between text-left p-2 rounded-lg bg-muted/50 hover:bg-muted">
-                    <div>
-                      <p className="text-xs font-semibold text-foreground">{d.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{d.participants} members · {d.category}</p>
-                    </div>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${daysLeft <= 3 ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
-                      {daysLeft}d left
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Advocacy / Letter Link — role aware */}
-        <button
-          onClick={() => navigate('/tools')}
-          className="w-full eco-card p-4 flex items-center gap-3 text-left border-l-4 border-l-primary mb-2"
-        >
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Megaphone className="w-5 h-5 text-primary" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground">
-              {isDeveloper ? 'Business Advocacy' : 'EcoLetter Forge'}
-            </p>
-            <p className="text-[10px] text-muted-foreground">
-              {isDeveloper
-                ? 'Launch advocacy campaigns tied to climate events'
-                : 'Draft and send EcoLetters tied to climate events'}
-            </p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </button>
         {upcoming.map((event, index) => {
           const isExpanded = expandedId === event.date;
           const isToday = event.daysUntil === 0;
@@ -254,20 +114,12 @@ export function CalendarScreen() {
                           </div>
                         ))}
                       </div>
-                      <div className="flex gap-2 pt-1">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleLaunchSwarm(event); }}
-                          className="flex-1 py-2 px-3 rounded-xl bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center gap-1"
-                        >
-                          <Users className="w-3.5 h-3.5" /> Create Swarm
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); navigate('/tools'); }}
-                          className="flex-1 py-2 px-3 rounded-xl bg-secondary/10 text-secondary text-xs font-semibold flex items-center justify-center gap-1"
-                        >
-                          ✉️ Send Letter
-                        </button>
-                      </div>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); navigate('/tools'); }}
+                        className="w-full py-2 px-3 rounded-xl bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center gap-1"
+                      >
+                        🎓 Learn in Capacity Hub
+                      </button>
                     </div>
                   )}
                 </div>
@@ -277,15 +129,6 @@ export function CalendarScreen() {
           );
         })}
       </div>
-
-      {showSwarmModal && (
-        <CreateSwarmModal
-          isOpen={showSwarmModal}
-          onClose={() => { setShowSwarmModal(false); setSwarmPrefill(null); }}
-          onSwarmCreated={handleSwarmCreated}
-          prefill={swarmPrefill || undefined}
-        />
-      )}
     </AppLayout>
   );
 }
