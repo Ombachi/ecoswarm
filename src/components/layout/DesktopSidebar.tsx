@@ -2,21 +2,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { Home, Leaf, Settings, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { AvatarFallback } from '@/components/common/AvatarFallback';
 
 export function DesktopSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useApp();
-  const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase.from('leaderboard_fast' as any).select('rank').eq('user_id', user.id).maybeSingle()
-      .then(({ data }: any) => setLeaderboardRank(data?.rank ?? null));
-  }, [user?.id]);
 
   const navItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
@@ -72,12 +63,6 @@ export function DesktopSidebar() {
               <p className="text-lg font-bold eco-gradient-text">{user.ecoPoints}</p>
               <p className="text-[10px] text-muted-foreground">EcoPoints</p>
             </div>
-            {leaderboardRank && (
-              <div className="text-right">
-                <p className="text-lg font-bold text-foreground">#{leaderboardRank}</p>
-                <p className="text-[10px] text-muted-foreground">Rank</p>
-              </div>
-            )}
           </div>
         </div>
       )}

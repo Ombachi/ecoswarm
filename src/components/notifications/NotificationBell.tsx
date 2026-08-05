@@ -105,16 +105,10 @@ export function NotificationBell() {
       navigate('/ecomarket');
     } else if (notif.type === 'swarm' && notif.reference_id) {
       navigate('/ecomarket');
-    } else if (notif.type === 'post' && notif.reference_id) {
-      navigate(`/post/${notif.reference_id}`);
-    } else if (notif.type === 'post') {
-      navigate('/agora');
     } else if (notif.type === 'course') {
       navigate('/tools');
-    } else if (notif.type === 'rank') {
-      navigate('/leaderboard');
     } else {
-      navigate('/agora');
+      navigate('/dashboard');
     }
     setIsOpen(false);
   };
