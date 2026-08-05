@@ -14,7 +14,6 @@ import {
   Leaf, Check, Sparkles, Share2, ShieldCheck,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { createAutoPost } from '@/utils/autoPost';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { calculateSmartBuy, formatPointsWithKes } from '@/lib/ecoPointsConversion';
 
@@ -862,26 +861,6 @@ export function EcoMarketScreen() {
               {purchaseResult.cashPaid > 0 && <p className="text-muted-foreground">KSh {purchaseResult.cashPaid.toLocaleString()} paid via M-Pesa</p>}
             </div>
             <div className="flex gap-3 w-full">
-              <button
-                onClick={async () => {
-                  if (user && purchaseResult) {
-                    const content = `🛒 Just purchased "${purchaseResult.productName}" on the EcoMarket!\n\n${purchaseResult.pointsUsed > 0 ? `Redeemed ${purchaseResult.pointsUsed} EcoPoints 🌱\n` : ''}Earned +${purchaseResult.bonusPoints} bonus EcoPoints! 🎉\n\n#EcoMarket #EcoSwarm #GreenShopping`;
-                    await createAutoPost({
-                      userId: user.id,
-                      userName: user.name,
-                      content,
-                      tags: ['EcoMarket', 'EcoSwarm', 'GreenShopping'],
-                    });
-                    toast.success('Shared to Agora Square!');
-                  }
-                  setShowSuccessScreen(false);
-                  setPurchaseResult(null);
-                  navigate('/agora');
-                }}
-                className="flex-1 py-3 rounded-xl border border-primary text-primary font-medium text-sm flex items-center justify-center gap-2 hover:bg-primary/5 transition-colors"
-              >
-                <Share2 className="w-4 h-4" /> Share in Agora
-              </button>
               <button
                 onClick={() => {
                   setShowSuccessScreen(false);

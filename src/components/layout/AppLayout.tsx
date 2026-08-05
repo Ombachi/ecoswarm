@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { BottomNav } from './BottomNav';
 import { DesktopSidebar } from './DesktopSidebar';
-import { DesktopRightPane } from './DesktopRightPane';
 import { TabletSidebar } from './TabletSidebar';
 import { useApp } from '@/context/AppContext';
 import { useLayout } from '@/context/LayoutContext';
@@ -42,7 +41,6 @@ export function AppLayout({ children }: AppLayoutProps) {
           {notificationBanner}
           <div className="max-w-4xl mx-auto">{children}</div>
         </main>
-        {!isAdmin && <DesktopRightPane />}
         <UpdatePrompt />
       </div>
     );
