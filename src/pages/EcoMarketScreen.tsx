@@ -440,7 +440,7 @@ export function EcoMarketScreen() {
             <h1 className="text-xl font-bold text-foreground">EcoMarket</h1>
             <p className="text-xs text-muted-foreground">Eco-friendly products & services</p>
           </div>
-          {isDeveloper && (
+          {isAdmin && (
             <button
               onClick={() => setShowCreateModal(true)}
               className="eco-button-primary py-2 px-4 text-sm flex items-center gap-1"
@@ -684,7 +684,7 @@ export function EcoMarketScreen() {
           </div>
 
           {/* Floating Create Button */}
-          {isDeveloper && (
+          {isAdmin && (
             <button onClick={() => setShowCreateModal(true)} className="eco-floating-button animate-pulse-glow" aria-label="List a new product">
               <Plus className="w-6 h-6" />
             </button>
