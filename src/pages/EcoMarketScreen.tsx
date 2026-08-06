@@ -566,11 +566,6 @@ export function EcoMarketScreen() {
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-primary flex items-center gap-1">
                           {product.org_name}
-                          {premiumSellers.has(product.user_id) && (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold">
-                              <ShieldCheck className="w-3 h-3" /> Verified
-                            </span>
-                          )}
                         </p>
                         <h3 className="text-lg font-bold text-foreground leading-tight">{product.product_name}</h3>
                       </div>
