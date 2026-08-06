@@ -33,7 +33,7 @@ interface Poll {
   created_at: string;
 }
 
-type SegmentType = 'all' | 'dormant' | 'top_earners' | 'county' | 'role';
+type SegmentType = 'all' | 'dormant' | 'top_earners' | 'county';
 
 interface CampaignLog {
   id: string;
@@ -56,7 +56,6 @@ export function AdminBroadcastTab() {
   const [pushBody, setPushBody] = useState('');
   const [segment, setSegment] = useState<SegmentType>('all');
   const [selectedCounty, setSelectedCounty] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'ecowarrior' | 'ecodeveloper'>('ecowarrior');
   const [dormantDays, setDormantDays] = useState(7);
   const [topN, setTopN] = useState(50);
   const [isSendingPush, setIsSendingPush] = useState(false);
@@ -146,7 +145,6 @@ export function AdminBroadcastTab() {
       case 'dormant': return `Dormant (${dormantDays}+ days)`;
       case 'top_earners': return `Top ${topN} Earners`;
       case 'county': return selectedCounty || 'County';
-      case 'role': return selectedRole === 'ecodeveloper' ? 'EcoDevelopers' : 'EcoWarriors';
       default: return 'All';
     }
   };
@@ -260,16 +258,6 @@ export function AdminBroadcastTab() {
         const chunk = notifications.slice(i, i + 500);
         const { error } = await supabase.from('notifications').insert(chunk);
         if (error) throw error;
-      }
-
-      // Auto-post announcement to Agora Square
-      if (user) {
-        await supabase.from('posts').insert({
-          user_id: user.id,
-          user_name: user.name,
-          content: `📢 **${broadcastTitle.trim()}**\n\n${broadcastMessage.trim()}\n\n#Announcement #EcoSwarm`,
-          tags: ['Announcement', 'EcoSwarm'],
-        });
       }
 
       toast.success(`Broadcast sent to ${profiles.length} users!`);
@@ -403,7 +391,6 @@ export function AdminBroadcastTab() {
     { value: 'dormant', label: 'Dormant Users', icon: Clock, desc: 'Inactive for X days' },
     { value: 'top_earners', label: 'Top Earners', icon: Trophy, desc: 'Highest EcoPoints' },
     { value: 'county', label: 'By County', icon: MapPin, desc: 'Target specific county' },
-    { value: 'role', label: 'By Role', icon: Users, desc: 'EcoWarriors or EcoDevelopers' },
   ];
 
   return (

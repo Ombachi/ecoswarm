@@ -5,8 +5,6 @@ import { Loader2, Users, TrendingUp, Leaf, Mail, TreePine, ShoppingBag, Graduati
 interface Stats {
   totalUsers: number;
   totalEcoPoints: number;
-  totalLettersSent: number;
-  totalSwarmsCreated: number;
   totalProducts: number;
   totalTransactions: number;
   totalRevenue: number;
@@ -53,11 +51,10 @@ export function AdminAnalyticsTab() {
     let analyticsQuery = supabase.from('platform_analytics' as any).select('event_type, event_data, page');
     if (periodFilter) analyticsQuery = analyticsQuery.gte('created_at', periodFilter);
 
-    const [profilesRes, productsRes, txRes, swarmsRes, completionsRes, coursesRes, allCompletionsRes, commissionsRes, analyticsRes] = await Promise.all([
-      supabase.from('profiles').select('eco_points, letters_sent, co2_saved'),
+    const [profilesRes, productsRes, txRes, completionsRes, coursesRes, allCompletionsRes, commissionsRes, analyticsRes] = await Promise.all([
+      supabase.from('profiles').select('eco_points, co2_saved'),
       supabase.from('products').select('id', { count: 'exact', head: true }),
       supabase.from('transactions').select('total_price, status'),
-      supabase.from('swarms').select('id', { count: 'exact', head: true }),
       supabase.from('course_completions').select('id', { count: 'exact', head: true }),
       supabase.from('courses').select('id, title', { count: 'exact' }),
       supabase.from('course_completions').select('module_id'),
@@ -123,12 +120,10 @@ export function AdminAnalyticsTab() {
     setStats({
       totalUsers: profiles.length,
       totalEcoPoints: profiles.reduce((s, p) => s + (p.eco_points || 0), 0),
-      totalLettersSent: profiles.reduce((s, p) => s + (p.letters_sent || 0), 0),
       totalCO2Saved: profiles.reduce((s, p) => s + Number(p.co2_saved || 0), 0),
       totalProducts: productsRes.count || 0,
       totalTransactions: completedTx.length,
       totalRevenue: completedTx.reduce((s: number, t: any) => s + Number(t.total_price), 0),
-      totalSwarmsCreated: swarmsRes.count || 0,
       totalCourseCompletions: completionsRes.count || 0,
       totalCourses: coursesRes.count || 0,
       totalCommissions,
@@ -150,10 +145,8 @@ export function AdminAnalyticsTab() {
     { label: 'Transactions', value: stats.totalTransactions.toLocaleString(), icon: ShoppingBag, color: 'text-primary' },
     { label: 'Total Courses', value: stats.totalCourses.toLocaleString(), icon: BookOpen, color: 'text-primary' },
     { label: 'Course Completions', value: stats.totalCourseCompletions.toLocaleString(), icon: GraduationCap, color: 'text-violet-600' },
-    { label: 'Letters Sent', value: stats.totalLettersSent.toLocaleString(), icon: Mail, color: 'text-violet-600' },
     { label: 'CO₂ Saved (kg)', value: stats.totalCO2Saved.toLocaleString(), icon: TreePine, color: 'text-emerald-600' },
     { label: 'Products Listed', value: stats.totalProducts.toLocaleString(), icon: ShoppingBag, color: 'text-sky-600' },
-    { label: 'Swarms Created', value: stats.totalSwarmsCreated.toLocaleString(), icon: Users, color: 'text-amber-600' },
     { label: 'Page Views', value: stats.totalPageViews.toLocaleString(), icon: Eye, color: 'text-sky-600' },
     { label: 'Searches', value: stats.totalSearches.toLocaleString(), icon: SearchIcon, color: 'text-violet-600' },
     { label: 'User Actions', value: stats.totalActions.toLocaleString(), icon: MousePointer, color: 'text-amber-600' },

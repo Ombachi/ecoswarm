@@ -22,10 +22,10 @@ export default defineConfig(({ mode }) => ({
       devOptions: { enabled: false },
       includeAssets: ["pwa-icon-192.png", "pwa-icon-512.png", "og-image.png", "robots.txt"],
       manifest: {
-        name: "EcoSwarm - Your Digital Agora",
+        name: "EcoSwarm - Learn & Shop Sustainably",
         short_name: "EcoSwarm",
         description:
-          "Share stories, join swarms, send advocacy letters, and make your voice heard for Kenya's environment.",
+          "Take environmental courses and shop verified eco-products in Kenya's climate action marketplace.",
         theme_color: "#228B22",
         background_color: "#0f1f0f",
         display: "standalone",
@@ -75,25 +75,11 @@ export default defineConfig(({ mode }) => ({
         },
         shortcuts: [
           {
-            name: "EcoLetter Forge",
-            short_name: "Write Letter",
-            description: "Send advocacy letters to climate leaders",
-            url: "/tools?tab=letter",
-            icons: [{ src: "/shortcut-letter.png", sizes: "512x512", type: "image/png" }],
-          },
-          {
-            name: "The Agora",
-            short_name: "Feed",
-            description: "View climate stories and posts",
-            url: "/agora",
-            icons: [{ src: "/shortcut-agora.png", sizes: "512x512", type: "image/png" }],
-          },
-          {
-            name: "Join Swarms",
-            short_name: "Swarms",
-            description: "Join climate action campaigns",
-            url: "/swarms",
-            icons: [{ src: "/shortcut-swarms.png", sizes: "512x512", type: "image/png" }],
+            name: "Capacity Hub",
+            short_name: "Courses",
+            description: "Learn environmental skills and earn certificates",
+            url: "/tools",
+            icons: [{ src: "/pwa-icon-512.png", sizes: "512x512", type: "image/png" }],
           },
           {
             name: "Dashboard",
