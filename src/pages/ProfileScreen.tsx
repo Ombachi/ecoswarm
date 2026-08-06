@@ -9,13 +9,12 @@ import { SocialShareButtons } from '@/components/common/SocialShareButtons';
 import { MyCertificates } from '@/components/certificates/MyCertificates';
 import {
   Settings,
-  Mail,
   ShoppingBag,
-  MessageSquare,
   Share2,
   Sparkles,
   BookOpen,
   Edit,
+  Flame,
 } from 'lucide-react';
 
 export function ProfileScreen() {
@@ -23,7 +22,6 @@ export function ProfileScreen() {
   const { user, isSwahili } = useApp();
   usePageMeta('Profile', 'View your EcoSwarm profile, badges, stats, and environmental impact.');
   const [productCount, setProductCount] = useState(0);
-  const [isDeveloper, setIsDeveloper] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -32,13 +30,6 @@ export function ProfileScreen() {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .then(({ count }) => setProductCount(count || 0));
-    supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'ecodeveloper')
-      .maybeSingle()
-      .then(({ data }) => setIsDeveloper(!!data));
   }, [user]);
 
   if (!user) return null;
@@ -47,27 +38,21 @@ export function ProfileScreen() {
 
   const statItems = [
     {
-      icon: Mail,
-      value: user.stats.lettersSent,
-      label: isSwahili ? 'Barua Zilizotumwa' : 'Letters Sent',
-      color: 'text-secondary',
-    },
-    {
-      icon: MessageSquare,
-      value: user.stats.postsCreated,
-      label: isSwahili ? 'Hadithi Zilizoshirikiwa' : 'Stories Shared',
-      color: 'text-eco-gold',
-    },
-    ...(!isDeveloper ? [{
       icon: BookOpen,
       value: user.stats.coursesCompleted,
       label: isSwahili ? 'Kozi Zilizokamilika' : 'Courses Done',
       color: 'text-eco-orange',
-    }] : []),
+    },
+    {
+      icon: Flame,
+      value: user.streak,
+      label: isSwahili ? 'Siku za Mfululizo' : 'Day Streak',
+      color: 'text-eco-gold',
+    },
     {
       icon: ShoppingBag,
       value: productCount,
-      label: isSwahili ? 'Bidhaa' : 'Products Listed',
+      label: isSwahili ? 'Bidhaa' : 'Products',
       color: 'text-primary',
     },
   ];
@@ -139,9 +124,7 @@ export function ProfileScreen() {
               </div>
             </ProgressRing>
             <div className="flex-1">
-              <p className="font-semibold text-foreground mb-1">
-                Silver {isDeveloper ? 'EcoDeveloper' : 'EcoWarrior'}
-              </p>
+              <p className="font-semibold text-foreground mb-1">Silver EcoWarrior</p>
               <p className="text-sm text-muted-foreground mb-2">
                 750 more points to Gold
               </p>
@@ -193,7 +176,7 @@ export function ProfileScreen() {
             <SocialShareButtons
               url={`${window.location.origin}/u/${profileSlug}`}
               title={`🌍 I'm making waves on EcoSwarm!`}
-              text={`🏆 ${user.ecoPoints} EcoPoints earned | ✉️ ${user.stats.lettersSent} Letters sent | 📦 ${productCount} Products listed | 🔥 ${user.streak}-day streak!\n\nJoin Africa's Gen Z EcoWarriors movement! Create your impact profile now 👇`}
+              text={`🏆 ${user.ecoPoints} EcoPoints earned | 🎓 ${user.stats.coursesCompleted} Courses completed | 🔥 ${user.streak}-day streak!\n\nJoin Africa's Gen Z EcoWarriors movement! Create your impact profile now 👇`}
             />
           </div>
         </div>

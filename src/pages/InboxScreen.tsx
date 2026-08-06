@@ -21,8 +21,6 @@ export function InboxScreen() {
   usePageMeta('Inbox', 'Manage your EcoSwarm messages and product inquiries.');
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDeveloper, setIsDeveloper] = useState(false);
-  const [, setMyProductIds] = useState<string[]>([]);
   const [activeChat, setActiveChat] = useState<{
     productId: string;
     productName: string;
@@ -31,35 +29,10 @@ export function InboxScreen() {
   } | null>(null);
 
   useEffect(() => {
-    if (user) checkRoleAndLoad();
+    if (user) loadConversations();
   }, [user]);
 
-  const checkRoleAndLoad = async () => {
-    if (!user) return;
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'ecodeveloper')
-      .maybeSingle();
-    
-    const isDev = !!roleData;
-    setIsDeveloper(isDev);
-
-    let productIds: string[] = [];
-    if (isDev) {
-      const { data: products } = await supabase
-        .from('products')
-        .select('id')
-        .eq('user_id', user.id);
-      productIds = products?.map(p => p.id) || [];
-      setMyProductIds(productIds);
-    }
-
-    loadConversations(isDev, productIds);
-  };
-
-  const loadConversations = async (isDev: boolean, productIds: string[]) => {
+  const loadConversations = async () => {
     if (!user) return;
     setIsLoading(true);
     try {
@@ -71,11 +44,8 @@ export function InboxScreen() {
 
       if (error) throw error;
 
-      // For EcoDevelopers: ONLY show messages tied to their own products
-      // Filter by product_id being in their products list
-      const filtered = isDev
-        ? (messages || []).filter(msg => msg.product_id && productIds.includes(msg.product_id))
-        : (messages || []).filter(msg => msg.product_id); // Warriors: only product chats too
+      // Only product-related conversations the user takes part in
+      const filtered = (messages || []).filter(msg => msg.product_id);
 
       const convMap = new Map<string, Conversation>();
       for (const msg of filtered) {
