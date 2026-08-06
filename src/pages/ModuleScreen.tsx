@@ -5,7 +5,6 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Confetti } from '@/components/common/Confetti';
-import { SponsorBadge } from '@/components/sponsorship/SponsorBadge';
 import {
   ChevronLeft,
   ChevronRight,
@@ -125,7 +124,6 @@ export function ModuleScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [totalModules, setTotalModules] = useState(0);
   const [isLoadingModule, setIsLoadingModule] = useState(true);
-  const [sponsor, setSponsor] = useState<{ name: string; logo: string | null } | null>(null);
 
   // Fetch course, sections, and questions from database
   useEffect(() => {
