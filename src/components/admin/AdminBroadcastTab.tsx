@@ -86,7 +86,7 @@ export function AdminBroadcastTab() {
   // Preview segment count whenever filters change
   useEffect(() => {
     previewSegment();
-  }, [segment, selectedCounty, selectedRole, dormantDays, topN]);
+  }, [segment, selectedCounty, dormantDays, topN]);
 
   const buildSegmentQuery = async (): Promise<string[]> => {
     let userIds: string[] = [];
