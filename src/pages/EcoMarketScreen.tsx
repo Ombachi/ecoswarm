@@ -159,42 +159,8 @@ export function EcoMarketScreen() {
     setLightboxMedia({ url, type, rect });
   };
 
-  // Fetch premium sellers for priority listing
-  useEffect(() => {
-    supabase
-      .from('subscriptions')
-      .select('user_id')
-      .eq('plan', 'premium')
-      .eq('status', 'active')
-      .gt('expires_at', new Date().toISOString())
-      .then(({ data }) => {
-        if (data) setPremiumSellers(new Set(data.map(s => s.user_id)));
-      });
-  }, []);
-
   useEffect(() => {
     loadProducts();
-    if (user) {
-      supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'ecodeveloper')
-        .maybeSingle()
-        .then(({ data }) => {
-          setIsDeveloper(!!data);
-          if (data) {
-            supabase
-              .from('org_profiles')
-              .select('company_name')
-              .eq('user_id', user.id)
-              .maybeSingle()
-              .then(({ data: orgData }) => {
-                if (orgData) setOrgName(orgData.company_name);
-              });
-          }
-        });
-    }
   }, [categoryFilter, user]);
 
   const loadProducts = async (loadMore = false) => {
@@ -300,14 +266,7 @@ export function EcoMarketScreen() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Sort: premium sellers first, then by date
-  const sortedProducts = searchResults !== null ? searchResults : [...products].sort((a, b) => {
-    const aP = premiumSellers.has(a.user_id) ? 1 : 0;
-    const bP = premiumSellers.has(b.user_id) ? 1 : 0;
-    if (bP !== aP) return bP - aP;
-    return 0; // keep original order (by created_at)
-  });
-  const filteredProducts = sortedProducts;
+  const filteredProducts = searchResults !== null ? searchResults : products;
 
   const handleProductCreated = async (productData: {
     orgName: string;
@@ -360,29 +319,6 @@ export function EcoMarketScreen() {
           reference_id: (newProduct as any).id,
         },
       }).catch((e) => console.error('notify-new-content failed:', e?.message));
-
-      const badgeText = productData.badges.length > 0 ? productData.badges.join(' • ') : '';
-      const postContent = [
-        `🛒 New on EcoMarket!`,
-        ``,
-        `🏢 ${productData.orgName}`,
-        `📦 ${productData.productName}`,
-        ``,
-        productData.description,
-        ``,
-        `💰 KSh ${productData.price.toLocaleString()}`,
-        `📞 ${productData.contactPhone}`,
-        badgeText ? `\n🏷️ ${badgeText}` : '',
-      ].filter(Boolean).join('\n');
-
-      await supabase.from('posts').insert({
-        user_id: user.id,
-        user_name: user.name,
-        content: postContent,
-        media_url: productData.mediaUrl || null,
-        media_type: productData.mediaType || null,
-        tags: [productData.category.replace(/\s+/g, ''), 'EcoMarket', 'EcoProduct'],
-      });
 
       const { data: allProfiles } = await supabase
         .from('public_profiles')
