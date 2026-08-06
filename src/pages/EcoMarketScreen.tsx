@@ -60,7 +60,7 @@ const categoryFilters = [
 ];
 
 export function EcoMarketScreen() {
-  const { user, addPoints, showNotification, updateStats } = useApp();
+  const { user, addPoints, showNotification, updateStats, isAdmin } = useApp();
   const navigate = useNavigate();
   usePageMeta('EcoMarket', 'Browse and buy eco-friendly products and services from verified Kenyan green businesses.');
   const { processPurchase, isProcessing } = usePurchase();
@@ -70,8 +70,7 @@ export function EcoMarketScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [expandedDesc, setExpandedDesc] = useState<string | null>(null);
-  const [isDeveloper, setIsDeveloper] = useState(false);
-  const [orgName, setOrgName] = useState('');
+  const orgName = user?.name || 'EcoSwarm';
   const [trackedViews, setTrackedViews] = useState<Set<string>>(new Set());
   const [savedProducts, setSavedProducts] = useState<Set<string>>(new Set());
   const [mediaIndices, setMediaIndices] = useState<Record<string, number>>({});
@@ -84,7 +83,6 @@ export function EcoMarketScreen() {
   const [, setHasMore] = useState(true);
   const [, setLoadingMore] = useState(false);
   const [productCursor, setProductCursor] = useState<string | null>(null);
-  const [premiumSellers, setPremiumSellers] = useState<Set<string>>(new Set());
   const PRODUCT_PAGE_SIZE = 24;
 
   // Buy flow state
