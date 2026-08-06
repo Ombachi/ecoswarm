@@ -33,7 +33,7 @@ interface Poll {
   created_at: string;
 }
 
-type SegmentType = 'all' | 'dormant' | 'top_earners' | 'county' | 'role';
+type SegmentType = 'all' | 'dormant' | 'top_earners' | 'county';
 
 interface CampaignLog {
   id: string;
@@ -56,7 +56,6 @@ export function AdminBroadcastTab() {
   const [pushBody, setPushBody] = useState('');
   const [segment, setSegment] = useState<SegmentType>('all');
   const [selectedCounty, setSelectedCounty] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'ecowarrior' | 'ecodeveloper'>('ecowarrior');
   const [dormantDays, setDormantDays] = useState(7);
   const [topN, setTopN] = useState(50);
   const [isSendingPush, setIsSendingPush] = useState(false);
@@ -87,7 +86,7 @@ export function AdminBroadcastTab() {
   // Preview segment count whenever filters change
   useEffect(() => {
     previewSegment();
-  }, [segment, selectedCounty, selectedRole, dormantDays, topN]);
+  }, [segment, selectedCounty, dormantDays, topN]);
 
   const buildSegmentQuery = async (): Promise<string[]> => {
     let userIds: string[] = [];
@@ -117,12 +116,6 @@ export function AdminBroadcastTab() {
         .select('user_id')
         .eq('county', selectedCounty);
       userIds = (data || []).map(p => p.user_id);
-    } else if (segment === 'role') {
-      const { data } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', selectedRole);
-      userIds = (data || []).map(p => p.user_id);
     }
 
     return userIds;
@@ -146,7 +139,6 @@ export function AdminBroadcastTab() {
       case 'dormant': return `Dormant (${dormantDays}+ days)`;
       case 'top_earners': return `Top ${topN} Earners`;
       case 'county': return selectedCounty || 'County';
-      case 'role': return selectedRole === 'ecodeveloper' ? 'EcoDevelopers' : 'EcoWarriors';
       default: return 'All';
     }
   };
@@ -262,16 +254,6 @@ export function AdminBroadcastTab() {
         if (error) throw error;
       }
 
-      // Auto-post announcement to Agora Square
-      if (user) {
-        await supabase.from('posts').insert({
-          user_id: user.id,
-          user_name: user.name,
-          content: `📢 **${broadcastTitle.trim()}**\n\n${broadcastMessage.trim()}\n\n#Announcement #EcoSwarm`,
-          tags: ['Announcement', 'EcoSwarm'],
-        });
-      }
-
       toast.success(`Broadcast sent to ${profiles.length} users!`);
       setBroadcastTitle('');
       setBroadcastMessage('');
@@ -317,18 +299,6 @@ export function AdminBroadcastTab() {
         for (let i = 0; i < notifications.length; i += 500) {
           await supabase.from('notifications').insert(notifications.slice(i, i + 500));
         }
-      }
-
-      if (user) {
-        const emoji = newPollType === 'feedback' ? '📝' : newPollType === 'campaign' ? '🌍' : '📊';
-        const label = newPollType === 'feedback' ? 'Feedback Survey' : newPollType === 'campaign' ? 'Campaign' : 'New Poll';
-        const postContent = `${emoji} **${label}:** ${newPollTitle.trim()}\n\n${newPollDesc.trim() || 'Share your voice!'}\n\nVote below! 🗳️\n\n#Poll #EcoSwarm`;
-        await supabase.from('posts').insert({
-          user_id: user.id,
-          user_name: user.name,
-          content: postContent,
-          tags: ['Poll', 'EcoSwarm', ...(createdPollId ? [`poll_${createdPollId}`] : [])],
-        });
       }
 
       toast.success('Poll created & users notified!');
@@ -403,7 +373,6 @@ export function AdminBroadcastTab() {
     { value: 'dormant', label: 'Dormant Users', icon: Clock, desc: 'Inactive for X days' },
     { value: 'top_earners', label: 'Top Earners', icon: Trophy, desc: 'Highest EcoPoints' },
     { value: 'county', label: 'By County', icon: MapPin, desc: 'Target specific county' },
-    { value: 'role', label: 'By Role', icon: Users, desc: 'EcoWarriors or EcoDevelopers' },
   ];
 
   return (
@@ -504,25 +473,6 @@ export function AdminBroadcastTab() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        )}
-
-        {segment === 'role' && (
-          <div>
-            <label className="text-sm font-medium text-foreground mb-1 block">Select Role</label>
-            <div className="flex gap-2">
-              {(['ecowarrior', 'ecodeveloper'] as const).map(r => (
-                <button
-                  key={r}
-                  onClick={() => setSelectedRole(r)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    selectedRole === r ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                  }`}
-                >
-                  {r === 'ecowarrior' ? '🌍 EcoWarrior' : '🏢 EcoDeveloper'}
-                </button>
-              ))}
-            </div>
           </div>
         )}
 

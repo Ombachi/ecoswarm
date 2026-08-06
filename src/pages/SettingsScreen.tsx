@@ -77,13 +77,6 @@ export function SettingsScreen() {
           action: () => navigate('/edit-profile'),
           type: 'link' as const,
         },
-        {
-          icon: Shield,
-          label: 'Premium Subscription',
-          description: 'Upgrade for priority listings & lower fees',
-          action: () => navigate('/premium'),
-          type: 'link' as const,
-        },
         ...(isAdmin ? [{
           icon: Settings2,
           label: 'Admin Panel',

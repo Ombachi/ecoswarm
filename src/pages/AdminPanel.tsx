@@ -6,8 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import {
-  GraduationCap, Mail, Users, Shield, AlertTriangle, Wallet, DollarSign,
-  BarChart3, LogOut, Megaphone, Building2, Package, Truck, Loader2, Crown, FlaskConical, Home,
+  GraduationCap, Users, Shield, AlertTriangle, Wallet, DollarSign,
+  BarChart3, LogOut, Megaphone, Package, Truck, Loader2, FlaskConical, Home,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -18,19 +18,16 @@ import { AdminBroadcastTab } from '@/components/admin/AdminBroadcastTab';
 import { AdminMerchTab } from '@/components/admin/AdminMerchTab';
 import { AdminOrdersTab } from '@/components/admin/AdminOrdersTab';
 import { AdminCoursesTab } from '@/components/admin/AdminCoursesTab';
-import { AdminTemplatesTab } from '@/components/admin/AdminTemplatesTab';
 import { AdminDisputesTab } from '@/components/admin/AdminDisputesTab';
 import { AdminPayoutsTab } from '@/components/admin/AdminPayoutsTab';
 import { AdminTransactionsTab } from '@/components/admin/AdminTransactionsTab';
-import { AdminSponsorsTab } from '@/components/admin/AdminSponsorsTab';
-import { AdminSubscriptionsTab } from '@/components/admin/AdminSubscriptionsTab';
 import { AdminExperimentsTab } from '@/components/admin/AdminExperimentsTab';
 
 export function AdminPanel() {
   const navigate = useNavigate();
   const { user, isAdmin, logout } = useApp();
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(!isAdmin);
-  const [badgeCounts, setBadgeCounts] = useState({ disputes: 0, payouts: 0, sponsors: 0 });
+  const [badgeCounts, setBadgeCounts] = useState({ disputes: 0, payouts: 0 });
 
   useEffect(() => {
     if (isAdmin) {
@@ -46,15 +43,13 @@ export function AdminPanel() {
   }, [user, isAdmin]);
 
   const loadBadgeCounts = async () => {
-    const [d, p, s] = await Promise.all([
+    const [d, p] = await Promise.all([
       supabase.from('transaction_disputes').select('id', { count: 'exact', head: true }).eq('status', 'open'),
       supabase.from('seller_payouts').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-      supabase.from('course_sponsorships').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     ]);
     setBadgeCounts({
       disputes: d.count || 0,
       payouts: p.count || 0,
-      sponsors: s.count || 0,
     });
   };
 
@@ -112,13 +107,10 @@ export function AdminPanel() {
               { value: 'analytics', icon: BarChart3, label: 'Analytics', badge: 0 },
               { value: 'users', icon: Users, label: 'Users', badge: 0 },
               { value: 'courses', icon: GraduationCap, label: 'Courses', badge: 0 },
-              { value: 'templates', icon: Mail, label: 'Letters', badge: 0 },
               { value: 'disputes', icon: AlertTriangle, label: 'Disputes', badge: badgeCounts.disputes },
               { value: 'payouts', icon: Wallet, label: 'Payouts', badge: badgeCounts.payouts },
               { value: 'transactions', icon: DollarSign, label: 'Txns', badge: 0 },
               { value: 'broadcast', icon: Megaphone, label: 'Broadcast', badge: 0 },
-              { value: 'sponsors', icon: Building2, label: 'Sponsors', badge: badgeCounts.sponsors },
-              { value: 'subscriptions', icon: Crown, label: 'Premium', badge: 0 },
               { value: 'merch', icon: Package, label: 'Merch', badge: 0 },
               { value: 'orders', icon: Truck, label: 'Orders', badge: 0 },
               { value: 'experiments', icon: FlaskConical, label: 'A/B Tests', badge: 0 },
@@ -140,13 +132,10 @@ export function AdminPanel() {
           <TabsContent value="analytics"><AdminAnalyticsTab /></TabsContent>
           <TabsContent value="users"><AdminUsersTab /></TabsContent>
           <TabsContent value="courses"><AdminCoursesTab /></TabsContent>
-          <TabsContent value="templates"><AdminTemplatesTab /></TabsContent>
           <TabsContent value="disputes"><AdminDisputesTab /></TabsContent>
           <TabsContent value="payouts"><AdminPayoutsTab /></TabsContent>
           <TabsContent value="transactions"><AdminTransactionsTab /></TabsContent>
           <TabsContent value="broadcast"><AdminBroadcastTab /></TabsContent>
-          <TabsContent value="sponsors"><AdminSponsorsTab /></TabsContent>
-          <TabsContent value="subscriptions"><AdminSubscriptionsTab /></TabsContent>
           <TabsContent value="merch"><AdminMerchTab /></TabsContent>
           <TabsContent value="orders"><AdminOrdersTab /></TabsContent>
           <TabsContent value="experiments"><AdminExperimentsTab /></TabsContent>

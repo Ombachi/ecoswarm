@@ -5,7 +5,6 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Confetti } from '@/components/common/Confetti';
-import { SponsorBadge } from '@/components/sponsorship/SponsorBadge';
 import {
   ChevronLeft,
   ChevronRight,
@@ -125,7 +124,6 @@ export function ModuleScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [totalModules, setTotalModules] = useState(0);
   const [isLoadingModule, setIsLoadingModule] = useState(true);
-  const [sponsor, setSponsor] = useState<{ name: string; logo: string | null } | null>(null);
 
   // Fetch course, sections, and questions from database
   useEffect(() => {
@@ -133,12 +131,11 @@ export function ModuleScreen() {
       if (!moduleId) return;
       setIsLoadingModule(true);
 
-      const [courseRes, sectionsRes, questionsRes, countRes, sponsorRes] = await Promise.all([
+      const [courseRes, sectionsRes, questionsRes, countRes] = await Promise.all([
         supabase.from('courses').select('*').eq('id', moduleId).maybeSingle(),
         supabase.from('course_sections').select('*').eq('course_id', moduleId).order('sort_order'),
         supabase.from('course_questions').select('*').eq('course_id', moduleId).order('sort_order'),
         supabase.from('courses').select('id', { count: 'exact', head: true }),
-        supabase.from('course_sponsorships').select('sponsor_name, sponsor_logo_url').eq('course_id', moduleId).eq('status', 'approved').maybeSingle(),
       ]);
 
       if (courseRes.data) {
@@ -157,9 +154,6 @@ export function ModuleScreen() {
         options: q.options as unknown as string[],
       })));
       setTotalModules(countRes.count || 0);
-      if (sponsorRes.data) {
-        setSponsor({ name: sponsorRes.data.sponsor_name, logo: sponsorRes.data.sponsor_logo_url });
-      }
       setIsLoadingModule(false);
     };
     fetchCourse();
@@ -293,11 +287,6 @@ export function ModuleScreen() {
           <div className="flex-1">
             <h1 className="text-lg font-bold text-foreground">{module.title}</h1>
             <p className="text-xs text-muted-foreground">{module.category} • {module.duration}</p>
-            {sponsor && (
-              <div className="mt-1">
-                <SponsorBadge sponsorName={sponsor.name} logoUrl={sponsor.logo} />
-              </div>
-            )}
           </div>
         </div>
 

@@ -93,7 +93,6 @@ export function AdminUsersTab() {
 
   const roleColor = (role?: string) => {
     if (role === 'admin') return 'bg-destructive/10 text-destructive';
-    if (role === 'ecodeveloper') return 'bg-primary/10 text-primary';
     return 'bg-muted text-muted-foreground';
   };
 
@@ -147,7 +146,7 @@ export function AdminUsersTab() {
                 <DropdownMenuItem disabled={u.role === 'ecowarrior'} onClick={() => runAction(u, 'set_role', 'ecowarrior')}>
                   EcoWarrior
                 </DropdownMenuItem>
-                <DropdownMenuItem disabled={u.role === 'ecodeveloper'} onClick={() => runAction(u, 'set_role', 'ecodeveloper')}>
+                <DropdownMenuItem disabled={u.role === 'admin'} onClick={() => runAction(u, 'set_role', 'admin')}>
                   EcoDeveloper
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled={u.role === 'admin'} onClick={() => runAction(u, 'set_role', 'admin')}>

@@ -44,7 +44,6 @@ const EcoMerchScreen = lazy(() => import("@/pages/EcoMerchScreen").then(m => ({ 
 const PurchasesScreen = lazy(() => import("@/pages/PurchasesScreen").then(m => ({ default: m.PurchasesScreen })));
 const EarningsScreen = lazy(() => import("@/pages/EarningsScreen").then(m => ({ default: m.EarningsScreen })));
 const CertificateVerifyScreen = lazy(() => import("@/pages/CertificateVerifyScreen").then(m => ({ default: m.CertificateVerifyScreen })));
-const SubscriptionScreen = lazy(() => import("@/pages/SubscriptionScreen").then(m => ({ default: m.SubscriptionScreen })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -121,7 +120,6 @@ function AppRoutes() {
             <Route path="/merch" element={<ErrorBoundary>{authedRoute(<EcoMerchScreen />)}</ErrorBoundary>} />
             <Route path="/purchases" element={<ErrorBoundary>{authedRoute(<PurchasesScreen />)}</ErrorBoundary>} />
             <Route path="/earnings" element={<ErrorBoundary>{authedRoute(<EarningsScreen />)}</ErrorBoundary>} />
-            <Route path="/premium" element={<ErrorBoundary>{authedRoute(<SubscriptionScreen />)}</ErrorBoundary>} />
             <Route path="/admin" element={<ErrorBoundary>{requireAuthed(<AdminPanel />)}</ErrorBoundary>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

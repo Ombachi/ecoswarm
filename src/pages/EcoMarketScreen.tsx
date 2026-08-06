@@ -60,7 +60,7 @@ const categoryFilters = [
 ];
 
 export function EcoMarketScreen() {
-  const { user, addPoints, showNotification, updateStats } = useApp();
+  const { user, addPoints, showNotification, updateStats, isAdmin } = useApp();
   const navigate = useNavigate();
   usePageMeta('EcoMarket', 'Browse and buy eco-friendly products and services from verified Kenyan green businesses.');
   const { processPurchase, isProcessing } = usePurchase();
@@ -70,8 +70,7 @@ export function EcoMarketScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [expandedDesc, setExpandedDesc] = useState<string | null>(null);
-  const [isDeveloper, setIsDeveloper] = useState(false);
-  const [orgName, setOrgName] = useState('');
+  const orgName = user?.name || 'EcoSwarm';
   const [trackedViews, setTrackedViews] = useState<Set<string>>(new Set());
   const [savedProducts, setSavedProducts] = useState<Set<string>>(new Set());
   const [mediaIndices, setMediaIndices] = useState<Record<string, number>>({});
@@ -84,7 +83,6 @@ export function EcoMarketScreen() {
   const [, setHasMore] = useState(true);
   const [, setLoadingMore] = useState(false);
   const [productCursor, setProductCursor] = useState<string | null>(null);
-  const [premiumSellers, setPremiumSellers] = useState<Set<string>>(new Set());
   const PRODUCT_PAGE_SIZE = 24;
 
   // Buy flow state
@@ -161,42 +159,8 @@ export function EcoMarketScreen() {
     setLightboxMedia({ url, type, rect });
   };
 
-  // Fetch premium sellers for priority listing
-  useEffect(() => {
-    supabase
-      .from('subscriptions')
-      .select('user_id')
-      .eq('plan', 'premium')
-      .eq('status', 'active')
-      .gt('expires_at', new Date().toISOString())
-      .then(({ data }) => {
-        if (data) setPremiumSellers(new Set(data.map(s => s.user_id)));
-      });
-  }, []);
-
   useEffect(() => {
     loadProducts();
-    if (user) {
-      supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'ecodeveloper')
-        .maybeSingle()
-        .then(({ data }) => {
-          setIsDeveloper(!!data);
-          if (data) {
-            supabase
-              .from('org_profiles')
-              .select('company_name')
-              .eq('user_id', user.id)
-              .maybeSingle()
-              .then(({ data: orgData }) => {
-                if (orgData) setOrgName(orgData.company_name);
-              });
-          }
-        });
-    }
   }, [categoryFilter, user]);
 
   const loadProducts = async (loadMore = false) => {
@@ -302,14 +266,7 @@ export function EcoMarketScreen() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Sort: premium sellers first, then by date
-  const sortedProducts = searchResults !== null ? searchResults : [...products].sort((a, b) => {
-    const aP = premiumSellers.has(a.user_id) ? 1 : 0;
-    const bP = premiumSellers.has(b.user_id) ? 1 : 0;
-    if (bP !== aP) return bP - aP;
-    return 0; // keep original order (by created_at)
-  });
-  const filteredProducts = sortedProducts;
+  const filteredProducts = searchResults !== null ? searchResults : products;
 
   const handleProductCreated = async (productData: {
     orgName: string;
@@ -362,29 +319,6 @@ export function EcoMarketScreen() {
           reference_id: (newProduct as any).id,
         },
       }).catch((e) => console.error('notify-new-content failed:', e?.message));
-
-      const badgeText = productData.badges.length > 0 ? productData.badges.join(' • ') : '';
-      const postContent = [
-        `🛒 New on EcoMarket!`,
-        ``,
-        `🏢 ${productData.orgName}`,
-        `📦 ${productData.productName}`,
-        ``,
-        productData.description,
-        ``,
-        `💰 KSh ${productData.price.toLocaleString()}`,
-        `📞 ${productData.contactPhone}`,
-        badgeText ? `\n🏷️ ${badgeText}` : '',
-      ].filter(Boolean).join('\n');
-
-      await supabase.from('posts').insert({
-        user_id: user.id,
-        user_name: user.name,
-        content: postContent,
-        media_url: productData.mediaUrl || null,
-        media_type: productData.mediaType || null,
-        tags: [productData.category.replace(/\s+/g, ''), 'EcoMarket', 'EcoProduct'],
-      });
 
       const { data: allProfiles } = await supabase
         .from('public_profiles')
@@ -506,7 +440,7 @@ export function EcoMarketScreen() {
             <h1 className="text-xl font-bold text-foreground">EcoMarket</h1>
             <p className="text-xs text-muted-foreground">Eco-friendly products & services</p>
           </div>
-          {isDeveloper && (
+          {isAdmin && (
             <button
               onClick={() => setShowCreateModal(true)}
               className="eco-button-primary py-2 px-4 text-sm flex items-center gap-1"
@@ -632,11 +566,6 @@ export function EcoMarketScreen() {
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-primary flex items-center gap-1">
                           {product.org_name}
-                          {premiumSellers.has(product.user_id) && (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold">
-                              <ShieldCheck className="w-3 h-3" /> Verified
-                            </span>
-                          )}
                         </p>
                         <h3 className="text-lg font-bold text-foreground leading-tight">{product.product_name}</h3>
                       </div>
@@ -750,7 +679,7 @@ export function EcoMarketScreen() {
           </div>
 
           {/* Floating Create Button */}
-          {isDeveloper && (
+          {isAdmin && (
             <button onClick={() => setShowCreateModal(true)} className="eco-floating-button animate-pulse-glow" aria-label="List a new product">
               <Plus className="w-6 h-6" />
             </button>

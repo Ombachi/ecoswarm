@@ -29,12 +29,11 @@ serve(async (req) => {
     const endStr = now.toLocaleDateString("en-KE", { month: "short", day: "numeric", year: "numeric" });
 
     // Gather weekly stats
-    const [newWarriors, coursesCompleted, lettersSent, productsSold, newSwarms] = await Promise.all([
+    const [newWarriors, coursesCompleted, productsSold, newCourses] = await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", startISO),
       supabase.from("course_completions").select("id", { count: "exact", head: true }).gte("completed_at", startISO),
-      supabase.from("posts").select("id", { count: "exact", head: true }).contains("tags", ["EcoLetter"]).gte("created_at", startISO),
       supabase.from("transactions").select("id", { count: "exact", head: true }).eq("status", "completed").gte("created_at", startISO),
-      supabase.from("swarms").select("id, name, participants").gte("created_at", startISO).limit(5),
+      supabase.from("courses").select("id, title").gte("created_at", startISO).limit(5),
     ]);
 
     // Top products this week
@@ -43,13 +42,6 @@ serve(async (req) => {
       .select("product_name, org_name, price")
       .gte("created_at", startISO)
       .order("created_at", { ascending: false })
-      .limit(3);
-
-    // Leaderboard top 3
-    const { data: leaderboard } = await supabase
-      .from("leaderboard")
-      .select("name, eco_points")
-      .order("eco_points", { ascending: false })
       .limit(3);
 
     // Get dormant users (inactive 7+ days but have email)
@@ -78,19 +70,14 @@ serve(async (req) => {
       });
     }
 
-    // Build swarm highlights
-    const swarmHighlights = (newSwarms?.data || [])
-      .map((s: any) => `<li>🐝 <strong>${s.name}</strong> — ${s.participants || 0} members</li>`)
+    // Build course highlights
+    const courseHighlights = (newCourses?.data || [])
+      .map((c: any) => `<li>🎓 <strong>${c.title}</strong></li>`)
       .join("");
 
     // Build product highlights
     const productHighlights = (topProducts || [])
       .map((p) => `<li>🛍️ <strong>${p.product_name}</strong> by ${p.org_name} — KSh ${p.price}</li>`)
-      .join("");
-
-    // Build leaderboard
-    const leaderboardHtml = (leaderboard || [])
-      .map((u, i) => `<li>${["🥇", "🥈", "🥉"][i]} ${u.name} — ${(u.eco_points || 0).toLocaleString()} pts</li>`)
       .join("");
 
     let sentCount = 0;
@@ -133,30 +120,20 @@ serve(async (req) => {
       <tr><td colspan="3" style="height:8px;"></td></tr>
       <tr>
         <td style="padding:12px;background:#f0fdf4;border-radius:8px;text-align:center;">
-          <div style="font-size:28px;font-weight:bold;color:#16a34a;">${lettersSent?.count || 0}</div>
-          <div style="font-size:12px;color:#6b7280;">Letters Sent</div>
-        </td>
-        <td style="width:8px;"></td>
-        <td style="padding:12px;background:#f0fdf4;border-radius:8px;text-align:center;">
           <div style="font-size:28px;font-weight:bold;color:#16a34a;">${productsSold?.count || 0}</div>
           <div style="font-size:12px;color:#6b7280;">Products Sold</div>
         </td>
       </tr>
     </table>
 
-    ${swarmHighlights ? `
-    <h2 style="color:#16a34a;font-size:18px;margin-top:20px;">🐝 New Swarms</h2>
-    <ul style="padding-left:20px;color:#374151;">${swarmHighlights}</ul>
+    ${courseHighlights ? `
+    <h2 style="color:#16a34a;font-size:18px;margin-top:20px;">🎓 New Courses</h2>
+    <ul style="padding-left:20px;color:#374151;">${courseHighlights}</ul>
     ` : ""}
 
     ${productHighlights ? `
     <h2 style="color:#16a34a;font-size:18px;margin-top:20px;">🛒 Marketplace Highlights</h2>
     <ul style="padding-left:20px;color:#374151;">${productHighlights}</ul>
-    ` : ""}
-
-    ${leaderboardHtml ? `
-    <h2 style="color:#16a34a;font-size:18px;margin-top:20px;">🏆 Top EcoWarriors</h2>
-    <ul style="padding-left:20px;color:#374151;list-style:none;">${leaderboardHtml}</ul>
     ` : ""}
 
     <div style="text-align:center;margin-top:24px;">

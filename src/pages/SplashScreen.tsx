@@ -40,7 +40,7 @@ export function SplashScreen() {
   }, []);
 
   const handleGetStarted = () => {
-    navigate("/role-select");
+    navigate("/signup");
   };
 
   const handleLogout = async () => {

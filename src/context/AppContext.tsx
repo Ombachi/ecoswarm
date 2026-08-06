@@ -103,51 +103,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   };
 
-  // Track whether we've already created a welcome post in this session
-  const welcomePostCreatedRef = React.useRef<Set<string>>(new Set());
-
-  const createWelcomePost = async (userId: string, userName: string, role?: string) => {
-    // Prevent duplicate welcome posts in same session
-    if (welcomePostCreatedRef.current.has(userId)) return;
-    welcomePostCreatedRef.current.add(userId);
-
-    try {
-      // Check if welcome post already exists in DB
-      const { data: existing } = await supabase
-        .from('posts')
-        .select('id')
-        .eq('user_id', userId)
-        .contains('tags', ['welcome_post'])
-        .maybeSingle();
-
-      if (existing) return;
-
-      const roleName = role === 'ecodeveloper' ? 'EcoDeveloper' : 'EcoWarrior';
-      const roleTag = role === 'ecodeveloper' ? 'ecodeveloper' : 'ecowarrior';
-      const content = `🌟 A new ${roleName} just joined! Welcome @${userName}! Let's show them some love in the comments 💚`;
-
-      await supabase.from('posts').insert({
-        user_id: userId,
-        user_name: userName,
-        content,
-        tags: ['welcome_post', roleTag, `welcome_user_${userName}`],
-      });
-
-      // Enqueue fan-out — a background worker will batch-insert notifications.
-      // This avoids blocking signup with thousands of synchronous inserts.
-      await supabase.from('notification_fanout_queue').insert({
-        type: 'welcome',
-        title: '🎉 A new member just joined the Swarm!',
-        message: `Welcome @${userName} — our newest ${roleName}! Say hi in the Agora!`,
-        exclude_user_id: userId,
-      });
-    } catch (e) {
-      // If it failed, allow retry
-      welcomePostCreatedRef.current.delete(userId);
-      console.warn('createWelcomePost: failed', e);
-    }
-  };
-
   const ensureFirstStepsBadgeExists = async (userId: string) => {
     // Make this idempotent at the DB layer so the badge can't be "missed"
     // due to UI timing/race conditions.
@@ -233,7 +188,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const existing = await fetchUserProfile(authUser.id);
     if (existing) {
       // Profile exists — still ensure role & badge exist (they may have failed during signup)
-      await ensureRoleExists(authUser.id, authUser.user_metadata?.role);
+      await ensureRoleExists(authUser.id);
       return existing;
     }
 
@@ -260,17 +215,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     // Ensure role and badge exist for newly created profiles
-    await ensureRoleExists(authUser.id, authUser.user_metadata?.role);
+    await ensureRoleExists(authUser.id);
     await ensureFirstStepsBadgeExists(authUser.id);
-
-    // Create welcome post for new user
-    await createWelcomePost(authUser.id, fallbackName, authUser.user_metadata?.role);
 
     // Re-fetch after insert
     return await fetchUserProfile(authUser.id);
   };
 
-  const ensureRoleExists = async (userId: string, metaRole?: string) => {
+  const ensureRoleExists = async (userId: string) => {
     try {
       const { data: existingRole } = await supabase
         .from('user_roles')
@@ -280,10 +232,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       if (existingRole) return;
 
-      const role = (metaRole === 'ecodeveloper' ? 'ecodeveloper' : 'ecowarrior') as any;
       const { error } = await supabase.from('user_roles').insert({
         user_id: userId,
-        role,
+        role: 'ecowarrior' as any,
       });
 
       if (error && !error.message.toLowerCase().includes('duplicate')) {
@@ -352,7 +303,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Ensure First Steps badge exists on first sign-in.
       if (event === 'SIGNED_IN') {
         await ensureFirstStepsBadgeExists(authUser.id);
-        await ensureRoleExists(authUser.id, authUser.user_metadata?.role);
+        await ensureRoleExists(authUser.id);
       }
 
       const badges = await fetchUserBadges(authUser.id);

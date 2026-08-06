@@ -31,7 +31,7 @@ import { StackedFeatures } from "@/components/landing/StackedFeatures";
 const stats = [
   { icon: Users, label: "Active Eco-Warriors", value: "100+" },
   { icon: TreePine, label: "Ecoproducts Listed", value: "10+" },
-  { icon: Megaphone, label: "Ecoletters Forged", value: "50+" },
+  { icon: Megaphone, label: "Certificates Earned", value: "50+" },
   { icon: BookOpen, label: "Courses Completed", value: "100+" },
 ];
 
@@ -152,7 +152,7 @@ export function LandingPage() {
 
   usePageMeta(
     'Digital Agora for Climate Action',
-    "EcoSwarm is Kenya's digital agora for climate action. Discover sustainable products, learn environmental skills, and join community swarms.",
+    "EcoSwarm is Kenya's digital agora for climate action. Discover sustainable products and learn environmental skills.",
   );
 
   const scrollTo = (id: string) => {
@@ -193,7 +193,7 @@ export function LandingPage() {
             </Button>
             <Button
               size="sm"
-              onClick={() => navigate("/role-select")}
+              onClick={() => navigate("/signup")}
               className="eco-gradient-bg text-primary-foreground border-0"
             >
               Get Started
@@ -433,7 +433,7 @@ export function LandingPage() {
                   <span className="text-foreground text-sm">
                     <strong>EcoSwarm empowers you to see the issues,name them,and do something about them.</strong>{" "}
                     Discover eco-products in our directory, earn EcoPoints for actions, and watch your efforts amplify
-                    through swarms that turn one voice into thousands.
+                    through learning that turns knowledge into everyday action.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -617,7 +617,7 @@ export function LandingPage() {
             <div className="flex flex-wrap justify-center gap-3">
               <Button
                 size="lg"
-                onClick={() => navigate("/role-select")}
+                onClick={() => navigate("/signup")}
                 className="bg-card text-primary hover:bg-card/90 border-0 gap-2 font-bold"
               >
                 Get Started Free <ArrowRight className="w-4 h-4" />
