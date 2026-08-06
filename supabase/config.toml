@@ -3,9 +3,6 @@ project_id = "ztmmwxfnkydhjdxmdueg"
 [functions.send-feedback]
 verify_jwt = false
 
-[functions.send-ecoletter]
-verify_jwt = false
-
 [functions.send-push]
 verify_jwt = false
 
@@ -21,14 +18,9 @@ verify_jwt = false
 [functions.process-payout]
 verify_jwt = false
 
-[functions.subscription-reminders]
-verify_jwt = false
-
 [functions.send-seller-onboarding]
 verify_jwt = false
 
-[functions.ingest-climate-news]
-verify_jwt = false
 
 [functions.admin-user-actions]
 verify_jwt = false

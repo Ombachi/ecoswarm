@@ -6,8 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import {
-  GraduationCap, Mail, Users, Shield, AlertTriangle, Wallet, DollarSign,
-  BarChart3, LogOut, Megaphone, Building2, Package, Truck, Loader2, Crown, FlaskConical, Home,
+  GraduationCap, Users, Shield, AlertTriangle, Wallet, DollarSign,
+  BarChart3, LogOut, Megaphone, Package, Truck, Loader2, FlaskConical, Home,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -18,19 +18,16 @@ import { AdminBroadcastTab } from '@/components/admin/AdminBroadcastTab';
 import { AdminMerchTab } from '@/components/admin/AdminMerchTab';
 import { AdminOrdersTab } from '@/components/admin/AdminOrdersTab';
 import { AdminCoursesTab } from '@/components/admin/AdminCoursesTab';
-import { AdminTemplatesTab } from '@/components/admin/AdminTemplatesTab';
 import { AdminDisputesTab } from '@/components/admin/AdminDisputesTab';
 import { AdminPayoutsTab } from '@/components/admin/AdminPayoutsTab';
 import { AdminTransactionsTab } from '@/components/admin/AdminTransactionsTab';
-import { AdminSponsorsTab } from '@/components/admin/AdminSponsorsTab';
-import { AdminSubscriptionsTab } from '@/components/admin/AdminSubscriptionsTab';
 import { AdminExperimentsTab } from '@/components/admin/AdminExperimentsTab';
 
 export function AdminPanel() {
   const navigate = useNavigate();
   const { user, isAdmin, logout } = useApp();
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(!isAdmin);
-  const [badgeCounts, setBadgeCounts] = useState({ disputes: 0, payouts: 0, sponsors: 0 });
+  const [badgeCounts, setBadgeCounts] = useState({ disputes: 0, payouts: 0 });
 
   useEffect(() => {
     if (isAdmin) {
@@ -46,15 +43,13 @@ export function AdminPanel() {
   }, [user, isAdmin]);
 
   const loadBadgeCounts = async () => {
-    const [d, p, s] = await Promise.all([
+    const [d, p] = await Promise.all([
       supabase.from('transaction_disputes').select('id', { count: 'exact', head: true }).eq('status', 'open'),
       supabase.from('seller_payouts').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-      supabase.from('course_sponsorships').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     ]);
     setBadgeCounts({
       disputes: d.count || 0,
       payouts: p.count || 0,
-      sponsors: s.count || 0,
     });
   };
 
