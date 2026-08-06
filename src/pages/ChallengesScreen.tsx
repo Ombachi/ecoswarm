@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Confetti } from '@/components/common/Confetti';
 import { EcoPointsBadge } from '@/components/common/EcoPointsBadge';
-import { Trophy, CheckCircle, ChevronRight, Loader2, ShieldAlert } from 'lucide-react';
+import { Trophy, CheckCircle, ChevronRight, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Challenge {
@@ -25,27 +25,12 @@ export function ChallengesScreen() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showConfetti] = useState(false);
-  const [isDeveloper, setIsDeveloper] = useState(false);
-  const [roleChecked, setRoleChecked] = useState(false);
 
   useEffect(() => {
     if (user) {
-      checkRole();
       loadChallenges();
     }
   }, [user]);
-
-  const checkRole = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'ecodeveloper')
-      .maybeSingle();
-    setIsDeveloper(!!data);
-    setRoleChecked(true);
-  };
 
   const loadChallenges = async () => {
     if (!user) return;
@@ -73,11 +58,8 @@ export function ChallengesScreen() {
 
   const getRoute = (actionType: string | null) => {
     switch (actionType) {
-      case 'post': return '/agora';
-      case 'engage': return '/agora';
       case 'ecomarket': return '/ecomarket';
       case 'inbox': return '/inbox';
-      case 'letter': return '/tools';
       case 'module': return '/tools';
       default: return '/dashboard';
     }
@@ -88,24 +70,6 @@ export function ChallengesScreen() {
     toast.info(`🎯 ${challenge.title} — Complete to earn ${challenge.points} pts!`);
     navigate(getRoute(challenge.action_type));
   };
-
-  // Block EcoDevelopers from accessing challenges
-  if (roleChecked && isDeveloper) {
-    return (
-      <AppLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 text-center">
-          <ShieldAlert className="w-16 h-16 text-muted-foreground mb-4" />
-          <h2 className="text-xl font-bold text-foreground mb-2">EcoWarrior Exclusive</h2>
-          <p className="text-muted-foreground mb-6">
-            Challenges are exclusively for EcoWarriors to earn EcoPoints through planet-positive actions.
-          </p>
-          <button onClick={() => navigate('/dashboard')} className="eco-button-primary py-3 px-6">
-            Back to Dashboard
-          </button>
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <AppLayout>
