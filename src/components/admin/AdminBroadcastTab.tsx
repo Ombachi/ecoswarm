@@ -116,12 +116,6 @@ export function AdminBroadcastTab() {
         .select('user_id')
         .eq('county', selectedCounty);
       userIds = (data || []).map(p => p.user_id);
-    } else if (segment === 'role') {
-      const { data } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', selectedRole);
-      userIds = (data || []).map(p => p.user_id);
     }
 
     return userIds;
@@ -307,18 +301,6 @@ export function AdminBroadcastTab() {
         }
       }
 
-      if (user) {
-        const emoji = newPollType === 'feedback' ? '📝' : newPollType === 'campaign' ? '🌍' : '📊';
-        const label = newPollType === 'feedback' ? 'Feedback Survey' : newPollType === 'campaign' ? 'Campaign' : 'New Poll';
-        const postContent = `${emoji} **${label}:** ${newPollTitle.trim()}\n\n${newPollDesc.trim() || 'Share your voice!'}\n\nVote below! 🗳️\n\n#Poll #EcoSwarm`;
-        await supabase.from('posts').insert({
-          user_id: user.id,
-          user_name: user.name,
-          content: postContent,
-          tags: ['Poll', 'EcoSwarm', ...(createdPollId ? [`poll_${createdPollId}`] : [])],
-        });
-      }
-
       toast.success('Poll created & users notified!');
       setShowCreatePoll(false);
       setNewPollTitle('');
@@ -491,25 +473,6 @@ export function AdminBroadcastTab() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        )}
-
-        {segment === 'role' && (
-          <div>
-            <label className="text-sm font-medium text-foreground mb-1 block">Select Role</label>
-            <div className="flex gap-2">
-              {(['ecowarrior', 'ecodeveloper'] as const).map(r => (
-                <button
-                  key={r}
-                  onClick={() => setSelectedRole(r)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    selectedRole === r ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                  }`}
-                >
-                  {r === 'ecowarrior' ? '🌍 EcoWarrior' : '🏢 EcoDeveloper'}
-                </button>
-              ))}
-            </div>
           </div>
         )}
 
