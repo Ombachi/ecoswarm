@@ -112,13 +112,10 @@ export function AdminPanel() {
               { value: 'analytics', icon: BarChart3, label: 'Analytics', badge: 0 },
               { value: 'users', icon: Users, label: 'Users', badge: 0 },
               { value: 'courses', icon: GraduationCap, label: 'Courses', badge: 0 },
-              { value: 'templates', icon: Mail, label: 'Letters', badge: 0 },
               { value: 'disputes', icon: AlertTriangle, label: 'Disputes', badge: badgeCounts.disputes },
               { value: 'payouts', icon: Wallet, label: 'Payouts', badge: badgeCounts.payouts },
               { value: 'transactions', icon: DollarSign, label: 'Txns', badge: 0 },
               { value: 'broadcast', icon: Megaphone, label: 'Broadcast', badge: 0 },
-              { value: 'sponsors', icon: Building2, label: 'Sponsors', badge: badgeCounts.sponsors },
-              { value: 'subscriptions', icon: Crown, label: 'Premium', badge: 0 },
               { value: 'merch', icon: Package, label: 'Merch', badge: 0 },
               { value: 'orders', icon: Truck, label: 'Orders', badge: 0 },
               { value: 'experiments', icon: FlaskConical, label: 'A/B Tests', badge: 0 },
@@ -140,13 +137,10 @@ export function AdminPanel() {
           <TabsContent value="analytics"><AdminAnalyticsTab /></TabsContent>
           <TabsContent value="users"><AdminUsersTab /></TabsContent>
           <TabsContent value="courses"><AdminCoursesTab /></TabsContent>
-          <TabsContent value="templates"><AdminTemplatesTab /></TabsContent>
           <TabsContent value="disputes"><AdminDisputesTab /></TabsContent>
           <TabsContent value="payouts"><AdminPayoutsTab /></TabsContent>
           <TabsContent value="transactions"><AdminTransactionsTab /></TabsContent>
           <TabsContent value="broadcast"><AdminBroadcastTab /></TabsContent>
-          <TabsContent value="sponsors"><AdminSponsorsTab /></TabsContent>
-          <TabsContent value="subscriptions"><AdminSubscriptionsTab /></TabsContent>
           <TabsContent value="merch"><AdminMerchTab /></TabsContent>
           <TabsContent value="orders"><AdminOrdersTab /></TabsContent>
           <TabsContent value="experiments"><AdminExperimentsTab /></TabsContent>
