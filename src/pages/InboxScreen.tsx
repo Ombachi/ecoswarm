@@ -170,7 +170,7 @@ export function InboxScreen() {
       {activeChat && (
         <ProductChat
           isOpen={true}
-          onClose={() => { setActiveChat(null); checkRoleAndLoad(); }}
+          onClose={() => { setActiveChat(null); loadConversations(); }}
           productId={activeChat.productId}
           productName={activeChat.productName}
           sellerId={activeChat.sellerId}
