@@ -70,9 +70,9 @@ serve(async (req) => {
       });
     }
 
-    // Build swarm highlights
-    const swarmHighlights = (newSwarms?.data || [])
-      .map((s: any) => `<li>🐝 <strong>${s.name}</strong> — ${s.participants || 0} members</li>`)
+    // Build course highlights
+    const courseHighlights = (newCourses?.data || [])
+      .map((c: any) => `<li>🎓 <strong>${c.title}</strong></li>`)
       .join("");
 
     // Build product highlights
