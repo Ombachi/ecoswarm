@@ -115,9 +115,7 @@ export function InboxScreen() {
     <AppLayout>
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
         <h1 className="text-xl font-bold text-foreground">Inbox</h1>
-        <p className="text-xs text-muted-foreground">
-          {isDeveloper ? 'Messages about your products' : 'Your product conversations'}
-        </p>
+        <p className="text-xs text-muted-foreground">Your product conversations</p>
       </div>
 
       {isLoading ? (
