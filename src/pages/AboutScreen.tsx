@@ -1,11 +1,27 @@
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { ChevronLeft, Leaf, Target, Eye, Sparkles, ShoppingBag, Users, MessageSquare, Mail, Heart, Globe, Zap } from "lucide-react";
+import {
+  ChevronLeft,
+  Leaf,
+  Target,
+  Eye,
+  Sparkles,
+  ShoppingBag,
+  Users,
+  MessageSquare,
+  Mail,
+  Heart,
+  Globe,
+  Zap,
+} from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 export function AboutScreen() {
   const navigate = useNavigate();
-  usePageMeta('About', "Learn about EcoSwarm — Kenya's digital agora uniting Gen Z for climate action through community, commerce, and capacity building.");
+  usePageMeta(
+    "About",
+    "Learn about EcoSwarm — Kenya's digital agora uniting Gen Z for climate action through community, commerce, and capacity building.",
+  );
 
   const features = [
     {
@@ -78,7 +94,7 @@ export function AboutScreen() {
             </div>
           </div>
           <p className="text-foreground leading-relaxed">
-            To amplify voices,connect passions and transform digital engagement into real-world impact
+            To make climate knowledge and sustainable products accessible
           </p>
         </div>
 
@@ -93,7 +109,7 @@ export function AboutScreen() {
               <p className="text-sm text-muted-foreground">Where we are headed</p>
             </div>
           </div>
-          <p className="text-foreground leading-relaxed">A digital agora for collective impact</p>
+          <p className="text-foreground leading-relaxed"> A world of climate literacy and sustainable living </p>
         </div>
 
         {/* Why EcoSwarm */}
