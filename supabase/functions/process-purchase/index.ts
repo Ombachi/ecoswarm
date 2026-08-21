@@ -24,15 +24,19 @@ serve(async (req) => {
     );
     if (authError || !user) throw new Error("Unauthorized");
 
-    const { productId, pointsToUse, phoneNumber } = await req.json();
+    const { productId, pointsToUse, phoneNumber, couponCode } = await req.json();
 
     // Input validation
     if (!productId || typeof productId !== "string") throw new Error("Invalid product ID");
     if (typeof pointsToUse !== "number" || pointsToUse < 0) throw new Error("Invalid points value");
     if (phoneNumber && typeof phoneNumber !== "string") throw new Error("Invalid phone number");
+    if (couponCode && (typeof couponCode !== "string" || couponCode.length > 40)) {
+      throw new Error("Invalid coupon code");
+    }
     if (phoneNumber && !/^(0[17]\d{8}|254[17]\d{8})$/.test(phoneNumber.replace(/\s/g, ""))) {
       throw new Error("Invalid M-Pesa phone number format");
     }
+
 
     // Fetch product
     const { data: product, error: prodErr } = await supabase
