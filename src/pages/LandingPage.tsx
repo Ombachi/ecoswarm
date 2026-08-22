@@ -151,8 +151,8 @@ export function LandingPage() {
   const navigate = useNavigate();
 
   usePageMeta(
-    'Digital Agora for Climate Action',
-    "EcoSwarm is Kenya's digital agora for climate action. Discover sustainable products and learn environmental skills.",
+    'Learn Climate Skills & Shop Sustainable Products',
+    "EcoSwarm is Kenya's home for climate education and sustainable shopping. Learn environmental skills and discover vetted eco-friendly products.",
   );
 
   const scrollTo = (id: string) => {
