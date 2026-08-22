@@ -7,12 +7,11 @@ import {
   Eye,
   Sparkles,
   ShoppingBag,
-  Users,
-  MessageSquare,
-  Mail,
+  GraduationCap,
   Heart,
   Globe,
   Zap,
+  BookOpen,
 } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
@@ -20,33 +19,27 @@ export function AboutScreen() {
   const navigate = useNavigate();
   usePageMeta(
     "About",
-    "Learn about EcoSwarm — Kenya's digital agora uniting Gen Z for climate action through community, commerce, and capacity building.",
+    "Learn about EcoSwarm — Kenya's platform for climate education and sustainable shopping.",
   );
 
   const features = [
     {
-      icon: MessageSquare,
-      title: "Agora Square",
-      description: "Share your stories, ideas, and experiences with a community that cares.",
-      color: "from-primary to-secondary",
+      icon: GraduationCap,
+      title: "Capacity Hub",
+      description: "Take expert-led climate courses and earn certificates.",
+      color: "from-eco-orange to-destructive",
     },
     {
       icon: ShoppingBag,
       title: "EcoMarket",
-      description: "Discover and list eco-friendly products and services from local organizations.",
+      description: "Discover and buy eco-friendly products from Kenyan sellers.",
       color: "from-secondary to-eco-blue",
     },
     {
-      icon: Mail,
-      title: "EcoLetter Forge",
-      description: "Generate powerful advocacy letters to decision-makers.",
-      color: "from-eco-gold to-eco-orange",
-    },
-    {
       icon: Sparkles,
-      title: "Capacity Hub",
-      description: "Learn, grow, and earn points while building your activism skills.",
-      color: "from-eco-orange to-destructive",
+      title: "EcoMerch",
+      description: "Wear the change with sustainable merchandise.",
+      color: "from-eco-gold to-eco-orange",
     },
   ];
 
