@@ -113,28 +113,27 @@ export function AboutScreen() {
           </h2>
           <div className="eco-card p-5 bg-gradient-to-br from-eco-green-light to-eco-blue-light border-none">
             <p className="text-foreground leading-relaxed mb-4">
-              We built EcoSwarm because we believe that <strong>you have the power to shape the planet</strong> with the
-              right tools.
+              We built EcoSwarm because we believe that <strong>the right knowledge and the right products can shape a greener Kenya</strong>.
             </p>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
-                <Zap className="w-5 h-5 text-eco-gold flex-shrink-0 mt-0.5" />
+                <GraduationCap className="w-5 h-5 text-eco-gold flex-shrink-0 mt-0.5" />
                 <span className="text-foreground text-sm">
-                  <strong>Social media is loud.</strong> Turn noise into real momentum.
+                  <strong>Learn first.</strong> Practical courses that turn climate curiosity into real skills.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <Globe className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                <ShoppingBag className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                 <span className="text-foreground text-sm">
-                  <strong>Issues are interconnected.</strong> Your voice matters on all fronts.
+                  <strong>Shop better.</strong> Vetted eco-friendly products from local sellers.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                  <BookOpen className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <span className="text-foreground text-sm">
-                    <strong>Learn first, act smarter.</strong> Climate education turns good intentions into lasting impact.
-                  </span>
-                </li>
+                <BookOpen className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-foreground text-sm">
+                  <strong>Act smarter.</strong> Climate education turns good intentions into lasting impact.
+                </span>
+              </li>
             </ul>
           </div>
         </div>
