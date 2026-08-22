@@ -218,10 +218,10 @@ export function LandingPage() {
               <Heart className="w-3.5 h-3.5" /> About EcoSwarm
             </span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
-              A <span className="eco-gradient-text">Digital Agora</span> for Climate Activism
+              Kenya's Home for <span className="eco-gradient-text">Climate Learning</span> & <span className="eco-gradient-text">Green Shopping</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg">
-              EcoSwarm is a community-powered platform that transforms climate anxiety into collective action.
+              EcoSwarm makes climate knowledge accessible and sustainable products easy to find — all in one place.
             </p>
           </motion.div>
           <motion.div
@@ -231,17 +231,17 @@ export function LandingPage() {
             className="grid md:grid-cols-2 gap-8 items-center"
           >
             <div className="rounded-2xl overflow-hidden shadow-lg">
-              <img src={agoraImage} alt="The ancient Agora of Athens" className="w-full h-64 md:h-80 object-cover" />
+              <img src={agoraImage} alt="EcoSwarm community learning and shopping" className="w-full h-64 md:h-80 object-cover" />
             </div>
             <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-foreground">Inspired by the Ancient Agora</h3>
+              <h3 className="text-2xl font-bold text-foreground">Two Paths, One Purpose</h3>
               <p className="text-muted-foreground leading-relaxed">
-                In ancient Athens, the <strong>Agora</strong> was the beating heart of civic life — an open marketplace
-                where citizens gathered to debate ideas, challenge power, and shape democracy.
+                We believe education and commerce can work together for the planet. EcoSwarm offers
+                <strong> expert-led climate courses</strong> that build real skills, and an
+                <strong> EcoMarket</strong> where every purchase supports local green businesses.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                EcoSwarm carries that spirit into the digital age.{" "}
-                <span className="text-foreground font-semibold">Collective dialogue drives collective change.</span>
+                Whether you are here to learn or to shop, you are helping build a more climate-literate, sustainable Kenya.
               </p>
             </div>
           </motion.div>
