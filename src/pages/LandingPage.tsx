@@ -642,7 +642,7 @@ export function LandingPage() {
                 </div>
                 <span className="font-extrabold text-lg">EcoSwarm</span>
               </div>
-              <p className="text-sm text-muted-foreground">Your Digital Agora.</p>
+              <p className="text-sm text-muted-foreground">Learn climate skills. Shop sustainable products.</p>
             </div>
             <div>
               <h4 className="font-bold mb-3 text-sm">Platform</h4>
