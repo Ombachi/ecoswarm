@@ -422,29 +422,27 @@ export function LandingPage() {
             className="max-w-3xl mx-auto"
           >
             <div className="eco-card p-6 bg-gradient-to-br from-[hsl(var(--eco-green-light))] to-[hsl(var(--eco-blue-light))] border-none mb-6">
-              <h3 className="text-lg font-bold text-foreground mb-3">Enter EcoSwarm 🐝</h3>
+              <h3 className="text-lg font-bold text-foreground mb-3">How EcoSwarm Works 🐝</h3>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                A platform designed to bridge this gap and transform powerlessness into collective strength.
+                A simple loop: learn, choose better, and support the green economy — one course and one purchase at a time.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
-                  <Zap className="w-5 h-5 text-[hsl(var(--eco-gold))] flex-shrink-0 mt-0.5" />
+                  <BookOpen className="w-5 h-5 text-[hsl(var(--eco-gold))] flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>EcoSwarm empowers you to see the issues,name them,and do something about them.</strong>{" "}
-                    Discover eco-products in our directory, earn EcoPoints for actions, and watch your efforts amplify
-                    through learning that turns knowledge into everyday action.
+                    <strong>Learn in the Capacity Hub.</strong> Take expert-led courses, earn certificates, and build practical climate skills.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Globe className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                  <ShoppingBag className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>Issues are interconnected.</strong> Your voice matters on all fronts.
+                    <strong>Shop the EcoMarket.</strong> Discover vetted eco-friendly products and services from Kenyan sellers.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Users className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <Leaf className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>Collective action beats individual effort.</strong> Together, we blaze.
+                    <strong>Live the change.</strong> Every lesson applied and every sustainable purchase moves Kenya closer to climate resilience.
                   </span>
                 </li>
               </ul>
