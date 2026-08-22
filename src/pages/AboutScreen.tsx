@@ -130,11 +130,11 @@ export function AboutScreen() {
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <Users className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-foreground text-sm">
-                  <strong>Collective action beats individual effort.</strong> One spark alone flickers.
-                </span>
-              </li>
+                  <BookOpen className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-foreground text-sm">
+                    <strong>Learn first, act smarter.</strong> Climate education turns good intentions into lasting impact.
+                  </span>
+                </li>
             </ul>
           </div>
         </div>
