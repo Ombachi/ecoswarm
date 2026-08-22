@@ -269,7 +269,7 @@ export function LandingPage() {
                 </div>
               </div>
               <p className="text-foreground leading-relaxed text-lg">
-                To amplify voices, connect passions, and transform digital engagement into real-world impact.
+                To make climate education and sustainable products accessible to every Kenyan.
               </p>
             </motion.div>
             <motion.div
@@ -287,7 +287,7 @@ export function LandingPage() {
                   <p className="text-sm text-muted-foreground">Where we're headed</p>
                 </div>
               </div>
-              <p className="text-foreground leading-relaxed text-lg">A digital agora for collective impact.</p>
+              <p className="text-foreground leading-relaxed text-lg">A climate-literate Kenya where sustainable living is the easy choice.</p>
             </motion.div>
           </div>
         </div>
