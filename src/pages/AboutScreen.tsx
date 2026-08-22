@@ -185,10 +185,10 @@ export function AboutScreen() {
 
         {/* CTA */}
         <div className="eco-card p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20 text-center">
-          <h3 className="text-xl font-bold text-foreground mb-2">Ready to Make an Impact?</h3>
-          <p className="text-muted-foreground mb-4">Join thousands of EcoWarriors across Kenya.</p>
+          <h3 className="text-xl font-bold text-foreground mb-2">Ready to Learn & Shop Green?</h3>
+          <p className="text-muted-foreground mb-4">Join EcoSwarm and start your climate journey today.</p>
           <button onClick={() => navigate("/signup")} className="eco-button-primary w-full py-4">
-            🌍 Join the Movement
+            🌍 Get Started
           </button>
         </div>
 
