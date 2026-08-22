@@ -7,12 +7,11 @@ import {
   Eye,
   Sparkles,
   ShoppingBag,
-  Users,
-  MessageSquare,
-  Mail,
+  GraduationCap,
   Heart,
   Globe,
   Zap,
+  BookOpen,
 } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
@@ -20,33 +19,27 @@ export function AboutScreen() {
   const navigate = useNavigate();
   usePageMeta(
     "About",
-    "Learn about EcoSwarm — Kenya's digital agora uniting Gen Z for climate action through community, commerce, and capacity building.",
+    "Learn about EcoSwarm — Kenya's platform for climate education and sustainable shopping.",
   );
 
   const features = [
     {
-      icon: MessageSquare,
-      title: "Agora Square",
-      description: "Share your stories, ideas, and experiences with a community that cares.",
-      color: "from-primary to-secondary",
+      icon: GraduationCap,
+      title: "Capacity Hub",
+      description: "Take expert-led climate courses and earn certificates.",
+      color: "from-eco-orange to-destructive",
     },
     {
       icon: ShoppingBag,
       title: "EcoMarket",
-      description: "Discover and list eco-friendly products and services from local organizations.",
+      description: "Discover and buy eco-friendly products from Kenyan sellers.",
       color: "from-secondary to-eco-blue",
     },
     {
-      icon: Mail,
-      title: "EcoLetter Forge",
-      description: "Generate powerful advocacy letters to decision-makers.",
-      color: "from-eco-gold to-eco-orange",
-    },
-    {
       icon: Sparkles,
-      title: "Capacity Hub",
-      description: "Learn, grow, and earn points while building your activism skills.",
-      color: "from-eco-orange to-destructive",
+      title: "EcoMerch",
+      description: "Wear the change with sustainable merchandise.",
+      color: "from-eco-gold to-eco-orange",
     },
   ];
 
@@ -94,7 +87,7 @@ export function AboutScreen() {
             </div>
           </div>
           <p className="text-foreground leading-relaxed">
-            To make climate knowledge and sustainable products accessible
+            To make climate education and sustainable products accessible to every Kenyan.
           </p>
         </div>
 
@@ -109,7 +102,7 @@ export function AboutScreen() {
               <p className="text-sm text-muted-foreground">Where we are headed</p>
             </div>
           </div>
-          <p className="text-foreground leading-relaxed"> A world of climate literacy and sustainable living </p>
+          <p className="text-foreground leading-relaxed"> A climate-literate Kenya where sustainable living is the easy choice. </p>
         </div>
 
         {/* Why EcoSwarm */}
@@ -120,26 +113,25 @@ export function AboutScreen() {
           </h2>
           <div className="eco-card p-5 bg-gradient-to-br from-eco-green-light to-eco-blue-light border-none">
             <p className="text-foreground leading-relaxed mb-4">
-              We built EcoSwarm because we believe that <strong>you have the power to shape the planet</strong> with the
-              right tools.
+              We built EcoSwarm because we believe that <strong>the right knowledge and the right products can shape a greener Kenya</strong>.
             </p>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
-                <Zap className="w-5 h-5 text-eco-gold flex-shrink-0 mt-0.5" />
+                <GraduationCap className="w-5 h-5 text-eco-gold flex-shrink-0 mt-0.5" />
                 <span className="text-foreground text-sm">
-                  <strong>Social media is loud.</strong> Turn noise into real momentum.
+                  <strong>Learn first.</strong> Practical courses that turn climate curiosity into real skills.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <Globe className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                <ShoppingBag className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                 <span className="text-foreground text-sm">
-                  <strong>Issues are interconnected.</strong> Your voice matters on all fronts.
+                  <strong>Shop better.</strong> Vetted eco-friendly products from local sellers.
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <Users className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <BookOpen className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <span className="text-foreground text-sm">
-                  <strong>Collective action beats individual effort.</strong> One spark alone flickers.
+                  <strong>Act smarter.</strong> Climate education turns good intentions into lasting impact.
                 </span>
               </li>
             </ul>
@@ -193,10 +185,10 @@ export function AboutScreen() {
 
         {/* CTA */}
         <div className="eco-card p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20 text-center">
-          <h3 className="text-xl font-bold text-foreground mb-2">Ready to Make an Impact?</h3>
-          <p className="text-muted-foreground mb-4">Join thousands of EcoWarriors across Kenya.</p>
+          <h3 className="text-xl font-bold text-foreground mb-2">Ready to Learn & Shop Green?</h3>
+          <p className="text-muted-foreground mb-4">Join EcoSwarm and start your climate journey today.</p>
           <button onClick={() => navigate("/signup")} className="eco-button-primary w-full py-4">
-            🌍 Join the Movement
+            🌍 Get Started
           </button>
         </div>
 

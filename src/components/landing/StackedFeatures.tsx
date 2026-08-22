@@ -1,10 +1,9 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
-import { MessageCircle, ShoppingBag, Mail, Sparkles, type LucideIcon } from "lucide-react";
-import featureAgora from "@/assets/feature-agora.webp";
+import { ShoppingBag, GraduationCap, Sparkles, type LucideIcon } from "lucide-react";
 import featureMarket from "@/assets/feature-market.webp";
 import featureLearn from "@/assets/feature-learn.webp";
-import featureAdvocate from "@/assets/feature-advocate.avif";
+import featureMerch from "@/assets/feature-advocate.avif";
 
 type Feature = {
   icon: LucideIcon;
@@ -17,39 +16,30 @@ type Feature = {
 
 const items: Feature[] = [
   {
-    icon: MessageCircle,
-    title: "Agora Square",
-    desc: "Share. Spark. Mobilize.",
+    icon: GraduationCap,
+    title: "Capacity Hub",
+    desc: "Learn boldly",
     longDesc:
-      "Post your stories, organize swarms and rally a community that turns conversation into climate action.",
-    image: featureAgora,
-    gradient: "from-primary/20 via-secondary/10 to-transparent",
+      "Take expert-led climate courses, earn certificates, and build the practical skills that turn environmental passion into real-world impact.",
+    image: featureLearn,
+    gradient: "from-[hsl(var(--eco-orange))]/25 via-destructive/10 to-transparent",
   },
   {
     icon: ShoppingBag,
     title: "EcoMarket",
     desc: "Shop sustainably",
     longDesc:
-      "Discover and list eco-friendly products and services from local organizations — and earn EcoPoints with every action.",
+      "Discover vetted eco-friendly products and services from Kenyan sellers. Every purchase supports local green businesses and a cleaner planet.",
     image: featureMarket,
     gradient: "from-secondary/20 via-[hsl(var(--eco-blue))]/15 to-transparent",
   },
   {
     icon: Sparkles,
-    title: "Capacity Hub",
-    desc: "Learn boldly",
+    title: "EcoMerch",
+    desc: "Wear the change",
     longDesc:
-      "Take bite-sized climate courses, earn certificates and grow the skills that turn passion into real-world impact.",
-    image: featureLearn,
-    gradient: "from-[hsl(var(--eco-orange))]/25 via-destructive/10 to-transparent",
-  },
-  {
-    icon: Mail,
-    title: "EcoLetter Forge",
-    desc: "Amplify your voice",
-    longDesc:
-      "Generate sharp, well-cited advocacy letters to decision-makers in seconds — no writer's block required.",
-    image: featureAdvocate,
+      "Browse sustainable merchandise — from seed-bomb apparel to refillable bottles — and carry the EcoSwarm message wherever you go.",
+    image: featureMerch,
     gradient: "from-[hsl(var(--eco-gold))]/25 via-[hsl(var(--eco-orange))]/15 to-transparent",
   },
 ];
@@ -72,12 +62,8 @@ function StackedCard({
 
   // Cards beyond the first scale down + fade slightly as the next one covers them.
   const scale = useTransform(progress, [start, end], [1, index === total - 1 ? 1 : 0.94]);
-  // Capacity Hub (index 2) keeps full opacity; others fade slightly as they stack.
-  const opacity = useTransform(
-    progress,
-    [start, end],
-    [1, index === total - 1 || index === 2 ? 1 : 0.6]
-  );
+  // All cards keep strong readability as they stack.
+  const opacity = useTransform(progress, [start, end], [1, 1]);
 
   // Stagger the sticky offset so each card lands a little lower, giving the layered look.
   const topOffset = `calc(6rem + ${index * 14}px)`;
@@ -154,10 +140,10 @@ export function StackedFeatures() {
             <Sparkles className="w-3.5 h-3.5" /> Platform
           </span>
           <h2 className="text-3xl md:text-5xl font-black tracking-tight">
-            What You Can Do
+            Learn. Shop. Impact.
           </h2>
           <p className="text-muted-foreground mt-3 md:text-lg">
-            Four pillars. One movement. Scroll to see how EcoSwarm turns intention into impact.
+            EcoSwarm is your one place for climate education and sustainable shopping. Scroll to explore.
           </p>
         </motion.div>
 

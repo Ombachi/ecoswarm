@@ -8,12 +8,11 @@ import {
   ArrowRight,
   Heart,
   TreePine,
-  Megaphone,
+  ShoppingBag,
   BookOpen,
   Mail,
   Target,
   Eye,
-  Zap,
   ExternalLink,
   Award,
   Phone,
@@ -29,10 +28,10 @@ import { PremiumHero } from "@/components/landing/PremiumHero";
 import { StackedFeatures } from "@/components/landing/StackedFeatures";
 
 const stats = [
-  { icon: Users, label: "Active Eco-Warriors", value: "100+" },
-  { icon: TreePine, label: "Ecoproducts Listed", value: "10+" },
-  { icon: Megaphone, label: "Certificates Earned", value: "50+" },
-  { icon: BookOpen, label: "Courses Completed", value: "100+" },
+  { icon: BookOpen, label: "Climate Courses", value: "10+" },
+  { icon: TreePine, label: "Eco Products Listed", value: "50+" },
+  { icon: Award, label: "Certificates Earned", value: "100+" },
+  { icon: Users, label: "EcoWarriors Learning", value: "500+" },
 ];
 
 const values = [
@@ -151,8 +150,8 @@ export function LandingPage() {
   const navigate = useNavigate();
 
   usePageMeta(
-    'Digital Agora for Climate Action',
-    "EcoSwarm is Kenya's digital agora for climate action. Discover sustainable products and learn environmental skills.",
+    'Learn Climate Skills & Shop Sustainable Products',
+    "EcoSwarm is Kenya's home for climate education and sustainable shopping. Learn environmental skills and discover vetted eco-friendly products.",
   );
 
   const scrollTo = (id: string) => {
@@ -218,10 +217,10 @@ export function LandingPage() {
               <Heart className="w-3.5 h-3.5" /> About EcoSwarm
             </span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
-              A <span className="eco-gradient-text">Digital Agora</span> for Climate Activism
+              Kenya's Home for <span className="eco-gradient-text">Climate Learning</span> & <span className="eco-gradient-text">Green Shopping</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg">
-              EcoSwarm is a community-powered platform that transforms climate anxiety into collective action.
+              EcoSwarm makes climate knowledge accessible and sustainable products easy to find — all in one place.
             </p>
           </motion.div>
           <motion.div
@@ -231,17 +230,17 @@ export function LandingPage() {
             className="grid md:grid-cols-2 gap-8 items-center"
           >
             <div className="rounded-2xl overflow-hidden shadow-lg">
-              <img src={agoraImage} alt="The ancient Agora of Athens" className="w-full h-64 md:h-80 object-cover" />
+              <img src={agoraImage} alt="EcoSwarm community learning and shopping" className="w-full h-64 md:h-80 object-cover" />
             </div>
             <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-foreground">Inspired by the Ancient Agora</h3>
+              <h3 className="text-2xl font-bold text-foreground">Two Paths, One Purpose</h3>
               <p className="text-muted-foreground leading-relaxed">
-                In ancient Athens, the <strong>Agora</strong> was the beating heart of civic life — an open marketplace
-                where citizens gathered to debate ideas, challenge power, and shape democracy.
+                We believe education and commerce can work together for the planet. EcoSwarm offers
+                <strong> expert-led climate courses</strong> that build real skills, and an
+                <strong> EcoMarket</strong> where every purchase supports local green businesses.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                EcoSwarm carries that spirit into the digital age.{" "}
-                <span className="text-foreground font-semibold">Collective dialogue drives collective change.</span>
+                Whether you are here to learn or to shop, you are helping build a more climate-literate, sustainable Kenya.
               </p>
             </div>
           </motion.div>
@@ -269,7 +268,7 @@ export function LandingPage() {
                 </div>
               </div>
               <p className="text-foreground leading-relaxed text-lg">
-                To amplify voices, connect passions, and transform digital engagement into real-world impact.
+                To make climate education and sustainable products accessible to every Kenyan.
               </p>
             </motion.div>
             <motion.div
@@ -287,7 +286,7 @@ export function LandingPage() {
                   <p className="text-sm text-muted-foreground">Where we're headed</p>
                 </div>
               </div>
-              <p className="text-foreground leading-relaxed text-lg">A digital agora for collective impact.</p>
+              <p className="text-foreground leading-relaxed text-lg">A climate-literate Kenya where sustainable living is the easy choice.</p>
             </motion.div>
           </div>
         </div>
@@ -339,14 +338,13 @@ export function LandingPage() {
                 <Heart className="w-3.5 h-3.5" /> Our Why
               </span>
               <h2 className="text-3xl md:text-4xl font-black mb-4">
-                From Powerlessness to <span className="eco-gradient-text">Purpose</span>
+                Close the <span className="eco-gradient-text">Green Gap</span>
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                A silent epidemic is gripping millions:{" "}
-                <strong className="text-foreground">climate anxiety</strong>. Climate Anxiety is a profound emotional
-                response to the escalating environmental crisis, leaving people feeling sad, anxious, angry, or utterly
-                powerless. And while anxiety cuts across all ages, it is often most intense among the young. They are
-                the ones who will inherit the long-term consequences of inaction.
+                Many Kenyans want to live sustainably, but don't know where to start or what to trust. EcoSwarm solves both problems: we turn climate knowledge into simple, practical courses, and we curate real eco-friendly products you can buy with confidence.
+              </p>
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                By combining <strong className="text-foreground">learning</strong> with <strong className="text-foreground">responsible commerce</strong>, we make it easier for every EcoWarrior to turn intention into impact.
               </p>
             </motion.div>
 
@@ -366,7 +364,7 @@ export function LandingPage() {
               />
               <img
                 src={whyDistress}
-                alt="A young person grappling with climate anxiety"
+                alt="Sustainable living and climate learning in Kenya"
                 loading="lazy"
                 decoding="async"
                 className="relative w-full h-full object-cover object-center"
@@ -423,29 +421,27 @@ export function LandingPage() {
             className="max-w-3xl mx-auto"
           >
             <div className="eco-card p-6 bg-gradient-to-br from-[hsl(var(--eco-green-light))] to-[hsl(var(--eco-blue-light))] border-none mb-6">
-              <h3 className="text-lg font-bold text-foreground mb-3">Enter EcoSwarm 🐝</h3>
+              <h3 className="text-lg font-bold text-foreground mb-3">How EcoSwarm Works 🐝</h3>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                A platform designed to bridge this gap and transform powerlessness into collective strength.
+                A simple loop: learn, choose better, and support the green economy — one course and one purchase at a time.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
-                  <Zap className="w-5 h-5 text-[hsl(var(--eco-gold))] flex-shrink-0 mt-0.5" />
+                  <BookOpen className="w-5 h-5 text-[hsl(var(--eco-gold))] flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>EcoSwarm empowers you to see the issues,name them,and do something about them.</strong>{" "}
-                    Discover eco-products in our directory, earn EcoPoints for actions, and watch your efforts amplify
-                    through learning that turns knowledge into everyday action.
+                    <strong>Learn in the Capacity Hub.</strong> Take expert-led courses, earn certificates, and build practical climate skills.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Globe className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                  <ShoppingBag className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>Issues are interconnected.</strong> Your voice matters on all fronts.
+                    <strong>Shop the EcoMarket.</strong> Discover vetted eco-friendly products and services from Kenyan sellers.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Users className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <Leaf className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>Collective action beats individual effort.</strong> Together, we blaze.
+                    <strong>Live the change.</strong> Every lesson applied and every sustainable purchase moves Kenya closer to climate resilience.
                   </span>
                 </li>
               </ul>
@@ -610,9 +606,9 @@ export function LandingPage() {
             viewport={{ once: true }}
             className="eco-gradient-bg rounded-3xl p-8 md:p-14 text-center text-primary-foreground"
           >
-            <h2 className="text-3xl md:text-4xl font-black mb-4">Ready to Make Your Voice Count?</h2>
+            <h2 className="text-3xl md:text-4xl font-black mb-4">Ready to Learn & Shop Green?</h2>
             <p className="text-primary-foreground/80 max-w-lg mx-auto mb-8">
-              Join thousands of eco-warriors creating change.
+              Join EcoSwarm and turn climate curiosity into everyday action.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Button
@@ -646,7 +642,7 @@ export function LandingPage() {
                 </div>
                 <span className="font-extrabold text-lg">EcoSwarm</span>
               </div>
-              <p className="text-sm text-muted-foreground">Your Digital Agora.</p>
+              <p className="text-sm text-muted-foreground">Learn climate skills. Shop sustainable products.</p>
             </div>
             <div>
               <h4 className="font-bold mb-3 text-sm">Platform</h4>
