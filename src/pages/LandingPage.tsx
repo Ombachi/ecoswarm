@@ -29,10 +29,10 @@ import { PremiumHero } from "@/components/landing/PremiumHero";
 import { StackedFeatures } from "@/components/landing/StackedFeatures";
 
 const stats = [
-  { icon: Users, label: "Active Eco-Warriors", value: "100+" },
-  { icon: TreePine, label: "Ecoproducts Listed", value: "10+" },
-  { icon: Megaphone, label: "Certificates Earned", value: "50+" },
-  { icon: BookOpen, label: "Courses Completed", value: "100+" },
+  { icon: BookOpen, label: "Climate Courses", value: "10+" },
+  { icon: TreePine, label: "Eco Products Listed", value: "50+" },
+  { icon: Award, label: "Certificates Earned", value: "100+" },
+  { icon: Users, label: "EcoWarriors Learning", value: "500+" },
 ];
 
 const values = [
