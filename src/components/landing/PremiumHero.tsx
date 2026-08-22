@@ -6,7 +6,7 @@ const heroVideo = "/ecoswarm-hero.mp4";
 
 type PremiumHeroProps = Record<string, never>;
 
-const statements = ["Shop sustainably", "Learn boldly", "Amplify your voice"];
+const statements = ["Learn climate skills", "Shop sustainably", "Build a greener Kenya"];
 
 /**
  * Full-bleed cinematic video hero for EcoSwarm.
