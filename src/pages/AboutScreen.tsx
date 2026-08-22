@@ -87,7 +87,7 @@ export function AboutScreen() {
             </div>
           </div>
           <p className="text-foreground leading-relaxed">
-            To make climate knowledge and sustainable products accessible
+            To make climate education and sustainable products accessible to every Kenyan.
           </p>
         </div>
 
@@ -102,7 +102,7 @@ export function AboutScreen() {
               <p className="text-sm text-muted-foreground">Where we are headed</p>
             </div>
           </div>
-          <p className="text-foreground leading-relaxed"> A world of climate literacy and sustainable living </p>
+          <p className="text-foreground leading-relaxed"> A climate-literate Kenya where sustainable living is the easy choice. </p>
         </div>
 
         {/* Why EcoSwarm */}
