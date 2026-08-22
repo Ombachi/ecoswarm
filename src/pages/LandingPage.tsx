@@ -606,9 +606,9 @@ export function LandingPage() {
             viewport={{ once: true }}
             className="eco-gradient-bg rounded-3xl p-8 md:p-14 text-center text-primary-foreground"
           >
-            <h2 className="text-3xl md:text-4xl font-black mb-4">Ready to Make Your Voice Count?</h2>
+            <h2 className="text-3xl md:text-4xl font-black mb-4">Ready to Learn & Shop Green?</h2>
             <p className="text-primary-foreground/80 max-w-lg mx-auto mb-8">
-              Join thousands of eco-warriors creating change.
+              Join EcoSwarm and turn climate curiosity into everyday action.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Button
