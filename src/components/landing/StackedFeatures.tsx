@@ -62,12 +62,8 @@ function StackedCard({
 
   // Cards beyond the first scale down + fade slightly as the next one covers them.
   const scale = useTransform(progress, [start, end], [1, index === total - 1 ? 1 : 0.94]);
-  // Capacity Hub (index 2) keeps full opacity; others fade slightly as they stack.
-  const opacity = useTransform(
-    progress,
-    [start, end],
-    [1, index === total - 1 || index === 2 ? 1 : 0.6]
-  );
+  // All cards keep strong readability as they stack.
+  const opacity = useTransform(progress, [start, end], [1, 1]);
 
   // Stagger the sticky offset so each card lands a little lower, giving the layered look.
   const topOffset = `calc(6rem + ${index * 14}px)`;
