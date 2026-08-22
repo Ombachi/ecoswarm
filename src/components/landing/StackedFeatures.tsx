@@ -144,10 +144,10 @@ export function StackedFeatures() {
             <Sparkles className="w-3.5 h-3.5" /> Platform
           </span>
           <h2 className="text-3xl md:text-5xl font-black tracking-tight">
-            What You Can Do
+            Learn. Shop. Impact.
           </h2>
           <p className="text-muted-foreground mt-3 md:text-lg">
-            Four pillars. One movement. Scroll to see how EcoSwarm turns intention into impact.
+            EcoSwarm is your one place for climate education and sustainable shopping. Scroll to explore.
           </p>
         </motion.div>
 
