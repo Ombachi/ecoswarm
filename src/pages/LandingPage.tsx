@@ -339,14 +339,13 @@ export function LandingPage() {
                 <Heart className="w-3.5 h-3.5" /> Our Why
               </span>
               <h2 className="text-3xl md:text-4xl font-black mb-4">
-                From Powerlessness to <span className="eco-gradient-text">Purpose</span>
+                Close the <span className="eco-gradient-text">Green Gap</span>
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                A silent epidemic is gripping millions:{" "}
-                <strong className="text-foreground">climate anxiety</strong>. Climate Anxiety is a profound emotional
-                response to the escalating environmental crisis, leaving people feeling sad, anxious, angry, or utterly
-                powerless. And while anxiety cuts across all ages, it is often most intense among the young. They are
-                the ones who will inherit the long-term consequences of inaction.
+                Many Kenyans want to live sustainably, but don't know where to start or what to trust. EcoSwarm solves both problems: we turn climate knowledge into simple, practical courses, and we curate real eco-friendly products you can buy with confidence.
+              </p>
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                By combining <strong className="text-foreground">learning</strong> with <strong className="text-foreground">responsible commerce</strong>, we make it easier for every EcoWarrior to turn intention into impact.
               </p>
             </motion.div>
 
@@ -366,7 +365,7 @@ export function LandingPage() {
               />
               <img
                 src={whyDistress}
-                alt="A young person grappling with climate anxiety"
+                alt="Sustainable living and climate learning in Kenya"
                 loading="lazy"
                 decoding="async"
                 className="relative w-full h-full object-cover object-center"
