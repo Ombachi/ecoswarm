@@ -7,11 +7,12 @@ import { useLandingNav } from "@/hooks/useLandingNav";
 
 type Product = {
   id: string;
-  name: string;
+  product_name: string;
   description: string;
   price: number;
   category: string | null;
-  image_url: string | null;
+  media_url: string | null;
+  org_name: string | null;
 };
 
 export function MarketHighlights() {
@@ -22,11 +23,10 @@ export function MarketHighlights() {
     (async () => {
       const { data } = await supabase
         .from("products")
-        .select("id,name,description,price,category,image_url")
-        .eq("is_active", true)
+        .select("id,product_name,description,price,category,media_url,org_name")
         .order("created_at", { ascending: false })
         .limit(6);
-      setProducts(data || []);
+      setProducts((data as Product[]) || []);
     })();
   }, []);
 
@@ -63,10 +63,10 @@ export function MarketHighlights() {
               className="eco-card overflow-hidden flex flex-col"
             >
               <div className="aspect-[4/3] bg-muted overflow-hidden">
-                {p.image_url ? (
+                {p.media_url ? (
                   <img
-                    src={p.image_url}
-                    alt={p.name}
+                    src={p.media_url}
+                    alt={p.product_name}
                     loading="lazy"
                     decoding="async"
                     className="w-full h-full object-cover"
@@ -79,8 +79,9 @@ export function MarketHighlights() {
               </div>
               <div className="p-5 flex flex-col flex-1">
                 {p.category && <span className="eco-badge text-[10px] mb-2 self-start">{p.category}</span>}
-                <h3 className="font-bold leading-snug mb-1">{p.name}</h3>
+                <h3 className="font-bold leading-snug mb-1">{p.product_name}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2 flex-1">{p.description}</p>
+                {p.org_name && <p className="text-xs text-muted-foreground mt-1">by {p.org_name}</p>}
                 <p className="mt-3 text-lg font-black eco-gradient-text">
                   KES {Number(p.price).toLocaleString()}
                 </p>
