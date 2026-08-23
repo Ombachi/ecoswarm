@@ -26,6 +26,9 @@ import bevisioneersLogo from "@/assets/partner-bevisioneers.png";
 import lituLogo from "@/assets/partner-litu-diagnostics.jpg";
 import { PremiumHero } from "@/components/landing/PremiumHero";
 import { StackedFeatures } from "@/components/landing/StackedFeatures";
+import { CoursesPreview } from "@/components/landing/CoursesPreview";
+import { MarketHighlights } from "@/components/landing/MarketHighlights";
+import { LandingFAQ } from "@/components/landing/LandingFAQ";
 
 const stats = [
   { icon: BookOpen, label: "Climate Courses", value: "10+" },
@@ -494,6 +497,12 @@ export function LandingPage() {
 
       {/* ── What You Can Do (after Enter EcoSwarm) ── */}
       <StackedFeatures />
+
+      <CoursesPreview />
+
+      <MarketHighlights />
+
+      <LandingFAQ />
 
       {/* ── Stats Bar (user statistics) ── */}
       <section
