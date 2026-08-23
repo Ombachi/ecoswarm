@@ -51,7 +51,17 @@ export function LoginScreen() {
           title: "Welcome back! 🌍",
           description: "Successfully logged in",
         });
-        navigate('/dashboard');
+        let dest = '/dashboard';
+        try {
+          const pending = sessionStorage.getItem('ecoswarm_redirect_after_login');
+          if (pending) {
+            dest = pending;
+            sessionStorage.removeItem('ecoswarm_redirect_after_login');
+          }
+        } catch {
+          /* storage unavailable */
+        }
+        navigate(dest);
       }
     } catch (error) {
       toast({
