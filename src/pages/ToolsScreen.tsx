@@ -42,20 +42,20 @@ export function ToolsScreen() {
     <AppLayout>
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border">
-        <div className="px-4 py-3 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl eco-gradient-bg flex items-center justify-center">
+        <div className="max-w-6xl mx-auto w-full px-4 py-3 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl eco-gradient-bg flex items-center justify-center flex-shrink-0">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Capacity Hub</h1>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-foreground truncate">Capacity Hub</h1>
             <p className="text-xs text-muted-foreground">Build your climate skills</p>
           </div>
         </div>
       </div>
 
-      <div className="p-4 space-y-4 pb-24">
+      <div className="p-4 space-y-4 pb-24 max-w-6xl mx-auto w-full">
         <p className="text-sm text-muted-foreground">Complete courses, earn EcoPoints and certificates</p>
-        <div className="grid gap-4">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {learningModules.map((module: any, index: number) => {
             const isCompleted = completedModules.includes(module.id);
             return (

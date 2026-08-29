@@ -435,7 +435,8 @@ export function EcoMarketScreen() {
 
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
-        <div className="flex items-center justify-between mb-3">
+        <div className="max-w-6xl mx-auto w-full">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div>
             <h1 className="text-xl font-bold text-foreground">EcoMarket</h1>
             <p className="text-xs text-muted-foreground">Eco-friendly products & services</p>
@@ -498,14 +499,15 @@ export function EcoMarketScreen() {
             </button>
           ))}
         </div>
+        </div>
       </div>
 
       {/* Products Grid */}
       <>
           {/* Products Grid - responsive */}
-          <div className="p-4 pb-24 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="p-4 pb-24 max-w-6xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredProducts.length === 0 ? (
-              <div className="text-center py-12">
+              <div className="col-span-full text-center py-12">
                 <ShoppingBag className="w-12 h-12 mx-auto text-muted-foreground mb-4" aria-hidden="true" />
                 <p className="text-muted-foreground">
                   {searchQuery ? 'No products match your search' : 'No products yet. Be the first to list!'}
