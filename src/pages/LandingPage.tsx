@@ -25,6 +25,8 @@ import founderPhoto from "@/assets/founder-ombachi-enock.jpg";
 import bevisioneersLogo from "@/assets/partner-bevisioneers.png";
 import lituLogo from "@/assets/partner-litu-diagnostics.jpg";
 import { PremiumHero } from "@/components/landing/PremiumHero";
+import { TwoPathSplit } from "@/components/landing/TwoPathSplit";
+import { HowItWorks } from "@/components/landing/HowItWorks";
 import { StackedFeatures } from "@/components/landing/StackedFeatures";
 import { CoursesPreview } from "@/components/landing/CoursesPreview";
 import { MarketHighlights } from "@/components/landing/MarketHighlights";
@@ -206,6 +208,12 @@ export function LandingPage() {
 
       {/* ── Hero ── */}
       <PremiumHero />
+
+      {/* ── Two-path split: learn or shop ── */}
+      <TwoPathSplit />
+
+      {/* ── How it works ── */}
+      <HowItWorks />
 
       {/* ── About: Agora Story ── */}
       <section id="about" className="py-12 md:py-20">

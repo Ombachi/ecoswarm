@@ -3,151 +3,84 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useApp } from "@/context/AppContext";
-import { ProgressRing } from "@/components/common/ProgressRing";
-import { EcoPointsBadge } from "@/components/common/EcoPointsBadge";
 import { SwahiliToggle } from "@/components/common/SwahiliToggle";
-import { usePWAInstall } from "@/hooks/usePWAInstall";
-import { Confetti } from "@/components/common/Confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { EcoSwarmChatbot } from "@/components/chat/EcoSwarmChatbot";
 import { useVisibilityRefetch } from "@/hooks/useVisibilityRefetch";
+import { getLatestCourseProgress, CourseProgress } from "@/lib/courseProgress";
 import {
-  ShoppingBag, Mail, Flame, Moon, Sun,
-  Trophy, LogOut, BarChart3, CalendarDays, GraduationCap, Package,
+  ShoppingBag, Mail, Moon, Sun, LogOut, GraduationCap,
+  ArrowRight, Award, Play, User as UserIcon, ChevronRight,
 } from "lucide-react";
-import { toast } from "sonner";
 
-interface Challenge {
+interface Course {
   id: string;
   title: string;
-  description: string;
-  points: number;
-  type: string;
-  action_type: string | null;
-  completed?: boolean;
+  description: string | null;
+  category: string | null;
+  duration: string | null;
+}
+
+interface Product {
+  id: string;
+  product_name: string;
+  price: number;
+  media_url: string | null;
+  org_name: string | null;
+}
+
+interface Cert {
+  id: string;
+  module_id: string;
+  completed_at: string;
+  title: string;
 }
 
 export function DashboardScreen() {
   const navigate = useNavigate();
-  const { user, isDarkMode, toggleDarkMode, isSwahili, addPoints, showNotification, refreshUser, logout, authUserId } = useApp();
-  usePageMeta('Dashboard', 'Your EcoSwarm dashboard — track eco-points, streaks, challenges, and your environmental impact.');
-  const { isInstallable, isInstalled, promptInstall } = usePWAInstall();
+  const { user, isDarkMode, toggleDarkMode, isSwahili, refreshUser, logout } = useApp();
+  usePageMeta('Home', 'Continue learning climate courses and discover sustainable products on EcoSwarm.');
 
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [, setIsLoadingChallenges] = useState(true);
-  const [productCount, setProductCount] = useState(0);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [certs, setCerts] = useState<Cert[]>([]);
+  const [progress, setProgress] = useState<CourseProgress | null>(null);
+
+  const loadFeed = useCallback(async () => {
+    const [coursesRes, productsRes] = await Promise.all([
+      supabase.from("courses").select("id,title,description,category,duration").order("created_at", { ascending: false }).limit(8),
+      supabase.from("products").select("id,product_name,price,media_url,org_name").order("created_at", { ascending: false }).limit(8),
+    ]);
+    setCourses((coursesRes.data as Course[]) || []);
+    setProducts((productsRes.data as Product[]) || []);
+    setProgress(getLatestCourseProgress());
+  }, []);
+
+  const loadCerts = useCallback(async () => {
+    if (!user) return;
+    const { data: completions } = await supabase
+      .from("course_completions")
+      .select("id, module_id, completed_at")
+      .eq("user_id", user.id)
+      .order("completed_at", { ascending: false })
+      .limit(6);
+    if (!completions?.length) { setCerts([]); return; }
+    const { data: titles } = await supabase
+      .from("courses")
+      .select("id,title")
+      .in("id", [...new Set(completions.map((c) => c.module_id))]);
+    const map = new Map((titles || []).map((t) => [t.id, t.title]));
+    setCerts(completions.map((c) => ({ ...c, title: map.get(c.module_id) || "EcoSwarm Course" })));
+  }, [user]);
+
+  useEffect(() => { loadFeed(); }, [loadFeed]);
+  useEffect(() => { loadCerts(); }, [loadCerts]);
 
   const handleVisibilityRefetch = useCallback(() => {
-    if (user) {
-      refreshUser();
-      loadChallenges();
-    }
-  }, [user]);
+    if (user) { refreshUser(); loadFeed(); loadCerts(); }
+  }, [user, refreshUser, loadFeed, loadCerts]);
   useVisibilityRefetch(handleVisibilityRefetch);
-
-  useEffect(() => {
-    if (user) {
-      loadChallenges();
-      updateStreak();
-      supabase.from('products').select('id', { count: 'exact', head: true }).eq('user_id', user.id).then(({ count }) => setProductCount(count || 0));
-    }
-  }, [user]);
-
-  const loadChallenges = async () => {
-    if (!user) return;
-    try {
-      const { data: challengesData, error } = await supabase.from("challenges").select("*").eq("is_active", true);
-      if (error) throw error;
-      const { data: completedData } = await supabase.from("user_challenges").select("challenge_id").eq("user_id", user.id);
-      const completedIds = completedData?.map((c) => c.challenge_id) || [];
-      const userRole = 'ecowarrior';
-      const challengesWithStatus = (challengesData || [])
-        .filter((c: any) => { const t = c.target_role || 'all'; return t === 'all' || t === userRole; })
-        .map((c) => ({ ...c, completed: completedIds.includes(c.id) }))
-        // Hide the "Share Your Story" prompt until the user has created their
-        // first post — new EcoWarriors shouldn't be pressured before they're
-        // settled in.
-        .filter((c: any) => {
-          const isShareStory = (c.action_type === 'post') ||
-            /share.*your.*story/i.test(c.title || '');
-          if (isShareStory && (user.stats?.postsCreated ?? 0) === 0) return false;
-          return true;
-        });
-      setChallenges(challengesWithStatus);
-    } catch (error) {
-      console.error("Error loading challenges:", (error as Error)?.message);
-    } finally {
-      setIsLoadingChallenges(false);
-    }
-  };
-
-  const updateStreak = async () => {
-    if (!user) return;
-    try {
-      const { data: profile } = await supabase.from("profiles").select("last_active_at, streak").eq("user_id", user.id).single();
-      if (profile?.last_active_at) {
-        const lastActive = new Date(profile.last_active_at);
-        const now = new Date();
-        const lastActiveDay = new Date(lastActive.getFullYear(), lastActive.getMonth(), lastActive.getDate());
-        const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const daysDiff = Math.floor((todayDay.getTime() - lastActiveDay.getTime()) / (1000 * 60 * 60 * 24));
-        if (daysDiff === 1) {
-          const newStreak = (profile.streak || 0) + 1;
-          await supabase.from("profiles").update({ streak: newStreak, last_active_at: now.toISOString() }).eq("user_id", user.id);
-          await refreshUser();
-          toast.success(`🔥 ${newStreak} day streak!`);
-        } else if (daysDiff > 1) {
-          await supabase.from("profiles").update({ streak: 1, last_active_at: now.toISOString() }).eq("user_id", user.id);
-          await refreshUser();
-        } else if (daysDiff === 0) {
-          await supabase.from("profiles").update({ last_active_at: now.toISOString() }).eq("user_id", user.id);
-        }
-      } else {
-        await supabase.from("profiles").update({ streak: 1, last_active_at: new Date().toISOString() }).eq("user_id", user.id);
-        await refreshUser();
-      }
-    } catch (error) {
-      console.error("Error updating streak:", (error as Error)?.message);
-    }
-  };
-
-  const getChallengeRoute = (actionType: string | null) => {
-    switch (actionType) {
-            case "ecomarket": return "/ecomarket";
-      case "inbox": return "/inbox";
-      case "module": return "/tools";
-      default: return "/dashboard";
-    }
-  };
-
-  const handleStartChallenge = (challengeId: string) => {
-    const challenge = challenges.find((c) => c.id === challengeId);
-    if (!challenge || challenge.completed) return;
-    const route = getChallengeRoute(challenge.action_type);
-    toast.info(`🎯 Challenge: ${challenge.title} — Complete it to earn ${challenge.points} EcoPoints!`);
-    navigate(route);
-  };
-
-  const handleCompleteChallenge = async (challengeId: string) => {
-    if (!user) return;
-    const challenge = challenges.find((c) => c.id === challengeId);
-    if (!challenge || challenge.completed) return;
-    try {
-      const { error } = await supabase.from("user_challenges").insert({ user_id: user.id, challenge_id: challengeId });
-      if (error && !error.message.includes("duplicate")) throw error;
-      setChallenges(challenges.map((c) => (c.id === challengeId ? { ...c, completed: true } : c)));
-      addPoints(challenge.points);
-      showNotification(`Challenge completed! 🎉`, challenge.points);
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
-      toast.success(`You earned ${challenge.points} EcoPoints!`);
-    } catch (error) {
-      console.error("Error completing challenge:", (error as Error)?.message);
-      toast.error("Failed to complete challenge");
-    }
-  };
 
   if (!user) {
     return (
@@ -155,36 +88,31 @@ export function DashboardScreen() {
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="w-10 h-10 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
-            <p className="text-muted-foreground text-sm">Loading dashboard...</p>
+            <p className="text-muted-foreground text-sm">Loading…</p>
           </div>
         </div>
       </AppLayout>
     );
   }
 
-  const dailyChallenge = challenges.find((c) => c.type === "daily" && !c.completed);
+  const resumeCourse = progress;
+  const resumePercent = resumeCourse
+    ? Math.min(Math.round(((resumeCourse.section + 1) / Math.max(resumeCourse.total, 1)) * 100), 100)
+    : 0;
 
-  // Build quick actions - role-aware
-  const allQuickActions = [
-    { id: 'ecomarket', icon: ShoppingBag, label: "EcoMarket", color: "from-secondary to-eco-blue", path: "/ecomarket" },
-    { id: 'capacity', icon: GraduationCap, label: "Capacity Hub", color: "from-eco-blue to-primary", path: "/tools" },
-    { id: 'challenges', icon: Trophy, label: "Challenges", color: "from-eco-orange to-eco-gold", path: "/challenges" },
-    { id: 'calendar', icon: CalendarDays, label: "Calendar", color: "from-eco-blue to-secondary", path: "/calendar" },
-    { id: 'merch', icon: Package, label: "EcoMerch", color: "from-eco-green to-secondary", path: "/merch" },
-    { id: 'inbox', icon: Mail, label: "Inbox", color: "from-eco-blue to-eco-green", path: "/inbox" },
-    { id: 'purchases', icon: ShoppingBag, label: "Purchases", color: "from-eco-orange to-secondary", path: "/purchases" },
-    { id: 'earnings', icon: BarChart3, label: "Earnings", color: "from-eco-gold to-eco-green", path: "/earnings" },
+  const newCourses = courses.filter((c) => c.id !== resumeCourse?.courseId);
+
+  const quickLinks = [
+    { label: isSwahili ? "Manunuzi Yangu" : "My purchases", icon: ShoppingBag, path: "/purchases" },
+    { label: isSwahili ? "Ujumbe" : "Messages", icon: Mail, path: "/inbox" },
+    { label: isSwahili ? "Wasifu" : "Profile", icon: UserIcon, path: "/profile" },
   ];
-
-  const quickActions = allQuickActions;
 
   return (
     <AppLayout>
-      {showConfetti && <Confetti />}
-
-      <div className="px-4 pt-4 pb-6 space-y-6">
+      <div className="px-4 pt-4 pb-8 space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <header className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">{user.name}</h1>
             <p className="text-sm text-muted-foreground">{user.location}</p>
@@ -192,89 +120,182 @@ export function DashboardScreen() {
           <div className="flex items-center gap-2">
             <SwahiliToggle />
             <NotificationBell />
-            <button onClick={toggleDarkMode} className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-all">
+            <button onClick={toggleDarkMode} className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-all" aria-label="Toggle theme">
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <button onClick={logout} className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all" title={isSwahili ? "Ondoka" : "Log Out"}>
               <LogOut className="w-4 h-4" />
             </button>
           </div>
-        </div>
+        </header>
 
-        {/* EcoPoints Card */}
-        <div className="eco-card-elevated p-6 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
-            <div className="w-full h-full eco-gradient-bg rounded-full blur-2xl" />
-          </div>
-          <div className="flex items-center gap-6">
-            <ProgressRing progress={Math.min((user.ecoPoints / 2000) * 100, 100)} size={100}>
-              <div className="text-center">
-                <p className="text-2xl font-bold eco-gradient-text">{user.ecoPoints}</p>
-                <p className="text-[10px] text-muted-foreground">EcoPoints</p>
+        {/* Continue learning — biggest card */}
+        <section>
+          <h2 className="font-semibold text-foreground mb-3">
+            {isSwahili ? "Endelea Kusoma" : "Continue learning"}
+          </h2>
+          {resumeCourse ? (
+            <button
+              onClick={() => navigate(`/module/${resumeCourse.courseId}`)}
+              className="eco-card-elevated w-full text-left p-6 relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
+                <div className="w-full h-full eco-gradient-bg rounded-full blur-2xl" />
               </div>
-            </ProgressRing>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <Flame className="w-5 h-5 text-eco-orange" />
-                <span className="font-bold text-foreground">{user.streak} Day Streak!</span>
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl eco-gradient-bg flex items-center justify-center flex-shrink-0">
+                  <Play className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    {isSwahili ? "Sehemu" : "Section"} {resumeCourse.section + 1} {isSwahili ? "ya" : "of"} {resumeCourse.total}
+                  </p>
+                  <h3 className="text-lg font-bold text-foreground leading-snug mb-3 line-clamp-2">
+                    {resumeCourse.courseTitle}
+                  </h3>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full eco-gradient-bg rounded-full transition-all" style={{ width: `${resumePercent}%` }} />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">{resumePercent}% {isSwahili ? "imekamilika" : "complete"}</p>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground mb-3">
-                {isSwahili ? "Uko karibu kufikia kiwango kipya!" : "You're close to the next level!"}
-              </p>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full eco-gradient-bg rounded-full transition-all" style={{ width: `${Math.min((user.ecoPoints / 2000) * 100, 100)}%` }} />
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/tools")}
+              className="eco-card-elevated w-full text-left p-6 flex items-center gap-4"
+            >
+              <div className="w-12 h-12 rounded-2xl eco-gradient-bg flex items-center justify-center flex-shrink-0">
+                <GraduationCap className="w-6 h-6 text-primary-foreground" />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {Math.max(2000 - user.ecoPoints, 0)} more to Gold EcoWarrior
-              </p>
+              <div className="flex-1">
+                <h3 className="font-bold text-foreground">
+                  {isSwahili ? "Anza kozi yako ya kwanza" : "Start your first course"}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {isSwahili ? "Jifunze na upate cheti" : "Learn climate skills and earn a certificate"}
+                </p>
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground" />
+            </button>
+          )}
+        </section>
+
+        {/* New courses for you */}
+        {newCourses.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-semibold text-foreground">
+                {isSwahili ? "Kozi Mpya Kwako" : "New courses for you"}
+              </h2>
+              <button onClick={() => navigate("/tools")} className="text-xs font-medium text-primary inline-flex items-center">
+                {isSwahili ? "Zote" : "See all"} <ChevronRight className="w-3.5 h-3.5" />
+              </button>
             </div>
-          </div>
-        </div>
+            <div className="flex gap-3 overflow-x-auto hide-scrollbar -mx-4 px-4 pb-1 snap-x">
+              {newCourses.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => navigate(`/module/${c.id}`)}
+                  className="eco-card p-4 w-[15rem] flex-shrink-0 text-left snap-start"
+                >
+                  <div className="w-9 h-9 rounded-xl eco-gradient-bg flex items-center justify-center mb-3">
+                    <GraduationCap className="w-4.5 h-4.5 text-primary-foreground" />
+                  </div>
+                  <h3 className="font-semibold text-sm text-foreground leading-snug line-clamp-2 mb-1">{c.title}</h3>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{c.description}</p>
+                  <div className="flex items-center gap-2 mt-3">
+                    {c.category && <span className="eco-badge text-[10px]">{c.category}</span>}
+                    {c.duration && <span className="text-[10px] text-muted-foreground">{c.duration}</span>}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
-        <DashboardHomeContent quickActions={quickActions} navigate={navigate} isSwahili={isSwahili} dailyChallenge={dailyChallenge} handleCompleteChallenge={handleCompleteChallenge} handleStartChallenge={handleStartChallenge} challenges={challenges} user={user} productCount={productCount} isDeveloper={false} />
+        {/* Fresh in EcoMarket */}
+        {products.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-semibold text-foreground">
+                {isSwahili ? "Mpya katika EcoMarket" : "Fresh in EcoMarket"}
+              </h2>
+              <button onClick={() => navigate("/ecomarket")} className="text-xs font-medium text-primary inline-flex items-center">
+                {isSwahili ? "Zote" : "See all"} <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div className="flex gap-3 overflow-x-auto hide-scrollbar -mx-4 px-4 pb-1 snap-x">
+              {products.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => navigate("/ecomarket")}
+                  className="eco-card w-[10.5rem] flex-shrink-0 text-left overflow-hidden snap-start"
+                >
+                  <div className="w-full h-28 bg-muted">
+                    {p.media_url ? (
+                      <img src={p.media_url} alt={p.product_name} loading="lazy" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ShoppingBag className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-semibold text-sm text-foreground line-clamp-2 leading-snug">{p.product_name}</h3>
+                    {p.org_name && <p className="text-[10px] text-muted-foreground truncate">{p.org_name}</p>}
+                    <p className="text-sm font-bold eco-gradient-text mt-1">KES {p.price?.toLocaleString()}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Your certificates */}
+        {certs.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-semibold text-foreground">
+                {isSwahili ? "Vyeti Vyako" : "Your certificates"}
+              </h2>
+              <button onClick={() => navigate("/profile")} className="text-xs font-medium text-primary inline-flex items-center">
+                {isSwahili ? "Zote" : "See all"} <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div className="flex gap-2 overflow-x-auto hide-scrollbar -mx-4 px-4 pb-1">
+              {certs.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => navigate("/profile")}
+                  className="eco-card px-3 py-2 flex items-center gap-2 flex-shrink-0 max-w-[14rem]"
+                >
+                  <Award className="w-4 h-4 text-[hsl(var(--eco-gold))] flex-shrink-0" />
+                  <span className="text-xs font-medium text-foreground truncate">{c.title}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Quick links */}
+        <section>
+          <div className="grid grid-cols-3 gap-2">
+            {quickLinks.map((q) => (
+              <button
+                key={q.path}
+                onClick={() => navigate(q.path)}
+                className="eco-card p-3 flex flex-col items-center gap-1.5"
+              >
+                <q.icon className="w-4 h-4 text-primary" />
+                <span className="text-[11px] font-medium text-foreground text-center leading-tight">{q.label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
       </div>
 
-      {/* AI Assistant - only on dashboard */}
       <EcoSwarmChatbot />
     </AppLayout>
-  );
-}
-
-function DashboardHomeContent({ quickActions, navigate, isSwahili, dailyChallenge, handleStartChallenge }: any) {
-  return (
-    <>
-      {/* Quick Actions - Expanded Grid */}
-      <div>
-        <h2 className="font-semibold text-foreground mb-3">{isSwahili ? "Hatua za Haraka" : "Quick Actions"}</h2>
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2">
-          {quickActions.map((action: any) => (
-            <button key={action.id} onClick={() => navigate(action.path)} className="eco-card p-2.5 flex flex-col items-center gap-1.5 hover:shadow-lg transition-all">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}>
-                <action.icon className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-[9px] font-medium text-foreground text-center leading-tight">{action.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Daily Challenge - only for EcoWarriors */}
-      {dailyChallenge && (
-        <div className="eco-card p-4 border-l-4 border-l-eco-gold">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">{isSwahili ? "Changamoto ya Leo" : "Daily Challenge"}</p>
-              <h3 className="font-semibold text-foreground">{dailyChallenge.title}</h3>
-              <p className="text-sm text-muted-foreground">{dailyChallenge.description}</p>
-            </div>
-            <EcoPointsBadge points={dailyChallenge.points} size="sm" />
-          </div>
-          <button onClick={() => handleStartChallenge(dailyChallenge.id)} className="w-full eco-button-primary py-3 flex items-center justify-center gap-2">
-            <Trophy className="w-5 h-5" />
-            {isSwahili ? "Anza Changamoto" : "Start Challenge"}
-          </button>
-        </div>
-      )}
-    </>
   );
 }
