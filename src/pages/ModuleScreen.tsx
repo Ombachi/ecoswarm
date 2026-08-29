@@ -199,6 +199,17 @@ export function ModuleScreen() {
     );
   }
 
+  // Record where the learner is so Home can offer "Continue learning".
+  useEffect(() => {
+    if (!moduleId || !module || sections.length === 0 || showQuiz) return;
+    saveCourseProgress({
+      courseId: moduleId,
+      courseTitle: module.title,
+      section: currentSection,
+      total: sections.length,
+    });
+  }, [moduleId, module, sections.length, currentSection, showQuiz]);
+
   const handleNextSection = () => {
     if (currentSection < sections.length - 1) {
       setCurrentSection(currentSection + 1);

@@ -95,9 +95,7 @@ export function DashboardScreen() {
     );
   }
 
-  const resumeCourse = progress && courses.some((c) => c.id === progress.courseId) === false
-    ? progress
-    : progress;
+  const resumeCourse = progress;
   const resumePercent = resumeCourse
     ? Math.min(Math.round(((resumeCourse.section + 1) / Math.max(resumeCourse.total, 1)) * 100), 100)
     : 0;
