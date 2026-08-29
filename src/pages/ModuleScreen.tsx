@@ -13,6 +13,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { sanitizeCourseHtml } from '@/lib/sanitize';
+import { saveCourseProgress, clearCourseProgress } from '@/lib/courseProgress';
 
 interface Section {
   id: string;
@@ -201,6 +202,12 @@ export function ModuleScreen() {
   const handleNextSection = () => {
     if (currentSection < sections.length - 1) {
       setCurrentSection(currentSection + 1);
+      saveCourseProgress({
+        courseId: moduleId!,
+        courseTitle: module?.title || 'EcoSwarm Course',
+        section: currentSection + 1,
+        total: sections.length,
+      });
     } else {
       setShowQuiz(true);
     }
@@ -234,6 +241,7 @@ export function ModuleScreen() {
       if (finalScore >= questions.length * 0.7 && !alreadyCompleted) {
         setShowConfetti(true);
         addPoints(module.points);
+        clearCourseProgress(moduleId!);
         await completeCourse(moduleId!);
         supabase.rpc('award_co2', { p_user_id: user!.id, p_action_type: 'course_completed' });
 
