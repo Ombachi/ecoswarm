@@ -435,7 +435,8 @@ export function EcoMarketScreen() {
 
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
-        <div className="flex items-center justify-between mb-3">
+        <div className="max-w-6xl mx-auto w-full">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div>
             <h1 className="text-xl font-bold text-foreground">EcoMarket</h1>
             <p className="text-xs text-muted-foreground">Eco-friendly products & services</p>
