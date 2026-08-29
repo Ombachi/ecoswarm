@@ -164,6 +164,17 @@ export function ModuleScreen() {
     checkIfCompleted();
   }, [moduleId, user]);
 
+  // Record where the learner is so Home can offer "Continue learning".
+  useEffect(() => {
+    if (!moduleId || !module || sections.length === 0 || showQuiz) return;
+    saveCourseProgress({
+      courseId: moduleId,
+      courseTitle: module.title,
+      section: currentSection,
+      total: sections.length,
+    });
+  }, [moduleId, module, sections.length, currentSection, showQuiz]);
+
   const checkIfCompleted = async () => {
     if (!user || !moduleId) return;
     const { data } = await supabase
@@ -198,17 +209,6 @@ export function ModuleScreen() {
       </AppLayout>
     );
   }
-
-  // Record where the learner is so Home can offer "Continue learning".
-  useEffect(() => {
-    if (!moduleId || !module || sections.length === 0 || showQuiz) return;
-    saveCourseProgress({
-      courseId: moduleId,
-      courseTitle: module.title,
-      section: currentSection,
-      total: sections.length,
-    });
-  }, [moduleId, module, sections.length, currentSection, showQuiz]);
 
   const handleNextSection = () => {
     if (currentSection < sections.length - 1) {
