@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { ArrowRight, GraduationCap, ShoppingBag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useLandingNav } from "@/hooks/useLandingNav";
 
 const heroPoster = "/ecoswarm-hero-poster.jpg";
 const heroVideo = "/ecoswarm-hero.mp4";
@@ -16,6 +19,7 @@ const statements = ["Learn climate skills", "Shop sustainably", "Build a greener
  *   playsInline + muted for autoplay on mobile, preload="metadata".
  */
 export function PremiumHero(_props: PremiumHeroProps) {
+  const go = useLandingNav();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [showVideo, setShowVideo] = useState(false);
 
@@ -103,6 +107,27 @@ export function PremiumHero(_props: PremiumHeroProps) {
               </motion.h2>
             ))}
           </div>
+
+          {/* ── Primary CTAs ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.05 }}
+            className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3"
+          >
+            <Button size="lg" className="h-12 px-6 text-base" onClick={() => go("/tools")}>
+              <GraduationCap className="w-5 h-5 mr-2" /> Browse courses
+            </Button>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="h-12 px-6 text-base"
+              onClick={() => go("/ecomarket")}
+            >
+              <ShoppingBag className="w-5 h-5 mr-2" /> Shop EcoMarket
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          </motion.div>
         </div>
       </div>
 
