@@ -34,23 +34,28 @@ interface Question {
  * Render course content as HTML. New content is authored as HTML by the WYSIWYG editor.
  * Legacy markdown-style content is converted on the fly (no asterisks or hashtags rendered).
  */
-function RenderCourseContent({ content }: { content: string }) {
+function RenderCourseContent({ content, large = false }: { content: string; large?: boolean }) {
   const html = toHtml(content || '');
   return (
     <div
       className={
         'prose prose-sm max-w-none text-foreground ' +
-        '[&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mt-4 [&_h2]:mb-2 ' +
-        '[&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-foreground [&_h3]:mt-3 [&_h3]:mb-2 ' +
-        '[&_h4]:text-base [&_h4]:font-bold [&_h4]:text-foreground [&_h4]:mt-2 [&_h4]:mb-1 ' +
+        (large
+          ? '[&_h2]:text-2xl [&_h3]:text-xl [&_h4]:text-lg [&_p]:text-lg [&_li]:text-lg [&_blockquote]:text-lg '
+          : '[&_h2]:text-xl [&_h3]:text-lg [&_h4]:text-base [&_p]:text-sm [&_li]:text-sm ') +
+        '[&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mt-4 [&_h2]:mb-2 ' +
+        '[&_h3]:font-bold [&_h3]:text-foreground [&_h3]:mt-3 [&_h3]:mb-2 ' +
+        '[&_h4]:font-bold [&_h4]:text-foreground [&_h4]:mt-2 [&_h4]:mb-1 ' +
         '[&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_blockquote]:my-2 ' +
         '[&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 ' +
-        '[&_a]:text-primary [&_a]:underline [&_a]:break-all hover:[&_a]:opacity-80 ' +
+        '[&_a]:text-primary [&_a]:underline [&_a]:break-words hover:[&_a]:opacity-80 ' +
         '[&_b]:font-bold [&_strong]:font-bold [&_i]:italic [&_em]:italic [&_u]:underline ' +
-        '[&_p]:my-1 [&_p]:text-sm [&_p]:leading-relaxed ' +
-        '[&_img]:w-full [&_img]:rounded-xl [&_img]:my-3 [&_img]:max-h-[400px] [&_img]:object-contain ' +
-        '[&_video]:w-full [&_video]:rounded-xl [&_video]:my-3 ' +
-        '[&_iframe]:w-full [&_iframe]:h-full'
+        '[&_p]:my-1.5 [&_p]:leading-relaxed ' +
+        '[&_img]:w-full [&_img]:h-auto [&_img]:rounded-xl [&_img]:my-3 [&_img]:max-h-[60vh] [&_img]:object-contain ' +
+        '[&_video]:w-full [&_video]:h-auto [&_video]:aspect-video [&_video]:rounded-xl [&_video]:my-3 [&_video]:bg-black ' +
+        '[&_iframe]:w-full [&_iframe]:h-auto [&_iframe]:aspect-video [&_iframe]:rounded-xl [&_iframe]:my-3 [&_iframe]:border-0 ' +
+        '[&_.aspect-video>iframe]:h-full [&_.aspect-video>iframe]:my-0 [&_.aspect-video>iframe]:rounded-none ' +
+        '[&_table]:block [&_table]:w-full [&_table]:overflow-x-auto'
       }
       dangerouslySetInnerHTML={{ __html: sanitizeCourseHtml(html) }}
     />
