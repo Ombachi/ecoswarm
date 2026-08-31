@@ -11,6 +11,7 @@ import {
   Award,
   BookOpen,
   HelpCircle,
+  Type,
 } from 'lucide-react';
 import { sanitizeCourseHtml } from '@/lib/sanitize';
 import { saveCourseProgress, clearCourseProgress } from '@/lib/courseProgress';
