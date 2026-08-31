@@ -277,7 +277,20 @@ export function EcoMarketScreen() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const filteredProducts = searchResults !== null ? searchResults : products;
+  const baseProducts = searchResults !== null ? searchResults : products;
+  // Search results are not category-scoped server-side, so scope them here.
+  const scopedProducts = searchResults !== null && categoryFilter
+    ? baseProducts.filter((p) => p.category === categoryFilter)
+    : baseProducts;
+
+  const filteredProducts = [...scopedProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'price_asc': return (a.price || 0) - (b.price || 0);
+      case 'price_desc': return (b.price || 0) - (a.price || 0);
+      case 'name': return (a.product_name || '').localeCompare(b.product_name || '');
+      default: return (b.created_at || '').localeCompare(a.created_at || '');
+    }
+  });
 
   const handleProductCreated = async (productData: {
     orgName: string;
