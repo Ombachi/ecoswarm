@@ -529,6 +529,27 @@ export function EcoMarketScreen() {
             </button>
           ))}
         </div>
+
+        {/* Sort + result count */}
+        <div className="flex items-center justify-between gap-2 mt-3">
+          <span className="text-[11px] text-muted-foreground">
+            {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+          </span>
+          <label className="relative flex items-center">
+            <ArrowUpDown className="absolute left-2.5 w-3.5 h-3.5 text-muted-foreground pointer-events-none" aria-hidden="true" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              aria-label="Sort products"
+              className="appearance-none pl-8 pr-7 py-1.5 rounded-full bg-muted text-muted-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/40"
+            >
+              {sortOptions.map((o) => (
+                <option key={o.id} value={o.id}>{o.label}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-2.5 w-3.5 h-3.5 text-muted-foreground pointer-events-none" aria-hidden="true" />
+          </label>
+        </div>
         </div>
       </div>
 
@@ -537,12 +558,25 @@ export function EcoMarketScreen() {
           {/* Products Grid - responsive */}
           <div className="p-4 pb-24 max-w-6xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredProducts.length === 0 ? (
-              <div className="col-span-full text-center py-12">
-                <ShoppingBag className="w-12 h-12 mx-auto text-muted-foreground mb-4" aria-hidden="true" />
-                <p className="text-muted-foreground">
-                  {searchQuery ? 'No products match your search' : 'No products yet. Be the first to list!'}
-                </p>
-              </div>
+              <EmptyState
+                icon={<ShoppingBag className="w-7 h-7" />}
+                title={searchQuery || categoryFilter ? 'No products match your filters' : 'No products yet'}
+                description={
+                  searchQuery || categoryFilter
+                    ? 'Try a different search term or category.'
+                    : 'Eco-friendly products will appear here as soon as they are listed.'
+                }
+                action={
+                  (searchQuery || categoryFilter) ? (
+                    <button
+                      onClick={() => { setSearchQuery(''); setCategoryFilter(''); }}
+                      className="eco-button-secondary py-2 px-4 text-sm"
+                    >
+                      Clear filters
+                    </button>
+                  ) : undefined
+                }
+              />
             ) : (
               filteredProducts.map((product, index) => {
                 const media = getProductMedia(product);
