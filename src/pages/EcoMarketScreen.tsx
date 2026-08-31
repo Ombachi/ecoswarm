@@ -11,11 +11,21 @@ import { Confetti } from '@/components/common/Confetti';
 import { toast } from 'sonner';
 import {
   Search, Plus, Phone, Loader2, X, ShoppingBag, ChevronDown, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, MessageCircle,
-  Leaf, Check, Sparkles, Share2, ShieldCheck,
+  Leaf, Check, Sparkles, Share2, ShieldCheck, ArrowUpDown,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { calculateSmartBuy, formatPointsWithKes } from '@/lib/ecoPointsConversion';
+import { ProductGridSkeleton, EmptyState } from '@/components/common/Skeletons';
+
+type SortOption = 'newest' | 'price_asc' | 'price_desc' | 'name';
+
+const sortOptions: { id: SortOption; label: string }[] = [
+  { id: 'newest', label: 'Newest first' },
+  { id: 'price_asc', label: 'Price: low to high' },
+  { id: 'price_desc', label: 'Price: high to low' },
+  { id: 'name', label: 'Name: A to Z' },
+];
 
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
