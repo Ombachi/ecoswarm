@@ -11,9 +11,11 @@ import {
   Award,
   BookOpen,
   HelpCircle,
+  Type,
 } from 'lucide-react';
 import { sanitizeCourseHtml } from '@/lib/sanitize';
 import { saveCourseProgress, clearCourseProgress } from '@/lib/courseProgress';
+import { SkeletonBlock, EmptyState } from '@/components/common/Skeletons';
 
 interface Section {
   id: string;
@@ -34,23 +36,28 @@ interface Question {
  * Render course content as HTML. New content is authored as HTML by the WYSIWYG editor.
  * Legacy markdown-style content is converted on the fly (no asterisks or hashtags rendered).
  */
-function RenderCourseContent({ content }: { content: string }) {
+function RenderCourseContent({ content, large = false }: { content: string; large?: boolean }) {
   const html = toHtml(content || '');
   return (
     <div
       className={
         'prose prose-sm max-w-none text-foreground ' +
-        '[&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mt-4 [&_h2]:mb-2 ' +
-        '[&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-foreground [&_h3]:mt-3 [&_h3]:mb-2 ' +
-        '[&_h4]:text-base [&_h4]:font-bold [&_h4]:text-foreground [&_h4]:mt-2 [&_h4]:mb-1 ' +
+        (large
+          ? '[&_h2]:text-2xl [&_h3]:text-xl [&_h4]:text-lg [&_p]:text-lg [&_li]:text-lg [&_blockquote]:text-lg '
+          : '[&_h2]:text-xl [&_h3]:text-lg [&_h4]:text-base [&_p]:text-sm [&_li]:text-sm ') +
+        '[&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mt-4 [&_h2]:mb-2 ' +
+        '[&_h3]:font-bold [&_h3]:text-foreground [&_h3]:mt-3 [&_h3]:mb-2 ' +
+        '[&_h4]:font-bold [&_h4]:text-foreground [&_h4]:mt-2 [&_h4]:mb-1 ' +
         '[&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted-foreground [&_blockquote]:my-2 ' +
         '[&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 ' +
-        '[&_a]:text-primary [&_a]:underline [&_a]:break-all hover:[&_a]:opacity-80 ' +
+        '[&_a]:text-primary [&_a]:underline [&_a]:break-words hover:[&_a]:opacity-80 ' +
         '[&_b]:font-bold [&_strong]:font-bold [&_i]:italic [&_em]:italic [&_u]:underline ' +
-        '[&_p]:my-1 [&_p]:text-sm [&_p]:leading-relaxed ' +
-        '[&_img]:w-full [&_img]:rounded-xl [&_img]:my-3 [&_img]:max-h-[400px] [&_img]:object-contain ' +
-        '[&_video]:w-full [&_video]:rounded-xl [&_video]:my-3 ' +
-        '[&_iframe]:w-full [&_iframe]:h-full'
+        '[&_p]:my-1.5 [&_p]:leading-relaxed ' +
+        '[&_img]:w-full [&_img]:h-auto [&_img]:rounded-xl [&_img]:my-3 [&_img]:max-h-[60vh] [&_img]:object-contain ' +
+        '[&_video]:w-full [&_video]:h-auto [&_video]:aspect-video [&_video]:rounded-xl [&_video]:my-3 [&_video]:bg-black ' +
+        '[&_iframe]:w-full [&_iframe]:h-auto [&_iframe]:aspect-video [&_iframe]:rounded-xl [&_iframe]:my-3 [&_iframe]:border-0 ' +
+        '[&_.aspect-video>iframe]:h-full [&_.aspect-video>iframe]:my-0 [&_.aspect-video>iframe]:rounded-none ' +
+        '[&_table]:block [&_table]:w-full [&_table]:overflow-x-auto'
       }
       dangerouslySetInnerHTML={{ __html: sanitizeCourseHtml(html) }}
     />
@@ -125,6 +132,17 @@ export function ModuleScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [totalModules, setTotalModules] = useState(0);
   const [isLoadingModule, setIsLoadingModule] = useState(true);
+  const [largeText, setLargeText] = useState(() => {
+    try { return localStorage.getItem('ecoswarm_large_text') === '1'; } catch { return false; }
+  });
+
+  const toggleLargeText = () => {
+    setLargeText((prev) => {
+      const next = !prev;
+      try { localStorage.setItem('ecoswarm_large_text', next ? '1' : '0'); } catch {}
+      return next;
+    });
+  };
 
   // Fetch course, sections, and questions from database
   useEffect(() => {
@@ -189,9 +207,21 @@ export function ModuleScreen() {
   if (isLoadingModule) {
     return (
       <AppLayout>
-        <div className="p-4 text-center">
-          <div className="w-8 h-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading module...</p>
+        <div className="p-4 max-w-3xl mx-auto w-full space-y-4" aria-busy="true" aria-label="Loading module">
+          <SkeletonBlock className="h-5 w-2/3" />
+          <SkeletonBlock className="h-1.5 w-full" />
+          <div className="eco-card p-5 space-y-3">
+            <SkeletonBlock className="h-4 w-28" />
+            <SkeletonBlock className="h-6 w-3/4" />
+            <SkeletonBlock className="h-40 w-full" />
+            <SkeletonBlock className="h-3 w-full" />
+            <SkeletonBlock className="h-3 w-11/12" />
+            <SkeletonBlock className="h-3 w-2/3" />
+          </div>
+          <div className="flex gap-3">
+            <SkeletonBlock className="h-12 flex-1" />
+            <SkeletonBlock className="h-12 flex-1" />
+          </div>
         </div>
       </AppLayout>
     );
@@ -200,11 +230,17 @@ export function ModuleScreen() {
   if (!module || sections.length === 0) {
     return (
       <AppLayout>
-        <div className="p-4 text-center">
-          <p className="text-muted-foreground">Module not found or has no content yet.</p>
-          <button onClick={() => navigate('/tools')} className="eco-button-primary mt-4">
-            Go Back
-          </button>
+        <div className="max-w-3xl mx-auto w-full">
+          <EmptyState
+            icon={<BookOpen className="w-7 h-7" />}
+            title="Nothing to learn here yet"
+            description="This module has no published content. Try another course in the Capacity Hub."
+            action={
+              <button onClick={() => navigate('/tools')} className="eco-button-primary py-2.5 px-5 text-sm">
+                Back to Capacity Hub
+              </button>
+            }
+          />
         </div>
       </AppLayout>
     );
@@ -295,33 +331,47 @@ export function ModuleScreen() {
         />
       )}
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
-        <div className="flex items-center gap-4 mb-3">
-          <button
-            onClick={() => navigate('/tools')}
-            className="p-2 rounded-full bg-muted text-muted-foreground"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <div className="flex-1">
-            <h1 className="text-lg font-bold text-foreground">{module.title}</h1>
-            <p className="text-xs text-muted-foreground">{module.category} • {module.duration}</p>
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
+        <div className="max-w-3xl mx-auto w-full">
+          <div className="flex items-center gap-3 mb-3">
+            <button
+              onClick={() => navigate('/tools')}
+              className="p-2 rounded-full bg-muted text-muted-foreground flex-shrink-0"
+              aria-label="Back to Capacity Hub"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-base sm:text-lg font-bold text-foreground truncate">{module.title}</h1>
+              <p className="text-xs text-muted-foreground truncate">{module.category} • {module.duration}</p>
+            </div>
+            <button
+              onClick={toggleLargeText}
+              aria-pressed={largeText}
+              title={largeText ? 'Switch to normal text size' : 'Switch to large text'}
+              className={`flex-shrink-0 flex items-center gap-1 px-3 py-2 rounded-full text-xs font-bold transition-colors ${
+                largeText ? 'eco-gradient-bg text-white' : 'bg-muted text-muted-foreground'
+              }`}
+            >
+              <Type className="w-4 h-4" />
+              {largeText ? 'A+' : 'A'}
+            </button>
           </div>
-        </div>
 
-        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full eco-gradient-bg rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
+          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full eco-gradient-bg rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-4 pb-28 max-w-3xl mx-auto w-full">
         {!showQuiz && !quizCompleted && (
           <div className="animate-slide-up">
-            <div className="eco-card p-6 mb-6">
+            <div className="eco-card p-4 sm:p-6 mb-6">
               <div className="flex items-center gap-2 mb-4">
                 <BookOpen className="w-5 h-5 text-primary" />
                 <span className="text-sm text-muted-foreground">
@@ -329,12 +379,12 @@ export function ModuleScreen() {
                 </span>
               </div>
 
-              <h2 className="text-xl font-bold text-foreground mb-4">
+              <h2 className={`font-bold text-foreground mb-4 ${largeText ? 'text-2xl' : 'text-lg sm:text-xl'}`}>
                 {sections[currentSection].title}
               </h2>
 
-              <div className="prose prose-sm text-foreground">
-                <RenderCourseContent content={sections[currentSection].content} />
+              <div className="overflow-x-hidden">
+                <RenderCourseContent content={sections[currentSection].content} large={largeText} />
               </div>
             </div>
 
@@ -342,13 +392,13 @@ export function ModuleScreen() {
               <button
                 onClick={handlePrevSection}
                 disabled={currentSection === 0}
-                className="flex-1 eco-button-secondary py-3 disabled:opacity-50"
+                className="flex-1 eco-button-secondary py-3.5 min-h-[3rem] disabled:opacity-50"
               >
                 Previous
               </button>
               <button
                 onClick={handleNextSection}
-                className="flex-1 eco-button-primary py-3 flex items-center justify-center gap-2"
+                className="flex-1 eco-button-primary py-3.5 min-h-[3rem] flex items-center justify-center gap-2"
               >
                 {currentSection === sections.length - 1 ? (
                   <>
@@ -368,42 +418,58 @@ export function ModuleScreen() {
 
         {showQuiz && !quizCompleted && questions.length > 0 && (
           <div className="animate-slide-up">
-            <div className="eco-card p-6 mb-6">
-              <div className="flex items-center gap-2 mb-4">
-                <HelpCircle className="w-5 h-5 text-primary" />
-                <span className="text-sm text-muted-foreground">
-                  Question {currentQuestion + 1} of {questions.length}
-                </span>
+            <div className="eco-card p-4 sm:p-6 mb-4">
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <div className="flex items-center gap-2">
+                  <HelpCircle className="w-5 h-5 text-primary" />
+                  <span className="text-sm text-muted-foreground">
+                    Question {currentQuestion + 1} of {questions.length}
+                  </span>
+                </div>
+                <div className="flex gap-1" aria-hidden="true">
+                  {questions.map((_, i) => (
+                    <span key={i} className={`h-1.5 w-4 rounded-full ${i <= currentQuestion ? 'bg-primary' : 'bg-muted'}`} />
+                  ))}
+                </div>
               </div>
 
-              <h2 className="text-lg font-bold text-foreground mb-6">
+              <h2 className={`font-bold text-foreground mb-5 ${largeText ? 'text-xl' : 'text-base sm:text-lg'}`}>
                 {questions[currentQuestion].question}
               </h2>
 
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {questions[currentQuestion].options.map((option, index) => (
                   <button
                     key={index}
                     onClick={() => handleAnswer(index)}
-                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                    aria-pressed={selectedAnswer === index}
+                    className={`w-full min-h-[3.25rem] px-4 py-3 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${
                       selectedAnswer === index
                         ? 'border-primary bg-eco-green-light'
                         : 'border-border bg-card hover:border-primary/50'
                     }`}
                   >
-                    <span className="font-medium text-foreground">{option}</span>
+                    <span className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${
+                      selectedAnswer === index ? 'eco-gradient-bg text-white' : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {String.fromCharCode(65 + index)}
+                    </span>
+                    <span className={`font-medium text-foreground break-words ${largeText ? 'text-lg' : 'text-sm sm:text-base'}`}>{option}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <button
-              onClick={handleNextQuestion}
-              disabled={selectedAnswer === null}
-              className="w-full eco-button-primary py-4 disabled:opacity-50"
-            >
-              {currentQuestion === questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
-            </button>
+            {/* Sticky quiz control — always reachable on small screens */}
+            <div className="sticky bottom-24 sm:bottom-4 z-20 pt-2">
+              <button
+                onClick={handleNextQuestion}
+                disabled={selectedAnswer === null}
+                className="w-full eco-button-primary py-4 min-h-[3.25rem] shadow-lg disabled:opacity-50"
+              >
+                {currentQuestion === questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
+              </button>
+            </div>
           </div>
         )}
 

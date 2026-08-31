@@ -11,11 +11,21 @@ import { Confetti } from '@/components/common/Confetti';
 import { toast } from 'sonner';
 import {
   Search, Plus, Phone, Loader2, X, ShoppingBag, ChevronDown, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, MessageCircle,
-  Leaf, Check, Sparkles, Share2, ShieldCheck,
+  Leaf, Check, Sparkles, Share2, ShieldCheck, ArrowUpDown,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { calculateSmartBuy, formatPointsWithKes } from '@/lib/ecoPointsConversion';
+import { ProductGridSkeleton, EmptyState } from '@/components/common/Skeletons';
+
+type SortOption = 'newest' | 'price_asc' | 'price_desc' | 'name';
+
+const sortOptions: { id: SortOption; label: string }[] = [
+  { id: 'newest', label: 'Newest first' },
+  { id: 'price_asc', label: 'Price: low to high' },
+  { id: 'price_desc', label: 'Price: high to low' },
+  { id: 'name', label: 'Name: A to Z' },
+];
 
 const ecoBadgeColors: Record<string, string> = {
   'Carbon Neutral': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -69,6 +79,7 @@ export function EcoMarketScreen() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [expandedDesc, setExpandedDesc] = useState<string | null>(null);
   const orgName = user?.name || 'EcoSwarm';
   const [trackedViews, setTrackedViews] = useState<Set<string>>(new Set());
@@ -266,7 +277,20 @@ export function EcoMarketScreen() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const filteredProducts = searchResults !== null ? searchResults : products;
+  const baseProducts = searchResults !== null ? searchResults : products;
+  // Search results are not category-scoped server-side, so scope them here.
+  const scopedProducts = searchResults !== null && categoryFilter
+    ? baseProducts.filter((p) => p.category === categoryFilter)
+    : baseProducts;
+
+  const filteredProducts = [...scopedProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'price_asc': return (a.price || 0) - (b.price || 0);
+      case 'price_desc': return (b.price || 0) - (a.price || 0);
+      case 'name': return (a.product_name || '').localeCompare(b.product_name || '');
+      default: return (b.created_at || '').localeCompare(a.created_at || '');
+    }
+  });
 
   const handleProductCreated = async (productData: {
     orgName: string;
@@ -422,8 +446,14 @@ export function EcoMarketScreen() {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" aria-label="Loading products" />
+        <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
+          <div className="max-w-6xl mx-auto w-full">
+            <h1 className="text-xl font-bold text-foreground">EcoMarket</h1>
+            <p className="text-xs text-muted-foreground">Eco-friendly products &amp; services</p>
+          </div>
+        </div>
+        <div className="p-4 pb-24 max-w-6xl mx-auto w-full">
+          <ProductGridSkeleton count={8} />
         </div>
       </AppLayout>
     );
@@ -499,6 +529,27 @@ export function EcoMarketScreen() {
             </button>
           ))}
         </div>
+
+        {/* Sort + result count */}
+        <div className="flex items-center justify-between gap-2 mt-3">
+          <span className="text-[11px] text-muted-foreground">
+            {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+          </span>
+          <label className="relative flex items-center">
+            <ArrowUpDown className="absolute left-2.5 w-3.5 h-3.5 text-muted-foreground pointer-events-none" aria-hidden="true" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              aria-label="Sort products"
+              className="appearance-none pl-8 pr-7 py-1.5 rounded-full bg-muted text-muted-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/40"
+            >
+              {sortOptions.map((o) => (
+                <option key={o.id} value={o.id}>{o.label}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-2.5 w-3.5 h-3.5 text-muted-foreground pointer-events-none" aria-hidden="true" />
+          </label>
+        </div>
         </div>
       </div>
 
@@ -507,12 +558,25 @@ export function EcoMarketScreen() {
           {/* Products Grid - responsive */}
           <div className="p-4 pb-24 max-w-6xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredProducts.length === 0 ? (
-              <div className="col-span-full text-center py-12">
-                <ShoppingBag className="w-12 h-12 mx-auto text-muted-foreground mb-4" aria-hidden="true" />
-                <p className="text-muted-foreground">
-                  {searchQuery ? 'No products match your search' : 'No products yet. Be the first to list!'}
-                </p>
-              </div>
+              <EmptyState
+                icon={<ShoppingBag className="w-7 h-7" />}
+                title={searchQuery || categoryFilter ? 'No products match your filters' : 'No products yet'}
+                description={
+                  searchQuery || categoryFilter
+                    ? 'Try a different search term or category.'
+                    : 'Eco-friendly products will appear here as soon as they are listed.'
+                }
+                action={
+                  (searchQuery || categoryFilter) ? (
+                    <button
+                      onClick={() => { setSearchQuery(''); setCategoryFilter(''); }}
+                      className="eco-button-secondary py-2 px-4 text-sm"
+                    >
+                      Clear filters
+                    </button>
+                  ) : undefined
+                }
+              />
             ) : (
               filteredProducts.map((product, index) => {
                 const media = getProductMedia(product);
