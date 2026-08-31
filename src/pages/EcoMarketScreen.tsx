@@ -446,8 +446,14 @@ export function EcoMarketScreen() {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" aria-label="Loading products" />
+        <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
+          <div className="max-w-6xl mx-auto w-full">
+            <h1 className="text-xl font-bold text-foreground">EcoMarket</h1>
+            <p className="text-xs text-muted-foreground">Eco-friendly products &amp; services</p>
+          </div>
+        </div>
+        <div className="p-4 pb-24 max-w-6xl mx-auto w-full">
+          <ProductGridSkeleton count={8} />
         </div>
       </AppLayout>
     );
