@@ -330,33 +330,47 @@ export function ModuleScreen() {
         />
       )}
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background border-b border-border px-4 py-3">
-        <div className="flex items-center gap-4 mb-3">
-          <button
-            onClick={() => navigate('/tools')}
-            className="p-2 rounded-full bg-muted text-muted-foreground"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <div className="flex-1">
-            <h1 className="text-lg font-bold text-foreground">{module.title}</h1>
-            <p className="text-xs text-muted-foreground">{module.category} • {module.duration}</p>
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
+        <div className="max-w-3xl mx-auto w-full">
+          <div className="flex items-center gap-3 mb-3">
+            <button
+              onClick={() => navigate('/tools')}
+              className="p-2 rounded-full bg-muted text-muted-foreground flex-shrink-0"
+              aria-label="Back to Capacity Hub"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-base sm:text-lg font-bold text-foreground truncate">{module.title}</h1>
+              <p className="text-xs text-muted-foreground truncate">{module.category} • {module.duration}</p>
+            </div>
+            <button
+              onClick={toggleLargeText}
+              aria-pressed={largeText}
+              title={largeText ? 'Switch to normal text size' : 'Switch to large text'}
+              className={`flex-shrink-0 flex items-center gap-1 px-3 py-2 rounded-full text-xs font-bold transition-colors ${
+                largeText ? 'eco-gradient-bg text-white' : 'bg-muted text-muted-foreground'
+              }`}
+            >
+              <Type className="w-4 h-4" />
+              {largeText ? 'A+' : 'A'}
+            </button>
           </div>
-        </div>
 
-        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full eco-gradient-bg rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
+          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full eco-gradient-bg rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-4 pb-28 max-w-3xl mx-auto w-full">
         {!showQuiz && !quizCompleted && (
           <div className="animate-slide-up">
-            <div className="eco-card p-6 mb-6">
+            <div className="eco-card p-4 sm:p-6 mb-6">
               <div className="flex items-center gap-2 mb-4">
                 <BookOpen className="w-5 h-5 text-primary" />
                 <span className="text-sm text-muted-foreground">
@@ -364,12 +378,12 @@ export function ModuleScreen() {
                 </span>
               </div>
 
-              <h2 className="text-xl font-bold text-foreground mb-4">
+              <h2 className={`font-bold text-foreground mb-4 ${largeText ? 'text-2xl' : 'text-lg sm:text-xl'}`}>
                 {sections[currentSection].title}
               </h2>
 
-              <div className="prose prose-sm text-foreground">
-                <RenderCourseContent content={sections[currentSection].content} />
+              <div className="overflow-x-hidden">
+                <RenderCourseContent content={sections[currentSection].content} large={largeText} />
               </div>
             </div>
 
@@ -377,13 +391,13 @@ export function ModuleScreen() {
               <button
                 onClick={handlePrevSection}
                 disabled={currentSection === 0}
-                className="flex-1 eco-button-secondary py-3 disabled:opacity-50"
+                className="flex-1 eco-button-secondary py-3.5 min-h-[3rem] disabled:opacity-50"
               >
                 Previous
               </button>
               <button
                 onClick={handleNextSection}
-                className="flex-1 eco-button-primary py-3 flex items-center justify-center gap-2"
+                className="flex-1 eco-button-primary py-3.5 min-h-[3rem] flex items-center justify-center gap-2"
               >
                 {currentSection === sections.length - 1 ? (
                   <>
