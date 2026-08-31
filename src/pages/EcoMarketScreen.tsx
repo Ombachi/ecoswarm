@@ -79,6 +79,7 @@ export function EcoMarketScreen() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [expandedDesc, setExpandedDesc] = useState<string | null>(null);
   const orgName = user?.name || 'EcoSwarm';
   const [trackedViews, setTrackedViews] = useState<Set<string>>(new Set());
