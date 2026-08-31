@@ -130,6 +130,17 @@ export function ModuleScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [totalModules, setTotalModules] = useState(0);
   const [isLoadingModule, setIsLoadingModule] = useState(true);
+  const [largeText, setLargeText] = useState(() => {
+    try { return localStorage.getItem('ecoswarm_large_text') === '1'; } catch { return false; }
+  });
+
+  const toggleLargeText = () => {
+    setLargeText((prev) => {
+      const next = !prev;
+      try { localStorage.setItem('ecoswarm_large_text', next ? '1' : '0'); } catch {}
+      return next;
+    });
+  };
 
   // Fetch course, sections, and questions from database
   useEffect(() => {
