@@ -205,9 +205,21 @@ export function ModuleScreen() {
   if (isLoadingModule) {
     return (
       <AppLayout>
-        <div className="p-4 text-center">
-          <div className="w-8 h-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading module...</p>
+        <div className="p-4 max-w-3xl mx-auto w-full space-y-4" aria-busy="true" aria-label="Loading module">
+          <SkeletonBlock className="h-5 w-2/3" />
+          <SkeletonBlock className="h-1.5 w-full" />
+          <div className="eco-card p-5 space-y-3">
+            <SkeletonBlock className="h-4 w-28" />
+            <SkeletonBlock className="h-6 w-3/4" />
+            <SkeletonBlock className="h-40 w-full" />
+            <SkeletonBlock className="h-3 w-full" />
+            <SkeletonBlock className="h-3 w-11/12" />
+            <SkeletonBlock className="h-3 w-2/3" />
+          </div>
+          <div className="flex gap-3">
+            <SkeletonBlock className="h-12 flex-1" />
+            <SkeletonBlock className="h-12 flex-1" />
+          </div>
         </div>
       </AppLayout>
     );
@@ -216,11 +228,17 @@ export function ModuleScreen() {
   if (!module || sections.length === 0) {
     return (
       <AppLayout>
-        <div className="p-4 text-center">
-          <p className="text-muted-foreground">Module not found or has no content yet.</p>
-          <button onClick={() => navigate('/tools')} className="eco-button-primary mt-4">
-            Go Back
-          </button>
+        <div className="max-w-3xl mx-auto w-full">
+          <EmptyState
+            icon={<BookOpen className="w-7 h-7" />}
+            title="Nothing to learn here yet"
+            description="This module has no published content. Try another course in the Capacity Hub."
+            action={
+              <button onClick={() => navigate('/tools')} className="eco-button-primary py-2.5 px-5 text-sm">
+                Back to Capacity Hub
+              </button>
+            }
+          />
         </div>
       </AppLayout>
     );
