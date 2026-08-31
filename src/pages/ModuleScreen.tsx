@@ -418,42 +418,58 @@ export function ModuleScreen() {
 
         {showQuiz && !quizCompleted && questions.length > 0 && (
           <div className="animate-slide-up">
-            <div className="eco-card p-6 mb-6">
-              <div className="flex items-center gap-2 mb-4">
-                <HelpCircle className="w-5 h-5 text-primary" />
-                <span className="text-sm text-muted-foreground">
-                  Question {currentQuestion + 1} of {questions.length}
-                </span>
+            <div className="eco-card p-4 sm:p-6 mb-4">
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <div className="flex items-center gap-2">
+                  <HelpCircle className="w-5 h-5 text-primary" />
+                  <span className="text-sm text-muted-foreground">
+                    Question {currentQuestion + 1} of {questions.length}
+                  </span>
+                </div>
+                <div className="flex gap-1" aria-hidden="true">
+                  {questions.map((_, i) => (
+                    <span key={i} className={`h-1.5 w-4 rounded-full ${i <= currentQuestion ? 'bg-primary' : 'bg-muted'}`} />
+                  ))}
+                </div>
               </div>
 
-              <h2 className="text-lg font-bold text-foreground mb-6">
+              <h2 className={`font-bold text-foreground mb-5 ${largeText ? 'text-xl' : 'text-base sm:text-lg'}`}>
                 {questions[currentQuestion].question}
               </h2>
 
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {questions[currentQuestion].options.map((option, index) => (
                   <button
                     key={index}
                     onClick={() => handleAnswer(index)}
-                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                    aria-pressed={selectedAnswer === index}
+                    className={`w-full min-h-[3.25rem] px-4 py-3 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${
                       selectedAnswer === index
                         ? 'border-primary bg-eco-green-light'
                         : 'border-border bg-card hover:border-primary/50'
                     }`}
                   >
-                    <span className="font-medium text-foreground">{option}</span>
+                    <span className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${
+                      selectedAnswer === index ? 'eco-gradient-bg text-white' : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {String.fromCharCode(65 + index)}
+                    </span>
+                    <span className={`font-medium text-foreground break-words ${largeText ? 'text-lg' : 'text-sm sm:text-base'}`}>{option}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <button
-              onClick={handleNextQuestion}
-              disabled={selectedAnswer === null}
-              className="w-full eco-button-primary py-4 disabled:opacity-50"
-            >
-              {currentQuestion === questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
-            </button>
+            {/* Sticky quiz control — always reachable on small screens */}
+            <div className="sticky bottom-24 sm:bottom-4 z-20 pt-2">
+              <button
+                onClick={handleNextQuestion}
+                disabled={selectedAnswer === null}
+                className="w-full eco-button-primary py-4 min-h-[3.25rem] shadow-lg disabled:opacity-50"
+              >
+                {currentQuestion === questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
+              </button>
+            </div>
           </div>
         )}
 
