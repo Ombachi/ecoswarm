@@ -1218,6 +1218,39 @@ export type Database = {
           },
         ]
       }
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          county: string | null
+          courses_completed: number | null
+          location: string | null
+          name: string | null
+          top_concern: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          county?: string | null
+          courses_completed?: number | null
+          location?: string | null
+          name?: string | null
+          top_concern?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          county?: string | null
+          courses_completed?: number | null
+          location?: string | null
+          name?: string | null
+          top_concern?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       award_co2: {
