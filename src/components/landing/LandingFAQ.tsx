@@ -8,11 +8,11 @@ const faqs = [
   },
   {
     q: "Do I need to pay for courses?",
-    a: "Courses in the Capacity Hub are free for every EcoWarrior. All you need is an account — create one in under a minute and start learning immediately.",
+    a: "Courses in the Capacity Hub are free for every EcoWarrior. All you need is an account.Create one in under a minute and start learning immediately.",
   },
   {
     q: "How do I buy a product from EcoMarket?",
-    a: "Open the product, tap Buy, and confirm the M-Pesa prompt on your phone. Payment is handled securely through M-Pesa — you'll get an in-app confirmation and your order appears under Purchases.",
+    a: "Open the product, tap Buy, and confirm the M-Pesa prompt on your phone. Payment is handled securely through M-Pesa. You will get an in-app confirmation and your order appears under Purchases.",
   },
   {
     q: "Do you accept coupons or discounts?",
