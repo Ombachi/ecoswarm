@@ -17,10 +17,7 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 
 export function AboutScreen() {
   const navigate = useNavigate();
-  usePageMeta(
-    "About",
-    "Learn about EcoSwarm — Kenya's platform for climate education and sustainable shopping.",
-  );
+  usePageMeta("About", "Learn about EcoSwarm — Kenya's platform for climate education and sustainable shopping.");
 
   const features = [
     {
@@ -83,7 +80,7 @@ export function AboutScreen() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-foreground">Our Mission</h2>
-              <p className="text-sm text-muted-foreground">Why we exist</p>
+              <p className="text-sm text-muted-foreground"></p>
             </div>
           </div>
           <p className="text-foreground leading-relaxed">
@@ -99,10 +96,13 @@ export function AboutScreen() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-foreground">Our Vision</h2>
-              <p className="text-sm text-muted-foreground">Where we are headed</p>
+              <p className="text-sm text-muted-foreground"></p>
             </div>
           </div>
-          <p className="text-foreground leading-relaxed"> A climate-literate Kenya where sustainable living is the easy choice. </p>
+          <p className="text-foreground leading-relaxed">
+            {" "}
+            A climate-literate Kenya where sustainable living is the easy choice.{" "}
+          </p>
         </div>
 
         {/* Why EcoSwarm */}
@@ -113,7 +113,8 @@ export function AboutScreen() {
           </h2>
           <div className="eco-card p-5 bg-gradient-to-br from-eco-green-light to-eco-blue-light border-none">
             <p className="text-foreground leading-relaxed mb-4">
-              We built EcoSwarm because we believe that <strong>the right knowledge and the right products can shape a greener Kenya</strong>.
+              We built EcoSwarm because we believe that{" "}
+              <strong>the right knowledge and the right products can shape a greener Kenya</strong>.
             </p>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">
