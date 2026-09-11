@@ -17,8 +17,6 @@ interface UserProfile {
   user_id: string;
   name: string;
   email: string;
-  eco_points: number | null;
-  streak: number | null;
   created_at: string;
   location: string | null;
   role?: string;
@@ -41,7 +39,7 @@ export function AdminUsersTab() {
     setIsLoading(true);
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('user_id, name, email, eco_points, streak, created_at, location')
+      .select('user_id, name, email, created_at, location')
       .order('created_at', { ascending: false });
 
     if (profiles) {
@@ -124,8 +122,6 @@ export function AdminUsersTab() {
               </div>
               <p className="text-xs text-muted-foreground truncate">{u.email}</p>
               <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground">
-                <span>{u.eco_points ?? 0} pts</span>
-                <span>🔥 {u.streak ?? 0}</span>
                 <span>{u.location || 'Unknown'}</span>
                 <span>{new Date(u.created_at).toLocaleDateString('en-KE', { day: 'numeric', month: 'short' })}</span>
               </div>

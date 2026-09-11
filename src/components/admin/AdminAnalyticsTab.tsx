@@ -4,7 +4,6 @@ import { Loader2, Users, TrendingUp, Leaf, Mail, TreePine, ShoppingBag, Graduati
 
 interface Stats {
   totalUsers: number;
-  totalEcoPoints: number;
   totalProducts: number;
   totalTransactions: number;
   totalRevenue: number;
@@ -52,7 +51,7 @@ export function AdminAnalyticsTab() {
     if (periodFilter) analyticsQuery = analyticsQuery.gte('created_at', periodFilter);
 
     const [profilesRes, productsRes, txRes, completionsRes, coursesRes, allCompletionsRes, commissionsRes, analyticsRes] = await Promise.all([
-      supabase.from('profiles').select('eco_points, co2_saved'),
+      supabase.from('profiles').select('co2_saved'),
       supabase.from('products').select('id', { count: 'exact', head: true }),
       supabase.from('transactions').select('total_price, status'),
       supabase.from('course_completions').select('id', { count: 'exact', head: true }),
@@ -119,7 +118,6 @@ export function AdminAnalyticsTab() {
 
     setStats({
       totalUsers: profiles.length,
-      totalEcoPoints: profiles.reduce((s, p) => s + (p.eco_points || 0), 0),
       totalCO2Saved: profiles.reduce((s, p) => s + Number(p.co2_saved || 0), 0),
       totalProducts: productsRes.count || 0,
       totalTransactions: completedTx.length,
@@ -139,7 +137,6 @@ export function AdminAnalyticsTab() {
 
   const cards = [
     { label: 'Total Users', value: stats.totalUsers.toLocaleString(), icon: Users, color: 'text-primary' },
-    { label: 'EcoPoints Issued', value: stats.totalEcoPoints.toLocaleString(), icon: Leaf, color: 'text-emerald-600' },
     { label: 'GMV (KSh)', value: stats.totalRevenue.toLocaleString(), icon: TrendingUp, color: 'text-amber-600' },
     { label: 'Platform Revenue', value: `KSh ${stats.totalCommissions.toLocaleString()}`, icon: DollarSign, color: 'text-emerald-600' },
     { label: 'Transactions', value: stats.totalTransactions.toLocaleString(), icon: ShoppingBag, color: 'text-primary' },
