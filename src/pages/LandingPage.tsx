@@ -224,9 +224,7 @@ export function LandingPage() {
             viewport={{ once: true }}
             className="text-center max-w-2xl mx-auto mb-12"
           >
-            <span className="eco-badge mb-4 inline-flex">
-              <Heart className="w-3.5 h-3.5" /> About EcoSwarm
-            </span>
+            <span className="eco-badge mb-4 inline-flex"></span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
               Kenya's Home for <span className="eco-gradient-text">Climate Learning</span> &{" "}
               <span className="eco-gradient-text">Green Shopping</span>
