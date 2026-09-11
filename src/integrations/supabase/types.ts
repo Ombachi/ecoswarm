@@ -91,229 +91,6 @@ export type Database = {
         }
         Relationships: []
       }
-      advocacy_responses: {
-        Row: {
-          advocacy_id: string
-          created_at: string
-          evidence_url: string | null
-          id: string
-          response_status: string
-          summary: string
-          updated_at: string
-          updated_by: string | null
-        }
-        Insert: {
-          advocacy_id: string
-          created_at?: string
-          evidence_url?: string | null
-          id?: string
-          response_status?: string
-          summary: string
-          updated_at?: string
-          updated_by?: string | null
-        }
-        Update: {
-          advocacy_id?: string
-          created_at?: string
-          evidence_url?: string | null
-          id?: string
-          response_status?: string
-          summary?: string
-          updated_at?: string
-          updated_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "advocacy_responses_advocacy_id_fkey"
-            columns: ["advocacy_id"]
-            isOneToOne: false
-            referencedRelation: "business_advocacy"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      advocacy_signers: {
-        Row: {
-          advocacy_id: string
-          id: string
-          signed_at: string
-          user_id: string
-        }
-        Insert: {
-          advocacy_id: string
-          id?: string
-          signed_at?: string
-          user_id: string
-        }
-        Update: {
-          advocacy_id?: string
-          id?: string
-          signed_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "advocacy_signers_advocacy_id_fkey"
-            columns: ["advocacy_id"]
-            isOneToOne: false
-            referencedRelation: "business_advocacy"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      business_advocacy: {
-        Row: {
-          cooldown_until: string | null
-          created_at: string
-          creator_id: string
-          days_since_sent: number | null
-          id: string
-          impact_report: string | null
-          min_signers: number
-          problem_statement: string
-          response_date: string | null
-          response_status: string | null
-          status: string
-          target_recipient_id: string | null
-          the_ask: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          cooldown_until?: string | null
-          created_at?: string
-          creator_id: string
-          days_since_sent?: number | null
-          id?: string
-          impact_report?: string | null
-          min_signers?: number
-          problem_statement: string
-          response_date?: string | null
-          response_status?: string | null
-          status?: string
-          target_recipient_id?: string | null
-          the_ask: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          cooldown_until?: string | null
-          created_at?: string
-          creator_id?: string
-          days_since_sent?: number | null
-          id?: string
-          impact_report?: string | null
-          min_signers?: number
-          problem_statement?: string
-          response_date?: string | null
-          response_status?: string | null
-          status?: string
-          target_recipient_id?: string | null
-          the_ask?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "business_advocacy_target_recipient_id_fkey"
-            columns: ["target_recipient_id"]
-            isOneToOne: false
-            referencedRelation: "public_recipients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "business_advocacy_target_recipient_id_fkey"
-            columns: ["target_recipient_id"]
-            isOneToOne: false
-            referencedRelation: "recipients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      challenges: {
-        Row: {
-          action_type: string | null
-          created_at: string
-          description: string
-          id: string
-          is_active: boolean
-          points: number
-          target_role: string | null
-          title: string
-          type: string
-        }
-        Insert: {
-          action_type?: string | null
-          created_at?: string
-          description: string
-          id?: string
-          is_active?: boolean
-          points?: number
-          target_role?: string | null
-          title: string
-          type?: string
-        }
-        Update: {
-          action_type?: string | null
-          created_at?: string
-          description?: string
-          id?: string
-          is_active?: boolean
-          points?: number
-          target_role?: string | null
-          title?: string
-          type?: string
-        }
-        Relationships: []
-      }
-      climate_news_seen: {
-        Row: {
-          created_at: string
-          post_id: string | null
-          source: string
-          source_url: string
-          title: string | null
-        }
-        Insert: {
-          created_at?: string
-          post_id?: string | null
-          source: string
-          source_url: string
-          title?: string | null
-        }
-        Update: {
-          created_at?: string
-          post_id?: string | null
-          source?: string
-          source_url?: string
-          title?: string | null
-        }
-        Relationships: []
-      }
-      climate_reminder_log: {
-        Row: {
-          event_date: string
-          event_year: number
-          id: string
-          sent_at: string
-          user_id: string
-        }
-        Insert: {
-          event_date: string
-          event_year: number
-          id?: string
-          sent_at?: string
-          user_id: string
-        }
-        Update: {
-          event_date?: string
-          event_year?: number
-          id?: string
-          sent_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       co2_matrix: {
         Row: {
           action_type: string
@@ -338,30 +115,86 @@ export type Database = {
         }
         Relationships: []
       }
-      comments: {
+      coupon_redemptions: {
         Row: {
-          content: string
+          coupon_id: string
           created_at: string
+          discount_amount: number
           id: string
-          post_id: string
+          product_id: string | null
           user_id: string
-          user_name: string
         }
         Insert: {
-          content: string
+          coupon_id: string
           created_at?: string
+          discount_amount?: number
           id?: string
-          post_id: string
+          product_id?: string | null
           user_id: string
-          user_name: string
         }
         Update: {
-          content?: string
+          coupon_id?: string
           created_at?: string
+          discount_amount?: number
           id?: string
-          post_id?: string
+          product_id?: string | null
           user_id?: string
-          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_redemptions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          discount_type: string
+          discount_value: number
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          max_redemptions: number | null
+          starts_at: string
+          times_used: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          starts_at?: string
+          times_used?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          starts_at?: string
+          times_used?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -554,42 +387,6 @@ export type Database = {
         }
         Relationships: []
       }
-      letter_templates: {
-        Row: {
-          category: string
-          content: string
-          created_at: string
-          created_by: string | null
-          id: string
-          is_active: boolean
-          sort_order: number
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          category: string
-          content: string
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          is_active?: boolean
-          sort_order?: number
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          category?: string
-          content?: string
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          is_active?: boolean
-          sort_order?: number
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       merch_orders: {
         Row: {
           created_at: string
@@ -713,42 +510,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      notification_fanout_queue: {
-        Row: {
-          enqueued_at: string
-          exclude_user_id: string | null
-          id: number
-          message: string
-          processed_at: string | null
-          recipients_count: number | null
-          reference_id: string | null
-          title: string
-          type: string
-        }
-        Insert: {
-          enqueued_at?: string
-          exclude_user_id?: string | null
-          id?: number
-          message: string
-          processed_at?: string | null
-          recipients_count?: number | null
-          reference_id?: string | null
-          title: string
-          type: string
-        }
-        Update: {
-          enqueued_at?: string
-          exclude_user_id?: string | null
-          id?: number
-          message?: string
-          processed_at?: string | null
-          recipients_count?: number | null
-          reference_id?: string | null
-          title?: string
-          type?: string
-        }
-        Relationships: []
       }
       notifications: {
         Row: {
@@ -968,83 +729,6 @@ export type Database = {
         }
         Relationships: []
       }
-      post_likes: {
-        Row: {
-          created_at: string
-          id: string
-          post_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          post_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          post_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "post_likes_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      posts: {
-        Row: {
-          comments: number | null
-          content: string
-          created_at: string | null
-          id: string
-          is_liked: boolean | null
-          likes: number | null
-          media_type: string | null
-          media_url: string | null
-          media_urls: Json | null
-          shares: number | null
-          tags: string[] | null
-          user_id: string
-          user_name: string
-        }
-        Insert: {
-          comments?: number | null
-          content: string
-          created_at?: string | null
-          id?: string
-          is_liked?: boolean | null
-          likes?: number | null
-          media_type?: string | null
-          media_url?: string | null
-          media_urls?: Json | null
-          shares?: number | null
-          tags?: string[] | null
-          user_id: string
-          user_name: string
-        }
-        Update: {
-          comments?: number | null
-          content?: string
-          created_at?: string | null
-          id?: string
-          is_liked?: boolean | null
-          likes?: number | null
-          media_type?: string | null
-          media_url?: string | null
-          media_urls?: Json | null
-          shares?: number | null
-          tags?: string[] | null
-          user_id?: string
-          user_name?: string
-        }
-        Relationships: []
-      }
       product_interactions: {
         Row: {
           created_at: string
@@ -1143,21 +827,15 @@ export type Database = {
           county: string | null
           courses_completed: number | null
           created_at: string
-          eco_points: number | null
           email: string
           id: string
           last_active_at: string | null
-          letters_sent: number | null
           location: string | null
           name: string
           notify_new_content: boolean
           phone: string | null
-          posts_created: number | null
           sex: string | null
-          streak: number | null
-          swarms_joined: number | null
           top_concern: string | null
-          trees_planted: number | null
           updated_at: string
           user_id: string
         }
@@ -1169,21 +847,15 @@ export type Database = {
           county?: string | null
           courses_completed?: number | null
           created_at?: string
-          eco_points?: number | null
           email: string
           id?: string
           last_active_at?: string | null
-          letters_sent?: number | null
           location?: string | null
           name: string
           notify_new_content?: boolean
           phone?: string | null
-          posts_created?: number | null
           sex?: string | null
-          streak?: number | null
-          swarms_joined?: number | null
           top_concern?: string | null
-          trees_planted?: number | null
           updated_at?: string
           user_id: string
         }
@@ -1195,21 +867,15 @@ export type Database = {
           county?: string | null
           courses_completed?: number | null
           created_at?: string
-          eco_points?: number | null
           email?: string
           id?: string
           last_active_at?: string | null
-          letters_sent?: number | null
           location?: string | null
           name?: string
           notify_new_content?: boolean
           phone?: string | null
-          posts_created?: number | null
           sex?: string | null
-          streak?: number | null
-          swarms_joined?: number | null
           top_concern?: string | null
-          trees_planted?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -1239,72 +905,6 @@ export type Database = {
           id?: string
           p256dh?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      rank_check_queue: {
-        Row: {
-          enqueued_at: string
-          id: number
-          new_points: number
-          old_points: number
-          processed_at: string | null
-          user_id: string
-        }
-        Insert: {
-          enqueued_at?: string
-          id?: number
-          new_points: number
-          old_points: number
-          processed_at?: string | null
-          user_id: string
-        }
-        Update: {
-          enqueued_at?: string
-          id?: number
-          new_points?: number
-          old_points?: number
-          processed_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      recipients: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          email: string
-          id: string
-          is_active: boolean
-          name: string
-          organization: string
-          sort_order: number
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          email: string
-          id?: string
-          is_active?: boolean
-          name: string
-          organization: string
-          sort_order?: number
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          email?: string
-          id?: string
-          is_active?: boolean
-          name?: string
-          organization?: string
-          sort_order?: number
-          title?: string
-          updated_at?: string
         }
         Relationships: []
       }
@@ -1421,114 +1021,6 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      swarm_memberships: {
-        Row: {
-          id: string
-          joined_at: string
-          swarm_id: string
-          user_id: string
-          votes: number
-        }
-        Insert: {
-          id?: string
-          joined_at?: string
-          swarm_id: string
-          user_id: string
-          votes?: number
-        }
-        Update: {
-          id?: string
-          joined_at?: string
-          swarm_id?: string
-          user_id?: string
-          votes?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "swarm_memberships_swarm_id_fkey"
-            columns: ["swarm_id"]
-            isOneToOne: false
-            referencedRelation: "public_swarms"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "swarm_memberships_swarm_id_fkey"
-            columns: ["swarm_id"]
-            isOneToOne: false
-            referencedRelation: "swarms"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      swarms: {
-        Row: {
-          category: string
-          created_at: string
-          created_by: string
-          current_signatures: number
-          description: string
-          end_date: string | null
-          goal: string
-          goal_type: string | null
-          id: string
-          image_url: string | null
-          invite_method: string | null
-          location: string | null
-          name: string
-          org_name: string | null
-          participants: number
-          phone: string | null
-          social_links: string | null
-          target_number: number | null
-          target_signatures: number
-          updated_at: string
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          created_by: string
-          current_signatures?: number
-          description: string
-          end_date?: string | null
-          goal: string
-          goal_type?: string | null
-          id?: string
-          image_url?: string | null
-          invite_method?: string | null
-          location?: string | null
-          name: string
-          org_name?: string | null
-          participants?: number
-          phone?: string | null
-          social_links?: string | null
-          target_number?: number | null
-          target_signatures?: number
-          updated_at?: string
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          created_by?: string
-          current_signatures?: number
-          description?: string
-          end_date?: string | null
-          goal?: string
-          goal_type?: string | null
-          id?: string
-          image_url?: string | null
-          invite_method?: string | null
-          location?: string | null
-          name?: string
-          org_name?: string | null
-          participants?: number
-          phone?: string | null
-          social_links?: string | null
-          target_number?: number | null
-          target_signatures?: number
-          updated_at?: string
         }
         Relationships: []
       }
@@ -1659,35 +1151,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_challenges: {
-        Row: {
-          challenge_id: string
-          completed_at: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          challenge_id: string
-          completed_at?: string
-          id?: string
-          user_id: string
-        }
-        Update: {
-          challenge_id?: string
-          completed_at?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_challenges_challenge_id_fkey"
-            columns: ["challenge_id"]
-            isOneToOne: false
-            referencedRelation: "challenges"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       user_roles: {
         Row: {
           created_at: string
@@ -1711,45 +1174,6 @@ export type Database = {
       }
     }
     Views: {
-      leaderboard: {
-        Row: {
-          avatar_url: string | null
-          eco_points: number | null
-          id: string | null
-          name: string | null
-          rank: number | null
-          role: string | null
-          streak: number | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
-      leaderboard_fast: {
-        Row: {
-          avatar_url: string | null
-          eco_points: number | null
-          id: string | null
-          name: string | null
-          rank: number | null
-          role: string | null
-          streak: number | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
-      leaderboard_mv: {
-        Row: {
-          avatar_url: string | null
-          eco_points: number | null
-          id: string | null
-          name: string | null
-          rank: number | null
-          role: string | null
-          streak: number | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
       my_course_sponsorships: {
         Row: {
           course_id: string | null
@@ -1794,138 +1218,6 @@ export type Database = {
           },
         ]
       }
-      public_profiles: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          county: string | null
-          courses_completed: number | null
-          eco_points: number | null
-          letters_sent: number | null
-          location: string | null
-          name: string | null
-          posts_created: number | null
-          streak: number | null
-          swarms_joined: number | null
-          top_concern: string | null
-          user_id: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          county?: string | null
-          courses_completed?: number | null
-          eco_points?: number | null
-          letters_sent?: number | null
-          location?: string | null
-          name?: string | null
-          posts_created?: number | null
-          streak?: number | null
-          swarms_joined?: number | null
-          top_concern?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          county?: string | null
-          courses_completed?: number | null
-          eco_points?: number | null
-          letters_sent?: number | null
-          location?: string | null
-          name?: string | null
-          posts_created?: number | null
-          streak?: number | null
-          swarms_joined?: number | null
-          top_concern?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      public_recipients: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          is_active: boolean | null
-          name: string | null
-          organization: string | null
-          sort_order: number | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          name?: string | null
-          organization?: string | null
-          sort_order?: number | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          name?: string | null
-          organization?: string | null
-          sort_order?: number | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      public_swarms: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          created_by: string | null
-          current_signatures: number | null
-          description: string | null
-          goal: string | null
-          id: string | null
-          image_url: string | null
-          name: string | null
-          org_name: string | null
-          participants: number | null
-          social_links: string | null
-          target_signatures: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          current_signatures?: number | null
-          description?: string | null
-          goal?: string | null
-          id?: string | null
-          image_url?: string | null
-          name?: string | null
-          org_name?: string | null
-          participants?: number | null
-          social_links?: string | null
-          target_signatures?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          current_signatures?: number | null
-          description?: string | null
-          goal?: string | null
-          id?: string | null
-          image_url?: string | null
-          name?: string | null
-          org_name?: string | null
-          participants?: number | null
-          social_links?: string | null
-          target_signatures?: number | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
     }
     Functions: {
       award_co2: {
@@ -1948,7 +1240,6 @@ export type Database = {
         Args: { p_merch_id: string; p_quantity: number }
         Returns: boolean
       }
-      get_user_likes: { Args: { p_post_ids: string[] }; Returns: string[] }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1957,13 +1248,11 @@ export type Database = {
         Returns: boolean
       }
       is_premium: { Args: { p_user_id: string }; Returns: boolean }
-      join_swarm: {
-        Args: { p_swarm_id: string; p_votes?: number }
+      normalize_rich_text: { Args: { p_input: string }; Returns: string }
+      validate_coupon: {
+        Args: { p_amount: number; p_code: string }
         Returns: Json
       }
-      normalize_rich_text: { Args: { p_input: string }; Returns: string }
-      refresh_leaderboard_mv: { Args: never; Returns: undefined }
-      toggle_post_like: { Args: { p_post_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "ecowarrior" | "ecodeveloper" | "admin"
