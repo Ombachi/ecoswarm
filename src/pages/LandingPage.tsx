@@ -642,7 +642,7 @@ export function LandingPage() {
                 onClick={() => navigate("/signup")}
                 className="bg-card text-primary hover:bg-card/90 border-0 gap-2 font-bold"
               >
-                Get Started Free <ArrowRight className="w-4 h-4" />
+                Get Started <ArrowRight className="w-4 h-4" />
               </Button>
               <Button
                 size="lg"
