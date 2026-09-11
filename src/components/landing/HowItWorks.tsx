@@ -27,7 +27,7 @@ export function HowItWorks() {
           <h2 className="text-3xl md:text-4xl font-black tracking-tight">
             How <span className="eco-gradient-text">EcoSwarm</span> works
           </h2>
-          <p className="text-muted-foreground mt-3 md:text-lg">Three steps, start to finish.</p>
+          <p className="text-muted-foreground mt-3 md:text-lg"></p>
         </div>
 
         <ol className="grid md:grid-cols-3 gap-6">
@@ -40,9 +40,7 @@ export function HowItWorks() {
               transition={{ delay: i * 0.1 }}
               className="eco-card p-6 relative"
             >
-              <span className="absolute top-5 right-5 text-4xl font-black text-muted-foreground/20">
-                {i + 1}
-              </span>
+              <span className="absolute top-5 right-5 text-4xl font-black text-muted-foreground/20">{i + 1}</span>
               <div className="w-12 h-12 rounded-2xl eco-gradient-bg flex items-center justify-center mb-4">
                 <s.icon className="w-6 h-6 text-primary-foreground" />
               </div>
