@@ -251,7 +251,7 @@ export function LandingPage() {
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-foreground">Two Paths, One Purpose</h3>
               <p className="text-muted-foreground leading-relaxed">
-                We believe education and commerce can work together for the planet. EcoSwarm offers
+                Education and commerce can work together for the planet. EcoSwarm offers
                 <strong> expert-led climate courses</strong> that build real skills, and an
                 <strong> EcoMarket</strong> where every purchase supports local green businesses.
               </p>
