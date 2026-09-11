@@ -54,7 +54,7 @@ serve(async (req) => {
     // Fetch buyer profile
     const { data: buyerProfile } = await supabase
       .from("profiles")
-      .select("eco_points, name")
+      .select("name")
       .eq("user_id", user.id)
       .single();
     if (!buyerProfile) throw new Error("Profile not found");
@@ -82,14 +82,28 @@ serve(async (req) => {
       throw new Error("Duplicate purchase detected. Please wait before buying this item again.");
     }
 
-    // ── EcoPoints conversion: 10 EcoPoints = 1 KES ──
-    const ECOPOINTS_PER_KES = 10;
+    // ── Pricing: full price, optional coupon discount (no EcoPoints) ──
     const totalPrice = Number(product.price);
-    const availablePoints = buyerProfile.eco_points || 0;
-    const maxPointsKesValue = Math.floor(availablePoints / ECOPOINTS_PER_KES);
-    const pointsKesUsed = Math.min(maxPointsKesValue, totalPrice);
-    const actualPointsUsed = pointsKesUsed * ECOPOINTS_PER_KES;
-    const cashRemaining = totalPrice - pointsKesUsed;
+    let discountAmount = 0;
+    let couponId: string | null = null;
+
+    if (couponCode) {
+      const { data: couponRes, error: couponErr } = await supabase.rpc("validate_coupon", {
+        p_code: couponCode,
+        p_amount: totalPrice,
+      });
+      if (couponErr) throw new Error("Could not validate coupon");
+      const c = couponRes as {
+        valid: boolean; reason?: string; coupon_id?: string; discount_amount?: number;
+      };
+      if (!c?.valid) throw new Error(c?.reason || "Invalid coupon code");
+      discountAmount = Number(c.discount_amount || 0);
+      couponId = c.coupon_id || null;
+    }
+
+    const amountDue = Math.max(totalPrice - discountAmount, 0);
+    const actualPointsUsed = 0;
+    const cashRemaining = amountDue;
 
     let paymentMethod = "ecopoints";
     let mpesaReceipt: string | null = null;
@@ -181,14 +195,7 @@ serve(async (req) => {
     const commissionAmount = Math.round(totalPrice * COMMISSION_RATE * 100) / 100;
     const sellerPayout = totalPrice - commissionAmount;
 
-    // Deduct EcoPoints from buyer
-    const newPoints = availablePoints - actualPointsUsed;
-    const bonusPoints = 50;
-
-    await supabase
-      .from("profiles")
-      .update({ eco_points: newPoints + bonusPoints })
-      .eq("user_id", user.id);
+    const bonusPoints = 0;
 
     // Create transaction record
     const { data: transaction, error: txErr } = await supabase
@@ -213,6 +220,21 @@ serve(async (req) => {
       .single();
 
     if (txErr) throw txErr;
+
+    // ── Record coupon redemption ──
+    if (couponId) {
+      await supabase.from("coupon_redemptions").insert({
+        coupon_id: couponId,
+        user_id: user.id,
+        product_id: productId,
+        discount_amount: discountAmount,
+      });
+      const { data: couponRow } = await supabase
+        .from("coupons").select("times_used").eq("id", couponId).single();
+      await supabase.from("coupons")
+        .update({ times_used: (couponRow?.times_used || 0) + 1 })
+        .eq("id", couponId);
+    }
 
     // ── Record Platform Commission ──
     await supabase.from("platform_commissions").insert({
@@ -249,10 +271,11 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         transaction,
-        newPoints: newPoints + bonusPoints,
+        newPoints: 0,
         bonusPoints,
         pointsUsed: actualPointsUsed,
         cashPaid: cashRemaining,
+        discountAmount,
         commissionAmount,
         sellerPayout,
         verificationStatus,

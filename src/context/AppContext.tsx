@@ -162,16 +162,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
           location: profile.location || profile.county || 'Kenya',
           avatar: (profile as unknown as { avatar_url?: string }).avatar_url || undefined,
           bio: (profile as unknown as { bio?: string }).bio || undefined,
-          ecoPoints: profile.eco_points || 0,
-          streak: profile.streak || 0,
+          ecoPoints: 0,
+          streak: 0,
           topConcern: profile.top_concern || 'Climate Action',
           badges,
           stats: {
-            treesPlanted: profile.trees_planted || 0,
-            lettersSent: profile.letters_sent || 0,
-            swarmsJoined: profile.swarms_joined || 0,
+            treesPlanted: 0,
+            lettersSent: 0,
+            swarmsJoined: 0,
             co2Saved: profile.co2_saved || 0,
-            postsCreated: profile.posts_created || 0,
+            postsCreated: 0,
             coursesCompleted: (profile as unknown as { courses_completed?: number }).courses_completed || 0,
           },
         };
@@ -402,21 +402,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIsSwahili(!isSwahili);
   };
 
-  const addPoints = async (points: number) => {
-    if (user) {
-      const newPoints = user.ecoPoints + points;
-      setUser({
-        ...user,
-        ecoPoints: newPoints,
-      });
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({ eco_points: newPoints })
-        .eq('user_id', user.id);
-
-      if (error) console.error('Error updating points:', error?.message || 'An error occurred');
-    }
+  // EcoPoints were retired — kept as a no-op so legacy callers stay harmless.
+  const addPoints = async (_points: number) => {
+    return;
   };
 
   const updateStats = async (stats: Partial<User['stats']>) => {
