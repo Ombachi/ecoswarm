@@ -38,7 +38,6 @@ const OfflinePage = lazy(() => import("@/pages/OfflinePage").then(m => ({ defaul
 const LandingPage = lazy(() => import("@/pages/LandingPage").then(m => ({ default: m.LandingPage })));
 const AdminPanel = lazy(() => import("@/pages/AdminPanel").then(m => ({ default: m.AdminPanel })));
 const InboxScreen = lazy(() => import("@/pages/InboxScreen").then(m => ({ default: m.InboxScreen })));
-const ChallengesScreen = lazy(() => import("@/pages/ChallengesScreen").then(m => ({ default: m.ChallengesScreen })));
 const CalendarScreen = lazy(() => import("@/pages/CalendarScreen").then(m => ({ default: m.CalendarScreen })));
 const EcoMerchScreen = lazy(() => import("@/pages/EcoMerchScreen").then(m => ({ default: m.EcoMerchScreen })));
 const PurchasesScreen = lazy(() => import("@/pages/PurchasesScreen").then(m => ({ default: m.PurchasesScreen })));
@@ -115,7 +114,6 @@ function AppRoutes() {
             <Route path="/edit-profile" element={authedRoute(<EditProfileScreen />)} />
             <Route path="/module/:moduleId" element={<ErrorBoundary>{authedRoute(<ModuleScreen />)}</ErrorBoundary>} />
             <Route path="/inbox" element={<ErrorBoundary>{authedRoute(<InboxScreen />)}</ErrorBoundary>} />
-            <Route path="/challenges" element={authedRoute(<ChallengesScreen />)} />
             <Route path="/calendar" element={authedRoute(<CalendarScreen />)} />
             <Route path="/merch" element={<ErrorBoundary>{authedRoute(<EcoMerchScreen />)}</ErrorBoundary>} />
             <Route path="/purchases" element={<ErrorBoundary>{authedRoute(<PurchasesScreen />)}</ErrorBoundary>} />
