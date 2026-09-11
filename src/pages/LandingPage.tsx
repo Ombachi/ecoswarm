@@ -741,8 +741,8 @@ export function LandingPage() {
             </div>
           </div>
           <div className="border-t border-border/50 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <p>© {new Date().getFullYear()} EcoSwarm. Built with 💚 for the planet.</p>
-            <p>Made with 💚 for You</p>
+            <p>© {new Date().getFullYear()} EcoSwarm.</p>
+            <p>Built with 💚 for the planet</p>
           </div>
         </div>
       </footer>
