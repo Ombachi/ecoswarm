@@ -1,10 +1,5 @@
 import { HelpCircle } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const faqs = [
   {
@@ -39,23 +34,17 @@ export function LandingFAQ() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 md:mb-12">
           <span className="eco-badge mb-4 inline-flex">
-            <HelpCircle className="w-3.5 h-3.5" /> FAQ
+            <HelpCircle className="w-3.5 h-3.5" />
           </span>
-          <h2 className="text-3xl md:text-4xl font-black tracking-tight">
-            Frequently asked questions
-          </h2>
-          <p className="text-muted-foreground mt-3 md:text-lg">
-            Courses, payments, delivery and refunds — the essentials.
-          </p>
+          <h2 className="text-3xl md:text-4xl font-black tracking-tight">Frequently asked questions</h2>
+          <p className="text-muted-foreground mt-3 md:text-lg">Courses, payments, delivery and refunds.</p>
         </div>
 
         <Accordion type="single" collapsible className="w-full">
           {faqs.map((f, i) => (
             <AccordionItem key={f.q} value={`item-${i}`}>
               <AccordionTrigger className="text-left font-semibold">{f.q}</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed">
-                {f.a}
-              </AccordionContent>
+              <AccordionContent className="text-muted-foreground leading-relaxed">{f.a}</AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
