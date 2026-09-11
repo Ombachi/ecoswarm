@@ -440,10 +440,8 @@ export function LandingPage() {
             className="max-w-3xl mx-auto"
           >
             <div className="eco-card p-6 bg-gradient-to-br from-[hsl(var(--eco-green-light))] to-[hsl(var(--eco-blue-light))] border-none mb-6">
-              <h3 className="text-lg font-bold text-foreground mb-3">How EcoSwarm Works 🐝</h3>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                A simple loop: learn, choose better, and support the green economy — one course and one purchase at a
-                time.
+                A simple loop: learn, choose better, and support the green economy.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
