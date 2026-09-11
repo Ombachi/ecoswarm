@@ -70,10 +70,7 @@ function StackedCard({
   const Icon = feature.icon;
 
   return (
-    <div
-      className="sticky"
-      style={{ top: topOffset, zIndex: 30 + index }}
-    >
+    <div className="sticky" style={{ top: topOffset, zIndex: 30 + index }}>
       <motion.article
         style={{ scale, opacity }}
         className="relative overflow-hidden rounded-3xl border border-border/60 bg-card shadow-eco-lg"
@@ -92,12 +89,8 @@ function StackedCard({
             <h3 className="text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight mb-3">
               {feature.title}
             </h3>
-            <p className="text-lg md:text-xl font-semibold eco-gradient-text mb-4">
-              {feature.desc}
-            </p>
-            <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-prose">
-              {feature.longDesc}
-            </p>
+            <p className="text-lg md:text-xl font-semibold eco-gradient-text mb-4">{feature.desc}</p>
+            <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-prose">{feature.longDesc}</p>
           </div>
 
           {/* Image */}
@@ -128,7 +121,10 @@ export function StackedFeatures() {
   });
 
   return (
-    <section id="features" className="relative z-20 isolate overflow-visible bg-background pt-10 pb-28 md:pt-16 md:pb-40">
+    <section
+      id="features"
+      className="relative z-20 isolate overflow-visible bg-background pt-10 pb-28 md:pt-16 md:pb-40"
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -137,11 +133,9 @@ export function StackedFeatures() {
           className="text-left max-w-2xl mb-10 md:mb-16"
         >
           <span className="eco-badge mb-4 inline-flex">
-            <Sparkles className="w-3.5 h-3.5" /> Platform
+            <Sparkles className="w-3.5 h-3.5" />
           </span>
-          <h2 className="text-3xl md:text-5xl font-black tracking-tight">
-            Learn. Shop. Impact.
-          </h2>
+          <h2 className="text-3xl md:text-5xl font-black tracking-tight">Learn. Shop. Impact.</h2>
           <p className="text-muted-foreground mt-3 md:text-lg">
             EcoSwarm is your one place for climate education and sustainable shopping. Scroll to explore.
           </p>
@@ -153,17 +147,13 @@ export function StackedFeatures() {
           // Each card gets ~50vh on mobile / 70vh on desktop of scroll length.
           // Keeps the sticky stack tight and avoids a large empty gap before
           // the next section on small screens.
-          style={{ height: `calc(clamp(${items.length * 50}vh, ${items.length * 60}vh, ${items.length * 70}vh) + 12rem)` }}
+          style={{
+            height: `calc(clamp(${items.length * 50}vh, ${items.length * 60}vh, ${items.length * 70}vh) + 12rem)`,
+          }}
         >
           <div className="flex flex-col gap-6 md:gap-10">
             {items.map((f, i) => (
-              <StackedCard
-                key={f.title}
-                feature={f}
-                index={i}
-                total={items.length}
-                progress={scrollYProgress}
-              />
+              <StackedCard key={f.title} feature={f} index={i} total={items.length} progress={scrollYProgress} />
             ))}
           </div>
         </div>
