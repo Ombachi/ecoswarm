@@ -402,21 +402,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIsSwahili(!isSwahili);
   };
 
-  const addPoints = async (points: number) => {
-    if (user) {
-      const newPoints = user.ecoPoints + points;
-      setUser({
-        ...user,
-        ecoPoints: newPoints,
-      });
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({ eco_points: newPoints })
-        .eq('user_id', user.id);
-
-      if (error) console.error('Error updating points:', error?.message || 'An error occurred');
-    }
+  // EcoPoints were retired — kept as a no-op so legacy callers stay harmless.
+  const addPoints = async (_points: number) => {
+    return;
   };
 
   const updateStats = async (stats: Partial<User['stats']>) => {
