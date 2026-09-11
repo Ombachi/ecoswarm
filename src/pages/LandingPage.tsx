@@ -351,9 +351,7 @@ export function LandingPage() {
               viewport={{ once: true }}
               className="text-left max-w-[640px]"
             >
-              <span className="eco-badge mb-4 inline-flex">
-                <Heart className="w-3.5 h-3.5" /> Our Why
-              </span>
+              <span className="eco-badge mb-4 inline-flex"></span>
               <h2 className="text-3xl md:text-4xl font-black mb-4">
                 Close the <span className="eco-gradient-text">Green Gap</span>
               </h2>
