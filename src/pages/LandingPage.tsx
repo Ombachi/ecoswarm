@@ -155,7 +155,7 @@ export function LandingPage() {
   const navigate = useNavigate();
 
   usePageMeta(
-    'Learn Climate Skills & Shop Sustainable Products',
+    "Learn Climate Skills & Shop Sustainable Products",
     "EcoSwarm is Kenya's home for climate education and sustainable shopping. Learn environmental skills and discover vetted eco-friendly products.",
   );
 
@@ -228,10 +228,11 @@ export function LandingPage() {
               <Heart className="w-3.5 h-3.5" /> About EcoSwarm
             </span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
-              Kenya's Home for <span className="eco-gradient-text">Climate Learning</span> & <span className="eco-gradient-text">Green Shopping</span>
+              Kenya's Home for <span className="eco-gradient-text">Climate Learning</span> &{" "}
+              <span className="eco-gradient-text">Green Shopping</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg">
-              EcoSwarm makes climate knowledge accessible and sustainable products easy to find — all in one place.
+              EcoSwarm makes climate knowledge accessible and sustainable products easy to find.
             </p>
           </motion.div>
           <motion.div
@@ -241,7 +242,11 @@ export function LandingPage() {
             className="grid md:grid-cols-2 gap-8 items-center"
           >
             <div className="rounded-2xl overflow-hidden shadow-lg">
-              <img src={agoraImage} alt="EcoSwarm community learning and shopping" className="w-full h-64 md:h-80 object-cover" />
+              <img
+                src={agoraImage}
+                alt="EcoSwarm community learning and shopping"
+                className="w-full h-64 md:h-80 object-cover"
+              />
             </div>
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-foreground">Two Paths, One Purpose</h3>
@@ -251,7 +256,8 @@ export function LandingPage() {
                 <strong> EcoMarket</strong> where every purchase supports local green businesses.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                Whether you are here to learn or to shop, you are helping build a more climate-literate, sustainable Kenya.
+                Whether you are here to learn or to shop, you are helping build a more climate-literate, sustainable
+                Kenya.
               </p>
             </div>
           </motion.div>
@@ -297,7 +303,9 @@ export function LandingPage() {
                   <p className="text-sm text-muted-foreground">Where we're headed</p>
                 </div>
               </div>
-              <p className="text-foreground leading-relaxed text-lg">A climate-literate Kenya where sustainable living is the easy choice.</p>
+              <p className="text-foreground leading-relaxed text-lg">
+                A climate-literate Kenya where sustainable living is the easy choice.
+              </p>
             </motion.div>
           </div>
         </div>
@@ -352,10 +360,14 @@ export function LandingPage() {
                 Close the <span className="eco-gradient-text">Green Gap</span>
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                Many Kenyans want to live sustainably, but don't know where to start or what to trust. EcoSwarm solves both problems: we turn climate knowledge into simple, practical courses, and we curate real eco-friendly products you can buy with confidence.
+                Many Kenyans want to live sustainably, but don't know where to start or what to trust. EcoSwarm solves
+                both problems: we turn climate knowledge into simple, practical courses, and we curate real eco-friendly
+                products you can buy with confidence.
               </p>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                By combining <strong className="text-foreground">learning</strong> with <strong className="text-foreground">responsible commerce</strong>, we make it easier for every EcoWarrior to turn intention into impact.
+                By combining <strong className="text-foreground">learning</strong> with{" "}
+                <strong className="text-foreground">responsible commerce</strong>, we make it easier for every
+                EcoWarrior to turn intention into impact.
               </p>
             </motion.div>
 
@@ -434,25 +446,29 @@ export function LandingPage() {
             <div className="eco-card p-6 bg-gradient-to-br from-[hsl(var(--eco-green-light))] to-[hsl(var(--eco-blue-light))] border-none mb-6">
               <h3 className="text-lg font-bold text-foreground mb-3">How EcoSwarm Works 🐝</h3>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                A simple loop: learn, choose better, and support the green economy — one course and one purchase at a time.
+                A simple loop: learn, choose better, and support the green economy — one course and one purchase at a
+                time.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <BookOpen className="w-5 h-5 text-[hsl(var(--eco-gold))] flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>Learn in the Capacity Hub.</strong> Take expert-led courses, earn certificates, and build practical climate skills.
+                    <strong>Learn in the Capacity Hub.</strong> Take expert-led courses, earn certificates, and build
+                    practical climate skills.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <ShoppingBag className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>Shop the EcoMarket.</strong> Discover vetted eco-friendly products and services from Kenyan sellers.
+                    <strong>Shop the EcoMarket.</strong> Discover vetted eco-friendly products and services from Kenyan
+                    sellers.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Leaf className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>Live the change.</strong> Every lesson applied and every sustainable purchase moves Kenya closer to climate resilience.
+                    <strong>Live the change.</strong> Every lesson applied and every sustainable purchase moves Kenya
+                    closer to climate resilience.
                   </span>
                 </li>
               </ul>
@@ -513,10 +529,7 @@ export function LandingPage() {
       <LandingFAQ />
 
       {/* ── Stats Bar (user statistics) ── */}
-      <section
-        id="stats"
-        className="relative bg-background py-10 md:py-14 border-y border-border/50"
-      >
+      <section id="stats" className="relative bg-background py-10 md:py-14 border-y border-border/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((s, i) => (
             <motion.div
@@ -602,7 +615,9 @@ export function LandingPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">{partner.name}</h3>
+                    <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+                      {partner.name}
+                    </h3>
                     <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
                   <p className="text-xs text-primary font-semibold mb-2">{partner.subtitle}</p>
