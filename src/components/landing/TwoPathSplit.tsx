@@ -38,9 +38,7 @@ export function TwoPathSplit() {
           <h2 className="text-3xl md:text-4xl font-black tracking-tight">
             Two paths, <span className="eco-gradient-text">one purpose</span>
           </h2>
-          <p className="text-muted-foreground mt-3 md:text-lg">
-            Pick where you want to start. Most EcoWarriors end up doing both.
-          </p>
+          <p className="text-muted-foreground mt-3 md:text-lg"></p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
