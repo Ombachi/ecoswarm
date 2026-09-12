@@ -5,20 +5,17 @@ const steps = [
   {
     icon: MousePointerClick,
     title: "Pick a course or product",
-    desc: "Browse the Capacity Hub for climate courses
-      Browse the EcoMarket for sustainable products.",
+    desc: "Browse the Capacity Hub for climate courses, or the EcoMarket for sustainable products.",
   },
   {
     icon: Smartphone,
     title: "Learn or pay with M-Pesa",
-    desc: "Work through the course sections at your pace
-      Check out securely with M-Pesa.",
+    desc: "Work through the course sections at your pace, or check out securely with M-Pesa.",
   },
   {
     icon: Award,
     title: "Get your certificate or delivery",
-    desc: "Pass the quiz for a certificate 
-      Track your order through to delivery.",
+    desc: "Pass the quiz for a certificate, or track your order through to delivery.",
   },
 ];
 
