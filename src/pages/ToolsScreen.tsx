@@ -6,6 +6,9 @@ import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
 import { GraduationCap, ChevronRight, Check, Play, BookOpen } from 'lucide-react';
 import { CourseGridSkeleton, EmptyState } from '@/components/common/Skeletons';
+import { Pagination } from '@/components/common/Pagination';
+
+const COURSES_PER_PAGE = 9;
 
 export function ToolsScreen() {
   const navigate = useNavigate();
@@ -14,6 +17,7 @@ export function ToolsScreen() {
   const [completedModules, setCompletedModules] = useState<string[]>([]);
   const [learningModules, setLearningModules] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     loadContent();
