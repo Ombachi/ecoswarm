@@ -1,11 +1,14 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Leaf, Settings, User } from 'lucide-react';
+import { Home, Leaf, Settings, User, ShoppingBag, MessageSquare, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/dashboard' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: ShoppingBag, label: 'Orders', path: '/purchases' },
+  { icon: MessageSquare, label: 'Inbox', path: '/inbox' },
+  { icon: Award, label: 'Certs', path: '/certificates' },
   { icon: User, label: 'Profile', path: '/profile' },
+  { icon: Settings, label: 'Settings', path: '/settings' },
 ];
 
 export function TabletSidebar() {
