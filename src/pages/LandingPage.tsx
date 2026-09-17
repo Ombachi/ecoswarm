@@ -247,7 +247,6 @@ export function LandingPage() {
               />
             </div>
             <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-foreground">Two Paths, One Purpose</h3>
               <p className="text-muted-foreground leading-relaxed">
                 Education and commerce can work together for the planet. EcoSwarm offers
                 <strong> expert-led climate courses</strong> that build real skills, and an
@@ -279,7 +278,6 @@ export function LandingPage() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-black text-foreground">Our Mission</h2>
-                  <p className="text-sm text-muted-foreground">Why we exist</p>
                 </div>
               </div>
               <p className="text-foreground leading-relaxed text-lg">
@@ -297,7 +295,6 @@ export function LandingPage() {
                   <Eye className="w-7 h-7 text-primary-foreground" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black text-foreground">Our Vision</h2>
                   <p className="text-sm text-muted-foreground">Where we're headed</p>
                 </div>
               </div>
