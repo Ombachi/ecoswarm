@@ -318,7 +318,7 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
             <button onClick={() => setStep(step + 1)} disabled={!canProceed()} className="eco-button-primary flex-1 py-3 disabled:opacity-50">Next</button>
           ) : (
             <button onClick={handleSubmit} disabled={!canProceed() || isSubmitting} className="eco-button-primary flex-1 py-3 flex items-center justify-center gap-2 disabled:opacity-50">
-              {isSubmitting ? (<><Loader2 className="w-5 h-5 animate-spin" />Publishing...</>) : '🛒 Publish Product (+50 pts)'}
+              {isSubmitting ? (<><Loader2 className="w-5 h-5 animate-spin" />Publishing...</>) : '🛒 Publish Product'}
             </button>
           )}
         </div>

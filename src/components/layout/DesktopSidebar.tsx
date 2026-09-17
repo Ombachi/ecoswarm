@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
-import { Home, Leaf, Settings, User } from 'lucide-react';
+import { Home, Leaf, Settings, User, ShoppingBag, MessageSquare, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AvatarFallback } from '@/components/common/AvatarFallback';
 
@@ -11,8 +11,11 @@ export function DesktopSidebar() {
 
   const navItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
-    { icon: Settings, label: 'Settings', path: '/settings' },
+    { icon: ShoppingBag, label: 'My Purchases', path: '/purchases' },
+    { icon: MessageSquare, label: 'Messages', path: '/inbox' },
+    { icon: Award, label: 'My Certificates', path: '/certificates' },
     { icon: User, label: 'My Profile', path: '/profile' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
   ];
 
   return (
@@ -56,12 +59,6 @@ export function DesktopSidebar() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
               <p className="text-xs text-muted-foreground">{user.location}</p>
-            </div>
-          </div>
-          <div className="mt-3 flex items-center justify-between">
-            <div>
-              <p className="text-lg font-bold eco-gradient-text">{user.ecoPoints}</p>
-              <p className="text-[10px] text-muted-foreground">EcoPoints</p>
             </div>
           </div>
         </div>

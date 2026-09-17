@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import {
   GraduationCap, Users, Shield, AlertTriangle, Wallet, DollarSign,
-  BarChart3, LogOut, Megaphone, Package, Truck, Loader2, FlaskConical, Home,
+  BarChart3, LogOut, Megaphone, Package, Truck, Loader2, FlaskConical, Home, ShoppingBag,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -22,6 +22,7 @@ import { AdminDisputesTab } from '@/components/admin/AdminDisputesTab';
 import { AdminPayoutsTab } from '@/components/admin/AdminPayoutsTab';
 import { AdminTransactionsTab } from '@/components/admin/AdminTransactionsTab';
 import { AdminExperimentsTab } from '@/components/admin/AdminExperimentsTab';
+import { AdminProductsTab } from '@/components/admin/AdminProductsTab';
 
 export function AdminPanel() {
   const navigate = useNavigate();
@@ -111,6 +112,7 @@ export function AdminPanel() {
               { value: 'payouts', icon: Wallet, label: 'Payouts', badge: badgeCounts.payouts },
               { value: 'transactions', icon: DollarSign, label: 'Txns', badge: 0 },
               { value: 'broadcast', icon: Megaphone, label: 'Broadcast', badge: 0 },
+              { value: 'products', icon: ShoppingBag, label: 'Products', badge: 0 },
               { value: 'merch', icon: Package, label: 'Merch', badge: 0 },
               { value: 'orders', icon: Truck, label: 'Orders', badge: 0 },
               { value: 'experiments', icon: FlaskConical, label: 'A/B Tests', badge: 0 },
@@ -136,6 +138,7 @@ export function AdminPanel() {
           <TabsContent value="payouts"><AdminPayoutsTab /></TabsContent>
           <TabsContent value="transactions"><AdminTransactionsTab /></TabsContent>
           <TabsContent value="broadcast"><AdminBroadcastTab /></TabsContent>
+          <TabsContent value="products"><AdminProductsTab /></TabsContent>
           <TabsContent value="merch"><AdminMerchTab /></TabsContent>
           <TabsContent value="orders"><AdminOrdersTab /></TabsContent>
           <TabsContent value="experiments"><AdminExperimentsTab /></TabsContent>
