@@ -109,7 +109,7 @@ const kenyaStats = [
 const team = [
   {
     name: "Ombachi Enock",
-    role: "Founder & Visionary",
+    role: "Visionary",
     bio: "Passionate about transforming climate anxiety into collective action. Building EcoSwarm to give every voice a megaphone for the planet.",
     photo: founderPhoto,
   },
