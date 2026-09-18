@@ -1,0 +1,5 @@
+- [ ] Fix certificate course title data and redesign digital certificate
+- [ ] Remove dashboard certificate strip and redundant quick links
+- [ ] Remove remaining rating EcoPoints reward copy/behavior
+- [ ] Add admin product editing
+- [ ] Verify affected flows
