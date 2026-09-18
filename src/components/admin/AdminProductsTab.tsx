@@ -9,7 +9,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Loader2, Plus, Trash2, Search, Package } from 'lucide-react';
+import { Loader2, Plus, Trash2, Search, Package, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProductRow {
@@ -18,7 +18,12 @@ interface ProductRow {
   org_name: string;
   category: string;
   price: number;
+  description: string;
+  badges: string[] | null;
+  contact_phone: string;
   media_url: string | null;
+  media_type: string | null;
+  media_urls: any;
   created_at: string;
 }
 
@@ -29,6 +34,7 @@ export function AdminProductsTab() {
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<ProductRow | null>(null);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [confirmDelete, setConfirmDelete] = useState<ProductRow | null>(null);
@@ -40,54 +46,59 @@ export function AdminProductsTab() {
     setIsLoading(true);
     const { data } = await supabase
       .from('products')
-      .select('id, product_name, org_name, category, price, media_url, created_at')
+      .select('*')
       .order('created_at', { ascending: false });
     setProducts((data as ProductRow[]) || []);
     setIsLoading(false);
   };
 
-  const handleProductCreated = async (p: {
+  const handleProductSubmit = async (p: {
     orgName: string; productName: string; category: string; description: string;
     badges: string[]; price: number; contactPhone: string;
     mediaUrl?: string; mediaType?: string; mediaUrls?: { url: string; type: string }[];
   }) => {
     if (!user) return;
-    const { data: newProduct, error } = await supabase
-      .from('products')
-      .insert({
-        user_id: user.id,
-        org_name: p.orgName,
-        product_name: p.productName,
-        category: p.category,
-        description: p.description,
-        media_url: p.mediaUrl || null,
-        media_type: p.mediaType || null,
-        media_urls: p.mediaUrls || [],
-        badges: p.badges,
-        price: p.price,
-        contact_phone: p.contactPhone,
-      } as any)
-      .select()
-      .single();
+    
+    const isEditing = !!editingProduct;
+    const payload = {
+      user_id: user.id,
+      org_name: p.orgName,
+      product_name: p.productName,
+      category: p.category,
+      description: p.description,
+      media_url: p.mediaUrl || null,
+      media_type: p.mediaType || null,
+      media_urls: p.mediaUrls || [],
+      badges: p.badges,
+      price: p.price,
+      contact_phone: p.contactPhone,
+    } as any;
+
+    const { data: savedProduct, error } = isEditing
+      ? await supabase.from('products').update(payload).eq('id', editingProduct.id).select().single()
+      : await supabase.from('products').insert(payload).select().single();
 
     if (error) {
-      toast.error('Could not publish product');
+      toast.error(isEditing ? 'Could not update product' : 'Could not publish product');
       return;
     }
 
-    toast.success('Product published to EcoMarket');
+    toast.success(isEditing ? 'Product updated' : 'Product published to EcoMarket');
     setShowModal(false);
+    setEditingProduct(null);
 
-    supabase.functions.invoke('notify-new-content', {
-      body: {
-        type: 'product',
-        title: p.productName,
-        description: `${p.orgName} — ${p.description}`.slice(0, 400),
-        image_url: p.mediaUrl,
-        link_path: '/ecomarket',
-        reference_id: (newProduct as any)?.id,
-      },
-    }).catch(() => {});
+    if (!isEditing) {
+      supabase.functions.invoke('notify-new-content', {
+        body: {
+          type: 'product',
+          title: p.productName,
+          description: `${p.orgName} — ${p.description}`.slice(0, 400),
+          image_url: p.mediaUrl,
+          link_path: '/ecomarket',
+          reference_id: (savedProduct as any)?.id,
+        },
+      }).catch(() => {});
+    }
 
     await loadProducts();
   };
@@ -101,6 +112,16 @@ export function AdminProductsTab() {
     if (error) { toast.error('Could not delete product'); return; }
     toast.success('Product removed');
     await loadProducts();
+  };
+
+  const handleEditClick = (product: ProductRow) => {
+    setEditingProduct(product);
+    setShowModal(true);
+  };
+
+  const handleAddClick = () => {
+    setEditingProduct(null);
+    setShowModal(true);
   };
 
   const filtered = products.filter((p) => {
@@ -126,7 +147,7 @@ export function AdminProductsTab() {
             className="pl-10"
           />
         </div>
-        <Button onClick={() => setShowModal(true)} className="gap-1.5">
+        <Button onClick={handleAddClick} className="gap-1.5">
           <Plus className="w-4 h-4" /> List product
         </Button>
       </div>
@@ -154,9 +175,14 @@ export function AdminProductsTab() {
                 <p className="text-xs text-muted-foreground truncate">{p.org_name} • {p.category}</p>
                 <p className="text-xs font-medium text-primary">KSh {Number(p.price).toLocaleString()}</p>
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setConfirmDelete(p)} aria-label="Delete product">
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => handleEditClick(p)} aria-label="Edit product">
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setConfirmDelete(p)} aria-label="Delete product">
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           ))}
         </div>
@@ -166,8 +192,9 @@ export function AdminProductsTab() {
 
       <CreateProductModal
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onProductCreated={handleProductCreated}
+        onClose={() => { setShowModal(false); setEditingProduct(null); }}
+        editingProduct={editingProduct}
+        onProductCreated={handleProductSubmit}
       />
 
       <AlertDialog open={!!confirmDelete} onOpenChange={(open) => !open && setConfirmDelete(null)}>

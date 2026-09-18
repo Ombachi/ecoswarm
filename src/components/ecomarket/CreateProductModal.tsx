@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Loader2, Building2, Phone, Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,6 +32,7 @@ interface CreateProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultOrgName?: string;
+  editingProduct?: any;
   onProductCreated: (product: {
     orgName: string;
     productName: string;
@@ -46,7 +47,7 @@ interface CreateProductModalProps {
   }) => void;
 }
 
-export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductCreated }: CreateProductModalProps) {
+export function CreateProductModal({ isOpen, onClose, defaultOrgName, editingProduct, onProductCreated }: CreateProductModalProps) {
   const [step, setStep] = useState(1);
   const [orgName, setOrgName] = useState(defaultOrgName || '');
   const [productName, setProductName] = useState('');
@@ -60,6 +61,31 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
   const [isDragging, setIsDragging] = useState(false);
 
   const totalSteps = 4;
+
+  useEffect(() => {
+    if (isOpen) {
+      if (editingProduct) {
+        setOrgName(editingProduct.org_name || '');
+        setProductName(editingProduct.product_name || '');
+        setCategory(editingProduct.category || '');
+        setDescription(editingProduct.description || '');
+        setSelectedBadges(editingProduct.badges || []);
+        setPrice(editingProduct.price?.toString() || '');
+        setContactPhone(editingProduct.contact_phone || '');
+        setMediaItems([]); // Clear any previous uploads
+      } else {
+        setStep(1);
+        setOrgName(defaultOrgName || '');
+        setProductName('');
+        setCategory('');
+        setDescription('');
+        setSelectedBadges([]);
+        setPrice('');
+        setContactPhone('');
+        setMediaItems([]);
+      }
+    }
+  }, [isOpen, editingProduct, defaultOrgName]);
 
   const toggleBadge = (badge: string) => {
     setSelectedBadges((prev) =>
@@ -130,24 +156,16 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
         badges: selectedBadges,
         price: parseFloat(price),
         contactPhone: contactPhone.trim(),
-        mediaUrl: uploadedMedia[0]?.url,
-        mediaType: uploadedMedia[0]?.type,
-        mediaUrls: uploadedMedia,
+        // If editing and no new media, we let the parent handle preserving old media
+        mediaUrl: uploadedMedia.length > 0 ? uploadedMedia[0].url : (editingProduct?.media_url || undefined),
+        mediaType: uploadedMedia.length > 0 ? uploadedMedia[0].type : (editingProduct?.media_type || undefined),
+        mediaUrls: uploadedMedia.length > 0 ? uploadedMedia : (editingProduct?.media_urls || []),
       });
 
-      // Reset form
-      setStep(1);
-      setOrgName('');
-      setProductName('');
-      setCategory('');
-      setDescription('');
-      setSelectedBadges([]);
-      setPrice('');
-      setContactPhone('');
-      setMediaItems([]);
+      onClose();
     } catch (err) {
-      console.error('Error creating product:', (err as Error)?.message || 'An error occurred');
-      toast.error('Failed to create product');
+      console.error('Error saving product:', (err as Error)?.message || 'An error occurred');
+      toast.error('Failed to save product');
     } finally {
       setIsSubmitting(false);
     }
@@ -156,12 +174,12 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:justify-center" role="dialog" aria-modal="true" aria-label="List a product">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:justify-center" role="dialog" aria-modal="true" aria-label={editingProduct ? "Edit product" : "List a product"}>
       <div className="bg-card w-full sm:max-w-lg sm:rounded-2xl rounded-t-3xl h-[92vh] sm:h-auto sm:max-h-[85vh] flex flex-col animate-slide-up overflow-hidden">
         {/* Header */}
         <div className="bg-card border-b border-border p-4 flex items-center justify-between z-10 flex-shrink-0">
           <div>
-            <h2 className="text-lg font-bold text-foreground">List a Product</h2>
+            <h2 className="text-lg font-bold text-foreground">{editingProduct ? "Edit Product" : "List a Product"}</h2>
             <p className="text-xs text-muted-foreground">Step {step} of {totalSteps}</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-full bg-muted text-muted-foreground" aria-label="Close">
@@ -220,6 +238,9 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
             <>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Product Photos / Videos (up to 5)</label>
+                {editingProduct && mediaItems.length === 0 && (
+                  <p className="text-[10px] text-muted-foreground italic mb-2">Note: Keep empty to preserve existing photos, or upload new ones to replace them.</p>
+                )}
                 {/* Previews */}
                 {mediaItems.length > 0 && (
                   <div className="flex gap-2 overflow-x-auto pb-2">
@@ -318,7 +339,7 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductC
             <button onClick={() => setStep(step + 1)} disabled={!canProceed()} className="eco-button-primary flex-1 py-3 disabled:opacity-50">Next</button>
           ) : (
             <button onClick={handleSubmit} disabled={!canProceed() || isSubmitting} className="eco-button-primary flex-1 py-3 flex items-center justify-center gap-2 disabled:opacity-50">
-              {isSubmitting ? (<><Loader2 className="w-5 h-5 animate-spin" />Publishing...</>) : '🛒 Publish Product'}
+              {isSubmitting ? (<><Loader2 className="w-5 h-5 animate-spin" />Saving...</>) : (editingProduct ? 'Save Changes' : '🛒 Publish Product')}
             </button>
           )}
         </div>
