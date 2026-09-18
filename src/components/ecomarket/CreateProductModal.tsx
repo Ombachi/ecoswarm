@@ -46,6 +46,7 @@ interface CreateProductModalProps {
   }) => void;
 }
 
+  editingProduct?: any;
 export function CreateProductModal({ isOpen, onClose, defaultOrgName, onProductCreated }: CreateProductModalProps) {
   const [step, setStep] = useState(1);
   const [orgName, setOrgName] = useState(defaultOrgName || '');
