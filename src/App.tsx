@@ -12,6 +12,7 @@ import { NotificationProvider } from "@/context/NotificationContext";
 import { LayoutProvider } from "@/context/LayoutContext";
 import { Loader2 } from "lucide-react";
 import { useAnalyticsTracker } from "@/hooks/useAnalyticsTracker";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 // Critical path - loaded immediately
 import { SplashScreen } from "@/pages/SplashScreen";
@@ -141,6 +142,7 @@ const App = () => (
                 <BrowserRouter>
                   <AppRoutes />
                 </BrowserRouter>
+                <SpeedInsights />
               </LayoutProvider>
             </NotificationProvider>
           </PointsProvider>
