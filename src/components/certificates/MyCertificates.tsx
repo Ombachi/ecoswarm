@@ -3,6 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Award, ChevronRight, Download, Share2, ExternalLink, Linkedin, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateCertificatePdf } from '@/lib/certificatePdf';
+import { DigitalCertificate } from '@/components/certificates/DigitalCertificate';
+import { Pagination } from '@/components/common/Pagination';
+
+const CERTS_PER_PAGE = 5;
 
 interface CertRecord {
   id: string;
@@ -23,6 +27,7 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     (async () => {
@@ -42,10 +47,11 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
 
       const courseMap = new Map(courses?.map(c => [c.id, c.title]) || []);
 
-      setCerts(completions.map(c => ({
-        ...c,
-        courseTitle: courseMap.get(c.module_id) || 'EcoSwarm Course',
-      })));
+      setCerts(
+        completions
+          .filter(c => courseMap.has(c.module_id))
+          .map(c => ({ ...c, courseTitle: courseMap.get(c.module_id) as string }))
+      );
       setLoading(false);
     })();
   }, [userId]);
@@ -59,18 +65,21 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
     } catch {}
   };
 
-  const handleDownload = (cert: CertRecord) => {
+  const handleDownload = async (cert: CertRecord) => {
     setDownloading(cert.id);
     const dateStr = new Date(cert.completed_at).toLocaleDateString('en-US', {
       year: 'numeric', month: 'long', day: 'numeric',
     });
-    generateCertificatePdf({
-      userName,
-      courseTitle: cert.courseTitle,
-      completionDate: dateStr,
-      certId: cert.id,
-    });
-    setTimeout(() => setDownloading(null), 500);
+    try {
+      await generateCertificatePdf({
+        userName,
+        courseTitle: cert.courseTitle,
+        completionDate: dateStr,
+        certId: cert.id,
+      });
+    } finally {
+      setDownloading(null);
+    }
   };
 
   const handleShare = async (cert: CertRecord) => {
@@ -119,7 +128,7 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
         </div>
       ) : (
         <div className="space-y-3">
-          {certs.map(cert => {
+          {certs.slice((page - 1) * CERTS_PER_PAGE, page * CERTS_PER_PAGE).map(cert => {
             const isExpanded = expandedId === cert.id;
             const dateStr = new Date(cert.completed_at).toLocaleDateString('en-US', {
               year: 'numeric', month: 'short', day: 'numeric',
@@ -153,32 +162,12 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
                       className="overflow-hidden"
                     >
                       <div className="px-4 pb-4 space-y-3">
-                        {/* Mini certificate preview */}
-                        <div className="rounded-2xl overflow-hidden border border-[hsl(var(--eco-gold))]/30">
-                          <div className="bg-gradient-to-r from-amber-400 to-amber-600 p-4 text-center">
-                            <div className="flex items-center justify-center gap-2 mb-1">
-                              <Award className="w-4 h-4 text-white" />
-                              <span className="text-white font-bold text-sm">EcoSwarm</span>
-                            </div>
-                            <p className="text-white/80 text-[10px] uppercase tracking-widest">Certificate of Completion</p>
-                          </div>
-                          <div className="bg-card p-5 text-center space-y-2">
-                            <p className="text-xs text-muted-foreground">This certifies that</p>
-                            <h4 className="text-lg font-black text-foreground">{userName}</h4>
-                            <p className="text-xs text-muted-foreground">has successfully completed</p>
-                            <h5 className="text-base font-bold eco-gradient-text">{cert.courseTitle}</h5>
-                            <p className="text-[10px] text-muted-foreground">{dateStr}</p>
-                            <div className="pt-2 border-t border-border/50">
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-muted text-[10px] text-muted-foreground">
-                                <ExternalLink className="w-2.5 h-2.5" />
-                                ID: {cert.id.slice(0, 8).toUpperCase()}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="eco-gradient-bg p-2 text-center">
-                            <p className="text-primary-foreground text-[10px] font-medium">Capacity Hub • ecoswarm.co.ke</p>
-                          </div>
-                        </div>
+                        <DigitalCertificate
+                          userName={userName}
+                          courseTitle={cert.courseTitle}
+                          completionDate={dateStr}
+                          certId={cert.id}
+                        />
 
                         {/* Action buttons */}
                         <div className="grid grid-cols-2 gap-2">
@@ -222,6 +211,11 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
               </div>
             );
           })}
+          <Pagination
+            page={page}
+            pageCount={Math.max(1, Math.ceil(certs.length / CERTS_PER_PAGE))}
+            onPageChange={setPage}
+          />
         </div>
       )}
     </div>

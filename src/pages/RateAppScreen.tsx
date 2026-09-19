@@ -8,7 +8,7 @@ import { Confetti } from "@/components/common/Confetti";
 
 export function RateAppScreen() {
   const navigate = useNavigate();
-  const { addPoints, showNotification } = useApp();
+  const { showNotification } = useApp();
 
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -33,8 +33,8 @@ export function RateAppScreen() {
 
       setShowConfetti(true);
       setHasSubmitted(true);
-      addPoints(10);
-      showNotification("Thanks for rating! 💚", 10);
+      showNotification("Thanks for rating! 💚");
+
 
       setTimeout(() => setShowConfetti(false), 3000);
     } catch (error) {
@@ -106,8 +106,9 @@ export function RateAppScreen() {
           </div>
           <h2 className="text-xl font-bold text-foreground mb-2">How's Your Experience?</h2>
           <p className="text-muted-foreground text-sm">
-            Rate EcoSwarm and earn 10 EcoPoints! Your feedback helps us grow.
+            Tell us how EcoSwarm is working for you. Your feedback helps us grow.
           </p>
+
         </div>
 
         {/* Star Rating */}
@@ -152,16 +153,6 @@ export function RateAppScreen() {
           <p className="text-xs text-muted-foreground mt-1 text-right">{review.length}/500</p>
         </div>
 
-        {/* Points Reward */}
-        <div className="eco-card p-4 bg-eco-green-light border-none flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full eco-gradient-bg flex items-center justify-center flex-shrink-0">
-            <Sparkles className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <p className="font-semibold text-foreground">Earn +10 EcoPoints!</p>
-            <p className="text-xs text-muted-foreground">Thanks for taking the time to rate us</p>
-          </div>
-        </div>
 
         {/* Submit Button */}
         <button
