@@ -3,6 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Award, ChevronRight, Download, Share2, ExternalLink, Linkedin, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateCertificatePdf } from '@/lib/certificatePdf';
+import { DigitalCertificate } from '@/components/certificates/DigitalCertificate';
+import { Pagination } from '@/components/common/Pagination';
+
+const CERTS_PER_PAGE = 5;
 
 interface CertRecord {
   id: string;
@@ -157,32 +161,12 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
                       className="overflow-hidden"
                     >
                       <div className="px-4 pb-4 space-y-3">
-                        {/* Mini certificate preview */}
-                        <div className="rounded-2xl overflow-hidden border border-[hsl(var(--eco-gold))]/30">
-                          <div className="bg-gradient-to-r from-amber-400 to-amber-600 p-4 text-center">
-                            <div className="flex items-center justify-center gap-2 mb-1">
-                              <Award className="w-4 h-4 text-white" />
-                              <span className="text-white font-bold text-sm">EcoSwarm</span>
-                            </div>
-                            <p className="text-white/80 text-[10px] uppercase tracking-widest">Certificate of Completion</p>
-                          </div>
-                          <div className="bg-card p-5 text-center space-y-2">
-                            <p className="text-xs text-muted-foreground">This certifies that</p>
-                            <h4 className="text-lg font-black text-foreground">{userName}</h4>
-                            <p className="text-xs text-muted-foreground">has successfully completed</p>
-                            <h5 className="text-base font-bold eco-gradient-text">{cert.courseTitle}</h5>
-                            <p className="text-[10px] text-muted-foreground">{dateStr}</p>
-                            <div className="pt-2 border-t border-border/50">
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-muted text-[10px] text-muted-foreground">
-                                <ExternalLink className="w-2.5 h-2.5" />
-                                ID: {cert.id.slice(0, 8).toUpperCase()}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="eco-gradient-bg p-2 text-center">
-                            <p className="text-primary-foreground text-[10px] font-medium">Capacity Hub • ecoswarm.co.ke</p>
-                          </div>
-                        </div>
+                        <DigitalCertificate
+                          userName={userName}
+                          courseTitle={cert.courseTitle}
+                          completionDate={dateStr}
+                          certId={cert.id}
+                        />
 
                         {/* Action buttons */}
                         <div className="grid grid-cols-2 gap-2">
