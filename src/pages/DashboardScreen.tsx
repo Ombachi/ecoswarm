@@ -10,8 +10,9 @@ import { EcoSwarmChatbot } from "@/components/chat/EcoSwarmChatbot";
 import { useVisibilityRefetch } from "@/hooks/useVisibilityRefetch";
 import { getLatestCourseProgress, CourseProgress } from "@/lib/courseProgress";
 import {
-  ShoppingBag, Mail, Moon, Sun, LogOut, GraduationCap,
-  ArrowRight, Award, Play, User as UserIcon, ChevronRight,
+  ShoppingBag, Moon, Sun, LogOut, GraduationCap,
+  ArrowRight, Play, ChevronRight,
+
 } from "lucide-react";
 
 interface Course {
