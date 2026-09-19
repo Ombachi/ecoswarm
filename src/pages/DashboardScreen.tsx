@@ -31,12 +31,6 @@ interface Product {
   org_name: string | null;
 }
 
-interface Cert {
-  id: string;
-  module_id: string;
-  completed_at: string;
-  title: string;
-}
 
 export function DashboardScreen() {
   const navigate = useNavigate();
@@ -45,7 +39,6 @@ export function DashboardScreen() {
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [certs, setCerts] = useState<Cert[]>([]);
   const [progress, setProgress] = useState<CourseProgress | null>(null);
 
   const loadFeed = useCallback(async () => {
@@ -58,29 +51,12 @@ export function DashboardScreen() {
     setProgress(getLatestCourseProgress());
   }, []);
 
-  const loadCerts = useCallback(async () => {
-    if (!user) return;
-    const { data: completions } = await supabase
-      .from("course_completions")
-      .select("id, module_id, completed_at")
-      .eq("user_id", user.id)
-      .order("completed_at", { ascending: false })
-      .limit(6);
-    if (!completions?.length) { setCerts([]); return; }
-    const { data: titles } = await supabase
-      .from("courses")
-      .select("id,title")
-      .in("id", [...new Set(completions.map((c) => c.module_id))]);
-    const map = new Map((titles || []).map((t) => [t.id, t.title]));
-    setCerts(completions.map((c) => ({ ...c, title: map.get(c.module_id) || "EcoSwarm Course" })));
-  }, [user]);
-
   useEffect(() => { loadFeed(); }, [loadFeed]);
-  useEffect(() => { loadCerts(); }, [loadCerts]);
 
   const handleVisibilityRefetch = useCallback(() => {
-    if (user) { refreshUser(); loadFeed(); loadCerts(); }
-  }, [user, refreshUser, loadFeed, loadCerts]);
+    if (user) { refreshUser(); loadFeed(); }
+  }, [user, refreshUser, loadFeed]);
+
   useVisibilityRefetch(handleVisibilityRefetch);
 
   if (!user) {
@@ -103,11 +79,6 @@ export function DashboardScreen() {
 
   const newCourses = courses.filter((c) => c.id !== resumeCourse?.courseId);
 
-  const quickLinks = [
-    { label: isSwahili ? "Manunuzi Yangu" : "My purchases", icon: ShoppingBag, path: "/purchases" },
-    { label: isSwahili ? "Ujumbe" : "Messages", icon: Mail, path: "/inbox" },
-    { label: isSwahili ? "Wasifu" : "Profile", icon: UserIcon, path: "/profile" },
-  ];
 
   return (
     <AppLayout>
