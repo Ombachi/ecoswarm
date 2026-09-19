@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Award, Download, Share2, ExternalLink, X, Linkedin, Check } from 'lucide-react';
 import { Confetti } from '@/components/common/Confetti';
 import { generateCertificatePdf } from '@/lib/certificatePdf';
+import { DigitalCertificate } from '@/components/certificates/DigitalCertificate';
 
 interface GoldenCertificateProps {
   userName: string;
@@ -47,15 +48,13 @@ export function GoldenCertificate({ userName, courseTitle, completionDate, certI
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     setDownloading(true);
-    generateCertificatePdf({
-      userName,
-      courseTitle,
-      completionDate: dateStr,
-      certId,
-    });
-    setTimeout(() => setDownloading(false), 500);
+    try {
+      await generateCertificatePdf({ userName, courseTitle, completionDate: dateStr, certId });
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -78,46 +77,22 @@ export function GoldenCertificate({ userName, courseTitle, completionDate, certI
             <Award className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-2xl font-black text-foreground">Congratulations! 🎉</h1>
-          <p className="text-muted-foreground">You've earned a Golden Certificate</p>
+          <p className="text-muted-foreground">Your certificate is ready</p>
         </motion.div>
 
-        {/* Certificate Card */}
+        {/* Certificate */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="w-full max-w-md rounded-3xl overflow-hidden border-2 border-[hsl(var(--eco-gold))]/50 shadow-lg mb-8"
+          className="w-full max-w-3xl mb-8"
         >
-          {/* Gold Header */}
-          <div className="bg-gradient-to-r from-[hsl(var(--eco-gold))] to-[hsl(var(--eco-orange))] p-6 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Award className="w-6 h-6 text-white" />
-              <span className="text-white font-bold text-lg">EcoSwarm</span>
-            </div>
-            <p className="text-white/80 text-xs uppercase tracking-widest">Certificate of Completion</p>
-          </div>
-
-          {/* Body */}
-          <div className="bg-card p-8 text-center space-y-4">
-            <p className="text-sm text-muted-foreground">This certifies that</p>
-            <h2 className="text-2xl font-black text-foreground">{userName}</h2>
-            <p className="text-sm text-muted-foreground">has successfully completed</p>
-            <h3 className="text-xl font-bold eco-gradient-text">{courseTitle}</h3>
-            <p className="text-xs text-muted-foreground">{dateStr}</p>
-
-            {/* QR-style verification */}
-            <div className="pt-4 border-t border-border/50">
-              <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-muted text-xs text-muted-foreground">
-                <ExternalLink className="w-3 h-3" />
-                ID: {certId.slice(0, 8).toUpperCase()}
-              </div>
-            </div>
-          </div>
-
-          {/* Green Footer */}
-          <div className="eco-gradient-bg p-3 text-center">
-            <p className="text-primary-foreground text-xs font-medium">Capacity Hub • ecoswarm.co.ke</p>
-          </div>
+          <DigitalCertificate
+            userName={userName}
+            courseTitle={courseTitle}
+            completionDate={dateStr}
+            certId={certId}
+          />
         </motion.div>
 
         {/* Share Actions */}
