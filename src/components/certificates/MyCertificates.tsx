@@ -27,6 +27,7 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     (async () => {
@@ -127,7 +128,7 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
         </div>
       ) : (
         <div className="space-y-3">
-          {certs.map(cert => {
+          {certs.slice((page - 1) * CERTS_PER_PAGE, page * CERTS_PER_PAGE).map(cert => {
             const isExpanded = expandedId === cert.id;
             const dateStr = new Date(cert.completed_at).toLocaleDateString('en-US', {
               year: 'numeric', month: 'short', day: 'numeric',
@@ -210,6 +211,11 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
               </div>
             );
           })}
+          <Pagination
+            page={page}
+            pageCount={Math.max(1, Math.ceil(certs.length / CERTS_PER_PAGE))}
+            onPageChange={setPage}
+          />
         </div>
       )}
     </div>
