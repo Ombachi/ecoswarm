@@ -42,10 +42,11 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
 
       const courseMap = new Map(courses?.map(c => [c.id, c.title]) || []);
 
-      setCerts(completions.map(c => ({
-        ...c,
-        courseTitle: courseMap.get(c.module_id) || 'EcoSwarm Course',
-      })));
+      setCerts(
+        completions
+          .filter(c => courseMap.has(c.module_id))
+          .map(c => ({ ...c, courseTitle: courseMap.get(c.module_id) as string }))
+      );
       setLoading(false);
     })();
   }, [userId]);
@@ -59,18 +60,21 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
     } catch {}
   };
 
-  const handleDownload = (cert: CertRecord) => {
+  const handleDownload = async (cert: CertRecord) => {
     setDownloading(cert.id);
     const dateStr = new Date(cert.completed_at).toLocaleDateString('en-US', {
       year: 'numeric', month: 'long', day: 'numeric',
     });
-    generateCertificatePdf({
-      userName,
-      courseTitle: cert.courseTitle,
-      completionDate: dateStr,
-      certId: cert.id,
-    });
-    setTimeout(() => setDownloading(null), 500);
+    try {
+      await generateCertificatePdf({
+        userName,
+        courseTitle: cert.courseTitle,
+        completionDate: dateStr,
+        certId: cert.id,
+      });
+    } finally {
+      setDownloading(null);
+    }
   };
 
   const handleShare = async (cert: CertRecord) => {
