@@ -252,48 +252,8 @@ export function DashboardScreen() {
           </section>
         )}
 
-        {/* Your certificates */}
-        {certs.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-semibold text-foreground">
-                {isSwahili ? "Vyeti Vyako" : "Your certificates"}
-              </h2>
-              <button onClick={() => navigate("/profile")} className="text-xs font-medium text-primary inline-flex items-center">
-                {isSwahili ? "Zote" : "See all"} <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <div className="flex gap-2 overflow-x-auto hide-scrollbar -mx-4 px-4 pb-1">
-              {certs.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => navigate("/profile")}
-                  className="eco-card px-3 py-2 flex items-center gap-2 flex-shrink-0 max-w-[14rem]"
-                >
-                  <Award className="w-4 h-4 text-[hsl(var(--eco-gold))] flex-shrink-0" />
-                  <span className="text-xs font-medium text-foreground truncate">{c.title}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Quick links */}
-        <section>
-          <div className="grid grid-cols-3 gap-2">
-            {quickLinks.map((q) => (
-              <button
-                key={q.path}
-                onClick={() => navigate(q.path)}
-                className="eco-card p-3 flex flex-col items-center gap-1.5"
-              >
-                <q.icon className="w-4 h-4 text-primary" />
-                <span className="text-[11px] font-medium text-foreground text-center leading-tight">{q.label}</span>
-              </button>
-            ))}
-          </div>
-        </section>
       </div>
+
 
       <EcoSwarmChatbot />
     </AppLayout>
