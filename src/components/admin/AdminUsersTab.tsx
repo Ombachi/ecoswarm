@@ -12,6 +12,9 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { Pagination } from '@/components/common/Pagination';
+
+const USERS_PER_PAGE = 15;
 
 interface UserProfile {
   user_id: string;
@@ -28,6 +31,7 @@ export function AdminUsersTab() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<{ user: UserProfile; action: 'delete' | 'suspend' | 'unsuspend' | 'activate'; role?: string } | null>(null);
 
@@ -102,7 +106,7 @@ export function AdminUsersTab() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           placeholder="Search by name, email or ID..."
           className="pl-10"
         />
@@ -110,7 +114,7 @@ export function AdminUsersTab() {
 
       <p className="text-xs text-muted-foreground">{filtered.length} users</p>
 
-      {filtered.map(u => (
+      {filtered.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE).map(u => (
         <div key={u.user_id} className="eco-card p-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
@@ -163,6 +167,12 @@ export function AdminUsersTab() {
           </div>
         </div>
       ))}
+
+      <Pagination
+        page={page}
+        pageCount={Math.ceil(filtered.length / USERS_PER_PAGE)}
+        onPageChange={setPage}
+      />
 
       <AlertDialog open={!!confirm} onOpenChange={(open) => !open && setConfirm(null)}>
         <AlertDialogContent>

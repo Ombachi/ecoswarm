@@ -75,7 +75,7 @@ export function ToolsScreen() {
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {learningModules.map((module: any, index: number) => {
+            {learningModules.slice((page - 1) * COURSES_PER_PAGE, page * COURSES_PER_PAGE).map((module: any, index: number) => {
               const isCompleted = completedModules.includes(module.id);
               return (
                 <button
@@ -103,6 +103,12 @@ export function ToolsScreen() {
             })}
           </div>
         )}
+
+        <Pagination
+          page={page}
+          pageCount={Math.ceil(learningModules.length / COURSES_PER_PAGE)}
+          onPageChange={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+        />
       </div>
     </AppLayout>
   );

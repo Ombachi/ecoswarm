@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Award, CheckCircle, XCircle, Loader2, ExternalLink } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, ExternalLink } from 'lucide-react';
+import { DigitalCertificate } from '@/components/certificates/DigitalCertificate';
 
 interface CertData {
   user_id: string;
@@ -133,41 +134,20 @@ export function CertificateVerifyScreen() {
     : '';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-background dark:from-amber-950/20 dark:to-background flex items-center justify-center p-4">
-      <div className="max-w-lg w-full">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl">
         <div className="text-center mb-6">
-          <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-3" />
-          <h1 className="text-2xl font-bold text-foreground">Certificate Verified ✅</h1>
-          <p className="text-muted-foreground text-sm mt-1">This is a legitimate EcoSwarm Capacity Hub certificate.</p>
+          <CheckCircle className="w-14 h-14 text-emerald-500 mx-auto mb-3" />
+          <h1 className="text-2xl font-bold text-foreground">Certificate Verified</h1>
+          <p className="text-muted-foreground text-sm mt-1">This is a legitimate EcoSwarm Climate Academy certificate.</p>
         </div>
 
-        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-lg">
-          <div className="bg-gradient-to-r from-amber-400 to-amber-600 p-5 text-center">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <Award className="w-6 h-6 text-white" />
-              <span className="text-white font-bold text-lg">EcoSwarm</span>
-            </div>
-            <p className="text-white/80 text-xs uppercase tracking-widest">Certificate of Completion</p>
-          </div>
-
-          <div className="p-6 space-y-3 text-center">
-            <p className="text-xs text-muted-foreground">This certifies that</p>
-            <h2 className="text-xl font-black text-foreground">{cert?.userName}</h2>
-            <p className="text-xs text-muted-foreground">has successfully completed</p>
-            <h3 className="text-lg font-bold text-primary">{cert?.courseTitle}</h3>
-            <p className="text-xs text-muted-foreground">{dateStr}</p>
-            <div className="pt-3 border-t border-border/50">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted text-xs text-muted-foreground">
-                <ExternalLink className="w-3 h-3" />
-                ID: {certId?.slice(0, 8).toUpperCase()}
-              </span>
-            </div>
-          </div>
-
-          <div className="bg-primary p-3 text-center">
-            <p className="text-primary-foreground text-xs font-medium">Capacity Hub • ecoswarm.co.ke</p>
-          </div>
-        </div>
+        <DigitalCertificate
+          userName={cert?.userName || ''}
+          courseTitle={cert?.courseTitle || ''}
+          completionDate={dateStr}
+          certId={certId || ''}
+        />
 
         <div className="flex items-center justify-center mt-6">
           <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm">
