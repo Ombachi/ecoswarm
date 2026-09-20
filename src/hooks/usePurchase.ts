@@ -20,7 +20,8 @@ export function usePurchase() {
   const processPurchase = async (
     productId: string,
     pointsToUse: number,
-    phoneNumber?: string
+    phoneNumber?: string,
+    couponCode?: string
   ): Promise<PurchaseResult | null> => {
     setIsProcessing(true);
     try {
@@ -28,7 +29,7 @@ export function usePurchase() {
       if (!session) throw new Error('Not authenticated');
 
       const { data, error } = await supabase.functions.invoke('process-purchase', {
-        body: { productId, pointsToUse, phoneNumber },
+        body: { productId, pointsToUse, phoneNumber, couponCode },
       });
 
       if (error) throw error;
