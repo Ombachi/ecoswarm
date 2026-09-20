@@ -31,6 +31,7 @@ export function AdminUsersTab() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<{ user: UserProfile; action: 'delete' | 'suspend' | 'unsuspend' | 'activate'; role?: string } | null>(null);
 
