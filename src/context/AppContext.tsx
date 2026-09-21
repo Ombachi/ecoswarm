@@ -205,7 +205,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sex: authUser.user_metadata?.sex || undefined,
       phone: authUser.user_metadata?.phone || undefined,
       top_concern: authUser.user_metadata?.top_concern || undefined,
-      streak: 1,
       last_active_at: new Date().toISOString(),
     });
 
