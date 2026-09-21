@@ -426,7 +426,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (Object.keys(updateData).length > 0) {
         const { error } = await supabase
           .from('profiles')
-          .update(updateData)
+          .update(updateData as never)
           .eq('user_id', user.id);
 
         if (error) console.error('Error updating stats:', error?.message || 'An error occurred');

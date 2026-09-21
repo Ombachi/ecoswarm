@@ -124,7 +124,6 @@ export function SignupScreen() {
           phone,
           location: county === "International (Outside Kenya)" ? country.trim() : county,
           top_concern: topConcern,
-          streak: 1,
           last_active_at: new Date().toISOString(),
         }).then(({ error }) => {
           if (error) console.warn('Signup profile insert (may retry on login):', error?.message);
