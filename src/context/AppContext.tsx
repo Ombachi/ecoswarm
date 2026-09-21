@@ -205,7 +205,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sex: authUser.user_metadata?.sex || undefined,
       phone: authUser.user_metadata?.phone || undefined,
       top_concern: authUser.user_metadata?.top_concern || undefined,
-      streak: 1,
       last_active_at: new Date().toISOString(),
     });
 
@@ -426,7 +425,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (Object.keys(updateData).length > 0) {
         const { error } = await supabase
           .from('profiles')
-          .update(updateData)
+          .update(updateData as never)
           .eq('user_id', user.id);
 
         if (error) console.error('Error updating stats:', error?.message || 'An error occurred');
