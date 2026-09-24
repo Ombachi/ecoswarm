@@ -438,28 +438,26 @@ export function LandingPage() {
           >
             <div className="eco-card p-6 bg-gradient-to-br from-[hsl(var(--eco-green-light))] to-[hsl(var(--eco-blue-light))] border-none mb-6">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                A simple loop: learn, choose better, and support the green economy.
+            
               </p>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <BookOpen className="w-5 h-5 text-[hsl(var(--eco-gold))] flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>Learn in the Capacity Hub.</strong> Take expert-led courses, earn certificates, and build
-                    practical climate skills.
+                    <strong>
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <ShoppingBag className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>Shop the EcoMarket.</strong> Discover vetted eco-friendly products and services from Kenyan
+                    <strong>
                     sellers.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Leaf className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>Live the change.</strong> Every lesson applied and every sustainable purchase moves Kenya
-                    closer to climate resilience.
+                    <strong>Live the change.</strong> 
                   </span>
                 </li>
               </ul>
