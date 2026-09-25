@@ -22,7 +22,7 @@ export function AboutScreen() {
   const features = [
     {
       icon: GraduationCap,
-      title: "Capacity Hub",
+      title: "Climate Academy",
       description: "Take expert-led climate courses and earn certificates.",
       color: "from-eco-orange to-destructive",
     },
@@ -66,7 +66,7 @@ export function AboutScreen() {
               <Leaf className="w-12 h-12 text-white" />
             </div>
             <h1 className="text-3xl font-black text-white mb-2">EcoSwarm</h1>
-            <p className="text-white/80">Your Digital Agora </p>
+            <p className="text-white/80">Learn & Shop Sustainably</p>
           </div>
         </div>
       </div>

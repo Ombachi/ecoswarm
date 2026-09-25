@@ -5,7 +5,7 @@ const steps = [
   {
     icon: MousePointerClick,
     title: "Pick a course or product",
-    desc: "Browse the Capacity Hub for climate courses, or the EcoMarket for sustainable products.",
+    desc: "Browse the Climate Academy for climate courses, or the EcoMarket for sustainable products.",
   },
   {
     icon: Smartphone,

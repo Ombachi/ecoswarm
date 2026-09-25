@@ -11,7 +11,7 @@ interface SocialShareButtonsProps {
 export function SocialShareButtons({ 
   url = window.location.href, 
   title = 'Check this out on EcoSwarm!',
-  text = 'Join me on EcoSwarm - the digital agora for Gen Z EcoWarriors!',
+  text = 'Join me on EcoSwarm - learn climate skills and shop sustainably!',
   compact = false
 }: SocialShareButtonsProps) {
   

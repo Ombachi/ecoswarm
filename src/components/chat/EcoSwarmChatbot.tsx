@@ -11,7 +11,7 @@ const QUICK_QUESTIONS = [
   "How do I earn EcoPoints?",
   "What is EcoMarket?",
   "How do I join a swarm?",
-  "Tell me about Capacity Hub",
+  "Tell me about Climate Academy",
 ];
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ecoswarm-chat`;

@@ -23,7 +23,7 @@ export function GoldenCertificate({ userName, courseTitle, completionDate, certI
   const verifyUrl = `${window.location.origin}/verify/${certId}`;
 
   const linkedInCaption = encodeURIComponent(
-    `I just leveled up my climate action skills at the EcoSwarm Capacity Hub! 🌍 Check out my '${courseTitle}' badge. From anxiety to action — join the swarm! #EcoSwarm #ClimateAction`
+    `I just leveled up my climate action skills at the EcoSwarm Climate Academy! 🌍 Check out my '${courseTitle}' badge. From anxiety to action — join the swarm! #EcoSwarm #ClimateAction`
   );
   const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verifyUrl)}`;
   const twitterUrl = `https://twitter.com/intent/tweet?text=${linkedInCaption}&url=${encodeURIComponent(verifyUrl)}`;
@@ -41,7 +41,7 @@ export function GoldenCertificate({ userName, courseTitle, completionDate, certI
       try {
         await navigator.share({
           title: `${courseTitle} Certificate - EcoSwarm`,
-          text: `I completed "${courseTitle}" at EcoSwarm Capacity Hub!`,
+          text: `I completed "${courseTitle}" at EcoSwarm Climate Academy!`,
           url: verifyUrl,
         });
       } catch {}
@@ -146,7 +146,7 @@ export function GoldenCertificate({ userName, courseTitle, completionDate, certI
             onClick={onClose}
             className="w-full py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            Back to Capacity Hub
+            Back to Climate Academy
           </button>
         </motion.div>
       </div>

@@ -37,7 +37,7 @@ export function CoursesPreview() {
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8 md:mb-12">
           <div className="max-w-2xl">
             <span className="eco-badge mb-4 inline-flex">
-              <GraduationCap className="w-3.5 h-3.5" /> Capacity Hub
+              <GraduationCap className="w-3.5 h-3.5" /> Climate Academy
             </span>
             <h2 className="text-3xl md:text-4xl font-black tracking-tight">
               Courses built for climate action

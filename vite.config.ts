@@ -75,7 +75,7 @@ export default defineConfig(({ mode }) => ({
         },
         shortcuts: [
           {
-            name: "Capacity Hub",
+            name: "Climate Academy",
             short_name: "Courses",
             description: "Learn environmental skills and earn certificates",
             url: "/tools",

@@ -38,7 +38,7 @@ export function ProductGridSkeleton({ count = 8, className }: { count?: number; 
   );
 }
 
-/** Course list skeleton for the Capacity Hub. */
+/** Course list skeleton for the Climate Academy. */
 export function CourseCardSkeleton() {
   return (
     <div className="eco-card p-4 flex items-start gap-3">

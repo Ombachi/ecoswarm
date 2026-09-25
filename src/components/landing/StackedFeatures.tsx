@@ -17,7 +17,7 @@ type Feature = {
 const items: Feature[] = [
   {
     icon: GraduationCap,
-    title: "Capacity Hub",
+    title: "Climate Academy",
     desc: "Learn boldly",
     longDesc:
       "Take expert-led climate courses, earn certificates, and build the practical skills that turn environmental passion into real-world impact.",
