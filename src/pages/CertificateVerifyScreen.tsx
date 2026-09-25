@@ -86,7 +86,7 @@ export function CertificateVerifyScreen() {
     };
 
     const title = `${cert.userName} completed "${cert.courseTitle}" — EcoSwarm Certificate`;
-    const desc = `Verified EcoSwarm Capacity Hub certificate for completing "${cert.courseTitle}". View and verify this achievement.`;
+    const desc = `Verified EcoSwarm Climate Academy certificate for completing "${cert.courseTitle}". View and verify this achievement.`;
     const url = `${window.location.origin}/verify/${certId}`;
 
     document.title = title;
@@ -94,7 +94,7 @@ export function CertificateVerifyScreen() {
     setMeta('og:description', desc);
     setMeta('og:url', url);
     setMeta('og:type', 'article');
-    setMeta('og:site_name', 'EcoSwarm Capacity Hub');
+    setMeta('og:site_name', 'EcoSwarm Climate Academy');
     setMeta('og:image', `${window.location.origin}/og-certificate.png`);
     setNameMeta('twitter:card', 'summary_large_image');
     setNameMeta('twitter:title', title);
@@ -102,7 +102,7 @@ export function CertificateVerifyScreen() {
 
     return () => {
       tags.forEach(el => el.remove());
-      document.title = 'EcoSwarm - Your Digital Agora';
+      document.title = 'EcoSwarm | Learn & Shop Sustainably';
     };
   }, [cert, certId]);
 

@@ -60,7 +60,7 @@ export function TermsOfServiceScreen() {
                 <li>Share environmental and social stories in the Agora Square</li>
                 <li>Join collective action campaigns ("Swarms")</li>
                 <li>Send advocacy letters to decision-makers through EcoLetter Forge</li>
-                <li>Learn about environmental issues in the Capacity Hub</li>
+                <li>Learn about environmental issues in the Climate Academy</li>
                 <li>Earn EcoPoints and badges for positive actions</li>
               </ul>
             </section>

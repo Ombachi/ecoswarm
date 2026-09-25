@@ -102,6 +102,18 @@ export function EcoMarketScreen() {
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [purchaseResult, setPurchaseResult] = useState<{ bonusPoints: number; pointsUsed: number; cashPaid: number; productName: string } | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+
+  // Deep link from landing page: /ecomarket?buy=<productId> opens checkout
+  useEffect(() => {
+    const buyId = new URLSearchParams(window.location.search).get('buy');
+    if (!buyId || buyProduct) return;
+    const match = products.find((p) => p.id === buyId);
+    if (match) {
+      setBuyProduct(match);
+      setShowConfirmModal(true);
+      window.history.replaceState(null, '', '/ecomarket');
+    }
+  }, [products, buyProduct]);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [couponCode, setCouponCode] = useState('');
 

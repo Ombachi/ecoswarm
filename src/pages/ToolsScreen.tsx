@@ -13,7 +13,7 @@ const COURSES_PER_PAGE = 9;
 export function ToolsScreen() {
   const navigate = useNavigate();
   const { user } = useApp();
-  usePageMeta('Capacity Hub', 'Learn climate and environmental skills with EcoSwarm courses.');
+  usePageMeta('Climate Academy', 'Learn climate and environmental skills with EcoSwarm courses.');
   const [completedModules, setCompletedModules] = useState<string[]>([]);
   const [learningModules, setLearningModules] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -56,7 +56,7 @@ export function ToolsScreen() {
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-xl font-bold text-foreground truncate">Capacity Hub</h1>
+            <h1 className="text-xl font-bold text-foreground truncate">Climate Academy</h1>
             <p className="text-xs text-muted-foreground">Build your climate skills</p>
           </div>
         </div>

@@ -364,7 +364,7 @@ export function AdminBroadcastTab() {
       setNewPollOptions(['Excellent', 'Good', 'Average', 'Needs Improvement']);
     } else if (preset === 'App Utility Rating') {
       setNewPollDesc('Which EcoSwarm feature is most useful to you?');
-      setNewPollOptions(['Agora (Social)', 'EcoMarket', 'Capacity Hub', 'EcoLetter', 'Swarms']);
+      setNewPollOptions(['Agora (Social)', 'EcoMarket', 'Climate Academy', 'EcoLetter', 'Swarms']);
     }
   };
 

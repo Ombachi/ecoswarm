@@ -4,11 +4,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 const faqs = [
   {
     q: "How do the climate courses work?",
-    a: "Each course in the Capacity Hub is made of short sections you can read at your own pace, followed by a short quiz. Score 70% or above and you unlock a shareable EcoSwarm certificate with a verification link.",
+    a: "Each course in the Climate Academy is made of short sections you can read at your own pace, followed by a short quiz. Score 70% or above and you unlock a shareable EcoSwarm certificate with a verification link.",
   },
   {
     q: "Do I need to pay for courses?",
-    a: "Courses in the Capacity Hub are free for every EcoWarrior. All you need is an account.Create one in under a minute and start learning immediately.",
+    a: "Courses in the Climate Academy are free for every EcoWarrior. All you need is an account.Create one in under a minute and start learning immediately.",
   },
   {
     q: "How do I buy a product from EcoMarket?",

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ShoppingBag, ArrowRight } from "lucide-react";
+import { ShoppingBag, ArrowRight, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useLandingNav } from "@/hooks/useLandingNav";
@@ -18,6 +19,7 @@ type Product = {
 export function MarketHighlights() {
   const go = useLandingNav();
   const [products, setProducts] = useState<Product[]>([]);
+  const [preview, setPreview] = useState<Product | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -41,7 +43,7 @@ export function MarketHighlights() {
               <ShoppingBag className="w-3.5 h-3.5" /> EcoMarket
             </span>
             <h2 className="text-3xl md:text-4xl font-black tracking-tight">
-              Featured sustainable products
+              Products that don't cost the planet
             </h2>
             <p className="text-muted-foreground mt-3 md:text-lg">
               Vetted eco-friendly products from Kenyan makers, paid for securely with M-Pesa.
@@ -83,16 +85,42 @@ export function MarketHighlights() {
                 <p className="text-sm text-muted-foreground line-clamp-2 flex-1">{p.description}</p>
                 {p.org_name && <p className="text-xs text-muted-foreground mt-1">by {p.org_name}</p>}
                 <p className="mt-3 text-lg font-black eco-gradient-text">
-                  KES {Number(p.price).toLocaleString()}
+                  KSh {Number(p.price).toLocaleString()}
                 </p>
-                <Button variant="outline" className="mt-3 w-full" onClick={() => go("/ecomarket")}>
-                  Shop now
-                </Button>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <Button variant="outline" onClick={() => setPreview(p)}>
+                    <Eye className="w-4 h-4 mr-1" /> Preview
+                  </Button>
+                  <Button onClick={() => go(`/ecomarket?buy=${p.id}`)}>
+                    Buy with M-Pesa
+                  </Button>
+                </div>
               </div>
             </motion.article>
           ))}
         </div>
       </div>
+
+      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+        <DialogContent className="max-w-lg">
+          {preview && (
+            <>
+              {preview.media_url && (
+                <img src={preview.media_url} alt={preview.product_name} className="w-full aspect-[4/3] object-cover rounded-xl" />
+              )}
+              <DialogHeader>
+                <DialogTitle>{preview.product_name}</DialogTitle>
+                <DialogDescription>{preview.org_name ? `by ${preview.org_name}` : "EcoMarket"}</DialogDescription>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground max-h-40 overflow-y-auto">{preview.description}</p>
+              <div className="flex items-center justify-between gap-3 pt-2">
+                <p className="text-xl font-black eco-gradient-text">KSh {Number(preview.price).toLocaleString()}</p>
+                <Button onClick={() => go(`/ecomarket?buy=${preview.id}`)}>Buy with M-Pesa</Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

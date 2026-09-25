@@ -88,7 +88,7 @@ export function MyCertificates({ userId, userName, isSwahili }: MyCertificatesPr
       try {
         await navigator.share({
           title: `${cert.courseTitle} Certificate - EcoSwarm`,
-          text: `I completed "${cert.courseTitle}" at EcoSwarm Capacity Hub!`,
+          text: `I completed "${cert.courseTitle}" at EcoSwarm Climate Academy!`,
           url,
         });
       } catch {}

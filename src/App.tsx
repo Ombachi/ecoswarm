@@ -14,7 +14,6 @@ import { Loader2 } from "lucide-react";
 import { useAnalyticsTracker } from "@/hooks/useAnalyticsTracker";
 
 // Critical path - loaded immediately
-import { SplashScreen } from "@/pages/SplashScreen";
 import { LoginScreen } from "@/pages/LoginScreen";
 import { SignupScreen } from "@/pages/SignupScreen";
 
@@ -92,7 +91,7 @@ function AppRoutes() {
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
             <Route path="/" element={isAuthenticated ? <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace /> : <LandingPage />} />
-            <Route path="/welcome" element={<SplashScreen />} />
+            <Route path="/welcome" element={<Navigate to="/" replace />} />
             <Route path="/onboarding" element={<OnboardingScreen />} />
             <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginScreen />} />
             <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupScreen />} />

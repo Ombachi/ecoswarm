@@ -75,7 +75,7 @@ export default defineConfig(({ mode }) => ({
         },
         shortcuts: [
           {
-            name: "Capacity Hub",
+            name: "Climate Academy",
             short_name: "Courses",
             description: "Learn environmental skills and earn certificates",
             url: "/tools",
@@ -106,7 +106,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
             handler: "NetworkFirst",
             options: {
-              cacheName: "supabase-api-cache",
+              cacheName: "supabase-api-cache-v2",
               networkTimeoutSeconds: 5,
               expiration: {
                 maxEntries: 50,
@@ -121,7 +121,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*/i,
             handler: "CacheFirst",
             options: {
-              cacheName: "supabase-storage-cache",
+              cacheName: "supabase-storage-cache-v2",
               expiration: {
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 7,
@@ -135,7 +135,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: "CacheFirst",
             options: {
-              cacheName: "google-fonts-cache",
+              cacheName: "google-fonts-cache-v2",
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365,
@@ -146,7 +146,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
             handler: "CacheFirst",
             options: {
-              cacheName: "google-fonts-webfonts",
+              cacheName: "google-fonts-webfonts-v2",
               expiration: {
                 maxEntries: 30,
                 maxAgeSeconds: 60 * 60 * 24 * 365,
@@ -160,7 +160,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
             handler: "CacheFirst",
             options: {
-              cacheName: "images-cache",
+              cacheName: "images-cache-v2",
               expiration: {
                 maxEntries: 150,
                 maxAgeSeconds: 60 * 60 * 24 * 30,
@@ -171,7 +171,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /\.(?:js|css)$/i,
             handler: "StaleWhileRevalidate",
             options: {
-              cacheName: "static-resources",
+              cacheName: "static-resources-v2",
               expiration: {
                 maxEntries: 60,
                 maxAgeSeconds: 60 * 60 * 24 * 7,

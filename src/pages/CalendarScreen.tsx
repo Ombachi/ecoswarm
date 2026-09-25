@@ -118,7 +118,7 @@ export function CalendarScreen() {
                         onClick={(e) => { e.stopPropagation(); navigate('/tools'); }}
                         className="w-full py-2 px-3 rounded-xl bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center gap-1"
                       >
-                        🎓 Learn in Capacity Hub
+                        🎓 Learn in Climate Academy
                       </button>
                     </div>
                   )}

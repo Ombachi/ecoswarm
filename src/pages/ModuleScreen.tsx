@@ -234,10 +234,10 @@ export function ModuleScreen() {
           <EmptyState
             icon={<BookOpen className="w-7 h-7" />}
             title="Nothing to learn here yet"
-            description="This module has no published content. Try another course in the Capacity Hub."
+            description="This module has no published content. Try another course in the Climate Academy."
             action={
               <button onClick={() => navigate('/tools')} className="eco-button-primary py-2.5 px-5 text-sm">
-                Back to Capacity Hub
+                Back to Climate Academy
               </button>
             }
           />
@@ -337,7 +337,7 @@ export function ModuleScreen() {
             <button
               onClick={() => navigate('/tools')}
               className="p-2 rounded-full bg-muted text-muted-foreground flex-shrink-0"
-              aria-label="Back to Capacity Hub"
+              aria-label="Back to Climate Academy"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
