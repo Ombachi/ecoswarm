@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Leaf, Users, Globe, Heart, ShoppingBag, BookOpen, Target, Eye, ExternalLink } from "lucide-react";
+import { Leaf, Globe, Award, ShoppingBag, BookOpen, Target, Eye, ExternalLink } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import whyDistress from "@/assets/why-distress.avif";
 import agoraImage from "@/assets/agora-history.jpg";
