@@ -14,6 +14,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { AboutStory } from "@/components/about/AboutStory";
 
 export function AboutScreen() {
   const navigate = useNavigate();
@@ -105,85 +106,14 @@ export function AboutScreen() {
           </p>
         </div>
 
-        {/* Why EcoSwarm */}
-        <div>
-          <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
-            <Heart className="w-5 h-5 text-primary" />
-            Why EcoSwarm?
-          </h2>
-          <div className="eco-card p-5 bg-gradient-to-br from-eco-green-light to-eco-blue-light border-none">
-            <p className="text-foreground leading-relaxed mb-4">
-              We built EcoSwarm because we believe that{" "}
-              <strong>the right knowledge and the right products can shape a greener Kenya</strong>.
-            </p>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <GraduationCap className="w-5 h-5 text-eco-gold flex-shrink-0 mt-0.5" />
-                <span className="text-foreground text-sm">
-                  <strong>Learn first.</strong> Practical courses that turn climate curiosity into real skills.
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <ShoppingBag className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
-                <span className="text-foreground text-sm">
-                  <strong>Shop better.</strong> Vetted eco-friendly products from local sellers.
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <BookOpen className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-foreground text-sm">
-                  <strong>Act smarter.</strong> Climate education turns good intentions into lasting impact.
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
+      </div>
 
-        {/* Core Values */}
-        <div>
-          <h2 className="font-bold text-foreground mb-4">Our Values</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {values.map((value, index) => (
-              <div
-                key={value.title}
-                className="eco-card p-4 animate-slide-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <span className="text-3xl mb-2 block">{value.emoji}</span>
-                <h3 className="font-semibold text-foreground text-sm">{value.title}</h3>
-                <p className="text-xs text-muted-foreground">{value.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Full story: about, mission, values, why, research, founders, partners */}
+      <div className="-mx-0">
+        <AboutStory />
+      </div>
 
-        {/* Platform Features */}
-        <div>
-          <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-eco-gold" />
-            What You Can Do
-          </h2>
-          <div className="space-y-3">
-            {features.map((feature, index) => (
-              <div
-                key={feature.title}
-                className="eco-card p-4 flex items-start gap-4 animate-slide-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div
-                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center flex-shrink-0`}
-                >
-                  <feature.icon className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
+      <div className="px-4 pb-6 space-y-6 max-w-3xl mx-auto">
         {/* CTA */}
         <div className="eco-card p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20 text-center">
           <h3 className="text-xl font-bold text-foreground mb-2">Ready to Learn & Shop Green?</h3>
