@@ -73,39 +73,6 @@ export function AboutScreen() {
       </div>
 
       <div className="px-4 -mt-8 relative z-20 pb-6 space-y-6">
-        {/* Mission Card */}
-        <div className="eco-card-elevated p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <Target className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-foreground">Our Mission</h2>
-              <p className="text-sm text-muted-foreground"></p>
-            </div>
-          </div>
-          <p className="text-foreground leading-relaxed">
-            To make climate education and sustainable products accessible to every Kenyan.
-          </p>
-        </div>
-
-        {/* Vision Card */}
-        <div className="eco-card-elevated p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-eco-gold to-eco-orange flex items-center justify-center">
-              <Eye className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-foreground">Our Vision</h2>
-              <p className="text-sm text-muted-foreground"></p>
-            </div>
-          </div>
-          <p className="text-foreground leading-relaxed">
-            {" "}
-            A climate-literate Kenya where sustainable living is the easy choice.{" "}
-          </p>
-        </div>
-
       </div>
 
       {/* Full story: about, mission, values, why, research, founders, partners */}
