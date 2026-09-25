@@ -24,7 +24,7 @@ export function CoursesPreview() {
         .select("id,title,description,duration,category")
         .eq("is_active", true)
         .order("sort_order")
-        .limit(6);
+        .limit(3);
       setCourses(data || []);
     })();
   }, []);
@@ -40,10 +40,10 @@ export function CoursesPreview() {
               <GraduationCap className="w-3.5 h-3.5" /> Climate Academy
             </span>
             <h2 className="text-3xl md:text-4xl font-black tracking-tight">
-              Courses built for climate action
+              Climate Academy Courses
             </h2>
             <p className="text-muted-foreground mt-3 md:text-lg">
-              Short, practical climate courses with certificates you can share.
+              Three high-impact courses to start with — short, practical and certified.
             </p>
           </div>
           <Button variant="outline" onClick={() => go("/tools")}>
@@ -75,7 +75,7 @@ export function CoursesPreview() {
                 className="mt-4 w-full"
                 onClick={() => go(`/module/${c.id}`)}
               >
-                Start learning <ArrowRight className="w-4 h-4 ml-1" />
+                Start <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             </motion.article>
           ))}
