@@ -203,7 +203,7 @@ export function AboutStory() {
                   <Eye className="w-7 h-7 text-primary-foreground" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Where we're headed</p>
+                  <h3 className="text-2xl font-bold text-foreground">Our Vision</h3>
                 </div>
               </div>
               <p className="text-foreground leading-relaxed text-lg">
