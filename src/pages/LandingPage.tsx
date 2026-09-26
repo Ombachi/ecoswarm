@@ -54,6 +54,8 @@ export function LandingPage() {
       </nav>
 
       {/* ── Hero ── */}
+      <PremiumHero />
+
       {/* ── Two-path split: learn or shop ── */}
       <TwoPathSplit />
 

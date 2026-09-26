@@ -2,37 +2,24 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-// Canonical domain enforcement: redirect any non-primary host (e.g. lovable
-// preview/published subdomain) to the primary custom domain so auth cookies
-// and PWA install live in one place.
-const PRIMARY_HOST = "ecoswarm.co.ke";
-(() => {
+// No client-side domain redirects: the app always loads from the origin that
+// hosts the current build, so dynamic imports never cross origins.
+
+// Auto-recover from stale chunks after a deployment (one reload per session window).
+const RELOAD_KEY = "ecoswarm-chunk-reload-at";
+export function reloadForStaleChunk(): boolean {
   try {
-    const inIframe = window.self !== window.top;
-    if (inIframe) return; // never redirect inside the Lovable editor preview
-    const host = window.location.hostname;
-    // Allow primary, localhost/dev, and any *.lovableproject.com preview IDs
-    const allowed =
-      host === PRIMARY_HOST ||
-      host === `www.${PRIMARY_HOST}` ||
-      host === "localhost" ||
-      host.endsWith(".localhost") ||
-      host.endsWith(".lovableproject.com") ||
-      host.includes("id-preview--");
-    // Redirect the published lovable.app host (and any other host) to primary.
-    if (!allowed && /\.lovable\.app$/.test(host)) {
-      const target = `https://${PRIMARY_HOST}${window.location.pathname}${window.location.search}${window.location.hash}`;
-      window.location.replace(target);
-      return;
-    }
-    // Normalize www -> apex
-    if (host === `www.${PRIMARY_HOST}`) {
-      window.location.replace(
-        `https://${PRIMARY_HOST}${window.location.pathname}${window.location.search}${window.location.hash}`,
-      );
-    }
+    const last = Number(sessionStorage.getItem(RELOAD_KEY) || 0);
+    if (Date.now() - last < 10_000) return false;
+    sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
   } catch { /* ignore */ }
-})();
+  window.location.reload();
+  return true;
+}
+window.addEventListener("vite:preloadError", (event) => {
+  event.preventDefault();
+  reloadForStaleChunk();
+});
 
 createRoot(document.getElementById("root")!).render(<App />);
 

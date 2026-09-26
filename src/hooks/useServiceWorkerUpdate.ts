@@ -67,12 +67,16 @@ export function useServiceWorkerUpdate() {
       registrationRef.current?.update().catch(() => {});
     }, 1500);
 
-    // Auto-reload when new SW takes over
+    // Auto-reload when new SW takes over — at most once per 30s per session
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
-        refreshing = true;
-        window.location.reload();
-      }
+      if (refreshing) return;
+      try {
+        const last = Number(sessionStorage.getItem('ecoswarm-sw-reload-at') || 0);
+        if (Date.now() - last < 30_000) return;
+        sessionStorage.setItem('ecoswarm-sw-reload-at', String(Date.now()));
+      } catch { /* ignore */ }
+      refreshing = true;
+      window.location.reload();
     });
 
     // Periodically check for updates (every 60s when page is visible)

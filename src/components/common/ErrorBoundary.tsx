@@ -22,7 +22,23 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
+  static isChunkError(error: Error | null) {
+    const msg = error?.message || '';
+    return /Failed to fetch dynamically imported module|Loading chunk|Importing a module script failed|error loading dynamically imported module/i.test(msg);
+  }
+
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    if (ErrorBoundary.isChunkError(error)) {
+      try {
+        const key = 'ecoswarm-chunk-reload-at';
+        const last = Number(sessionStorage.getItem(key) || 0);
+        if (Date.now() - last > 10_000) {
+          sessionStorage.setItem(key, String(Date.now()));
+          window.location.reload();
+          return;
+        }
+      } catch { /* ignore */ }
+    }
     console.error('ErrorBoundary caught:', error, errorInfo);
   }
 
@@ -32,6 +48,9 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      if (ErrorBoundary.isChunkError(this.state.error)) {
+        return <div className="min-h-[300px]" aria-busy="true" />;
+      }
       if (this.props.fallback) return this.props.fallback;
 
       return (
