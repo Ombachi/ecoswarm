@@ -13,7 +13,8 @@ export function useLandingNav() {
 
   return useCallback(
     (path: string) => {
-      if (authUserId) {
+      const publicPaths = ["/tools", "/courses", "/ecomarket"];
+      if (authUserId || publicPaths.includes(path)) {
         navigate(path);
         return;
       }
