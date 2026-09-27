@@ -26,6 +26,8 @@ const EcoMarketScreen = lazy(() => import("@/pages/EcoMarketScreen").then(m => (
 const ToolsScreen = lazy(() => import("@/pages/ToolsScreen").then(m => ({ default: m.ToolsScreen })));
 const ProfileScreen = lazy(() => import("@/pages/ProfileScreen").then(m => ({ default: m.ProfileScreen })));
 const AboutScreen = lazy(() => import("@/pages/AboutScreen").then(m => ({ default: m.AboutScreen })));
+const PublicCoursesScreen = lazy(() => import("@/pages/PublicCoursesScreen").then(m => ({ default: m.PublicCoursesScreen })));
+const PublicMarketScreen = lazy(() => import("@/pages/PublicMarketScreen").then(m => ({ default: m.PublicMarketScreen })));
 const SettingsScreen = lazy(() => import("@/pages/SettingsScreen").then(m => ({ default: m.SettingsScreen })));
 const EditProfileScreen = lazy(() => import("@/pages/EditProfileScreen").then(m => ({ default: m.EditProfileScreen })));
 const ModuleScreen = lazy(() => import("@/pages/ModuleScreen").then(m => ({ default: m.ModuleScreen })));
@@ -105,8 +107,9 @@ function AppRoutes() {
             <Route path="/cert/:certId" element={<CertificateVerifyScreen />} />
 
             <Route path="/dashboard" element={<ErrorBoundary>{authedRoute(<DashboardScreen />)}</ErrorBoundary>} />
-            <Route path="/ecomarket" element={<ErrorBoundary>{authedRoute(<EcoMarketScreen />)}</ErrorBoundary>} />
-            <Route path="/tools" element={<ErrorBoundary>{authedRoute(<ToolsScreen />)}</ErrorBoundary>} />
+            <Route path="/ecomarket" element={<ErrorBoundary>{isAuthenticated ? authedRoute(<EcoMarketScreen />) : <PublicMarketScreen />}</ErrorBoundary>} />
+            <Route path="/tools" element={<ErrorBoundary>{isAuthenticated ? authedRoute(<ToolsScreen />) : <PublicCoursesScreen />}</ErrorBoundary>} />
+            <Route path="/courses" element={<ErrorBoundary>{isAuthenticated ? authedRoute(<ToolsScreen />) : <PublicCoursesScreen />}</ErrorBoundary>} />
             <Route path="/profile" element={<ErrorBoundary>{authedRoute(<ProfileScreen />)}</ErrorBoundary>} />
             <Route path="/settings" element={<ErrorBoundary>{authedRoute(<SettingsScreen />)}</ErrorBoundary>} />
             <Route path="/feedback" element={authedRoute(<FeedbackScreen />)} />
