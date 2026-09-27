@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { Leaf, Globe, ArrowRight, Mail, Phone } from "lucide-react";
+import { Leaf, ArrowRight } from "lucide-react";
+import { LandingFAQ } from "@/components/landing/LandingFAQ";
+import { PublicFooter } from "@/components/layout/PublicFooter";
 import { Button } from "@/components/ui/button";
 import { PremiumHero } from "@/components/landing/PremiumHero";
 import { TwoPathSplit } from "@/components/landing/TwoPathSplit";
@@ -33,8 +35,8 @@ export function LandingPage() {
             <span className="text-lg font-extrabold tracking-tight">EcoSwarm</span>
           </button>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-            <button onClick={() => scrollTo("courses")} className="hover:text-foreground transition-colors">Courses</button>
-            <button onClick={() => scrollTo("market")} className="hover:text-foreground transition-colors">EcoMarket</button>
+            <button onClick={() => navigate("/courses")} className="hover:text-foreground transition-colors">Courses</button>
+            <button onClick={() => navigate("/ecomarket")} className="hover:text-foreground transition-colors">EcoMarket</button>
             <button onClick={() => scrollTo("live-the-change")} className="hover:text-foreground transition-colors">Live the Change</button>
             <button onClick={() => navigate("/about")} className="hover:text-foreground transition-colors">About</button>
           </div>
@@ -68,6 +70,9 @@ export function LandingPage() {
       {/* ── Live the change ── */}
       <LiveTheChange />
 
+      {/* ── FAQ ── */}
+      <LandingFAQ />
+
       {/* ── CTA Banner ── */}
       <section className="py-16 md:py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -75,26 +80,18 @@ export function LandingPage() {
             initial={{ opacity: 0, scale: 0.97 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="eco-gradient-bg rounded-3xl p-8 md:p-14 text-center text-primary-foreground"
+            className="bg-primary rounded-3xl p-8 md:p-14 text-center text-primary-foreground"
           >
             <h2 className="text-3xl md:text-4xl font-black mb-4">Ready to Learn & Shop Green?</h2>
             <p className="text-primary-foreground/80 max-w-lg mx-auto mb-8">
               Join EcoSwarm and turn climate curiosity into everyday action.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
-              <Button
-                size="lg"
-                onClick={() => navigate("/signup")}
-                className="bg-card text-primary hover:bg-card/90 border-0 gap-2 font-bold"
-              >
+              <Button size="lg" onClick={() => navigate("/signup")} className="bg-card text-primary hover:bg-card/90 border-0 gap-2 font-bold">
                 Get Started <ArrowRight className="w-4 h-4" />
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => navigate("/login")}
-                className="border-primary-foreground text-primary-foreground bg-primary-foreground/20 hover:bg-primary-foreground/30 font-bold"
-              >
+              <Button size="lg" variant="outline" onClick={() => navigate("/login")}
+                className="border-primary-foreground text-primary-foreground bg-primary-foreground/10 hover:bg-primary-foreground/20 font-bold">
                 Sign In
               </Button>
             </div>
@@ -102,83 +99,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer className="border-t border-border/50 py-12 md:py-16 bg-muted/30">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-10 mb-10">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg eco-gradient-bg flex items-center justify-center">
-                  <Leaf className="w-4 h-4 text-primary-foreground" />
-                </div>
-                <span className="font-extrabold text-lg">EcoSwarm</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Learn climate skills. Shop sustainable products.</p>
-            </div>
-            <div>
-              <h4 className="font-bold mb-3 text-sm">Explore</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><button onClick={() => scrollTo("courses")} className="hover:text-foreground transition-colors">Climate Academy</button></li>
-                <li><button onClick={() => scrollTo("market")} className="hover:text-foreground transition-colors">EcoMarket</button></li>
-                <li><button onClick={() => navigate("/about")} className="hover:text-foreground transition-colors">About EcoSwarm</button></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-3 text-sm">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <button
-                    onClick={() => navigate("/terms-of-service")}
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Terms of Service
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => navigate("/privacy-policy")}
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Privacy Policy
-                  </button>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-3 text-sm">Connect</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  <a href="mailto:hello@ecoswarm.co.ke" className="hover:text-foreground transition-colors">
-                    hello@ecoswarm.co.ke
-                  </a>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  <a href="tel:+254729304337" className="hover:text-foreground transition-colors">
-                    +254 729 304 337
-                  </a>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
-                  <a
-                    href="https://ecoswarm.co.ke"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    ecoswarm.co.ke
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-border/50 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <p>© {new Date().getFullYear()} EcoSwarm.</p>
-            <p>Built with 💚 for the planet</p>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }
