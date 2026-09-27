@@ -23,7 +23,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
               <Leaf className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-lg font-extrabold tracking-tight">EcoSwarm</span>
+            <span className="hidden sm:inline text-lg font-extrabold tracking-tight">EcoSwarm</span>
           </button>
           <div className="flex items-center gap-4 md:gap-6 text-sm font-medium text-muted-foreground">
             {item("/courses", "Courses", ["/courses", "/tools"])}
