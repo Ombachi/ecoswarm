@@ -15,29 +15,64 @@ export function PublicFooter() {
               </div>
               <span className="font-extrabold text-lg">EcoSwarm</span>
             </div>
-            <p className="text-sm text-muted-foreground">Learn climate skills. Shop sustainable products.</p>
+            <p className="text-sm text-muted-foreground">Learn & Shop Sustainably.</p>
           </div>
           <div>
             <h4 className="font-bold mb-3 text-sm">Explore</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><button onClick={() => navigate("/courses")} className={link}>Climate Academy</button></li>
-              <li><button onClick={() => navigate("/ecomarket")} className={link}>EcoMarket</button></li>
-              <li><button onClick={() => navigate("/about")} className={link}>About EcoSwarm</button></li>
+              <li>
+                <button onClick={() => navigate("/courses")} className={link}>
+                  Climate Academy
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigate("/ecomarket")} className={link}>
+                  EcoMarket
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigate("/about")} className={link}>
+                  About EcoSwarm
+                </button>
+              </li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold mb-3 text-sm">Legal</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><button onClick={() => navigate("/terms-of-service")} className={link}>Terms of Service</button></li>
-              <li><button onClick={() => navigate("/privacy-policy")} className={link}>Privacy Policy</button></li>
+              <li>
+                <button onClick={() => navigate("/terms-of-service")} className={link}>
+                  Terms of Service
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigate("/privacy-policy")} className={link}>
+                  Privacy Policy
+                </button>
+              </li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold mb-3 text-sm">Connect</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2"><Mail className="w-4 h-4" /><a href="mailto:hello@ecoswarm.co.ke" className={link}>hello@ecoswarm.co.ke</a></li>
-              <li className="flex items-center gap-2"><Phone className="w-4 h-4" /><a href="tel:+254729304337" className={link}>+254 729 304 337</a></li>
-              <li className="flex items-center gap-2"><Globe className="w-4 h-4" /><a href="https://ecoswarm.co.ke" target="_blank" rel="noopener noreferrer" className={link}>ecoswarm.co.ke</a></li>
+              <li className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                <a href="mailto:hello@ecoswarm.co.ke" className={link}>
+                  hello@ecoswarm.co.ke
+                </a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                <a href="tel:+254729304337" className={link}>
+                  +254 729 304 337
+                </a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                <a href="https://ecoswarm.co.ke" target="_blank" rel="noopener noreferrer" className={link}>
+                  ecoswarm.co.ke
+                </a>
+              </li>
             </ul>
           </div>
         </div>
