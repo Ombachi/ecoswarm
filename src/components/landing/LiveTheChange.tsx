@@ -19,9 +19,7 @@ export function LiveTheChange() {
     <section id="live-the-change" className="py-14 md:py-20 bg-muted/30">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-8 md:mb-12">
-          <span className="eco-badge mb-4 inline-flex">
-            <Leaf className="w-3.5 h-3.5" />
-          </span>
+          <span className="eco-badge mb-4 inline-flex"></span>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight">
             Real people, <span className="text-primary">real change</span>
           </h2>
