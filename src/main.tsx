@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { registerEcoSwarmServiceWorker } from "./pwaRegistration";
 
 // No client-side domain redirects: the app always loads from the origin that
 // hosts the current build, so dynamic imports never cross origins.
@@ -23,26 +24,9 @@ window.addEventListener("vite:preloadError", (event) => {
 
 createRoot(document.getElementById("root")!).render(<App />);
 
-// Guard: unregister SWs in iframe/preview contexts to prevent stale content
-const isInIframe = (() => {
-  try { return window.self !== window.top; } catch { return true; }
-})();
-const isPreviewHost =
-  window.location.hostname.includes("id-preview--") ||
-  window.location.hostname.includes("lovableproject.com");
+registerEcoSwarmServiceWorker();
 
-if (isPreviewHost || isInIframe) {
-  // Unregister any active SWs AND purge their caches so the preview
-  // never serves stale HTML/JS from a previous session.
-  navigator.serviceWorker?.getRegistrations().then((regs) => {
-    regs.forEach((r) => r.unregister());
-  });
-  if ('caches' in window) {
-    caches.keys().then((keys) => {
-      keys.forEach((k) => caches.delete(k));
-    });
-  }
-} else if ('serviceWorker' in navigator) {
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   // Register periodicSync to keep cached posts/products fresh in the background
   navigator.serviceWorker.ready.then(async (registration) => {
     if ('periodicSync' in registration) {
@@ -67,4 +51,3 @@ if (isPreviewHost || isInIframe) {
     }
   });
 }
-// SW registration is handled by vite-plugin-pwa (registerType: "prompt")

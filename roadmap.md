@@ -3,3 +3,7 @@
 - [ ] Remove remaining rating EcoPoints reward copy/behavior
 - [ ] Add admin product editing
 - [ ] Verify affected flows
+- [ ] Replace gradient text with solid semantic typography
+- [ ] Repair malformed landing and About page icon markup
+- [ ] Add reliable installed-app updates and Vercel deep-link fallback
+- [ ] Reset scroll position on route changes

@@ -216,7 +216,7 @@ export function DashboardScreen() {
                   <div className="p-3">
                     <h3 className="font-semibold text-sm text-foreground line-clamp-2 leading-snug">{p.product_name}</h3>
                     {p.org_name && <p className="text-[10px] text-muted-foreground truncate">{p.org_name}</p>}
-                    <p className="text-sm font-bold eco-gradient-text mt-1">KES {p.price?.toLocaleString()}</p>
+                    <p className="text-sm font-bold text-primary mt-1">KES {p.price?.toLocaleString()}</p>
                   </div>
                 </button>
               ))}

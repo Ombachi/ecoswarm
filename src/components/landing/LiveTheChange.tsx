@@ -20,10 +20,10 @@ export function LiveTheChange() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-8 md:mb-12">
           <span className="eco-badge mb-4 inline-flex">
-            < className="w-3.5 h-3.5" /> 
+            <Leaf className="w-3.5 h-3.5" />
           </span>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight">
-            Real people, <span className="eco-gradient-text">real change</span>
+            Real people, <span className="text-primary">real change</span>
           </h2>
           <p className="text-muted-foreground mt-3 md:text-lg">
             Our community wears the change, cleans up, plants, reads and grows together.

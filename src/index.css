@@ -131,13 +131,6 @@
     background: var(--eco-gradient);
   }
 
-  .eco-gradient-text {
-    background: var(--eco-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
   .eco-card {
     @apply bg-card rounded-2xl p-4 shadow-sm border border-border/50;
     box-shadow: var(--shadow-sm);

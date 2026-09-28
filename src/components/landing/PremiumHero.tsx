@@ -14,7 +14,7 @@ const statements = ["Learn climate skills", "Shop sustainably", "Build a greener
 /**
  * Full-bleed cinematic video hero for EcoSwarm.
  * - Background: looping muted video that covers the entire viewport.
- * - Foreground: bold rotating-gradient statements.
+ * - Foreground: bold solid-color statements.
  * - Performance: poster preloaded, video lazy-attached after first paint,
  *   playsInline + muted for autoplay on mobile, preload="metadata".
  */
@@ -93,15 +93,7 @@ export function PremiumHero(_props: PremiumHeroProps) {
                 }}
                 className="text-[clamp(1.75rem,7vw,4.25rem)] font-black leading-[1.05] tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)]"
               >
-                <span
-                  className={
-                    i === 0
-                      ? "bg-gradient-to-r from-[hsl(var(--eco-green-light))] to-white bg-clip-text text-transparent"
-                      : i === 1
-                      ? "bg-gradient-to-r from-[hsl(var(--eco-blue-light))] to-white bg-clip-text text-transparent"
-                      : "bg-gradient-to-r from-[hsl(var(--eco-gold))] via-[hsl(var(--eco-orange))] to-white bg-clip-text text-transparent"
-                  }
-                >
+                <span className="text-background">
                   {line}
                 </span>
               </motion.h2>
