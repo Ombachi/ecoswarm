@@ -132,7 +132,7 @@ export function AboutStory() {
             viewport={{ once: true }}
             className="text-center max-w-2xl mx-auto mb-12"
           >
-            <span className="eco-badge mb-4 inline-flex">About EcoSwarm</span>
+            <span className="eco-badge mb-4 inline-flex"></span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
               Kenya's Home for <span className="eco-gradient-text">Climate Learning</span> &{" "}
               <span className="eco-gradient-text">Green Shopping</span>
@@ -256,7 +256,7 @@ export function AboutStory() {
               viewport={{ once: true }}
               className="text-left max-w-[640px]"
             >
-              <span className="eco-badge mb-4 inline-flex">About EcoSwarm</span>
+              <span className="eco-badge mb-4 inline-flex"></span>
               <h2 className="text-3xl md:text-4xl font-black mb-4">
                 Close the <span className="eco-gradient-text">Green Gap</span>
               </h2>
@@ -346,7 +346,8 @@ export function AboutStory() {
           >
             <div className="eco-card p-6 bg-gradient-to-br from-[hsl(var(--eco-green-light))] to-[hsl(var(--eco-blue-light))] border-none mb-6">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                EcoSwarm closes Kenya's green gap by pairing practical climate education with easy access to sustainable products.
+                EcoSwarm closes Kenya's green gap by pairing practical climate education with easy access to sustainable
+                products.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
@@ -358,8 +359,7 @@ export function AboutStory() {
                 <li className="flex items-start gap-3">
                   <ShoppingBag className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                   <span className="text-foreground text-sm">
-                    <strong>Shop.</strong> Vetted eco-friendly products from Kenyan makers and
-                    sellers.
+                    <strong>Shop.</strong> Vetted eco-friendly products from Kenyan makers and sellers.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
