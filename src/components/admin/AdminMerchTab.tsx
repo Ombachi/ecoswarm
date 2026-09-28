@@ -43,7 +43,8 @@ export function AdminMerchTab() {
     setIsUploading(true);
     try {
       const ext = file.name.split('.').pop() || 'jpg';
-      const fileName = `merch_${Date.now()}.${ext}`;
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      const fileName = `${authUser?.id}/merch_${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from('post-media').upload(fileName, file, { cacheControl: '3600', upsert: false });
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from('post-media').getPublicUrl(fileName);
