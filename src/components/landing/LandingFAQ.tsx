@@ -33,9 +33,7 @@ export function LandingFAQ() {
     <section id="faq" className="py-14 md:py-20 bg-muted/30">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 md:mb-12">
-          <span className="eco-badge mb-4 inline-flex">
-            <HelpCircle className="w-3.5 h-3.5" />
-          </span>
+          <span className="eco-badge mb-4 inline-flex"></span>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight">Frequently asked questions</h2>
           <p className="text-muted-foreground mt-3 md:text-lg">Courses, payments, delivery and refunds.</p>
         </div>
