@@ -141,7 +141,8 @@ export function CreateProductModal({ isOpen, onClose, defaultOrgName, editingPro
       for (const item of mediaItems) {
         const processedFile = await compressImage(item.file);
         const fileExt = processedFile.name.split('.').pop();
-        const filePath = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        const filePath = `${authUser?.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const { error: uploadError } = await supabase.storage.from('post-media').upload(filePath, processedFile);
         if (uploadError) throw uploadError;
         const { data: urlData } = supabase.storage.from('post-media').getPublicUrl(filePath);
