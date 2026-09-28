@@ -134,8 +134,8 @@ export function AboutStory() {
           >
             <span className="eco-badge mb-4 inline-flex"></span>
             <h2 className="text-3xl md:text-4xl font-black mb-4">
-              Kenya's Home for <span className="eco-gradient-text">Climate Learning</span> &{" "}
-              <span className="eco-gradient-text">Green Shopping</span>
+              Kenya's Home for <span className="text-primary">Climate Learning</span> &{" "}
+              <span className="text-primary">Green Shopping</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg">
               EcoSwarm makes climate knowledge accessible and sustainable products easy to find.
@@ -258,7 +258,7 @@ export function AboutStory() {
             >
               <span className="eco-badge mb-4 inline-flex"></span>
               <h2 className="text-3xl md:text-4xl font-black mb-4">
-                Close the <span className="eco-gradient-text">Green Gap</span>
+                Close the <span className="text-primary">Green Gap</span>
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed">
                 Many Kenyans want to live sustainably, but don't know where to start or what to trust. EcoSwarm solves
@@ -425,7 +425,7 @@ export function AboutStory() {
             className="text-center mb-12"
           >
             <span className="eco-badge mb-4 inline-flex">
-              < className="w-3.5 h-3.5" /> 
+              <Award className="w-3.5 h-3.5" />
             </span>
             <h2 className="text-3xl md:text-4xl font-black">Our Team & Partners</h2>
           </motion.div>

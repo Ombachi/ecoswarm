@@ -36,7 +36,7 @@ export function TwoPathSplit() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <h2 className="text-3xl md:text-4xl font-black tracking-tight">
-            Two paths, <span className="eco-gradient-text">one purpose</span>
+            Two paths, <span className="text-primary">one purpose</span>
           </h2>
           <p className="text-muted-foreground mt-3 md:text-lg"></p>
         </div>

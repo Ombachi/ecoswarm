@@ -34,7 +34,7 @@ export function LandingFAQ() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 md:mb-12">
           <span className="eco-badge mb-4 inline-flex">
-            < className="w-3.5 h-3.5" />
+            <HelpCircle className="w-3.5 h-3.5" />
           </span>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight">Frequently asked questions</h2>
           <p className="text-muted-foreground mt-3 md:text-lg">Courses, payments, delivery and refunds.</p>

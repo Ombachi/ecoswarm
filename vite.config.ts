@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
-      registerType: "prompt",
+      registerType: "autoUpdate",
       injectRegister: null,
       devOptions: { enabled: false },
       includeAssets: ["pwa-icon-192.png", "pwa-icon-512.png", "og-image.png", "robots.txt"],
@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => ({
         display: "standalone",
         orientation: "portrait",
         scope: "/",
-        start_url: "/login",
+        start_url: "/",
         categories: ["social", "news", "lifestyle"],
         lang: "en",
         dir: "ltr",
@@ -91,13 +91,26 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         navigateFallback: "/index.html",
         navigateFallbackAllowlist: [/^(?!\/__).*/],
         navigateFallbackDenylist: [/^\/~oauth/],
         cleanupOutdatedCaches: true,
         importScripts: ["/sw-periodic-sync.js"],
-      runtimeCaching: [
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "page-navigation-cache-v3",
+              networkTimeoutSeconds: 5,
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/auth\/.*/i,
             handler: "NetworkOnly",

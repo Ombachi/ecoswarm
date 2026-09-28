@@ -84,7 +84,7 @@ export function MarketHighlights() {
                 <h3 className="font-bold leading-snug mb-1">{p.product_name}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2 flex-1">{p.description}</p>
                 {p.org_name && <p className="text-xs text-muted-foreground mt-1">by {p.org_name}</p>}
-                <p className="mt-3 text-lg font-black eco-gradient-text">
+                <p className="mt-3 text-lg font-black text-primary">
                   KSh {Number(p.price).toLocaleString()}
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
@@ -114,7 +114,7 @@ export function MarketHighlights() {
               </DialogHeader>
               <p className="text-sm text-muted-foreground max-h-40 overflow-y-auto">{preview.description}</p>
               <div className="flex items-center justify-between gap-3 pt-2">
-                <p className="text-xl font-black eco-gradient-text">KSh {Number(preview.price).toLocaleString()}</p>
+                <p className="text-xl font-black text-primary">KSh {Number(preview.price).toLocaleString()}</p>
                 <Button onClick={() => go(`/ecomarket?buy=${preview.id}`)}>Buy with M-Pesa</Button>
               </div>
             </>

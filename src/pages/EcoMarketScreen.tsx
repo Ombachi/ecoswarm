@@ -498,7 +498,7 @@ export function EcoMarketScreen() {
           <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10">
             <Leaf className="w-4 h-4 text-primary" />
             <span className="text-sm font-semibold text-foreground">
-              <span className="eco-gradient-text">{formatPointsWithKes(user.ecoPoints)}</span>
+              <span className="text-primary">{formatPointsWithKes(user.ecoPoints)}</span>
             </span>
           </div>
         )}
