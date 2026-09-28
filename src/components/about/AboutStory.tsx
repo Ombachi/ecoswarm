@@ -425,7 +425,7 @@ export function AboutStory() {
             className="text-center mb-12"
           >
             <span className="eco-badge mb-4 inline-flex">
-              <Award className="w-3.5 h-3.5" /> People
+              < className="w-3.5 h-3.5" /> 
             </span>
             <h2 className="text-3xl md:text-4xl font-black">Our Team & Partners</h2>
           </motion.div>
