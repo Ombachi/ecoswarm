@@ -1,9 +1,4 @@
-- [ ] Fix certificate course title data and redesign digital certificate
-- [ ] Remove dashboard certificate strip and redundant quick links
-- [ ] Remove remaining rating EcoPoints reward copy/behavior
-- [ ] Add admin product editing
-- [ ] Verify affected flows
-- [ ] Replace gradient text with solid semantic typography
-- [ ] Repair malformed landing and About page icon markup
-- [ ] Add reliable installed-app updates and Vercel deep-link fallback
-- [ ] Reset scroll position on route changes
+- [x] Present the Privacy Policy in the public site layout
+- [x] Update privacy wording for learning, certificates, EcoMarket, delivery, coupons, and M-Pesa
+- [x] Present and update the Terms of Service in the same public layout
+- [ ] Verify both legal pages in the running preview
