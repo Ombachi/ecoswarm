@@ -1,4 +1,4 @@
 - [x] Present the Privacy Policy in the public site layout
 - [x] Update privacy wording for learning, certificates, EcoMarket, delivery, coupons, and M-Pesa
 - [x] Present and update the Terms of Service in the same public layout
-- [ ] Verify both legal pages in the running preview
+- [x] Verify both legal pages in the running preview
