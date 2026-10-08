@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { GoldenCertificate } from '@/components/certificates/GoldenCertificate';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -116,6 +116,7 @@ export function ModuleScreen() {
   const { moduleId } = useParams<{ moduleId: string }>();
   const navigate = useNavigate();
   const { user, addPoints, showNotification, completeCourse, earnBadge, updateStats } = useApp();
+  const quizAnswersRef = useRef<Record<string, number>>({});
 
   const [currentSection, setCurrentSection] = useState(0);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -271,6 +272,8 @@ export function ModuleScreen() {
   };
 
   const handleNextQuestion = async () => {
+    const qid = (questions[currentQuestion] as any)?.id;
+    if (qid && selectedAnswer !== null) quizAnswersRef.current[qid] = selectedAnswer;
     if (selectedAnswer === questions[currentQuestion].correct_index) {
       setScore(score + 1);
     }
@@ -289,7 +292,7 @@ export function ModuleScreen() {
         setShowConfetti(true);
         addPoints(module.points);
         clearCourseProgress(moduleId!);
-        await completeCourse(moduleId!);
+        await completeCourse(moduleId!, { ...quizAnswersRef.current });
         supabase.rpc('award_co2', { p_user_id: user!.id, p_action_type: 'course_completed' });
 
         if (user && user.stats.coursesCompleted + 1 >= totalModules) {

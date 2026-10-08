@@ -11,7 +11,7 @@ interface PointsContextType {
   addPoints: (points: number) => void;
   updateStats: (stats: Partial<User['stats']>) => void;
   earnBadge: (badgeId: string) => Promise<void>;
-  completeCourse: (moduleId: string) => Promise<void>;
+  completeCourse: (moduleId: string, answers?: Record<string, number>) => Promise<void>;
 }
 
 const PointsContext = createContext<PointsContextType | undefined>(undefined);

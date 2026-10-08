@@ -68,7 +68,18 @@ serve(async (req) => {
       });
     }
 
-    const { messages } = await req.json();
+    const body = await req.json();
+    const rawMessages = Array.isArray(body?.messages) ? body.messages : [];
+    const messages = rawMessages
+      .filter((m: any) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+      .slice(-30)
+      .map((m: any) => ({ role: m.role, content: m.content.slice(0, 4000) }));
+    if (messages.length === 0) {
+      return new Response(JSON.stringify({ error: "No messages" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 

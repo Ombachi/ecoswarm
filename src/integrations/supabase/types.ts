@@ -1282,6 +1282,10 @@ export type Database = {
       }
       is_premium: { Args: { p_user_id: string }; Returns: boolean }
       normalize_rich_text: { Args: { p_input: string }; Returns: string }
+      submit_course_quiz: {
+        Args: { p_answers: Json; p_course_id: string }
+        Returns: Json
+      }
       validate_coupon: {
         Args: { p_amount: number; p_code: string }
         Returns: Json

@@ -6,6 +6,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const escHtml = (v: unknown) => String(v ?? "").replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -16,6 +19,26 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const resendKey = Deno.env.get("RESEND_API_KEY");
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Only the scheduler (service key / cron secret) or an admin may trigger the digest.
+    const authHeader = req.headers.get("Authorization") || "";
+    const bearer = authHeader.replace("Bearer ", "");
+    const cronSecret = Deno.env.get("CRON_SECRET");
+    const providedCron = req.headers.get("x-cron-secret");
+    let allowed = bearer === supabaseKey || (!!cronSecret && providedCron === cronSecret);
+    if (!allowed && bearer) {
+      const { data: u } = await supabase.auth.getUser(bearer);
+      if (u?.user) {
+        const { data: r } = await supabase.from("user_roles").select("role")
+          .eq("user_id", u.user.id).eq("role", "admin").maybeSingle();
+        allowed = !!r;
+      }
+    }
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     if (!resendKey) {
       throw new Error("RESEND_API_KEY not configured");
@@ -72,12 +95,12 @@ serve(async (req) => {
 
     // Build course highlights
     const courseHighlights = (newCourses?.data || [])
-      .map((c: any) => `<li>🎓 <strong>${c.title}</strong></li>`)
+      .map((c: any) => `<li>🎓 <strong>${escHtml(c.title)}</strong></li>`)
       .join("");
 
     // Build product highlights
     const productHighlights = (topProducts || [])
-      .map((p) => `<li>🛍️ <strong>${p.product_name}</strong> by ${p.org_name} — KSh ${p.price}</li>`)
+      .map((p) => `<li>🛍️ <strong>${escHtml(p.product_name)}</strong> by ${escHtml(p.org_name)} — KSh ${escHtml(p.price)}</li>`)
       .join("");
 
     let sentCount = 0;
@@ -88,8 +111,8 @@ serve(async (req) => {
 
       const isDormant = dormantUsers?.some((d) => d.user_id === recipient.user_id);
       const personalNote = isDormant
-        ? `<p style="color:#e67e22;font-weight:bold;">🔥 We missed you, ${recipient.name}! Come back and earn more EcoPoints!</p>`
-        : `<p>Hey ${recipient.name}! Great work staying active this week 💚</p>`;
+        ? `<p style="color:#e67e22;font-weight:bold;">🔥 We missed you, ${escHtml(recipient.name)}! Come back and earn more EcoPoints!</p>`
+        : `<p>Hey ${escHtml(recipient.name)}! Great work staying active this week 💚</p>`;
 
       const html = `
 <!DOCTYPE html>
