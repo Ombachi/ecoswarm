@@ -272,10 +272,11 @@ export function EcoMarketScreen() {
         
         if (error) {
           // Fallback: use ilike if textSearch fails
+          const safeQ = searchQuery.replace(/[^\p{L}\p{N}\s\-]/gu, ' ').trim().slice(0, 100);
           const { data: fallback } = await supabase
             .from('products')
             .select('*')
-            .or(`product_name.ilike.%${searchQuery}%,org_name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+            .or(`product_name.ilike.%${safeQ}%,org_name.ilike.%${safeQ}%,description.ilike.%${safeQ}%`)
             .limit(50);
           setSearchResults((fallback || []).map((p: any) => ({ ...p, badges: p.badges || [], media_urls: Array.isArray(p.media_urls) ? p.media_urls : [] })) as Product[]);
         } else {

@@ -8,6 +8,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { sanitizeCourseHtml } from '@/lib/sanitize';
 import { isFileSizeOk } from '@/lib/videoLimits';
 
 interface RichCourseEditorProps {
@@ -45,7 +46,7 @@ export function RichCourseEditor({ value, onChange, placeholder, className }: Ri
   // Set initial content once
   useEffect(() => {
     if (ref.current && !initialized.current) {
-      ref.current.innerHTML = value || '';
+      ref.current.innerHTML = sanitizeCourseHtml(value || '');
       initialized.current = true;
     }
   }, []);
