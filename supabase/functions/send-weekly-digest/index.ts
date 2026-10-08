@@ -111,8 +111,8 @@ serve(async (req) => {
 
       const isDormant = dormantUsers?.some((d) => d.user_id === recipient.user_id);
       const personalNote = isDormant
-        ? `<p style="color:#e67e22;font-weight:bold;">🔥 We missed you, ${recipient.name}! Come back and earn more EcoPoints!</p>`
-        : `<p>Hey ${recipient.name}! Great work staying active this week 💚</p>`;
+        ? `<p style="color:#e67e22;font-weight:bold;">🔥 We missed you, ${escHtml(recipient.name)}! Come back and earn more EcoPoints!</p>`
+        : `<p>Hey ${escHtml(recipient.name)}! Great work staying active this week 💚</p>`;
 
       const html = `
 <!DOCTYPE html>
