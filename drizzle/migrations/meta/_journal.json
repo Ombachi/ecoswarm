@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791472550118,
+      "tag": "0000_security_hardening_payments_courses_storage",
+      "breakpoints": true
+    }
+  ]
+}
