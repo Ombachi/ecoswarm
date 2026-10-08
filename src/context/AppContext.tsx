@@ -25,7 +25,7 @@ interface AppContextType {
   refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
   earnBadge: (badgeId: string) => Promise<void>;
-  completeCourse: (moduleId: string) => Promise<void>;
+  completeCourse: (moduleId: string, answers?: Record<string, number>) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -457,16 +457,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const completeCourse = async (moduleId: string) => {
+  const completeCourse = async (moduleId: string, answers: Record<string, number> = {}) => {
     if (!user) return;
 
-    const { error } = await supabase.from('course_completions').insert({
-      user_id: user.id,
-      module_id: moduleId,
+    const { data, error } = await supabase.rpc('submit_course_quiz', {
+      p_course_id: moduleId,
+      p_answers: answers,
     });
 
-    if (error && !error.message.includes('duplicate')) {
-      console.error('Error completing course:', error?.message || 'An error occurred');
+    if (error || !(data as any)?.passed) {
+      console.error('Course completion not recorded:', error?.message || 'quiz not passed');
       return;
     }
 
