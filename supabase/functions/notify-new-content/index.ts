@@ -64,7 +64,28 @@ serve(async (req) => {
       });
     }
 
+    const roleCheck = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    );
+    const { data: adminRow } = await roleCheck
+      .from("user_roles").select("role")
+      .eq("user_id", userData.user.id).eq("role", "admin").maybeSingle();
+    if (!adminRow) {
+      return new Response(JSON.stringify({ error: "Admin only" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const body = (await req.json()) as Payload;
+    if (body?.link_path && !/^\/[a-zA-Z0-9\-_/]*$/.test(body.link_path)) {
+      return new Response(JSON.stringify({ error: "Invalid link_path" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (body?.image_url && !/^https:\/\//.test(body.image_url)) body.image_url = undefined;
     if (!body?.type || !body?.title) {
       return new Response(JSON.stringify({ error: "type and title are required" }), {
         status: 400,

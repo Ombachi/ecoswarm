@@ -120,7 +120,10 @@ serve(async (req) => {
       const consumerSecret = Deno.env.get("MPESA_CONSUMER_SECRET");
       const shortCode = Deno.env.get("MPESA_SHORTCODE") || "174379";
       const passkey = Deno.env.get("MPESA_PASSKEY") || "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
-      const callbackUrl = Deno.env.get("MPESA_CALLBACK_URL") || `${supabaseUrl}/functions/v1/verify-payment`;
+      const callbackToken = Deno.env.get("MPESA_CALLBACK_TOKEN");
+      if (!callbackToken) throw new Error("M-Pesa payments are temporarily unavailable. Please try again later.");
+      const callbackBase = Deno.env.get("MPESA_CALLBACK_URL") || `${supabaseUrl}/functions/v1/verify-payment`;
+      const callbackUrl = `${callbackBase}${callbackBase.includes("?") ? "&" : "?"}token=${encodeURIComponent(callbackToken)}`;
 
       if (consumerKey && consumerSecret) {
         // ── REAL DARAJA INTEGRATION ──
@@ -173,11 +176,8 @@ serve(async (req) => {
         status = "pending_payment"; // Will be completed by callback
         verificationStatus = "pending";
       } else {
-        // ── PLACEHOLDER (no Daraja keys yet) ──
-        paymentMethod = "ecopoints_mpesa";
-        mpesaReceipt = `SIM_${Date.now()}_${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-        status = "completed";
-        verificationStatus = "simulated";
+        // No payment provider configured: refuse rather than mark unpaid orders as paid.
+        throw new Error("M-Pesa payments are temporarily unavailable. Please try again later.");
       }
     }
 

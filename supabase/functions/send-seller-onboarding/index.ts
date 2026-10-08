@@ -45,7 +45,12 @@ serve(async (req: Request) => {
       );
     }
 
-    const { sellerName, productName, sellerEmail } = await req.json();
+    const { sellerName, productName } = await req.json();
+    // Only ever email the signed-in caller's own verified address.
+    const sellerEmail = user.email;
+    if (typeof sellerName !== "string" || typeof productName !== "string" || sellerName.length > 120 || productName.length > 200) {
+      return new Response(JSON.stringify({ error: "Invalid fields" }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
+    }
 
     if (!sellerEmail || !sellerName || !productName) {
       return new Response(
@@ -57,7 +62,7 @@ serve(async (req: Request) => {
     const emailResponse = await resend.emails.send({
       from: "EcoSwarm <hello@ecoswarm.co.ke>",
       to: [sellerEmail],
-      subject: `Welcome to EcoMarket, ${sellerName}! 🌿 Tips to boost your first listing`,
+      subject: `Welcome to EcoMarket, ${sellerName.replace(/[\r\n]/g, " ")}! 🌿 Tips to boost your first listing`,
       html: `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0;">
           <!-- Header -->
