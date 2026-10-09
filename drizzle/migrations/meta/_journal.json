@@ -8,6 +8,13 @@
       "when": 1791472550118,
       "tag": "0000_security_hardening_payments_courses_storage",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791546817329,
+      "tag": "0001_public_catalog_read",
+      "breakpoints": true
     }
   ]
 }
