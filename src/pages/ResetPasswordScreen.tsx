@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Leaf, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +13,7 @@ export function ResetPasswordScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isValidSession, setIsValidSession] = useState(false);
+  const [linkInvalid, setLinkInvalid] = useState(false);
 
   useEffect(() => {
     // Check if user has a valid recovery session
@@ -20,6 +21,8 @@ export function ResetPasswordScreen() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setIsValidSession(true);
+      } else {
+        setLinkInvalid(true);
       }
     };
     
@@ -30,8 +33,12 @@ export function ResetPasswordScreen() {
     
     if (accessToken && refreshToken) {
       supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
-        .then(() => setIsValidSession(true))
+        .then(({ error }) => {
+          if (error) setLinkInvalid(true);
+          else setIsValidSession(true);
+        })
         .catch(() => {
+          setLinkInvalid(true);
           toast({
             title: "Invalid link",
             description: "This reset link has expired. Please request a new one.",
@@ -124,6 +131,20 @@ export function ResetPasswordScreen() {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isValidSession && linkInvalid) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
+        <div className="text-center max-w-sm">
+          <Leaf className="w-12 h-12 text-primary mx-auto mb-4" />
+          <h1 className="text-xl font-bold text-foreground mb-2">Link expired or invalid</h1>
+          <p className="text-muted-foreground mb-6">This reset link can no longer be used. Please request a new one.</p>
+          <Link to="/forgot-password" className="inline-block w-full eco-button-primary py-3">Request a new link</Link>
+          <Link to="/login" className="block mt-4 text-sm text-muted-foreground hover:text-foreground">Back to Sign In</Link>
         </div>
       </div>
     );

@@ -256,7 +256,7 @@ export function ModuleScreen() {
         section: currentSection + 1,
         total: sections.length,
       });
-    } else {
+    } else if (questions.length > 0) {
       setShowQuiz(true);
     }
   };
@@ -301,9 +301,17 @@ export function ModuleScreen() {
 
         showNotification(`Module completed! 🎓`, module.points);
 
-        // Generate cert ID
-        const newCertId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        setCertId(newCertId);
+        // Use the saved completion record's ID so the verify link works
+        const { data: completion } = await supabase
+          .from('course_completions')
+          .select('id')
+          .eq('user_id', user!.id)
+          .eq('module_id', moduleId!)
+          .order('completed_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (!completion?.id) return;
+        setCertId(completion.id);
 
         setTimeout(() => {
           setShowConfetti(false);
@@ -401,12 +409,13 @@ export function ModuleScreen() {
               </button>
               <button
                 onClick={handleNextSection}
-                className="flex-1 eco-button-primary py-3.5 min-h-[3rem] flex items-center justify-center gap-2"
+                disabled={currentSection === sections.length - 1 && questions.length === 0}
+                className="flex-1 eco-button-primary py-3.5 min-h-[3rem] flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {currentSection === sections.length - 1 ? (
                   <>
                     <HelpCircle className="w-5 h-5" />
-                    Take Quiz
+                    {questions.length === 0 ? 'Quiz coming soon' : 'Take Quiz'}
                   </>
                 ) : (
                   <>
