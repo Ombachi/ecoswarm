@@ -52,6 +52,24 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
   const [editingSection, setEditingSection] = useState<Section | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
+  const [duration, setDuration] = useState('');
+  const [manualDuration, setManualDuration] = useState(false);
+  const [estimate, setEstimate] = useState<number | null>(null);
+  const [videoMinutes, setVideoMinutes] = useState('');
+  const [savingDuration, setSavingDuration] = useState(false);
+  const saveDuration = async (manual: boolean) => {
+    if (manual && !duration.trim()) { toast.error('Enter a duration'); return; }
+    const minutes = videoMinutes.trim() ? Number(videoMinutes) : null;
+    if (minutes !== null && (!Number.isFinite(minutes) || minutes < 0)) { toast.error('Enter a valid video runtime'); return; }
+    setSavingDuration(true);
+    try {
+      const { error } = await supabase.from('courses').update({ duration, duration_manual: manual, video_minutes: minutes }).eq('id', courseId);
+      if (error) throw error;
+      await loadContent();
+      toast.success('Course duration updated');
+    } catch { toast.error('Unable to update duration'); }
+    finally { setSavingDuration(false); }
+  };
 
   useEffect(() => {
     loadContent();
@@ -59,10 +77,17 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
 
   const loadContent = async () => {
     setIsLoading(true);
-    const [s, q] = await Promise.all([
+    const [s, q, course] = await Promise.all([
       supabase.from('course_sections').select('*').eq('course_id', courseId).order('sort_order'),
       supabase.from('course_questions').select('*').eq('course_id', courseId).order('sort_order'),
+      supabase.from('courses').select('duration,duration_manual,estimated_duration_minutes,video_minutes').eq('id', courseId).single(),
     ]);
+    if (course.data) {
+      setDuration(course.data.duration);
+      setManualDuration(course.data.duration_manual);
+      setEstimate(course.data.estimated_duration_minutes);
+      setVideoMinutes(course.data.video_minutes === null ? '' : String(course.data.video_minutes));
+    }
     setSections(s.data || []);
     setQuestions((q.data || []).map(item => ({
       ...item,
@@ -257,6 +282,14 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
         </div>
       </div>
 
+      <div className="border-y border-border py-4 mb-5 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-semibold">Learning time</h3><span className="text-sm text-primary">Suggested: {estimate ?? '—'} min</span></div>
+        <p className="text-xs text-muted-foreground">Estimated reading at 200 words/minute + 1.5 minutes per quiz question + video runtime. Unknown videos use 4 minutes each.</p>
+        <div className="grid sm:grid-cols-2 gap-3"><div><label htmlFor="course-duration" className="text-sm block mb-1">Published duration</label><Input id="course-duration" value={duration} onChange={e => { setDuration(e.target.value); setManualDuration(true); }} /></div><div><label htmlFor="video-minutes" className="text-sm block mb-1">Total video minutes</label><Input id="video-minutes" type="number" min="0" step="0.1" placeholder="Automatic video estimate" value={videoMinutes} onChange={e => setVideoMinutes(e.target.value)} /></div></div>
+        <div className="flex flex-wrap gap-2"><Button disabled={savingDuration} onClick={() => saveDuration(false)}>Use automatic estimate</Button><Button variant="outline" disabled={savingDuration} onClick={() => saveDuration(true)}>Save custom duration</Button></div>
+        <p className="text-xs text-muted-foreground">{manualDuration ? 'Custom duration retained when content changes.' : 'Duration updates automatically when content or questions change.'}</p>
+      </div>
+
       {/* Tabs */}
       <div className="flex gap-2 mb-4">
         <button
@@ -297,7 +330,7 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
                   <button onClick={() => setEditingSection(s)} className="p-2 rounded-lg bg-muted hover:bg-muted/80">
                     <Pencil className="w-4 h-4 text-muted-foreground" />
                   </button>
-                  <button onClick={() => deleteSection(s.id!)} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
+                  <button onClick={() => s.id && deleteSection(s.id)} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </button>
                 </div>
@@ -342,7 +375,7 @@ export function CourseContentEditor({ courseId, courseTitle, onBack }: CourseCon
                   <button onClick={() => setEditingQuestion(q)} className="p-2 rounded-lg bg-muted hover:bg-muted/80">
                     <Pencil className="w-4 h-4 text-muted-foreground" />
                   </button>
-                  <button onClick={() => deleteQuestion(q.id!)} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
+                  <button onClick={() => q.id && deleteQuestion(q.id)} className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20">
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </button>
                 </div>
