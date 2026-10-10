@@ -30,6 +30,7 @@ export function PublicFooter() {
                   EcoMarket
                 </button>
               </li>
+              <li><button onClick={() => navigate("/merch")} className={link}>EcoMerch</button></li>
               <li>
                 <button onClick={() => navigate("/about")} className={link}>
                   About EcoSwarm

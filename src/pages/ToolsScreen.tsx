@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { CourseCover } from '@/components/common/CourseCover';
+import { Button } from '@/components/ui/button';
+import { courseCategoryUrl } from '@/lib/courseCategories';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
@@ -12,6 +15,8 @@ const COURSES_PER_PAGE = 9;
 
 export function ToolsScreen() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const category = params.get('category');
   const { user } = useApp();
   usePageMeta('Climate Academy', 'Learn climate and environmental skills with EcoSwarm courses.');
   const [completedModules, setCompletedModules] = useState<string[]>([]);
@@ -29,7 +34,7 @@ export function ToolsScreen() {
   const loadContent = async () => {
     setIsLoading(true);
     try {
-      const { data } = await supabase.from('courses').select('*').order('sort_order');
+      const { data } = await supabase.from('courses').select('*').eq('is_active', true).order('sort_order');
       setLearningModules(data || []);
     } catch (error) {
       console.error('Error loading courses:', (error as Error)?.message || 'An error occurred');
@@ -46,6 +51,8 @@ export function ToolsScreen() {
       .eq('user_id', user.id);
     setCompletedModules(data?.map((c) => c.module_id) || []);
   };
+
+  const filteredModules = learningModules.filter(m => !category || m.category === category);
 
   return (
     <AppLayout>
@@ -75,30 +82,18 @@ export function ToolsScreen() {
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {learningModules.slice((page - 1) * COURSES_PER_PAGE, page * COURSES_PER_PAGE).map((module: any, index: number) => {
+            {filteredModules.slice((page - 1) * COURSES_PER_PAGE, page * COURSES_PER_PAGE).map((module: any, index: number) => {
               const isCompleted = completedModules.includes(module.id);
               return (
-                <button
-                  key={module.id}
-                  onClick={() => navigate(`/module/${module.id}`)}
-                  className="eco-card p-4 animate-slide-up text-left"
-                  style={{ animationDelay: `${Math.min(index, 5) * 0.08}s` }}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${isCompleted ? 'eco-gradient-bg' : 'bg-muted'}`}>
-                      {isCompleted ? <Check className="w-6 h-6 text-white" /> : <Play className="w-6 h-6 text-muted-foreground" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground mb-1">{module.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-1 line-clamp-2">{module.description}</p>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                        <span className="eco-badge text-[10px]">{module.category}</span>
-                        <span className="text-xs text-muted-foreground">{module.duration}</span>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                <article key={module.id} className="border border-border bg-card rounded-lg overflow-hidden flex flex-col">
+                  <CourseCover src={module.image_url} title={module.title} />
+                  <div className="p-4 flex flex-col flex-1">
+                    <h3 className="font-semibold mb-2">{module.title}</h3>
+                    <p className="text-sm text-muted-foreground flex-1">{module.description}</p>
+                    <div className="flex flex-wrap gap-2 items-center mt-3"><Button variant="ghost" size="sm" className="text-primary h-auto p-0 whitespace-normal text-left" onClick={() => navigate(courseCategoryUrl(module.category))}>{module.category}</Button><span className="text-xs text-muted-foreground">{module.duration}</span></div>
+                    <Button className="mt-4" onClick={() => navigate(`/module/${module.id}`)}>{isCompleted ? 'Review course' : 'Start learning'}<ChevronRight className="w-4 h-4 ml-2" /></Button>
                   </div>
-                </button>
+                </article>
               );
             })}
           </div>
@@ -106,7 +101,7 @@ export function ToolsScreen() {
 
         <Pagination
           page={page}
-          pageCount={Math.ceil(learningModules.length / COURSES_PER_PAGE)}
+          pageCount={Math.ceil(filteredModules.length / COURSES_PER_PAGE)}
           onPageChange={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
         />
       </div>

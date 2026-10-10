@@ -2,3 +2,9 @@
 - [x] Update privacy wording for learning, certificates, EcoMarket, delivery, coupons, and M-Pesa
 - [x] Present and update the Terms of Service in the same public layout
 - [x] Verify both legal pages in the running preview
+- [ ] Streamline landing sections and add public EcoMerch navigation/showcase
+- [ ] Replace duplicate profile links with identity and account actions
+- [ ] Add admin course covers and show them throughout course catalogs
+- [ ] Standardize course categories and link filters to URLs
+- [ ] Automatically estimate course duration with admin overrides
+- [ ] Verify public catalogs, homepage, and course estimate behavior

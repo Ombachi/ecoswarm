@@ -15,6 +15,13 @@
       "when": 1791546817329,
       "tag": "0001_public_catalog_read",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791653129078,
+      "tag": "0002_course_covers_and_learning_estimates",
+      "breakpoints": true
     }
   ]
 }
