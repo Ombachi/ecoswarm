@@ -352,12 +352,16 @@ export type Database = {
           created_by: string | null
           description: string
           duration: string
+          duration_manual: boolean
+          estimated_duration_minutes: number | null
           id: string
+          image_url: string | null
           is_active: boolean
           points: number
           sort_order: number
           title: string
           updated_at: string
+          video_minutes: number | null
         }
         Insert: {
           category?: string
@@ -365,12 +369,16 @@ export type Database = {
           created_by?: string | null
           description: string
           duration?: string
+          duration_manual?: boolean
+          estimated_duration_minutes?: number | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           points?: number
           sort_order?: number
           title: string
           updated_at?: string
+          video_minutes?: number | null
         }
         Update: {
           category?: string
@@ -378,12 +386,16 @@ export type Database = {
           created_by?: string | null
           description?: string
           duration?: string
+          duration_manual?: boolean
+          estimated_duration_minutes?: number | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           points?: number
           sort_order?: number
           title?: string
           updated_at?: string
+          video_minutes?: number | null
         }
         Relationships: []
       }
@@ -1282,6 +1294,10 @@ export type Database = {
       }
       is_premium: { Args: { p_user_id: string }; Returns: boolean }
       normalize_rich_text: { Args: { p_input: string }; Returns: string }
+      refresh_course_duration: {
+        Args: { p_course_id: string }
+        Returns: undefined
+      }
       submit_course_quiz: {
         Args: { p_answers: Json; p_course_id: string }
         Returns: Json
