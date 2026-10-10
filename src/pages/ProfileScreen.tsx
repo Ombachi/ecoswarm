@@ -1,98 +1,27 @@
+import { useEffect, useState } from 'react';
 import { usePageMeta } from '@/hooks/usePageMeta';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useApp } from '@/context/AppContext';
-import {
-  Settings,
-  ShoppingBag,
-  MessageSquare,
-  Award,
-  Edit,
-  ChevronRight,
-} from 'lucide-react';
-
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { AvatarFallback } from '@/components/common/AvatarFallback';
+import { Settings, Edit, LogOut, MapPin, Mail, Leaf } from 'lucide-react';
+import { toast } from 'sonner';
 export function ProfileScreen() {
   const navigate = useNavigate();
-  const { user, isSwahili } = useApp();
-  usePageMeta('Profile', 'View and manage your EcoSwarm profile.');
-
+  const { user, logout } = useApp();
+  const [details, setDetails] = useState({ email: '', county: '' });
+  const [leaving, setLeaving] = useState(false);
+  usePageMeta('My Profile', 'Your EcoSwarm identity and account.');
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('profiles').select('email,county').eq('user_id', user.id).maybeSingle().then(({data}) => { if (data) setDetails({ email: data.email, county: data.county || '' }); });
+  }, [user?.id]);
+  const handleLogout = async () => {
+    setLeaving(true);
+    try { await logout(); navigate('/'); } catch { toast.error('Unable to log out. Please try again.'); } finally { setLeaving(false); }
+  };
   if (!user) return null;
-
-  const quickLinks = [
-    { icon: ShoppingBag, label: isSwahili ? 'Manunuzi Yangu' : 'My Purchases', path: '/purchases' },
-    { icon: MessageSquare, label: isSwahili ? 'Ujumbe' : 'Messages', path: '/inbox' },
-    { icon: Award, label: isSwahili ? 'Vyeti Vyangu' : 'My Certificates', path: '/certificates' },
-  ];
-
-  return (
-    <AppLayout>
-      {/* Header */}
-      <div className="eco-gradient-bg px-4 pt-6 pb-8 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-4 right-4 w-32 h-32 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-4 left-4 w-24 h-24 bg-white rounded-full blur-2xl" />
-        </div>
-
-        <div className="relative z-10 max-w-3xl mx-auto w-full">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-xl font-bold text-white">
-              {isSwahili ? 'Wasifu Wangu' : 'My Profile'}
-            </h1>
-            <button
-              onClick={() => navigate('/settings')}
-              className="p-2 rounded-full bg-white/20 text-white"
-              aria-label="Settings"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {user.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="w-20 h-20 rounded-2xl object-contain bg-muted"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-4xl font-bold text-white">
-                {user.name.charAt(0)}
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <h2 className="text-2xl font-bold text-white truncate">{user.name}</h2>
-              <p className="text-white/80">📍 {user.location}</p>
-              {user.bio && (
-                <p className="text-white/70 text-sm mt-1 line-clamp-2">{user.bio}</p>
-              )}
-            </div>
-            <button
-              onClick={() => navigate('/edit-profile')}
-              className="p-2 rounded-full bg-white/20 text-white"
-              aria-label="Edit profile"
-            >
-              <Edit className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick links */}
-      <div className="px-4 py-6 max-w-3xl mx-auto w-full space-y-3">
-        {quickLinks.map((link) => (
-          <button
-            key={link.path}
-            onClick={() => navigate(link.path)}
-            className="eco-card w-full p-4 flex items-center gap-3 text-left"
-          >
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <link.icon className="w-5 h-5 text-primary" />
-            </div>
-            <span className="flex-1 font-medium text-foreground">{link.label}</span>
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
-          </button>
-        ))}
-      </div>
-    </AppLayout>
-  );
+  return <AppLayout><section className="max-w-3xl mx-auto w-full px-4 py-8 pb-24"><h1 className="text-2xl font-bold mb-6">My Profile</h1><article className="border border-border bg-card rounded-lg p-6 sm:p-8"><div className="flex flex-col sm:flex-row items-start gap-5"><AvatarFallback key={user.avatar} src={user.avatar} name={user.name} size="lg" /><div className="min-w-0"><h2 className="text-2xl font-bold break-words">{user.name}</h2><span className="inline-flex gap-1 items-center mt-2 text-xs font-semibold text-primary"><Leaf className="w-3.5 h-3.5" />EcoWarrior</span></div></div><div className="mt-6 space-y-3 text-sm"><p className="flex items-center gap-2 break-all"><Mail className="w-4 h-4 shrink-0 text-muted-foreground" />{details.email || '—'}</p><p className="flex items-center gap-2"><MapPin className="w-4 h-4 shrink-0 text-muted-foreground" />{[user.location, details.county !== user.location ? details.county : ''].filter(Boolean).join(' · ')}</p>{user.bio && <p className="text-muted-foreground whitespace-pre-wrap break-words pt-3">{user.bio}</p>}</div><div className="mt-8 flex flex-wrap gap-3"><Button onClick={() => navigate('/edit-profile')}><Edit className="w-4 h-4 mr-2" />Edit Profile</Button><Button variant="outline" onClick={() => navigate('/settings')}><Settings className="w-4 h-4 mr-2" />Account Settings</Button><Button variant="ghost" className="text-destructive" onClick={handleLogout} disabled={leaving}><LogOut className="w-4 h-4 mr-2" />{leaving ? 'Logging out…' : 'Log Out'}</Button></div></article></section></AppLayout>;
 }

@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useLandingNav } from "@/hooks/useLandingNav";
 
+import { CourseCover } from "@/components/common/CourseCover";
+import { courseCategoryUrl } from "@/lib/courseCategories";
+
 type Course = {
+  image_url: string | null;
   id: string;
   title: string;
   description: string;
@@ -21,7 +25,7 @@ export function CoursesPreview() {
     (async () => {
       const { data } = await supabase
         .from("courses")
-        .select("id,title,description,duration,category")
+        .select("id,title,description,duration,category,image_url")
         .eq("is_active", true)
         .order("sort_order")
         .limit(3);
@@ -46,7 +50,7 @@ export function CoursesPreview() {
               Three high-impact courses to start with — short, practical and certified.
             </p>
           </div>
-          <Button variant="outline" onClick={() => go("/tools")}>
+          <Button variant="outline" onClick={() => go("/courses")}>
             Browse all courses <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
@@ -59,10 +63,12 @@ export function CoursesPreview() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="eco-card p-5 flex flex-col"
+              className="border border-border rounded-lg bg-card overflow-hidden flex flex-col"
             >
-              <div className="flex items-center gap-2 mb-3">
-                {c.category && <span className="eco-badge text-[10px]">{c.category}</span>}
+              <CourseCover src={c.image_url} title={c.title} />
+              <div className="p-5 flex flex-col flex-1">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                {c.category && <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-primary whitespace-normal text-left" onClick={() => go(courseCategoryUrl(c.category || ""))}>{c.category}</Button>}
                 {c.duration && (
                   <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
                     <Clock className="w-3 h-3" /> {c.duration}
@@ -77,6 +83,7 @@ export function CoursesPreview() {
               >
                 Start <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
+              </div>
             </motion.article>
           ))}
         </div>

@@ -6,7 +6,7 @@ import { LandingFAQ } from "@/components/landing/LandingFAQ";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { Button } from "@/components/ui/button";
 import { PremiumHero } from "@/components/landing/PremiumHero";
-import { TwoPathSplit } from "@/components/landing/TwoPathSplit";
+import { PublicNav } from "@/components/layout/PublicNav";
 import { CoursesPreview } from "@/components/landing/CoursesPreview";
 import { MarketHighlights } from "@/components/landing/MarketHighlights";
 import { LiveTheChange } from "@/components/landing/LiveTheChange";
@@ -25,41 +25,11 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      {/* ── Sticky Nav ── */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
-          <button onClick={() => scrollTo("hero")} className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl eco-gradient-bg flex items-center justify-center">
-              <Leaf className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-lg font-extrabold tracking-tight">EcoSwarm</span>
-          </button>
-          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-            <button onClick={() => navigate("/courses")} className="hover:text-foreground transition-colors">Courses</button>
-            <button onClick={() => navigate("/ecomarket")} className="hover:text-foreground transition-colors">EcoMarket</button>
-            <button onClick={() => scrollTo("live-the-change")} className="hover:text-foreground transition-colors">Live the Change</button>
-            <button onClick={() => navigate("/about")} className="hover:text-foreground transition-colors">About</button>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
-              Sign In
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => navigate("/signup")}
-              className="eco-gradient-bg text-primary-foreground border-0"
-            >
-              Get Started
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <PublicNav />
 
       {/* ── Hero ── */}
       <PremiumHero />
 
-      {/* ── Two-path split: learn or shop ── */}
-      <TwoPathSplit />
 
       {/* ── Learn: Climate Academy Courses ── */}
       <CoursesPreview />
