@@ -25,7 +25,9 @@ interface ProductChatProps {
 }
 
 export function ProductChat({ isOpen, onClose, productId, productName, sellerId, sellerName }: ProductChatProps) {
-  const { user } = useApp();
+  const { user, isAdmin } = useApp();
+  // sellerId = the other participant: EcoSwarm admin for buyers, the buyer for admins.
+  const otherId = sellerId;
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +48,7 @@ export function ProductChat({ isOpen, onClose, productId, productName, sellerId,
         filter: `product_id=eq.${productId}`,
       }, (payload) => {
         const msg = payload.new as Message;
-        if (msg.sender_id === user.id || msg.receiver_id === user.id) {
+        if ((msg.sender_id === user.id && msg.receiver_id === otherId) || (msg.receiver_id === user.id && msg.sender_id === otherId) || (isAdmin && (msg.sender_id === otherId || msg.receiver_id === otherId))) {
           setMessages(prev => [...prev, msg]);
           // Mark as read if we're the receiver
           if (msg.receiver_id === user.id) {
@@ -57,7 +59,7 @@ export function ProductChat({ isOpen, onClose, productId, productName, sellerId,
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [isOpen, user, productId]);
+  }, [isOpen, user, productId, otherId, isAdmin]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -71,14 +73,14 @@ export function ProductChat({ isOpen, onClose, productId, productName, sellerId,
         .from('messages')
         .select('*')
         .eq('product_id', productId)
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .or(isAdmin ? `sender_id.eq.${otherId},receiver_id.eq.${otherId}` : `sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
       setMessages((data || []) as Message[]);
 
       // Mark unread messages as read
-      const unread = (data || []).filter((m: any) => m.receiver_id === user.id && !m.is_read);
+      const unread = (data || []).filter((m: any) => (isAdmin ? m.sender_id === otherId : m.receiver_id === user.id) && !m.is_read);
       if (unread.length > 0) {
         await supabase.from('messages').update({ is_read: true }).in('id', unread.map((m: any) => m.id));
       }
@@ -93,7 +95,7 @@ export function ProductChat({ isOpen, onClose, productId, productName, sellerId,
     if (!newMessage.trim() || !user || isSending) return;
     setIsSending(true);
     try {
-      const receiverId = user.id === sellerId ? messages.find(m => m.sender_id !== user.id)?.sender_id || sellerId : sellerId;
+      const receiverId = otherId;
       const { error } = await supabase.from('messages').insert({
         sender_id: user.id,
         receiver_id: receiverId,
@@ -117,8 +119,8 @@ export function ProductChat({ isOpen, onClose, productId, productName, sellerId,
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border safe-area-top">
           <div className="min-w-0">
-            <h3 className="font-semibold text-foreground truncate">{sellerName}</h3>
-            <p className="text-xs text-muted-foreground truncate">Re: {productName}</p>
+            <h3 className="font-semibold text-foreground truncate">{isAdmin ? sellerName : 'EcoSwarm Support — Distribution & Inquiries'}</h3>
+            <p className="text-xs text-muted-foreground truncate">Product: {productName}</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-full bg-muted text-muted-foreground flex-shrink-0">
             <X className="w-5 h-5" />
@@ -138,7 +140,7 @@ export function ProductChat({ isOpen, onClose, productId, productName, sellerId,
             </div>
           ) : (
             messages.map((msg) => {
-              const isMine = msg.sender_id === user?.id;
+              const isMine = isAdmin ? msg.sender_id !== otherId : msg.sender_id === user?.id;
               return (
                 <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[75%] px-3.5 py-2.5 rounded-2xl text-sm ${
