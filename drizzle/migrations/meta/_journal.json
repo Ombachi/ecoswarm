@@ -29,6 +29,13 @@
       "when": 1791713568369,
       "tag": "0003_admin_owned_catalog_and_inbox",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791713581018,
+      "tag": "0004_transactions_coupon_fields",
+      "breakpoints": true
     }
   ]
 }
