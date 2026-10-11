@@ -4,7 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { ProductChat } from '@/components/ecomarket/ProductChat';
 import { useApp } from '@/context/AppContext';
 import { supabase } from '@/integrations/supabase/client';
-import { MessageCircle, Loader2, ChevronRight, Package } from 'lucide-react';
+import { MessageCircle, Loader2, ChevronRight, Package, Phone } from 'lucide-react';
 
 interface Conversation {
   productId: string;
@@ -14,10 +14,12 @@ interface Conversation {
   lastMessage: string;
   lastMessageAt: string;
   unreadCount: number;
+  otherUserPhone?: string;
 }
 
 export function InboxScreen() {
-  const { user } = useApp();
+  const { user, isAdmin } = useApp();
+  const [productFilter, setProductFilter] = useState('all');
   usePageMeta('Inbox', 'Manage your EcoSwarm messages and product inquiries.');
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +32,7 @@ export function InboxScreen() {
 
   useEffect(() => {
     if (user) loadConversations();
-  }, [user]);
+  }, [user, isAdmin]);
 
   const loadConversations = async () => {
     if (!user) return;
@@ -39,7 +41,7 @@ export function InboxScreen() {
       const { data: messages, error } = await supabase
         .from('messages')
         .select('*')
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .or(isAdmin ? 'product_id.not.is.null' : `sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -63,7 +65,7 @@ export function InboxScreen() {
           });
         }
         const conv = convMap.get(key)!;
-        if (msg.receiver_id === user.id && !msg.is_read) conv.unreadCount++;
+        if ((isAdmin ? msg.sender_id === otherId : msg.receiver_id === user.id) && !msg.is_read) conv.unreadCount++;
       }
 
       const pIds = [...new Set([...convMap.values()].map(c => c.productId).filter(Boolean))];
@@ -78,18 +80,24 @@ export function InboxScreen() {
 
       const userIds = [...new Set([...convMap.values()].map(c => c.otherUserId))];
       let userMap: Record<string, string> = {};
+      const phoneMap: Record<string, string> = {};
       if (userIds.length > 0) {
         const { data: profiles } = await supabase
           .from('public_profiles')
           .select('user_id, name')
           .in('user_id', userIds);
         if (profiles) profiles.forEach(p => { if (p.user_id && p.name) userMap[p.user_id] = p.name; });
+        if (isAdmin) {
+          const { data: priv } = await supabase.from('profiles').select('user_id, name, phone').in('user_id', userIds);
+          priv?.forEach(p => { phoneMap[p.user_id] = p.phone || ''; if (p.name) userMap[p.user_id] = p.name; });
+        }
       }
 
       const result = [...convMap.values()].map(c => ({
         ...c,
         productName: productMap[c.productId] || 'Product Chat',
         otherUserName: userMap[c.otherUserId] || 'User',
+        otherUserPhone: phoneMap[c.otherUserId] || '',
       }));
 
       result.sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
@@ -114,8 +122,14 @@ export function InboxScreen() {
   return (
     <AppLayout>
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
-        <h1 className="text-xl font-bold text-foreground">Inbox</h1>
-        <p className="text-xs text-muted-foreground">Your product conversations</p>
+        <h1 className="text-xl font-bold text-foreground">{isAdmin ? 'Buyer Inquiries' : 'Inbox'}</h1>
+        <p className="text-xs text-muted-foreground">{isAdmin ? 'All customer questions and delivery threads' : 'Your conversations with EcoSwarm Support'}</p>
+        {isAdmin && conversations.length > 0 && (
+          <select value={productFilter} onChange={(e) => setProductFilter(e.target.value)} className="mt-2 h-9 w-full max-w-xs rounded-md border border-input bg-background px-3 text-sm" aria-label="Filter by product">
+            <option value="all">All products</option>
+            {[...new Map(conversations.map(c => [c.productId, c.productName])).entries()].map(([id, name]) => <option key={id} value={id}>{name}</option>)}
+          </select>
+        )}
       </div>
 
       {isLoading ? (
@@ -130,7 +144,7 @@ export function InboxScreen() {
         </div>
       ) : (
         <div className="divide-y divide-border">
-          {conversations.map((conv) => (
+          {conversations.filter(c => productFilter === 'all' || c.productId === productFilter).map((conv) => (
             <button
               key={`${conv.productId}-${conv.otherUserId}`}
               onClick={() => setActiveChat({
@@ -146,11 +160,14 @@ export function InboxScreen() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className="font-semibold text-foreground text-sm truncate">{conv.otherUserName}</p>
+                  <p className="font-semibold text-foreground text-sm truncate">{isAdmin ? conv.otherUserName : 'EcoSwarm Support'}</p>
                   <span className="text-[10px] text-muted-foreground flex-shrink-0 ml-2">{formatTime(conv.lastMessageAt)}</span>
                 </div>
                 <p className="text-xs text-muted-foreground truncate">Re: {conv.productName}</p>
                 <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.lastMessage}</p>
+                {isAdmin && conv.otherUserPhone && (
+                  <a href={`tel:${conv.otherUserPhone}`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-xs text-primary mt-1"><Phone className="w-3 h-3" /> {conv.otherUserPhone}</a>
+                )}
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
                 {conv.unreadCount > 0 && (

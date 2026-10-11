@@ -22,6 +22,20 @@
       "when": 1791653129078,
       "tag": "0002_course_covers_and_learning_estimates",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791713568369,
+      "tag": "0003_admin_owned_catalog_and_inbox",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791713581018,
+      "tag": "0004_transactions_coupon_fields",
+      "breakpoints": true
     }
   ]
 }

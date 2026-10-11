@@ -1082,7 +1082,9 @@ export type Database = {
           bonus_points: number
           buyer_id: string
           cash_paid: number
+          coupon_id: string | null
           created_at: string
+          discount_amount: number
           id: string
           mpesa_checkout_id: string | null
           mpesa_receipt: string | null
@@ -1100,7 +1102,9 @@ export type Database = {
           bonus_points?: number
           buyer_id: string
           cash_paid?: number
+          coupon_id?: string | null
           created_at?: string
+          discount_amount?: number
           id?: string
           mpesa_checkout_id?: string | null
           mpesa_receipt?: string | null
@@ -1118,7 +1122,9 @@ export type Database = {
           bonus_points?: number
           buyer_id?: string
           cash_paid?: number
+          coupon_id?: string | null
           created_at?: string
+          discount_amount?: number
           id?: string
           mpesa_checkout_id?: string | null
           mpesa_receipt?: string | null

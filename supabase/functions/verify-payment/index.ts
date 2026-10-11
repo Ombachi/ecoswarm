@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { finalizePurchase, failPurchase } from "../_shared/finalizePurchase.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,7 +30,7 @@ serve(async (req) => {
       );
       if (authError || !user) throw new Error("Unauthorized");
 
-      const { transactionId } = body;
+      const { transactionId, action } = body;
       if (!transactionId) throw new Error("Missing transaction ID");
 
       // Fetch transaction
@@ -40,6 +41,14 @@ serve(async (req) => {
         .single();
       if (!tx) throw new Error("Transaction not found");
       if (tx.buyer_id !== user.id && tx.seller_id !== user.id) throw new Error("Unauthorized");
+      const json = (o: unknown) => new Response(JSON.stringify(o), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+      if (tx.status === "completed") return json({ success: true, status: "verified", receipt: tx.mpesa_receipt });
+      if (tx.status === "failed") return json({ success: false, status: "failed" });
+      if (action === "cancel" && tx.buyer_id === user.id) {
+        await failPurchase(supabase, tx.id, "timed out");
+        return json({ success: false, status: "failed" });
+      }
 
       // If we have a checkout ID and Daraja keys, query the status
       const consumerKey = Deno.env.get("MPESA_CONSUMER_KEY");
@@ -77,27 +86,18 @@ serve(async (req) => {
         });
         const queryData = await queryRes.json();
 
-        if (queryData.ResultCode === "0") {
-          await supabase
-            .from("transactions")
-            .update({
-              status: "completed",
-              verification_status: "verified",
-              verified_at: new Date().toISOString(),
-              mpesa_receipt: queryData.MpesaReceiptNumber || tx.mpesa_receipt,
-            })
-            .eq("id", transactionId);
-
-          return new Response(
-            JSON.stringify({ success: true, status: "verified" }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        } else {
-          return new Response(
-            JSON.stringify({ success: false, status: "pending", message: "Payment not yet confirmed" }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+        const code = String(queryData.ResultCode ?? "");
+        if (code === "0") {
+          await finalizePurchase(supabase, tx.id, queryData.MpesaReceiptNumber || tx.mpesa_receipt || null);
+          const { data: fresh } = await supabase.from("transactions").select("mpesa_receipt").eq("id", tx.id).single();
+          return json({ success: true, status: "verified", receipt: fresh?.mpesa_receipt });
         }
+        // Non-empty ResultCode other than 0 means Safaricom has a final failure (e.g. 1032 cancelled).
+        if (code && !queryData.errorCode) {
+          await failPurchase(supabase, tx.id, queryData.ResultDesc || "cancelled");
+          return json({ success: false, status: "failed", message: queryData.ResultDesc });
+        }
+        return json({ success: false, status: "pending" });
       }
 
       return new Response(
@@ -144,60 +144,12 @@ serve(async (req) => {
     }
 
     if (resultCode === 0) {
-      // Payment successful
-      const callbackMetadata = callback.CallbackMetadata?.Item || [];
-      const mpesaReceipt = callbackMetadata.find((i: any) => i.Name === "MpesaReceiptNumber")?.Value;
-
-      await supabase
-        .from("transactions")
-        .update({
-          status: "completed",
-          verification_status: "verified",
-          verified_at: new Date().toISOString(),
-          mpesa_receipt: mpesaReceipt || null,
-        })
-        .eq("id", tx.id);
-
-      // Notify buyer
-      await supabase.from("notifications").insert({
-        user_id: tx.buyer_id,
-        type: "payment",
-        title: "✅ Payment Verified!",
-        message: `Your M-Pesa payment of KSh ${Number(tx.cash_paid).toLocaleString()} for "${tx.product_name}" has been confirmed.`,
-        reference_id: tx.id,
-      });
+      const items = callback.CallbackMetadata?.Item || [];
+      // deno-lint-ignore no-explicit-any
+      const receipt = items.find((i: any) => i.Name === "MpesaReceiptNumber")?.Value || null;
+      await finalizePurchase(supabase, tx.id, receipt ? String(receipt) : null);
     } else {
-      // Payment failed — reverse points
-      await supabase
-        .from("transactions")
-        .update({
-          status: "failed",
-          verification_status: "failed",
-        })
-        .eq("id", tx.id);
-
-      // Refund EcoPoints
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("eco_points")
-        .eq("user_id", tx.buyer_id)
-        .single();
-
-      if (profile) {
-        await supabase
-          .from("profiles")
-          .update({ eco_points: (profile.eco_points || 0) + tx.points_used + tx.bonus_points })
-          .eq("user_id", tx.buyer_id);
-      }
-
-      // Notify buyer of failure
-      await supabase.from("notifications").insert({
-        user_id: tx.buyer_id,
-        type: "payment",
-        title: "❌ Payment Failed",
-        message: `Your M-Pesa payment for "${tx.product_name}" failed. Your ${tx.points_used} EcoPoints have been refunded.`,
-        reference_id: tx.id,
-      });
+      await failPurchase(supabase, tx.id, callback.ResultDesc || "cancelled");
     }
 
     // M-Pesa expects this exact response

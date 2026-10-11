@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { finalizePurchase } from "../_shared/finalizePurchase.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -77,6 +78,7 @@ serve(async (req) => {
       .select("*", { count: "exact", head: true })
       .eq("buyer_id", user.id)
       .eq("product_id", productId)
+      .eq("status", "completed")
       .gte("created_at", fiveMinAgo);
     if ((duplicateCount || 0) > 0) {
       throw new Error("Duplicate purchase detected. Please wait before buying this item again.");
@@ -105,7 +107,7 @@ serve(async (req) => {
     const actualPointsUsed = 0;
     const cashRemaining = amountDue;
 
-    let paymentMethod = "ecopoints";
+    let paymentMethod = "coupon";
     let mpesaReceipt: string | null = null;
     let mpesaCheckoutId: string | null = null;
     let status = "completed";
@@ -172,7 +174,7 @@ serve(async (req) => {
         }
 
         mpesaCheckoutId = stkData.CheckoutRequestID;
-        paymentMethod = "ecopoints_mpesa";
+        paymentMethod = "mpesa";
         status = "pending_payment"; // Will be completed by callback
         verificationStatus = "pending";
       } else {
@@ -181,96 +183,49 @@ serve(async (req) => {
       }
     }
 
-    // ── Platform Commission (5% for Premium sellers, 10% for standard) ──
-    const { data: premiumCheck } = await supabase
-      .from("subscriptions")
-      .select("id")
-      .eq("user_id", product.user_id)
-      .eq("plan", "premium")
-      .eq("status", "active")
-      .gt("expires_at", new Date().toISOString())
-      .maybeSingle();
+    // All sales and deliveries are handled by the EcoSwarm admin team.
+    const { data: adminRow } = await supabase
+      .from("user_roles").select("user_id").eq("role", "admin").order("created_at").limit(1).maybeSingle();
+    const sellerId = adminRow?.user_id || product.user_id;
 
-    const COMMISSION_RATE = premiumCheck ? 0.05 : 0.10;
-    const commissionAmount = Math.round(totalPrice * COMMISSION_RATE * 100) / 100;
-    const sellerPayout = totalPrice - commissionAmount;
-
-    const bonusPoints = 0;
-
-    // Create transaction record
+    // Create a pending order only. Fulfilment runs once M-Pesa confirms payment.
     const { data: transaction, error: txErr } = await supabase
       .from("transactions")
       .insert({
         buyer_id: user.id,
-        seller_id: product.user_id,
+        seller_id: sellerId,
         product_id: productId,
         product_name: product.product_name,
-        points_used: actualPointsUsed,
+        points_used: 0,
         cash_paid: cashRemaining,
         total_price: totalPrice,
-        bonus_points: bonusPoints,
+        bonus_points: 0,
         status,
         payment_method: paymentMethod,
         mpesa_receipt: mpesaReceipt,
         mpesa_checkout_id: mpesaCheckoutId,
         verification_status: verificationStatus,
-        verified_at: verificationStatus === "verified" ? new Date().toISOString() : null,
+        coupon_id: couponId,
+        discount_amount: discountAmount,
       })
       .select()
       .single();
-
     if (txErr) throw txErr;
 
-    // ── Record coupon redemption ──
-    if (couponId) {
-      await supabase.from("coupon_redemptions").insert({
-        coupon_id: couponId,
-        user_id: user.id,
-        product_id: productId,
-        discount_amount: discountAmount,
-      });
-      const { data: couponRow } = await supabase
-        .from("coupons").select("times_used").eq("id", couponId).single();
-      await supabase.from("coupons")
-        .update({ times_used: (couponRow?.times_used || 0) + 1 })
-        .eq("id", couponId);
+    // Fully discounted orders (no cash due) are confirmed immediately.
+    if (status === "completed") {
+      await supabase.from("transactions").update({ status: "pending_payment" }).eq("id", transaction.id);
+      await finalizePurchase(supabase, transaction.id, null);
     }
-
-    // ── Record Platform Commission ──
-    await supabase.from("platform_commissions").insert({
-      transaction_id: transaction.id,
-      seller_id: product.user_id,
-      buyer_id: user.id,
-      sale_amount: totalPrice,
-      commission_amount: commissionAmount,
-      commission_rate: COMMISSION_RATE,
-    });
-
-    // Notify seller (show net payout after commission)
-    await supabase.from("notifications").insert({
-      user_id: product.user_id,
-      type: "sale",
-      title: "🎉 New Sale!",
-      message: `${buyerProfile.name} purchased "${product.product_name}" for ${actualPointsUsed > 0 ? `${actualPointsUsed} EcoPoints` : ""}${cashRemaining > 0 ? `${actualPointsUsed > 0 ? " + " : ""}KSh ${cashRemaining}` : ""} (You earn KSh ${sellerPayout.toLocaleString()})`,
-      reference_id: transaction.id,
-    });
-
-    // Award CO2 savings
-    await supabase.rpc("award_co2", { p_user_id: user.id, p_action_type: "ecomarket_purchase" });
-    await supabase.rpc("award_co2", { p_user_id: product.user_id, p_action_type: "ecomarket_sale" });
-
-    // Create auto chat thread
-    await supabase.from("messages").insert({
-      sender_id: user.id,
-      receiver_id: product.user_id,
-      product_id: productId,
-      content: `🎉 I just purchased "${product.product_name}"! Let's arrange delivery.`,
-    });
+    const bonusPoints = 0;
+    const commissionAmount = 0;
+    const sellerPayout = 0;
 
     return new Response(
       JSON.stringify({
         success: true,
         transaction,
+        transactionId: transaction.id,
         newPoints: 0,
         bonusPoints,
         pointsUsed: actualPointsUsed,

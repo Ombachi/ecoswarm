@@ -1,0 +1,1 @@
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS coupon_id uuid, ADD COLUMN IF NOT EXISTS discount_amount numeric NOT NULL DEFAULT 0;
