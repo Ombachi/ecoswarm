@@ -7,7 +7,7 @@ import { CreateProductModal } from '@/components/ecomarket/CreateProductModal';
 import { ProductChat } from '@/components/ecomarket/ProductChat';
 import { AdvancedMediaViewer } from '@/components/common/AdvancedMediaViewer';
 import { usePurchase } from '@/hooks/usePurchase';
-import { Confetti } from '@/components/common/Confetti';
+import { PaymentWaitingModal } from '@/components/ecomarket/PaymentWaitingModal';
 import { toast } from 'sonner';
 import {
   Search, Plus, Phone, Loader2, X, ShoppingBag, ChevronDown, ChevronLeft, ChevronRight, Bookmark, BookmarkCheck, MessageCircle,
@@ -99,9 +99,7 @@ export function EcoMarketScreen() {
   // Buy flow state
   const [buyProduct, setBuyProduct] = useState<Product | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
-  const [purchaseResult, setPurchaseResult] = useState<{ bonusPoints: number; pointsUsed: number; cashPaid: number; productName: string } | null>(null);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [pendingPayment, setPendingPayment] = useState<{ transactionId: string; phone: string; productName: string; amount: number; product: Product } | null>(null);
 
   // Deep link from landing page: /ecomarket?buy=<productId> opens checkout
   useEffect(() => {
@@ -447,10 +445,7 @@ export function EcoMarketScreen() {
     const result = await processPurchase(buyProduct.id, 0, phoneNumber || undefined, couponCode.trim() || undefined);
     if (result) {
       setShowConfirmModal(false);
-      setPurchaseResult({ ...result, productName: buyProduct.product_name });
-      setShowSuccessScreen(true);
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 4000);
+      setPendingPayment({ transactionId: result.transactionId, phone: phoneNumber.trim(), productName: buyProduct.product_name, amount: result.cashPaid, product: buyProduct });
     }
   };
   // Sub-views removed — now standalone pages at /inbox, /purchases, /earnings
@@ -473,7 +468,6 @@ export function EcoMarketScreen() {
 
   return (
     <AppLayout>
-      {showConfetti && <Confetti />}
 
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
@@ -720,10 +714,10 @@ export function EcoMarketScreen() {
                                 id: product.id,
                                 name: product.product_name,
                                 sellerId: product.user_id,
-                                sellerName: product.org_name,
+                                sellerName: 'EcoSwarm Support',
                               })}
                               className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-foreground text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all"
-                              aria-label={`Message ${product.org_name}`}
+                              aria-label="Message EcoSwarm Support"
                             >
                               <MessageCircle className="w-4 h-4" />
                             </button>
@@ -732,7 +726,7 @@ export function EcoMarketScreen() {
                             href={`tel:${product.contact_phone}`}
                             onClick={() => trackInteraction(product.id, 'click')}
                             className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted text-foreground text-sm font-medium hover:bg-primary/10 transition-all"
-                            aria-label={`Call ${product.org_name}`}
+                            aria-label="Call EcoSwarm Support"
                           >
                             <Phone className="w-4 h-4" aria-hidden="true" />
                           </a>
@@ -836,36 +830,17 @@ export function EcoMarketScreen() {
         </div>
       )}
 
-      {/* ── Success Screen ── */}
-      {showSuccessScreen && purchaseResult && (
-        <div className="fixed inset-0 z-[70] bg-background flex flex-col items-center justify-center p-6 text-center">
-          <div className="animate-slide-up space-y-6 max-w-sm">
-            <div className="w-20 h-20 rounded-full eco-gradient-bg flex items-center justify-center mx-auto">
-              <Sparkles className="w-10 h-10 text-white" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">Purchase Complete! 🎉</h2>
-              <p className="text-muted-foreground">You've earned <span className="font-bold text-primary">+{purchaseResult.bonusPoints} bonus EcoPoints</span></p>
-            </div>
-            <div className="bg-muted/50 rounded-xl p-4 space-y-2 text-sm text-left">
-              <p className="font-semibold text-foreground">{purchaseResult.productName}</p>
-              {purchaseResult.pointsUsed > 0 && <p className="text-primary flex items-center gap-1"><Leaf className="w-3.5 h-3.5" /> {purchaseResult.pointsUsed} EcoPoints redeemed</p>}
-              {purchaseResult.cashPaid > 0 && <p className="text-muted-foreground">KSh {purchaseResult.cashPaid.toLocaleString()} paid via M-Pesa</p>}
-            </div>
-            <div className="flex gap-3 w-full">
-              <button
-                onClick={() => {
-                  setShowSuccessScreen(false);
-                  setPurchaseResult(null);
-                  navigate('/purchases');
-                }}
-                className="flex-1 py-3 rounded-xl eco-gradient-bg text-white font-bold text-sm"
-              >
-                View Purchases
-              </button>
-            </div>
-          </div>
-        </div>
+      {pendingPayment && (
+        <PaymentWaitingModal
+          key={pendingPayment.transactionId}
+          transactionId={pendingPayment.transactionId}
+          phone={pendingPayment.phone}
+          productName={pendingPayment.productName}
+          amount={pendingPayment.amount}
+          onClose={() => setPendingPayment(null)}
+          onRetry={() => { const p = pendingPayment.product; setPendingPayment(null); setBuyProduct(p); setShowConfirmModal(true); }}
+          onViewPurchases={() => { setPendingPayment(null); navigate('/purchases'); }}
+        />
       )}
 
       <CreateProductModal

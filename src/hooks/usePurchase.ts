@@ -3,13 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useApp } from '@/context/AppContext';
 import { toast } from 'sonner';
 
-interface PurchaseResult {
+export interface PurchaseResult {
   success: boolean;
-  bonusPoints: number;
-  pointsUsed: number;
+  transactionId: string;
   cashPaid: number;
-  newPoints: number;
-  verificationStatus: string;
   isPending: boolean;
 }
 
@@ -19,7 +16,7 @@ export function usePurchase() {
 
   const processPurchase = async (
     productId: string,
-    pointsToUse: number,
+    _pointsToUse: number,
     phoneNumber?: string,
     couponCode?: string
   ): Promise<PurchaseResult | null> => {
@@ -27,22 +24,15 @@ export function usePurchase() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
-
       const { data, error } = await supabase.functions.invoke('process-purchase', {
-        body: { productId, pointsToUse, phoneNumber, couponCode },
+        body: { productId, pointsToUse: 0, phoneNumber, couponCode },
       });
-
       if (error) throw error;
       if (!data.success) throw new Error(data.error || 'Purchase failed');
-
-      await refreshUser();
       return {
         success: true,
-        bonusPoints: data.bonusPoints,
-        pointsUsed: data.pointsUsed,
+        transactionId: data.transactionId || data.transaction?.id,
         cashPaid: data.cashPaid,
-        newPoints: data.newPoints,
-        verificationStatus: data.verificationStatus || 'verified',
         isPending: data.isPending || false,
       };
     } catch (err: any) {
@@ -53,16 +43,17 @@ export function usePurchase() {
     }
   };
 
-  const verifyPayment = async (transactionId: string) => {
+  /** Returns { status: 'verified' | 'pending' | 'failed', receipt? } */
+  const verifyPayment = async (transactionId: string, action?: 'cancel') => {
     try {
       const { data, error } = await supabase.functions.invoke('verify-payment', {
-        body: { transactionId },
+        body: { transactionId, action },
       });
       if (error) throw error;
-      return data;
-    } catch (err: any) {
-      toast.error(err.message || 'Verification failed');
-      return null;
+      if (data?.status === 'verified') await refreshUser();
+      return data as { status: string; receipt?: string };
+    } catch {
+      return { status: 'pending' };
     }
   };
 
