@@ -8,3 +8,12 @@
 - [ ] Standardize course categories and link filters to URLs
 - [ ] Automatically estimate course duration with admin overrides
 - [ ] Verify public catalogs, homepage, and course estimate behavior
+
+## Blocked: backend paused (Cloud credits exhausted) — Oct 30 2026
+- [ ] Server-side lesson/module progress, cross-device resume, accurate %
+- [ ] Quiz results: score, pass mark, answer review/explanations, retry; certificate only on pass; "Quiz being prepared" label + block certificate-ready publish without questions
+- [ ] Inventory: stock qty, low-stock threshold, out-of-stock, checkout stock validation
+- [ ] Delivery details (name, phone, county, town/area, landmark, option) + delivery cost before STK Push; immutable order totals
+- [ ] Post-certificate next steps: next course, EcoMerch product, shareable credential
+- [ ] Admin-only products/orders RLS; reassign product ownership to admin; official dispatch phone; public browse, sign-up to checkout
+- [ ] Deploy pending payment functions + test checkout
