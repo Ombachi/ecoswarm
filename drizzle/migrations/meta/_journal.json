@@ -43,6 +43,13 @@
       "when": 1795087260199,
       "tag": "0005_harden_stock_co2_counts_sponsorships",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795088120809,
+      "tag": "0006_hide_product_phone_from_visitors",
+      "breakpoints": true
     }
   ]
 }
