@@ -47,7 +47,22 @@ serve(async (req) => {
     if (!payout.mpesa_phone) throw new Error("No M-Pesa phone number on payout");
 
     const amount = Number(payout.amount);
-    if (amount <= 0) throw new Error("Invalid payout amount");
+    if (!Number.isFinite(amount) || amount <= 0) throw new Error("Invalid payout amount");
+
+    // Re-check the requested amount against the seller's verified completed sales
+    const [{ data: sales }, { data: otherPayouts }] = await Promise.all([
+      supabase.from("transactions").select("total_price")
+        .eq("seller_id", payout.seller_id).eq("status", "completed"),
+      supabase.from("seller_payouts").select("amount, status")
+        .eq("seller_id", payout.seller_id).neq("id", payout.id),
+    ]);
+    const revenue = (sales ?? []).reduce((s, t) => s + Number(t.total_price || 0), 0);
+    const committed = (otherPayouts ?? [])
+      .filter((p) => !["failed", "rejected"].includes(p.status))
+      .reduce((s, p) => s + Number(p.amount || 0), 0);
+    if (amount > revenue - committed) {
+      throw new Error("Payout exceeds the seller's available balance");
+    }
 
     // ── M-Pesa B2C Transfer ──
     const consumerKey = Deno.env.get("MPESA_CONSUMER_KEY");

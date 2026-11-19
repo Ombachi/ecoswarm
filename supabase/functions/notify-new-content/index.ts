@@ -85,7 +85,24 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    if (body?.image_url && !/^https:\/\//.test(body.image_url)) body.image_url = undefined;
+    if (body?.image_url) {
+      try {
+        const img = new URL(body.image_url);
+        const own = new URL(Deno.env.get("SUPABASE_URL") ?? "");
+        if (img.protocol !== "https:" || img.host !== own.host || !img.pathname.startsWith("/storage/v1/object/public/")) {
+          body.image_url = undefined;
+        }
+      } catch {
+        body.image_url = undefined;
+      }
+    }
+    if (typeof body?.title !== "string" || body.title.trim().length === 0 || body.title.length > 120 ||
+        (body.description !== undefined && (typeof body.description !== "string" || body.description.length > 400))) {
+      return new Response(JSON.stringify({ error: "Invalid title or description" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     if (!body?.type || !body?.title) {
       return new Response(JSON.stringify({ error: "type and title are required" }), {
         status: 400,

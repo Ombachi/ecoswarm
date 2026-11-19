@@ -120,8 +120,9 @@ serve(async (req) => {
       // Check if real Daraja credentials exist
       const consumerKey = Deno.env.get("MPESA_CONSUMER_KEY");
       const consumerSecret = Deno.env.get("MPESA_CONSUMER_SECRET");
-      const shortCode = Deno.env.get("MPESA_SHORTCODE") || "174379";
-      const passkey = Deno.env.get("MPESA_PASSKEY") || "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
+      const shortCode = Deno.env.get("MPESA_SHORTCODE");
+      const passkey = Deno.env.get("MPESA_PASSKEY");
+      if (!shortCode || !passkey) throw new Error("M-Pesa payments are temporarily unavailable. Please try again later.");
       const callbackToken = Deno.env.get("MPESA_CALLBACK_TOKEN");
       if (!callbackToken) throw new Error("M-Pesa payments are temporarily unavailable. Please try again later.");
       const callbackBase = Deno.env.get("MPESA_CALLBACK_URL") || `${supabaseUrl}/functions/v1/verify-payment`;

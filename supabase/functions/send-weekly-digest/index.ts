@@ -192,14 +192,15 @@ serve(async (req) => {
           sentCount++;
         } else {
           errorCount++;
-          console.error(`Failed to send to ${recipient.email}:`, await res.text());
+          console.error("Weekly digest send failed with status", res.status);
+          await res.text();
         }
 
         // Rate limit: small delay between sends
         await new Promise((r) => setTimeout(r, 100));
       } catch (e) {
         errorCount++;
-        console.error(`Error sending to ${recipient.email}:`, e);
+        console.error("Weekly digest send error:", e instanceof Error ? e.message : "unknown error");
       }
     }
 

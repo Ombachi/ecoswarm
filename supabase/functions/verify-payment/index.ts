@@ -66,8 +66,9 @@ serve(async (req) => {
         });
         const tokenData = await tokenRes.json();
 
-        const shortCode = Deno.env.get("MPESA_SHORTCODE") || "174379";
-        const passkey = Deno.env.get("MPESA_PASSKEY") || "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
+        const shortCode = Deno.env.get("MPESA_SHORTCODE");
+        const passkey = Deno.env.get("MPESA_PASSKEY");
+        if (!shortCode || !passkey) throw new Error("M-Pesa verification is not configured");
         const timestamp = new Date().toISOString().replace(/[-T:.Z]/g, "").slice(0, 14);
         const password = btoa(`${shortCode}${passkey}${timestamp}`);
 

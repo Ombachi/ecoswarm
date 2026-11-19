@@ -96,6 +96,21 @@ async function createVapidJwt(audience: string, subject: string, privateKeyBase6
   return `${unsignedToken}.${encodedSignature}`;
 }
 
+const PUSH_HOST_SUFFIXES = [
+  "fcm.googleapis.com",
+  "android.googleapis.com",
+  "updates.push.services.mozilla.com",
+  "push.services.mozilla.com",
+  "notify.windows.com",
+  "push.apple.com",
+];
+
+function isAllowedPushEndpoint(url: URL): boolean {
+  if (url.protocol !== "https:" || url.port) return false;
+  const host = url.hostname.toLowerCase();
+  return PUSH_HOST_SUFFIXES.some((s) => host === s || host.endsWith(`.${s}`));
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -213,6 +228,10 @@ serve(async (req) => {
         
         // Get the audience (origin) from the endpoint
         const endpointUrl = new URL(sub.endpoint);
+        if (!isAllowedPushEndpoint(endpointUrl)) {
+          await supabase.from("push_subscriptions").delete().eq("id", sub.id);
+          continue;
+        }
         const audience = endpointUrl.origin;
         
         // Create VAPID JWT
