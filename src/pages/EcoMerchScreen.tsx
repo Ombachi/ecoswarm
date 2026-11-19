@@ -106,16 +106,6 @@ export function EcoMerchScreen() {
 
     setIsPlacing(true);
     try {
-      const { data: stockOk, error: stockErr } = await supabase.rpc('decrement_merch_stock', {
-        p_merch_id: checkoutProduct.id,
-        p_quantity: quantity,
-      });
-      if (stockErr) throw stockErr;
-      if (!stockOk) {
-        toast.error('Sorry, this item just went out of stock');
-        return;
-      }
-
       const { error } = await supabase.from('merch_orders').insert({
         user_id: user.id,
         merch_id: checkoutProduct.id,
@@ -125,7 +115,10 @@ export function EcoMerchScreen() {
         shipping_address: `${fullName}, ${address}, ${city}`,
         phone: cleaned,
       } as any);
-      if (error) throw error;
+      if (error) {
+        if (/out of stock/i.test(error.message)) { toast.error('Sorry, this item just went out of stock'); return; }
+        throw error;
+      }
 
       setShowConfetti(true);
       toast.success('Order placed! Check your phone to complete the M-Pesa payment.');
